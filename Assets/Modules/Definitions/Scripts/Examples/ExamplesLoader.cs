@@ -1,9 +1,9 @@
 using Modules.Definitions.Scripts.Core;
 using Modules.Definitions.Scripts.Defs;
+using Modules.Utils.Scripts.Security;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using UnityEngine;
 
 namespace Modules.Definitions.Scripts.Examples
@@ -45,7 +45,7 @@ namespace Modules.Definitions.Scripts.Examples
 
 
 
-
+            //===========================================================================================
 
 
 
@@ -64,21 +64,13 @@ namespace Modules.Definitions.Scripts.Examples
 
             // œ–»Ã≈– œ–Œ—“Œ√Œ ÿ»‘–Œ¬¿Õ»ﬂ / ƒ≈ÿ»‘–Œ¬¿Õ»ﬂ
             var key = "31415";
-            var eSave = XOREncrypt(save, key);
+            var eSave = Crypto.XorEncryptDecrypt(save, key);
             filePath = Path.Combine(Application.persistentDataPath, $"{db.Id}_1.json");
             File.WriteAllText(filePath, eSave);
 
-            eSave = XOREncrypt(eSave, key);
+            eSave = Crypto.XorEncryptDecrypt(eSave, key);
             filePath = Path.Combine(Application.persistentDataPath, $"{db.Id}_2.json");
             File.WriteAllText(filePath, eSave);
-        }
-
-        public static string XOREncrypt(string data, string key)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < data.Length; i++)
-                sb.Append((char)(data[i] ^ key[i % key.Length]));
-            return sb.ToString();
         }
     }
 }
