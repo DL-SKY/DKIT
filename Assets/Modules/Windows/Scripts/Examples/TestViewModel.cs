@@ -13,7 +13,7 @@ namespace Modules.Windows.Scripts.Examples
         protected override Options CreateOptions()
         {
             //return new Options();
-            return new Options(canCloseOnEsc: true, sortingLayer: SortingOrderLayer.COMMON);
+            return new Options(canCloseOnEsc: true, hideInHistory: false, sortingLayer: SortingOrderLayer.COMMON);
         }
 
         public override void Dispose()

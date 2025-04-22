@@ -26,12 +26,13 @@ namespace Modules.Windows.Scripts.Managers
             var prefab = Resources.Load<V>(viewPath);
             var instance = Instantiate<V>(prefab, _viewsHolder);
             instance.Init(model);
-            instance.OnViewDestroy += OnViewDestroyHandler;
+            instance.OnViewDestroy += OnViewDestroyHandler;            
 
+            if (!model.Options.HideInHistory)
+                _history.Add(instance.Handle);
             _views.Add(instance.Handle, instance);
-            _history.Add(instance.Handle);
 
-            instance.SetSortingOrder(_history.Count + (int)instance.Options.SortingLayer);
+            instance.SetSortingOrder(_views.Count + (int)instance.Options.SortingLayer);
             instance.Show();
 
             return instance;
