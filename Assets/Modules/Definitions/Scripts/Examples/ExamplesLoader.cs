@@ -23,6 +23,13 @@ namespace Modules.Definitions.Scripts.Examples
     {
         void Start()
         {
+            // test logger
+            //var logger = new Debug.Scripts.Logger.Logger();
+            //--------------
+
+
+
+
             //v1
             var json = Resources.Load<TextAsset>("Examples/ExampleWeapons");
             UnityEngine.Debug.LogError($"json: {json}");
@@ -43,8 +50,6 @@ namespace Modules.Definitions.Scripts.Examples
                 UnityEngine.Debug.LogError($"        [v2] {item.Key}: {item.Value.Damage}/{item.Value.Durability}");
 
 
-
-
             //===========================================================================================
 
 
@@ -61,7 +66,6 @@ namespace Modules.Definitions.Scripts.Examples
 
 
 
-
             // œ–»Ã≈– œ–Œ—“Œ√Œ ÿ»‘–Œ¬¿Õ»ﬂ / ƒ≈ÿ»‘–Œ¬¿Õ»ﬂ
             var key = "31415";
             var eSave = Crypto.XorEncryptDecrypt(save, key);
@@ -71,6 +75,8 @@ namespace Modules.Definitions.Scripts.Examples
             eSave = Crypto.XorEncryptDecrypt(eSave, key);
             filePath = Path.Combine(Application.persistentDataPath, $"{db.Id}_2.json");
             File.WriteAllText(filePath, eSave);
+
+            //logger.Dispose();
         }
     }
 }
