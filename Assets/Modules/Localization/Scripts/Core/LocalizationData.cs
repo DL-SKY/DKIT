@@ -5,7 +5,7 @@ namespace Modules.Localization.Scripts.Core
     public class LocalizationData
     {
         public int Version;
-        public string Decription;
+        public string Description;
         public Dictionary<string, string> Locals;
     }
 }

@@ -12,7 +12,7 @@ namespace Modules.Localization.Scripts.Core
 
         public int Version => _data?.Version ?? -1;
 
-        public string Description => _data?.Decription ?? string.Empty;
+        public string Description => _data?.Description ?? string.Empty;
 
         protected LocalizationData _data;
 
