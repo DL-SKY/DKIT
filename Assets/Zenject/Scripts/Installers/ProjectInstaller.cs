@@ -19,7 +19,7 @@ namespace Zenject.Scripts.Installers
 
             //Core classes
             Container.Bind<StateManager>().AsSingle().NonLazy();
-            Container.Bind<AdventuresManager>().AsSingle().NonLazy();
+            //Container.Bind<AdventuresManager>().AsSingle().NonLazy();
             //...
 
             //Core prefabs
