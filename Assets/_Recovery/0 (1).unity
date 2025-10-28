@@ -317,7 +317,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cac92b790e68f2c449559c3ed077f757, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Modules.Initializer.Scripts.Implementation.Initializer
+  m_EditorClassIdentifier: Assembly-CSharp::Initializer
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

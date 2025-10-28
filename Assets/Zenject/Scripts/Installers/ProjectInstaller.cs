@@ -1,8 +1,10 @@
 using Assets.Modules.Utils.Scripts.Components;
 using Modules.RPG.Scripts.Adventure;
 using Modules.RPG.Scripts.State;
+using Modules.Windows.Scripts.Base;
 using Modules.Windows.Scripts.Managers;
 using UnityEngine;
+using Zenject.Scripts.Factories;
 
 namespace Zenject.Scripts.Installers
 {
@@ -18,7 +20,7 @@ namespace Zenject.Scripts.Installers
             //Container.BindInterfacesAndSelfTo<SortingOrderManager>().AsSingle().NonLazy();
 
             //Core classes
-            Container.Bind<StateManager>().AsSingle().NonLazy();
+            //Container.Bind<StateManager>().AsSingle().NonLazy();
             //Container.Bind<AdventuresManager>().AsSingle().NonLazy();
             //...
 
@@ -28,6 +30,7 @@ namespace Zenject.Scripts.Installers
             //...
 
             //Factories
+            Container.Bind<ViewModelFactory>().AsSingle();
             //...
         }
     }
