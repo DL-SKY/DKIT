@@ -4,8 +4,8 @@ namespace Modules.Initializer.Scripts.Tasks
 {
     public class LoadSceneTask : TaskBase
     {
-        private string _sceneName;
-        private LoadSceneMode _mode;
+        private readonly string _sceneName;
+        private readonly LoadSceneMode _mode;
 
         public LoadSceneTask(string sceneName, LoadSceneMode mode, int weight) : base(weight)
         {

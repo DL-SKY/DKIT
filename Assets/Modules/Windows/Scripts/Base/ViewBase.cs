@@ -36,12 +36,14 @@ namespace Modules.Windows.Scripts.Base
             _viewModel.SetHandle(Handle);
 
             Subscribe();
+            InitImplementation();
 
             _isInited = true;
         }
 
         protected abstract void Subscribe();
         protected abstract void Unsubscribe();
+        protected abstract void InitImplementation();
 
         public void SetSortingOrder(int value)
         {

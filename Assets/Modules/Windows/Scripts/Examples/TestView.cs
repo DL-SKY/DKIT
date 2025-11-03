@@ -42,5 +42,10 @@ namespace Modules.Windows.Scripts.Examples
         {
             //throw new System.NotImplementedException();
         }
+
+        protected override void InitImplementation()
+        {
+            //throw new System.NotImplementedException();
+        }
     }
 }

@@ -2,10 +2,8 @@
 
 namespace Modules.Initializer.Scripts.Core
 {
-    public interface IInitializer
+    public interface IInitializer : IProgressable
     {
-        event Action<int, int> OnProgressChange;
-
         void Run(Action completedCallback, Action<int> failedCallback);
     }
 }

@@ -6,6 +6,9 @@ namespace Modules.Initializer.Scripts.Core
 {
     public sealed class InitializeTasker : IInitializer, IDisposable
     {
+        /// <summary>
+        /// Action(current, max)
+        /// </summary>
         public event Action<int, int> OnProgressChange;
 
         private List<TaskBase> _tasks;

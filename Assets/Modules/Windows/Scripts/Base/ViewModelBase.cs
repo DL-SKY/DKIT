@@ -10,6 +10,7 @@ namespace Modules.Windows.Scripts.Base
 
         public readonly Options Options;
 
+        public int ViewHandle => _viewHandle;
         protected int _viewHandle;
 
         protected ViewModelBase()
@@ -20,6 +21,16 @@ namespace Modules.Windows.Scripts.Base
         protected virtual Options CreateOptions()
         {
             return new Options();
+        }
+
+        protected void SendOnChange()
+        {
+            OnChange?.Invoke();
+        }
+
+        protected void SendOnChange(string tag)
+        {
+            OnChangeCustom?.Invoke(tag);
         }
 
         public void SetHandle(int handle)
