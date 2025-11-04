@@ -4,7 +4,7 @@ namespace Zenject.Scripts.Factories
 {
     public class ViewModelFactory
     {
-        [Inject] private DiContainer _container;
+        [Inject] private readonly DiContainer _container;
 
         //var viewModel = _viewModelFactory.Create<AccountBonusInfoViewModel>();
         //var viewModel = _factory.Create<AccountPanelViewModel>(new object[] { _currentSocial, _context.State.Player.Id, !_isShowCaution });

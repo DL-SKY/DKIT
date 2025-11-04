@@ -1,7 +1,5 @@
 using Assets.Modules.Utils.Scripts.Components;
-using Modules.RPG.Scripts.Adventure;
-using Modules.RPG.Scripts.State;
-using Modules.Windows.Scripts.Base;
+using Modules.Definitions.Scripts.Implementation.Defs;
 using Modules.Windows.Scripts.Managers;
 using UnityEngine;
 using Zenject.Scripts.Factories;
@@ -22,6 +20,7 @@ namespace Zenject.Scripts.Installers
             //Core classes
             //Container.Bind<StateManager>().AsSingle().NonLazy();
             //Container.Bind<AdventuresManager>().AsSingle().NonLazy();
+            Container.Bind<DefinitionsManager>().AsSingle().NonLazy();
             //...
 
             //Core prefabs
