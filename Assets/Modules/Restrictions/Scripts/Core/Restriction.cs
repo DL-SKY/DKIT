@@ -8,5 +8,7 @@ namespace Modules.Restrictions.Scripts.Core
 
         public List<string> StringValues;
         public List<int> IntValues;
+        public List<long> LongValues;
+        public CompareType CompareOptions;
     }
 }
