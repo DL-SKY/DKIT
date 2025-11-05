@@ -1,35 +1,50 @@
 ﻿using Modules.Definitions.Scripts.Core;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
+using Modules.Utils.Scripts.Components;
+using Modules.Utils.Scripts.UnityImplementation;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using Zenject;
 
 namespace Modules.Definitions.Scripts.Implementation.Defs
 {
     public class DefinitionsManager
     {
-        public Dictionary<string, GameZoneDef> GameZones;
+        [Inject] private readonly CoroutineHolder _coroutineHolder;
+
+        public Dictionary<string, GameZoneDef> GameZones;        
 
         private readonly Loader _loader;
+        private readonly SimpleAsyncOperation _asyncOperation;
 
 
         public DefinitionsManager()
         {
             _loader = new Loader();
+            _asyncOperation = new SimpleAsyncOperation();
         }
 
 
-        public void Init()
+        public SimpleAsyncOperation InitAsync()
         {
-            //...
-
-            LoadAll();
-
-            UnityEngine.Debug.LogError($"Init done! GameZones: {GameZones.Count}");
-
+            _coroutineHolder.StartCoroutine(LoadAll());
+            return _asyncOperation;
         }
 
-        private void LoadAll()
+        private IEnumerator LoadAll()
         {
-            LoadGameZones();
+            var loadMethods = new List<Action>{
+                LoadGameZones,
+            };            
+
+            foreach (var method in loadMethods)
+            {
+                method.Invoke();
+                yield return null;
+            }
+
+            _asyncOperation.SetCompleted();
         }
 
         private void LoadGameZones()

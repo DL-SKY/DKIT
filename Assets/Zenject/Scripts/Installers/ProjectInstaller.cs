@@ -1,5 +1,5 @@
-using Assets.Modules.Utils.Scripts.Components;
 using Modules.Definitions.Scripts.Implementation.Defs;
+using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Managers;
 using UnityEngine;
 using Zenject.Scripts.Factories;
@@ -12,6 +12,11 @@ namespace Zenject.Scripts.Installers
 
         public override void InstallBindings()
         {
+            //Utils
+            Container.Bind<Updater>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<CoroutineHolder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            //...
+
             //Container.Bind<GuiManager>().FromComponentInNewPrefab(_guiManager).AsSingle().NonLazy();
             //Container.Bind<EventSystem>().FromComponentInNewPrefab(_eventSystem).AsSingle().NonLazy();
             //Container.Bind<IViewAnimation>().To<ViewAnimationWithAnimator>().AsTransient();
@@ -21,11 +26,11 @@ namespace Zenject.Scripts.Installers
             //Container.Bind<StateManager>().AsSingle().NonLazy();
             //Container.Bind<AdventuresManager>().AsSingle().NonLazy();
             Container.Bind<DefinitionsManager>().AsSingle().NonLazy();
+            //LOCALIZATION!!!
             //...
 
             //Core prefabs
-            Container.Bind<WindowsManager>().FromComponentInNewPrefab(_windowsManagerPrefab).AsSingle().NonLazy();
-            Container.Bind<Updater>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<WindowsManager>().FromComponentInNewPrefab(_windowsManagerPrefab).AsSingle().NonLazy();            
             //...
 
             //Factories

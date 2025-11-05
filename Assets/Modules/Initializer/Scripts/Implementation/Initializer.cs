@@ -1,7 +1,8 @@
-using Assets.Modules.Utils.Scripts.Components;
 using Modules.Initializer.Scripts.Core;
 using Modules.Initializer.Scripts.Implementation.Tasks.Core;
 using Modules.Initializer.Scripts.Tasks;
+using Modules.Utils.Scripts.Components;
+using Modules.Windows.Scripts.Base;
 using Modules.Windows.Scripts.Implementation.Loading;
 using Modules.Windows.Scripts.Managers;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
+using Zenject.Scripts.Extention;
 using Zenject.Scripts.Factories;
 using Zenject.Scripts.Installers;
 
@@ -18,6 +20,7 @@ namespace Modules.Initializer.Scripts.Implementation
     {
         private WindowsManager _windowsManager;
         private Updater _updater;
+        private CoroutineHolder _coroutineHolder;
         private ViewModelFactory _viewModelFactory;
 
         private void Start()
@@ -25,6 +28,7 @@ namespace Modules.Initializer.Scripts.Implementation
             var container = ProjectContext.Instance.Container;
             _windowsManager = container.Resolve<WindowsManager>();
             _updater = container.Resolve<Updater>();
+            _coroutineHolder = container.Resolve<CoroutineHolder>();
             _viewModelFactory = container.Resolve<ViewModelFactory>();
 
             UnityEngine.Debug.LogError($"Initializer.Start() => _updater: {_updater != null}");
@@ -34,8 +38,12 @@ namespace Modules.Initializer.Scripts.Implementation
 
             var tasks = new List<TaskBase>()
             {
+                //Filler
+                //new PauseTask(_updater, 0.1f, 1),
+
                 //Core
                 container.Instantiate<DefinitionsInitTask>(new object[] { 10 }),
+                container.Instantiate<LocalizationInitTask>(new object[] { 10 }),
 
 
 
@@ -44,7 +52,7 @@ namespace Modules.Initializer.Scripts.Implementation
                 new PauseTask(_updater, 1f, 1),
 
                 //new LoadSceneTask("SampleEcs", LoadSceneMode.Single, 1),
-                new LoadSceneTask("Match3Scene", LoadSceneMode.Single, 1),
+                new LoadSceneTask("Match3Scene", LoadSceneMode.Single, _coroutineHolder, 1),
 
                 new PauseTask(_updater, 1f, 1),
 
@@ -52,12 +60,12 @@ namespace Modules.Initializer.Scripts.Implementation
 
 
 
-                //Show progress 100% pause
+                //Show progress 100% pause / filler
                 new PauseTask(_updater, 0.25f, 0),
                 new CloseViewTask(_windowsManager, loaderViewModel, 0),
             };
 
-            DebugMethod01();
+            //DebugMethod01();
 
             var tasker = new InitializeTasker(tasks);
             loaderViewModel.Init(tasker);
@@ -71,8 +79,12 @@ namespace Modules.Initializer.Scripts.Implementation
         private void OnCompletedCallback()
         {
             UnityEngine.Debug.LogError($"OnCompletedCallback() => ");
-            DebugMethod01();
+            
+            //DebugMethod01();
             //DebugMethod02();
+
+            //var test = _viewModelFactory.Create<TestViewModel>();
+            //test.Init();
         }
 
         private void OnFailedCallback(int error)
@@ -127,6 +139,29 @@ namespace Modules.Initializer.Scripts.Implementation
             //    1
             //  ]
             //]
+        }
+    }
+
+
+
+
+
+    public class TestViewModel : ViewModelBase
+    {
+        [Inject] private readonly DiContainer _diContainer;
+
+        private M3Prop _m3Prop;
+
+        public void Init()
+        {
+            _m3Prop = _diContainer.TryResolveFromRegistry<M3Prop>();
+
+            UnityEngine.Debug.LogError($"TestViewModel.Init() => _m3Prop: {_m3Prop != null}");
+        }
+
+        public override void Dispose()
+        {
+            //throw new System.NotImplementedException();
         }
     }
 }

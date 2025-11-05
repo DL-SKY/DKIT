@@ -1,4 +1,4 @@
-﻿namespace Modules.RPG.Scripts.Restrictions
+﻿namespace Modules.Restrictions.Scripts.Core
 {
     public enum RestrictionType
     {

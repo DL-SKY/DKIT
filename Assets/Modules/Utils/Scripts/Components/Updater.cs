@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Assets.Modules.Utils.Scripts.Components
+namespace Modules.Utils.Scripts.Components
 {
     public sealed class Updater : MonoBehaviour
     {

@@ -1,17 +1,16 @@
-﻿using Modules.Definitions.Scripts.Implementation.Defs;
-using Modules.Initializer.Scripts.Tasks;
+﻿using Modules.Initializer.Scripts.Tasks;
 using Modules.Utils.Scripts.Components;
 using System.Collections;
 using Zenject;
 
 namespace Modules.Initializer.Scripts.Implementation.Tasks.Core
 {
-    public class DefinitionsInitTask : TaskBase
+    public class LocalizationInitTask : TaskBase
     {
-        [Inject] private readonly DefinitionsManager _definitionsManager;
+        //[Inject] private readonly DefinitionsManager _definitionsManager;
         [Inject] private readonly CoroutineHolder _coroutineHolder;
 
-        public DefinitionsInitTask(int weight) : base(weight)
+        public LocalizationInitTask(int weight) : base(weight)
         {
         }
 
@@ -22,9 +21,10 @@ namespace Modules.Initializer.Scripts.Implementation.Tasks.Core
 
         private IEnumerator InitAsync()
         {
-            var asyncOperation = _definitionsManager.InitAsync();
-            while (!asyncOperation.IsDone)
-                yield return null;
+            //var asyncOperation = _definitionsManager.Init();
+            //while (!asyncOperation.isDone)
+            //    yield return null;
+            yield return null;
 
             Complete();
         }

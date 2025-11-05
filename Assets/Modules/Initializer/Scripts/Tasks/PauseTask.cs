@@ -1,4 +1,4 @@
-﻿using Assets.Modules.Utils.Scripts.Components;
+﻿using Modules.Utils.Scripts.Components;
 
 namespace Modules.Initializer.Scripts.Tasks
 {

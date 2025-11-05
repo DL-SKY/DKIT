@@ -1,6 +1,6 @@
-﻿using Assets.Modules.Utils.Scripts.Components;
-using Modules.Initializer.Scripts.Core;
+﻿using Modules.Initializer.Scripts.Core;
 using Modules.Initializer.Scripts.Tasks;
+using Modules.Utils.Scripts.Components;
 using System.Collections.Generic;
 using UnityEngine;
 

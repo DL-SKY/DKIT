@@ -1,11 +1,15 @@
 ﻿using Modules.Initializer.Scripts.Core;
+using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Base;
+using UnityEngine;
 
 namespace Modules.Windows.Scripts.Implementation.Loading
 {
     public class MainLoadViewModel : ViewModelBase
     {
         public const string ON_CHANGE_PROGRESS = "ON_CHANGE_PROGRESS";
+
+        [SerializeField] private readonly Updater _updater;
 
         public float Progress { get; private set; }
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Modules.RPG.Scripts.Restrictions
+namespace Modules.Restrictions.Scripts.Core
 {
     public class Restriction
     {
