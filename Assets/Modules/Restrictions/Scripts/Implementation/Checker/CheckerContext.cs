@@ -30,7 +30,6 @@ namespace Modules.Restrictions.Scripts.Implementation.Checker
 
         private void FillContext()
         {
-            //_contexts.Add(RestrictionType.TimeNowRestriction, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds());
             _contexts.Add(RestrictionType.TimeNowRestriction, TimeNowRestrictionChecker.GetContextData());
         }
     }
