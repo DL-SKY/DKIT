@@ -1,6 +1,7 @@
 using Modules.Initializer.Scripts.Core;
 using Modules.Initializer.Scripts.Implementation.Tasks.Core;
 using Modules.Initializer.Scripts.Tasks;
+using Modules.Match3.Scripts.Implementation.Core;
 using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Base;
 using Modules.Windows.Scripts.Implementation.Loading;
@@ -12,7 +13,6 @@ using UnityEngine.SceneManagement;
 using Zenject;
 using Zenject.Scripts.Extention;
 using Zenject.Scripts.Factories;
-using Zenject.Scripts.Installers;
 
 namespace Modules.Initializer.Scripts.Implementation
 {
@@ -96,8 +96,8 @@ namespace Modules.Initializer.Scripts.Implementation
         {
             var s = ProjectContext.Instance.Container.TryResolve<SceneContextRegistry>();
             var c = s.GetContainerForScene(SceneManager.GetActiveScene());
-            var m3Prop = c?.TryResolve<M3Prop>();
-            UnityEngine.Debug.LogError($"m3Prop: {m3Prop != null}");
+            var match3RoundController = c?.TryResolve<Match3RoundController>();
+            UnityEngine.Debug.LogError($"m3Prop: {match3RoundController != null}");
 
             /*
              * DiContainer GetContainerForCurrentScene()
@@ -150,13 +150,13 @@ namespace Modules.Initializer.Scripts.Implementation
     {
         [Inject] private readonly DiContainer _diContainer;
 
-        private M3Prop _m3Prop;
+        private Match3RoundController _match3RoundController;
 
         public void Init()
         {
-            _m3Prop = _diContainer.TryResolveFromRegistry<M3Prop>();
+            _match3RoundController = _diContainer.TryResolveFromRegistry<Match3RoundController>();
 
-            UnityEngine.Debug.LogError($"TestViewModel.Init() => _m3Prop: {_m3Prop != null}");
+            UnityEngine.Debug.LogError($"TestViewModel.Init() => _match3RoundController: {_match3RoundController != null}");
         }
 
         public override void Dispose()
