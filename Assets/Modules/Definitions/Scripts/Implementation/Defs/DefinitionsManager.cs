@@ -1,5 +1,7 @@
 ﻿using Modules.Definitions.Scripts.Core;
+using Modules.Definitions.Scripts.Implementation.Defs.Cells;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
+using Modules.Definitions.Scripts.Implementation.Defs.Single;
 using Modules.Utils.Scripts.Components;
 using Modules.Utils.Scripts.UnityImplementation;
 using System;
@@ -13,10 +15,12 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
     {
         [Inject] private readonly CoroutineHolder _coroutineHolder;
 
-        public Dictionary<string, GameZoneDef> GameZones;        
-
         private readonly Loader _loader;
         private readonly SimpleAsyncOperation _asyncOperation;
+
+        public Dictionary<string, GameZoneDef> GameZones;
+        public CellsMapDef CellsMap;
+        public Dictionary<string, CellDef> Cells;
 
 
         public DefinitionsManager()
@@ -36,6 +40,8 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         {
             var loadMethods = new List<Action>{
                 LoadGameZones,
+                LoadCellsMap,
+                LoadCells,
             };            
 
             foreach (var method in loadMethods)
@@ -50,6 +56,16 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         private void LoadGameZones()
         {
             GameZones = _loader.LoadCollection<GameZoneDef>("Definitions/GameZones");
+        }
+
+        private void LoadCellsMap()
+        {
+            CellsMap = _loader.LoadSingle<CellsMapDef>("Definitions/CellsMap/CellsMap");
+        }
+
+        private void LoadCells()
+        {
+            Cells = _loader.LoadCollection<CellDef>("Definitions/Cells");
         }
     }
 }

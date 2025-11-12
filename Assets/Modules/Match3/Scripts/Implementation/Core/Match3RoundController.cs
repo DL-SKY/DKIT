@@ -1,19 +1,23 @@
-﻿using Modules.Definitions.Scripts.Implementation.Defs;
+﻿using Leopotam.Ecs;
+using Modules.Definitions.Scripts.Implementation.Defs;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
+using Modules.ECS.Scripts.Match3.Systems;
 using Modules.Match3.Scripts.Core;
 using Modules.Windows.Scripts.Managers;
 using Zenject;
+using Zenject.Scripts.Factories;
 
 namespace Modules.Match3.Scripts.Implementation.Core
 {
     public class Match3RoundController : RoundControllerBase
     {
-        private const string CELL_PREFAB = "Prefabs/Cells/Cell";
-
         [Inject] private readonly WindowsManager _windowsManager;
         [Inject] private readonly DefinitionsManager _definitionsManager;
+        [Inject] private readonly EcsSystemFactory _ecsSystemFactory;
 
         private GameZoneDef _def;
+        private EcsWorld _world;
+        private EcsSystems _systems;
 
 
         public void Init(string defId)
@@ -28,14 +32,22 @@ namespace Modules.Match3.Scripts.Implementation.Core
 
             _def = def;
 
-            //TODO: ...
             InitBase(_def);
         }
 
 
         protected override void InitImplementation()
         {
+            // Инициализируем ECS
+            _world = new EcsWorld();
+            _systems = new EcsSystems(_world);
 
+            // Создаем систему инициализации клеток
+            var cellInitSystem = _ecsSystemFactory.Create<CellInitSystem>(new object[] { _data });
+
+            _systems
+                .Add(cellInitSystem)
+                .Init();
         }
 
         protected override void Subscribe()
@@ -54,6 +66,12 @@ namespace Modules.Match3.Scripts.Implementation.Core
         public override void Dispose()
         {
             UnityEngine.Debug.LogError($"Match3RoundController.Dispose()");
+
+            // Очищаем ECS
+            _systems?.Destroy();
+            _systems = null;
+            _world?.Destroy();
+            _world = null;
         }
     }
 }
