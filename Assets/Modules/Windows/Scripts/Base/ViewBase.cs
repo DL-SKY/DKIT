@@ -27,6 +27,17 @@ namespace Modules.Windows.Scripts.Base
 
         private int GenerateHandle()
         {
+            //TODO: ...
+            //    private static int _counter = 0;
+            //private static readonly int _typeHash = typeof(T).GetHashCode();
+
+            //private int GenerateHandle()
+            //{
+            //    int count = System.Threading.Interlocked.Increment(ref _counter);
+            //    return (_typeHash << 16) | (count & 0xFFFF);
+            //}
+
+
             return string.Format("{0}-{1}", typeof(T), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()).GetHashCode();
         }
 
