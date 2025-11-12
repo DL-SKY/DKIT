@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Threading;
 using UnityEngine;
+
+#if UNITY_WEBGL
+using System.Threading.Tasks;
+using UnityEngine.Networking;
+#else
+using System.Net;
+#endif
 
 namespace UI.Views.LudusTV
 {
