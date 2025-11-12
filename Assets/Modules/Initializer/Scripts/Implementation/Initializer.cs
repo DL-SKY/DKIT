@@ -79,12 +79,17 @@ namespace Modules.Initializer.Scripts.Implementation
         private void OnCompletedCallback()
         {
             UnityEngine.Debug.LogError($"OnCompletedCallback() => ");
-            
+
             //DebugMethod01();
             //DebugMethod02();
 
             //var test = _viewModelFactory.Create<TestViewModel>();
             //test.Init();
+
+            //TEST
+            var container = ProjectContext.Instance.Container;
+            var match3RoundController = container.TryResolveFromRegistry<Match3RoundController>();
+            match3RoundController.Init("Example");
         }
 
         private void OnFailedCallback(int error)

@@ -10,7 +10,6 @@ namespace Modules.Restrictions.Scripts.Implementation.Checker
     public class CheckerContext : ICheckerContext
     {
         [Inject] private readonly Updater _updater;
-        //[Inject] private readonly Updater _updater;
 
         private Dictionary<RestrictionType, object> _contexts = new Dictionary<RestrictionType, object>();
 
