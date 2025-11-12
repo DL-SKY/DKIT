@@ -77,6 +77,13 @@ namespace Modules.Match3.Scripts.Helpers
             int gridY = Mathf.RoundToInt(worldPosition.y - offset.y);
             return new Vector2Int(gridX, gridY);
         }
+
+        public static int GetGridValueFromMatrix(int gridX, int gridY, int[,] matrix)
+        {
+            int rows = matrix.GetLength(0);
+            int height = rows;
+            return matrix[height - 1 - gridY, gridX];
+        }
     }
 }
 

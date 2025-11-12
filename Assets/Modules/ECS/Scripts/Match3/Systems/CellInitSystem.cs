@@ -37,14 +37,18 @@ namespace Modules.ECS.Scripts.Match3.Systems
             }
 
             // Вычисляем смещение для центрирования поля относительно камеры
-            int width = mask.GetLength(0);
-            int height = mask.GetLength(1);
+            // В маске: GetLength(0) - количество строк, GetLength(1) - количество столбцов
+            // В Unity координатах: X - горизонтальная ось (столбцы), Y - вертикальная ось (строки)
+            int rows = mask.GetLength(0);  // количество строк в маске
+            int cols = mask.GetLength(1);  // количество столбцов в маске
+            int width = cols;  // ширина поля в Unity (столбцы)
+            int height = rows; // высота поля в Unity (строки)
             var centeringOffset = GridPositionHelper.CalculateCenteringOffset(width, height);
 
-            // Создаем клетки только там, где в маске значение отлично от нуля
+            // Создаем клетки / фоновые ячейки
             for (int x = 0; x < width; x++)
                 for (int y = 0; y < height; y++)
-                    CreateCell(x, y, centeringOffset, mask[x, y]);
+                    CreateCell(x, y, centeringOffset, GridPositionHelper.GetGridValueFromMatrix(x, y, mask));
         }        
 
         private void CreateCell(int x, int y, Vector2 centeringOffset, int maskKeyValue)
