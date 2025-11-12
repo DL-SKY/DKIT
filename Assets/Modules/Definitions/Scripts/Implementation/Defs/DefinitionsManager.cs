@@ -14,6 +14,8 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
 {
     public class DefinitionsManager
     {
+        private const int LOAD_METHODS_BATCH = 10;
+
         [Inject] private readonly CoroutineHolder _coroutineHolder;
 
         private readonly Loader _loader;
@@ -41,6 +43,7 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
 
         private IEnumerator LoadAll()
         {
+            // Заполняем список методов-инициализаторов дэфов
             var loadMethods = new List<Action>{
                 LoadGameZones,
                 LoadCellsMap,
@@ -49,10 +52,13 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
                 LoadPresets,
             };            
 
-            foreach (var method in loadMethods)
+            for (int i = 0; i < loadMethods.Count; i++)
             {
-                method.Invoke();
-                yield return null;
+                loadMethods[i].Invoke();
+                UnityEngine.Debug.Log($"[DefinitionsManager] Load defs by {loadMethods[i].Method.Name} done.");
+
+                if ((i + 1) % LOAD_METHODS_BATCH == 0)
+                    yield return null;
             }
 
             _asyncOperation.SetCompleted();

@@ -19,11 +19,15 @@ namespace Modules.Initializer.Scripts.Tasks
 
         protected void Complete()
         {
+            UnityEngine.Debug.Log($"[Task] {GetType().Name} complete.");
+
             OnComplete?.Invoke(this);
         }
 
         protected void Fail(int errorCode)
         {
+            UnityEngine.Debug.LogError($"[Task] {GetType().Name} fail with error: {errorCode}!");
+
             OnError?.Invoke(this, errorCode);
         }
     }

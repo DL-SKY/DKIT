@@ -49,12 +49,12 @@ namespace Modules.Initializer.Scripts.Implementation
 
 
 
-                new PauseTask(_updater, 1f, 1),
+                //new PauseTask(_updater, 1f, 1),
 
                 //new LoadSceneTask("SampleEcs", LoadSceneMode.Single, 1),
                 new LoadSceneTask("Match3Scene", LoadSceneMode.Single, _coroutineHolder, 1),
 
-                new PauseTask(_updater, 1f, 1),
+                //new PauseTask(_updater, 1f, 1),
 
 
 

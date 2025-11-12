@@ -3,8 +3,11 @@ using UnityEngine;
 namespace Modules.Match3.Scripts.Helpers
 {
     /// <summary>
-    /// Хелпер для конвертации координат сетки игрового поля в мировые координаты Unity
-    /// и обратно. Обеспечивает центрирование игрового поля относительно камеры.
+    /// Статический хелпер для работы с координатами игрового поля Match3.
+    /// Предоставляет методы для конвертации координат сетки в мировые координаты Unity и обратно,
+    /// вычисления смещений для центрирования игрового поля, работы с матрицами данных поля
+    /// и расчета параметров камеры для корректного отображения игрового поля.
+    /// Все методы учитывают центрирование игрового поля относительно начала координат (0, 0, 0).
     /// </summary>
     public static class GridPositionHelper
     {
@@ -93,6 +96,35 @@ namespace Modules.Match3.Scripts.Helpers
             int rows = matrix.GetLength(0);
             int height = rows;
             return matrix[height - 1 - gridY, gridX];
+        }
+
+        /// <summary>
+        /// Вычисляет размер ортографической камеры для отображения всего игрового поля на экране.
+        /// Учитывает соотношение сторон экрана и размеры игрового поля.
+        /// </summary>
+        /// <param name="width">Ширина игрового поля (количество столбцов)</param>
+        /// <param name="height">Высота игрового поля (количество строк)</param>
+        /// <param name="padding">Отступ от краев поля (по умолчанию 0.5)</param>
+        /// <returns>Размер ортографической камеры (orthographic size)</returns>
+        public static float CalculateCameraOrthographicSize(int width, int height, float padding = 0.5f)
+        {
+            // Соотношение сторон экрана
+            float aspectRatio = (float)Screen.width / Screen.height;
+            
+            // Размеры игрового поля в мировых единицах
+            float fieldWidth = width;
+            float fieldHeight = height;
+            
+            // Вычисляем необходимый размер камеры по высоте
+            float sizeByHeight = (fieldHeight + padding * 2) / 2f;
+            
+            // Вычисляем необходимый размер камеры по ширине
+            // orthographicSize определяет половину высоты видимой области
+            // ширина видимой области = orthographicSize * 2 * aspectRatio
+            float sizeByWidth = (fieldWidth + padding * 2) / (2f * aspectRatio);
+            
+            // Выбираем больший размер, чтобы все поле помещалось на экране
+            return Mathf.Max(sizeByHeight, sizeByWidth);
         }
     }
 }

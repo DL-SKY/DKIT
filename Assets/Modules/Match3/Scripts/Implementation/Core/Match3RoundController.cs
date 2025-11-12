@@ -44,11 +44,14 @@ namespace Modules.Match3.Scripts.Implementation.Core
             _world = new EcsWorld();
             _systems = new EcsSystems(_world);
 
+            // Создаем систему настройки камеры
+            var cameraSetupSystem = _ecsSystemFactory.Create<CameraSetupSystem>(new object[] { _data });
             // Создаем систему инициализации клеток
-            var cellInitSystem = _ecsSystemFactory.Create<CellsInitSystem>(new object[] { _data });
+            var cellInitSystem = _ecsSystemFactory.Create<CellsInitSystem>(new object[] { _data });            
 
             _systems
-                .Add(cellInitSystem)
+                .Add(cameraSetupSystem)
+                .Add(cellInitSystem)                
                 
                 .Init();
         }
