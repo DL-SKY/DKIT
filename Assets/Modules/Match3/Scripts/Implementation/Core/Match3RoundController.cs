@@ -3,7 +3,7 @@ using Modules.Definitions.Scripts.Implementation.Defs;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
 using Modules.ECS.Scripts.Match3.Systems;
 using Modules.Match3.Scripts.Core;
-using Modules.Windows.Scripts.Managers;
+using Modules.Utils.Scripts.Components;
 using Zenject;
 using Zenject.Scripts.Factories;
 
@@ -11,8 +11,10 @@ namespace Modules.Match3.Scripts.Implementation.Core
 {
     public class Match3RoundController : RoundControllerBase
     {
-        [Inject] private readonly WindowsManager _windowsManager;
+        //[Inject] private readonly WindowsManager _windowsManager;
+
         [Inject] private readonly DefinitionsManager _definitionsManager;
+        [Inject] private readonly Updater _updater;
         [Inject] private readonly EcsSystemFactory _ecsSystemFactory;
 
         private GameZoneDef _def;
@@ -26,7 +28,7 @@ namespace Modules.Match3.Scripts.Implementation.Core
 
             if (!_definitionsManager.GameZones.TryGetValue(defId, out var def))
             {
-                UnityEngine.Debug.LogError($"[Match3RoundController.Init({defId})] Not found GameZones def with ID \"{defId}\"!");
+                UnityEngine.Debug.LogError($"[Match3RoundController] Init({defId}) :: Not found GameZones def with ID \"{defId}\"!");
                 return;
             }
 
@@ -43,23 +45,30 @@ namespace Modules.Match3.Scripts.Implementation.Core
             _systems = new EcsSystems(_world);
 
             // Создаем систему инициализации клеток
-            var cellInitSystem = _ecsSystemFactory.Create<CellInitSystem>(new object[] { _data });
+            var cellInitSystem = _ecsSystemFactory.Create<CellsInitSystem>(new object[] { _data });
 
             _systems
                 .Add(cellInitSystem)
+                
                 .Init();
         }
 
         protected override void Subscribe()
         {
-            
+            _updater.OnUpdate += OnUpdateHandler;
         }
 
         protected override void Unsubscribe()
         {
-            
+            _updater.OnUpdate -= OnUpdateHandler;
         }
 
+        private void OnUpdateHandler(float deltaTime)
+        {
+            _systems?.Run();
+        }
+
+        
         
 
 
@@ -72,6 +81,8 @@ namespace Modules.Match3.Scripts.Implementation.Core
             _systems = null;
             _world?.Destroy();
             _world = null;
+
+            Unsubscribe();
         }
     }
 }

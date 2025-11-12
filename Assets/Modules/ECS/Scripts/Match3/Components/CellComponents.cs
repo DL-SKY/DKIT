@@ -1,18 +1,11 @@
-using UnityEngine;
+using Modules.Match3.Scripts.Implementation.Visual;
 
 namespace Modules.ECS.Scripts.Match3.Components
 {
-    // Позиция клетки на сетке
-    public struct CellPosition
-    {
-        public int X;
-        public int Y;
-    }
-
     // Компонент для визуального представления клетки
     public struct CellView
     {
-        public GameObject GameObject;
+        public CellVisual CellVisual;
     }
 }
 

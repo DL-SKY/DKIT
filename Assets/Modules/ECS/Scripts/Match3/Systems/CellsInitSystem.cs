@@ -1,7 +1,9 @@
 using Leopotam.Ecs;
 using Modules.Definitions.Scripts.Implementation.Defs;
+using Modules.Definitions.Scripts.Implementation.Defs.Cells;
 using Modules.ECS.Scripts.Match3.Components;
 using Modules.Match3.Scripts.Helpers;
+using Modules.Match3.Scripts.Implementation.Visual;
 using Modules.Match3.Scripts.Interfaces;
 using UnityEngine;
 using Zenject;
@@ -9,14 +11,14 @@ using Zenject;
 namespace Modules.ECS.Scripts.Match3.Systems
 {
     // Система инициализации фоновых клеток игрового поля
-    public class CellInitSystem : IEcsInitSystem
+    public class CellsInitSystem : IEcsInitSystem
     {
         [Inject] private readonly DefinitionsManager _definitionsManager;
 
         private readonly EcsWorld _world = null;        
         private readonly IGameRoundData _gameRoundData;
 
-        public CellInitSystem(IGameRoundData gameRoundData)
+        public CellsInitSystem(IGameRoundData gameRoundData)
         {
             _gameRoundData = gameRoundData;
         }
@@ -25,14 +27,14 @@ namespace Modules.ECS.Scripts.Match3.Systems
         {
             if (_gameRoundData == null)
             {
-                UnityEngine.Debug.LogError($"[CellInitSystem] GameRoundData is null!");
+                UnityEngine.Debug.LogError($"[CellsInitSystem] GameRoundData is null!");
                 return;
             }
 
             var mask = _gameRoundData.GetMask();
             if (mask == null)
             {
-                UnityEngine.Debug.LogError($"[CellInitSystem] Mask is null!");
+                UnityEngine.Debug.LogError($"[CellsInitSystem] Mask is null!");
                 return;
             }
 
@@ -60,37 +62,41 @@ namespace Modules.ECS.Scripts.Match3.Systems
 
             if (!_definitionsManager.Cells.TryGetValue(cellId, out var cellDef))
             {
-                UnityEngine.Debug.LogError($"[CellInitSystem] Not found Cells def \"{cellId}\"!");
+                UnityEngine.Debug.LogError($"[CellsInitSystem] Not found Cells def \"{cellId}\"!");
                 return;
             }
 
             var entity = _world.NewEntity();
+            entity.Get<GridPosition>() = new GridPosition { X = x, Y = y };         //Позиция
+            entity.Get<CellView>() = new CellView                                   //Визуал
+            {
+                CellVisual = CreateView(cellDef, x, y, centeringOffset) 
+            };
+        }
 
-            // Добавляем позицию
-            entity.Get<CellPosition>() = new CellPosition { X = x, Y = y };
-
-            // Создаем визуальное представление с учетом смещения для центрирования
+        private CellVisual CreateView(CellDef cellDef, int x, int y, Vector2 centeringOffset)
+        {
             var prefab = GetPrefab(cellDef.PrefabPath);
             var cellObject = Object.Instantiate(prefab);
             cellObject.name = $"Cell_{x}_{y}";
             cellObject.transform.position = GridPositionHelper.GridToWorldPosition(x, y, centeringOffset);
 
-            entity.Get<CellView>() = new CellView { GameObject = cellObject };
+            return cellObject;
         }
 
-        private GameObject GetPrefab(string path)
+        private CellVisual GetPrefab(string path)
         {            
             if (string.IsNullOrEmpty(path))
             {
-                var error = $"[CellInitSystem] Prefap path is null or empty!";
+                var error = $"[CellsInitSystem] Prefab path is null or empty!";
                 UnityEngine.Debug.LogError($"{error}");
                 throw new System.Exception(error);
             }
 
-            var prefab = Resources.Load<GameObject>(path);
+            var prefab = Resources.Load<CellVisual>(path);
             if (prefab == null)
             {
-                var error = $"[CellInitSystem] Prefap \"{path}\" not loaded!";
+                var error = $"[CellsInitSystem] Prefab \"{path}\" not loaded!";
                 UnityEngine.Debug.LogError($"{error}");
                 throw new System.Exception(error);
             }

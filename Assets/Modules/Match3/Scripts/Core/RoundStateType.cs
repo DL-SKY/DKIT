@@ -5,9 +5,5 @@
         NA = 0,
 
         Loading = 1,
-
-        Pause = 5,
-
-        Lock = 10,
     }
 }

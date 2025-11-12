@@ -1,6 +1,7 @@
 ﻿using Modules.Definitions.Scripts.Core;
 using Modules.Definitions.Scripts.Implementation.Defs.Cells;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
+using Modules.Definitions.Scripts.Implementation.Defs.Presets;
 using Modules.Definitions.Scripts.Implementation.Defs.Single;
 using Modules.Utils.Scripts.Components;
 using Modules.Utils.Scripts.UnityImplementation;
@@ -21,6 +22,8 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         public Dictionary<string, GameZoneDef> GameZones;
         public CellsMapDef CellsMap;
         public Dictionary<string, CellDef> Cells;
+        public CellsMapDef PresetsMap;
+        public Dictionary<string, PresetDef> Presets;
 
 
         public DefinitionsManager()
@@ -42,6 +45,8 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
                 LoadGameZones,
                 LoadCellsMap,
                 LoadCells,
+                LoadPresetsMap,
+                LoadPresets,
             };            
 
             foreach (var method in loadMethods)
@@ -66,6 +71,16 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         private void LoadCells()
         {
             Cells = _loader.LoadCollection<CellDef>("Definitions/Cells");
+        }
+
+        private void LoadPresetsMap()
+        {
+            PresetsMap = _loader.LoadSingle<CellsMapDef>("Definitions/PresetsMap/PresetsMap");
+        }
+
+        private void LoadPresets()
+        {
+            Presets = _loader.LoadCollection<PresetDef>("Definitions/Presets");
         }
     }
 }
