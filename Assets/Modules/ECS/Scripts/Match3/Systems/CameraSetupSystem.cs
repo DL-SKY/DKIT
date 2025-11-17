@@ -11,6 +11,8 @@ namespace Modules.ECS.Scripts.Match3.Systems
     /// </summary>
     public class CameraSetupSystem : IEcsInitSystem
     {
+        private const float EDGE_SPACING_MOD = 1.125f;
+
         private readonly IGameRoundData _gameRoundData;
 
         public CameraSetupSystem(IGameRoundData gameRoundData)
@@ -74,7 +76,7 @@ namespace Modules.ECS.Scripts.Match3.Systems
                 // Используем формулу: distance = (fieldSize / 2) / tan(FOV / 2)
                 float distanceByWidth = (fieldWidth / 2f) / Mathf.Tan(fieldOfView * Mathf.Deg2Rad / 2f) / aspectRatio;
                 float distanceByHeight = (fieldHeight / 2f) / Mathf.Tan(fieldOfView * Mathf.Deg2Rad / 2f);
-                float distance = Mathf.Max(distanceByWidth, distanceByHeight) * 1.1f; // добавляем небольшой запас
+                float distance = Mathf.Max(distanceByWidth, distanceByHeight) * EDGE_SPACING_MOD; // добавляем небольшой запас
                 
                 // Устанавливаем позицию камеры
                 // Камера смотрит на центр поля (0, 0, 0)

@@ -25,6 +25,8 @@ namespace Modules.ECS.Scripts.Match3.Systems
 
         public void Init()
         {
+            UnityEngine.Debug.LogError($"_world: {_world != null}");
+
             if (_gameRoundData == null)
             {
                 UnityEngine.Debug.LogError($"[CellsInitSystem] GameRoundData is null!");

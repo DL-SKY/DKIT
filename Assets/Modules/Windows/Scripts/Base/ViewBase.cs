@@ -9,6 +9,9 @@ namespace Modules.Windows.Scripts.Base
     [RequireComponent(typeof(GraphicRaycaster))]
     public abstract class ViewBase<T> : MonoBehaviour, IView where T : ViewModelBase
     {
+        private static int _counter = 0;
+        private static readonly int _typeHash = typeof(T).GetHashCode();
+
         public event Action<int> OnViewDestroy;
 
         public int Handle { get; private set; }
@@ -27,18 +30,10 @@ namespace Modules.Windows.Scripts.Base
 
         private int GenerateHandle()
         {
-            //TODO: ...
-            //    private static int _counter = 0;
-            //private static readonly int _typeHash = typeof(T).GetHashCode();
+            //return string.Format("{0}-{1}", typeof(T), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()).GetHashCode();
 
-            //private int GenerateHandle()
-            //{
-            //    int count = System.Threading.Interlocked.Increment(ref _counter);
-            //    return (_typeHash << 16) | (count & 0xFFFF);
-            //}
-
-
-            return string.Format("{0}-{1}", typeof(T), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()).GetHashCode();
+            int count = System.Threading.Interlocked.Increment(ref _counter);
+            return (_typeHash << 16) | (count & 0xFFFF);
         }
 
         public void Init(T viewModel)
