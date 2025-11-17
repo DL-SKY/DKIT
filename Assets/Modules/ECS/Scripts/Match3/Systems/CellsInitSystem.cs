@@ -16,24 +16,22 @@ namespace Modules.ECS.Scripts.Match3.Systems
         [Inject] private readonly DefinitionsManager _definitionsManager;
 
         private readonly EcsWorld _world = null;        
-        private readonly IGameRoundData _gameRoundData;
+        private readonly IGameZoneData _gameZoneData;
 
-        public CellsInitSystem(IGameRoundData gameRoundData)
+        public CellsInitSystem(IGameZoneData gameZoneData)
         {
-            _gameRoundData = gameRoundData;
+            _gameZoneData = gameZoneData;
         }
 
         public void Init()
         {
-            UnityEngine.Debug.LogError($"_world: {_world != null}");
-
-            if (_gameRoundData == null)
+            if (_gameZoneData == null)
             {
-                UnityEngine.Debug.LogError($"[CellsInitSystem] GameRoundData is null!");
+                UnityEngine.Debug.LogError($"[CellsInitSystem] GameZoneData is null!");
                 return;
             }
 
-            var mask = _gameRoundData.GetMask();
+            var mask = _gameZoneData.GetMask();
             if (mask == null)
             {
                 UnityEngine.Debug.LogError($"[CellsInitSystem] Mask is null!");
@@ -41,15 +39,11 @@ namespace Modules.ECS.Scripts.Match3.Systems
             }
 
             // Вычисляем смещение для центрирования поля относительно камеры
-            // В маске: GetLength(0) - количество строк, GetLength(1) - количество столбцов
-            // В Unity координатах: X - горизонтальная ось (столбцы), Y - вертикальная ось (строки)
-            int rows = mask.GetLength(0);  // количество строк в маске
-            int cols = mask.GetLength(1);  // количество столбцов в маске
-            int width = cols;  // ширина поля в Unity (столбцы)
-            int height = rows; // высота поля в Unity (строки)
-            var centeringOffset = GridPositionHelper.CalculateCenteringOffset(width, height);
+            var centeringOffset = GridPositionHelper.CalculateCenteringOffset(mask);
 
             // Создаем клетки / фоновые ячейки
+            int width = mask.GetLength(1);
+            int height = mask.GetLength(0);
             for (int x = 0; x < width; x++)
                 for (int y = 0; y < height; y++)
                     CreateCell(x, y, centeringOffset, GridPositionHelper.GetGridValueFromMatrix(x, y, mask));
@@ -68,6 +62,9 @@ namespace Modules.ECS.Scripts.Match3.Systems
                 return;
             }
 
+            //TODO: feature - apply presets
+            //...
+
             var entity = _world.NewEntity();
             entity.Get<GridPosition>() = new GridPosition { X = x, Y = y };         //Позиция
             entity.Get<CellView>() = new CellView                                   //Визуал
@@ -81,7 +78,7 @@ namespace Modules.ECS.Scripts.Match3.Systems
             var prefab = GetPrefab(cellDef.PrefabPath);
             var cellObject = Object.Instantiate(prefab);
             cellObject.name = $"Cell_{x}_{y}";
-            cellObject.transform.position = GridPositionHelper.GridToWorldPosition(x, y, centeringOffset);
+            cellObject.transform.position = GridPositionHelper.GridToWorldPosition(x, y, centeringOffset, GridPositionHelper.CELL_POSITION_Z);
 
             return cellObject;
         }

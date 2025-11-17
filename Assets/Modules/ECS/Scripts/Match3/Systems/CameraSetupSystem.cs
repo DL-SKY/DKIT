@@ -13,22 +13,22 @@ namespace Modules.ECS.Scripts.Match3.Systems
     {
         private const float EDGE_SPACING_MOD = 1.125f;
 
-        private readonly IGameRoundData _gameRoundData;
+        private readonly IGameZoneData _gameZoneData;
 
-        public CameraSetupSystem(IGameRoundData gameRoundData)
+        public CameraSetupSystem(IGameZoneData gameZoneData)
         {
-            _gameRoundData = gameRoundData;
+            _gameZoneData = gameZoneData;
         }
 
         public void Init()
         {
-            if (_gameRoundData == null)
+            if (_gameZoneData == null)
             {
-                UnityEngine.Debug.LogError($"[CameraSetupSystem] GameRoundData is null!");
+                UnityEngine.Debug.LogError($"[CameraSetupSystem] GameZoneData is null!");
                 return;
             }
 
-            var mask = _gameRoundData.GetMask();
+            var mask = _gameZoneData.GetMask();
             if (mask == null)
             {
                 UnityEngine.Debug.LogError($"[CameraSetupSystem] Mask is null!");
@@ -53,7 +53,7 @@ namespace Modules.ECS.Scripts.Match3.Systems
             if (mainCamera.orthographic)
             {
                 // Для ортографической камеры настраиваем orthographic size
-                float orthographicSize = GridPositionHelper.CalculateCameraOrthographicSize(width, height);
+                float orthographicSize = GridPositionHelper.CalculateCameraOrthographicSize(width, height, EDGE_SPACING_MOD);
                 mainCamera.orthographicSize = orthographicSize;
                 
                 // Центрируем камеру на игровом поле

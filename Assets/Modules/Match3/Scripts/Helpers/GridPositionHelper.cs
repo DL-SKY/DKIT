@@ -11,6 +11,9 @@ namespace Modules.Match3.Scripts.Helpers
     /// </summary>
     public static class GridPositionHelper
     {
+        public const float CELL_POSITION_Z = 0.00f;
+        public const float GEM_POSITION_Z = -0.01f;
+
         /// <summary>
         /// Вычисляет смещение для центрирования поля относительно камеры.
         /// Центр поля будет находиться в позиции (0, 0, 0).
@@ -26,6 +29,25 @@ namespace Modules.Match3.Scripts.Helpers
         }
 
         /// <summary>
+        /// Вычисляет смещение для центрирования поля относительно камеры на основе маски.
+        /// Центр поля будет находиться в позиции (0, 0, 0).
+        /// </summary>
+        /// <param name="mask">Двумерный массив-маска, где GetLength(0) - количество строк, GetLength(1) - количество столбцов</param>
+        /// <returns>Смещение для центрирования (offsetX, offsetY)</returns>
+        public static Vector2 CalculateCenteringOffset(int[,] mask)
+        {
+            // Вычисляем смещение для центрирования поля относительно камеры
+            // В маске: GetLength(0) - количество строк, GetLength(1) - количество столбцов
+            // В Unity координатах: X - горизонтальная ось (столбцы), Y - вертикальная ось (строки)
+            int rows = mask.GetLength(0);  // количество строк в маске
+            int cols = mask.GetLength(1);  // количество столбцов в маске
+            int width = cols;  // ширина поля в Unity (столбцы)
+            int height = rows; // высота поля в Unity (строки)
+            
+            return CalculateCenteringOffset(width, height);
+        }
+
+        /// <summary>
         /// Конвертирует координаты сетки в мировые координаты Unity с учетом центрирования.
         /// </summary>
         /// <param name="gridX">Координата X в сетке</param>
@@ -34,7 +56,7 @@ namespace Modules.Match3.Scripts.Helpers
         /// <param name="height">Высота игрового поля</param>
         /// <param name="z">Z координата в мировом пространстве (по умолчанию 0)</param>
         /// <returns>Мировые координаты Vector3</returns>
-        public static Vector3 GridToWorldPosition(int gridX, int gridY, int width, int height, float z = 0f)
+        public static Vector3 GridToWorldPosition(int gridX, int gridY, int width, int height, float z)
         {
             var offset = CalculateCenteringOffset(width, height);
             return new Vector3(gridX + offset.x, gridY + offset.y, z);
@@ -48,7 +70,7 @@ namespace Modules.Match3.Scripts.Helpers
         /// <param name="offset">Смещение для центрирования</param>
         /// <param name="z">Z координата в мировом пространстве (по умолчанию 0)</param>
         /// <returns>Мировые координаты Vector3</returns>
-        public static Vector3 GridToWorldPosition(int gridX, int gridY, Vector2 offset, float z = 0f)
+        public static Vector3 GridToWorldPosition(int gridX, int gridY, Vector2 offset, float z)
         {
             return new Vector3(gridX + offset.x, gridY + offset.y, z);
         }
@@ -106,7 +128,7 @@ namespace Modules.Match3.Scripts.Helpers
         /// <param name="height">Высота игрового поля (количество строк)</param>
         /// <param name="padding">Отступ от краев поля (по умолчанию 0.5)</param>
         /// <returns>Размер ортографической камеры (orthographic size)</returns>
-        public static float CalculateCameraOrthographicSize(int width, int height, float padding = 0.5f)
+        public static float CalculateCameraOrthographicSize(int width, int height, float padding)
         {
             // Соотношение сторон экрана
             float aspectRatio = (float)Screen.width / Screen.height;

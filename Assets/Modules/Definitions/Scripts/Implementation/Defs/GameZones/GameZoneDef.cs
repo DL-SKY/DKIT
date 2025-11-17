@@ -3,7 +3,7 @@ using Modules.Match3.Scripts.Interfaces;
 
 namespace Modules.Definitions.Scripts.Implementation.Defs.GameZones
 {
-    public class GameZoneDef : AbstractDefinition, IGameRoundData
+    public class GameZoneDef : AbstractDefinition, IGameZoneData
     {
         public int[,] Mask;
         public int[,] Presets;

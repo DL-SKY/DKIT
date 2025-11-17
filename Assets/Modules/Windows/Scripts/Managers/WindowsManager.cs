@@ -35,7 +35,7 @@ namespace Modules.Windows.Scripts.Managers
             instance.SetSortingOrder(_views.Count + (int)instance.Options.SortingLayer);
             instance.Show();
 
-            UnityEngine.Debug.Log($"[WindowsManager] Open window {instance.GetType().Name}({instance.Handle}).");
+            UnityEngine.Debug.Log($"[WindowsManager] Open window {instance.GetType().Name}({instance.Handle} / 0x{instance.Handle:X8}).");
 
             return instance;
         }
@@ -46,7 +46,7 @@ namespace Modules.Windows.Scripts.Managers
             {
                 view.Hide();
 
-                UnityEngine.Debug.Log($"[WindowsManager] Close window {view.GetType().Name}({view.Handle}).");
+                UnityEngine.Debug.Log($"[WindowsManager] Close window {view.GetType().Name}({view.Handle} / 0x{view.Handle:X8}).");
             }
         }
 

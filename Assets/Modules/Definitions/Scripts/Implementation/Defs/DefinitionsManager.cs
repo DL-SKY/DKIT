@@ -1,7 +1,10 @@
 ﻿using Modules.Definitions.Scripts.Core;
 using Modules.Definitions.Scripts.Implementation.Defs.Cells;
+using Modules.Definitions.Scripts.Implementation.Defs.GameZoneGems;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
+using Modules.Definitions.Scripts.Implementation.Defs.Gems;
 using Modules.Definitions.Scripts.Implementation.Defs.Presets;
+using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
 using Modules.Definitions.Scripts.Implementation.Defs.Single;
 using Modules.Utils.Scripts.Components;
 using Modules.Utils.Scripts.UnityImplementation;
@@ -26,6 +29,9 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         public Dictionary<string, CellDef> Cells;
         public CellsMapDef PresetsMap;
         public Dictionary<string, PresetDef> Presets;
+        public Dictionary<string, GemDef> Gems;
+        public Dictionary<string, GameZoneGemsDef> GameZoneGems;
+        public Dictionary<string, RoundDef> Rounds;
 
 
         public DefinitionsManager()
@@ -50,6 +56,9 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
                 LoadCells,
                 LoadPresetsMap,
                 LoadPresets,
+                LoadGems,
+                LoadGameZoneGems,
+                LoadRounds,
             };            
 
             for (int i = 0; i < loadMethods.Count; i++)
@@ -87,6 +96,21 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         private void LoadPresets()
         {
             Presets = _loader.LoadCollection<PresetDef>("Definitions/Presets");
+        }
+
+        private void LoadGems()
+        {
+            Gems = _loader.LoadCollection<GemDef>("Definitions/Gems");
+        }
+
+        private void LoadGameZoneGems()
+        {
+            GameZoneGems = _loader.LoadCollection<GameZoneGemsDef>("Definitions/GameZoneGems");
+        }
+
+        private void LoadRounds()
+        { 
+            Rounds = _loader.LoadCollection<RoundDef>("Definitions/Rounds");
         }
     }
 }

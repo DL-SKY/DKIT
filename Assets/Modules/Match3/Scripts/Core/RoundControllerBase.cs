@@ -9,11 +9,14 @@ namespace Modules.Match3.Scripts.Core
         public RoundStateType StateType => _stateType;
         protected RoundStateType _stateType;
 
-        protected IGameRoundData _data;
+        protected IGameZoneData _gameZoneData;
+        protected IGemsData _gemsData;
 
-        protected void InitBase(IGameRoundData data)
+
+        protected void InitBase(IGameZoneData gameZoneData, IGemsData gemsData)
         {
-            _data = data;
+            _gameZoneData = gameZoneData;
+            _gemsData = gemsData;
 
             Subscribe();
             InitImplementation();

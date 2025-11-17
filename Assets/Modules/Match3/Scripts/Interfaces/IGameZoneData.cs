@@ -1,6 +1,6 @@
 ﻿namespace Modules.Match3.Scripts.Interfaces
 {
-    public interface IGameRoundData
+    public interface IGameZoneData
     {
         int[,] GetMask();
         int[,] GetPresets();

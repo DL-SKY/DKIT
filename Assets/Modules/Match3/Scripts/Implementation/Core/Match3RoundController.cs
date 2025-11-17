@@ -1,8 +1,11 @@
 ﻿using Leopotam.Ecs;
 using Modules.Definitions.Scripts.Implementation.Defs;
+using Modules.Definitions.Scripts.Implementation.Defs.GameZoneGems;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
+using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
 using Modules.ECS.Scripts.Match3.Systems;
 using Modules.Match3.Scripts.Core;
+using Modules.Match3.Scripts.Implementation.Data;
 using Modules.Utils.Scripts.Components;
 using Zenject;
 using Zenject.Scripts.Factories;
@@ -17,7 +20,10 @@ namespace Modules.Match3.Scripts.Implementation.Core
         [Inject] private readonly Updater _updater;
         [Inject] private readonly EcsSystemFactory _ecsSystemFactory;
 
-        private GameZoneDef _def;
+        private RoundDef _roundDef;
+        private GameZoneDef _gameZoneDef;
+        private GameZoneGemsDef _gameZoneGemsDef;
+
         private EcsWorld _world;
         private EcsSystems _systems;
 
@@ -26,15 +32,30 @@ namespace Modules.Match3.Scripts.Implementation.Core
         {
             UnityEngine.Debug.LogError($"Match3RoundController.Init({defId})");
 
-            if (!_definitionsManager.GameZones.TryGetValue(defId, out var def))
+            if (!_definitionsManager.Rounds.TryGetValue(defId, out var roundDef))
             {
-                UnityEngine.Debug.LogError($"[Match3RoundController] Init({defId}) :: Not found GameZones def with ID \"{defId}\"!");
+                UnityEngine.Debug.LogError($"[Match3RoundController] Init({defId}) :: Not found Rounds def with ID \"{defId}\"!");
                 return;
             }
+            _roundDef = roundDef;
 
-            _def = def;
+            if (!_definitionsManager.GameZones.TryGetValue(_roundDef.GameZone, out var gameZoneDef))
+            {
+                UnityEngine.Debug.LogError($"[Match3RoundController] Init({defId}) :: Not found GameZones def with ID \"{_roundDef.GameZone}\"!");
+                return;
+            }
+            _gameZoneDef = gameZoneDef;
 
-            InitBase(_def);
+            if (!_definitionsManager.GameZoneGems.TryGetValue(_roundDef.Gems, out var gameZoneGemsDef))
+            {
+                UnityEngine.Debug.LogError($"[Match3RoundController] Init({defId}) :: Not found GameZoneGems def with ID \"{_roundDef.Gems}\"!");
+                return;
+            }
+            _gameZoneGemsDef = gameZoneGemsDef;
+
+            _gemsData = new GemsData(_gameZoneGemsDef);
+
+            InitBase(_gameZoneDef, _gemsData);
         }
 
 
@@ -45,14 +66,17 @@ namespace Modules.Match3.Scripts.Implementation.Core
             _systems = new EcsSystems(_world);
 
             // Создаем систему настройки камеры
-            var cameraSetupSystem = _ecsSystemFactory.Create<CameraSetupSystem>(new object[] { _data });
+            var cameraSetupSystem = _ecsSystemFactory.Create<CameraSetupSystem>(new object[] { _gameZoneData });
             // Создаем систему инициализации клеток
-            var cellInitSystem = _ecsSystemFactory.Create<CellsInitSystem>(new object[] { _data });            
+            var cellsInitSystem = _ecsSystemFactory.Create<CellsInitSystem>(new object[] { _gameZoneData });
+            // Создаем систему инициализации фишек
+            var gemsInitSystem = _ecsSystemFactory.Create<GemsInitSystem>(new object[] { _gameZoneData, _gemsData });
 
             _systems
                 .Add(cameraSetupSystem)
-                .Add(cellInitSystem)                
-                
+                .Add(cellsInitSystem)
+                .Add(gemsInitSystem)
+
                 .Init();
         }
 
