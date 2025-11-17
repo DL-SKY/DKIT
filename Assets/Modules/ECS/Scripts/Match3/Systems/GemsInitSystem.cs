@@ -89,6 +89,7 @@ namespace Modules.ECS.Scripts.Match3.Systems
             {
                 GemVisual = CreateView(x, y, centeringOffset, gemDef)
             };
+            entity.Get<Draggable>();                                                //Перетаскивание
 
             // Сохраняем созданный гем в словарь
             createdGems[new GridPosition { X = x, Y = y }] = gemId;
