@@ -16,9 +16,21 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
         private readonly EcsWorld _world = null;
         private readonly EcsFilter<DragState> _dragStateFilter = null;
         private readonly EcsFilter<GridPosition, GemView, Draggable> _draggableFilter = null;
+        private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
 
         public void Run()
         {
+            // Проверяем, не идет ли удаление фишек (блокируем перетаскивание во время удаления)
+            if (_destructionInProgressFilter.GetEntitiesCount() > 0)
+            {
+                // Отменяем активное перетаскивание, если оно есть
+                foreach (var i in _dragStateFilter)
+                {
+                    _dragStateFilter.GetEntity(i).Del<DragState>();
+                }
+                return;
+            }
+
             // Проверяем наличие активного перетаскивания
             if (_dragStateFilter.GetEntitiesCount() == 0)
             {

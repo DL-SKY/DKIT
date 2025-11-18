@@ -39,7 +39,6 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
             // Создаем карту фишек по координатам для быстрого доступа
             var gemsMap = BuildGemsMap();
-
             // Находим все совпадения
             var matches = FindMatches(gemsMap);
 
@@ -114,8 +113,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
                 for (int x = 0; x < width; x++)
                 {
-                    var pos = new GridPosition { X = x, Y = y };
-                    
+                    var pos = new GridPosition { X = x, Y = y };                    
                     if (gemsMap.TryGetValue(pos, out var gemType))
                     {
                         if (gemType == currentType)

@@ -45,5 +45,34 @@ namespace Modules.ECS.Scripts.Match3.Components
         Horizontal,
         Vertical
     }
+
+    /// <summary>
+    /// Компонент состояния удаления фишек. Создается при начале процесса удаления и удаляется после завершения.
+    /// Пока этот компонент существует, игрок не может перетаскивать фишки, а другие системы игрового поля заблокированы.
+    /// </summary>
+    public struct MatchDestructionInProgress
+    {
+    }
+
+    /// <summary>
+    /// Компонент данных анимации удаления фишек. Содержит информацию о фишках, которые удаляются, и время начала анимации.
+    /// </summary>
+    public struct MatchDestructionAnimation
+    {
+        /// <summary>
+        /// Список сущностей фишек, которые нужно удалить
+        /// </summary>
+        public System.Collections.Generic.List<Leopotam.Ecs.EcsEntity> Entities;
+
+        /// <summary>
+        /// Время начала анимации
+        /// </summary>
+        public float StartTime;
+
+        /// <summary>
+        /// Длительность анимации в секундах
+        /// </summary>
+        public float Duration;
+    }
 }
 
