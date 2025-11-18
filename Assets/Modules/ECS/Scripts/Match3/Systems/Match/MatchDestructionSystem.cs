@@ -162,6 +162,11 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                     {
                         _destructionInProgressFilter.GetEntity(j).Del<MatchDestructionInProgress>();
                     }
+
+                    // Создаем запрос на падение фишек после удаления
+                    var fallRequestEntity = _world.NewEntity();
+                    fallRequestEntity.Get<FallRequest>();
+                    UnityEngine.Debug.Log("[MatchDestructionSystem] Создан запрос на падение фишек");
                 }
             }
         }

@@ -87,6 +87,9 @@ namespace Modules.Match3.Scripts.Implementation.Core
             var matchDetectionSystem = _ecsSystemFactory.Create<MatchDetectionSystem>(new object[] { _gameZoneData });
             // Создаем систему удаления фишек после совпадений
             var matchDestructionSystem = _ecsSystemFactory.Create<MatchDestructionSystem>();
+            // Создаем системы для падения фишек
+            var fallSystem = _ecsSystemFactory.Create<FallSystem>(new object[] { _gameZoneData });
+            var fallAnimationSystem = _ecsSystemFactory.Create<FallAnimationSystem>();
             //...
 
             _systems
@@ -103,6 +106,8 @@ namespace Modules.Match3.Scripts.Implementation.Core
                 .Add(swapAnimationSystem)
                 .Add(matchDetectionSystem)
                 .Add(matchDestructionSystem)
+                .Add(fallSystem)
+                .Add(fallAnimationSystem)
 
                 .Init();
         }

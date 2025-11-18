@@ -17,6 +17,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
         private readonly EcsFilter<CenterOffsetData> _offsetFilter = null;
         private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
         private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
+        private readonly EcsFilter<FallInProgress> _fallInProgressFilter = null;
 
         public void Run()
         {
@@ -34,6 +35,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
 
             // Проверяем, не идет ли удаление фишек (блокируем перетаскивание во время удаления)
             if (_destructionInProgressFilter.GetEntitiesCount() > 0)
+            {
+                return;
+            }
+
+            // Проверяем, не идет ли падение фишек (блокируем перетаскивание во время падения)
+            if (_fallInProgressFilter.GetEntitiesCount() > 0)
             {
                 return;
             }

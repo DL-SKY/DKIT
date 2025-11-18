@@ -17,11 +17,23 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
         private readonly EcsFilter<DragState> _dragStateFilter = null;
         private readonly EcsFilter<GridPosition, GemView, Draggable> _draggableFilter = null;
         private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
+        private readonly EcsFilter<FallInProgress> _fallInProgressFilter = null;
 
         public void Run()
         {
             // Проверяем, не идет ли удаление фишек (блокируем перетаскивание во время удаления)
             if (_destructionInProgressFilter.GetEntitiesCount() > 0)
+            {
+                // Отменяем активное перетаскивание, если оно есть
+                foreach (var i in _dragStateFilter)
+                {
+                    _dragStateFilter.GetEntity(i).Del<DragState>();
+                }
+                return;
+            }
+
+            // Проверяем, не идет ли падение фишек (блокируем перетаскивание во время падения)
+            if (_fallInProgressFilter.GetEntitiesCount() > 0)
             {
                 // Отменяем активное перетаскивание, если оно есть
                 foreach (var i in _dragStateFilter)

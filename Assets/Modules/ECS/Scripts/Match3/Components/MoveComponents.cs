@@ -120,4 +120,60 @@ namespace Modules.ECS.Scripts.Match3.Components
         /// </summary>
         public float Duration;
     }
+
+    /// <summary>
+    /// Компонент-событие запроса на падение фишек. Создается после удаления фишек.
+    /// </summary>
+    public struct FallRequest
+    {
+    }
+
+    /// <summary>
+    /// Компонент состояния падения фишек. Создается при начале падения и удаляется после завершения анимации.
+    /// Пока этот компонент существует, игрок не может перетаскивать фишки, а другие системы игрового поля заблокированы.
+    /// </summary>
+    public struct FallInProgress
+    {
+    }
+
+    /// <summary>
+    /// Компонент данных анимации падения фишки. Содержит информацию о фишке, которая падает, и ее целевой позиции.
+    /// </summary>
+    public struct FallAnimation
+    {
+        /// <summary>
+        /// Сущность фишки, которая падает
+        /// </summary>
+        public EcsEntity Entity;
+
+        /// <summary>
+        /// Начальная позиция фишки в мировых координатах
+        /// </summary>
+        public Vector3 StartPosition;
+
+        /// <summary>
+        /// Целевая позиция фишки в мировых координатах
+        /// </summary>
+        public Vector3 TargetPosition;
+
+        /// <summary>
+        /// Начальная позиция на сетке
+        /// </summary>
+        public GridPosition StartGridPosition;
+
+        /// <summary>
+        /// Целевая позиция на сетке
+        /// </summary>
+        public GridPosition TargetGridPosition;
+
+        /// <summary>
+        /// Время начала анимации
+        /// </summary>
+        public float StartTime;
+
+        /// <summary>
+        /// Длительность анимации в секундах
+        /// </summary>
+        public float Duration;
+    }
 }

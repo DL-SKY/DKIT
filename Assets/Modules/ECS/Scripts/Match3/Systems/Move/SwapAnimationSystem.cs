@@ -50,7 +50,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                 float progress = Mathf.Clamp01(elapsedTime / swapAnimation.Duration);
 
                 // Используем плавную кривую для анимации (ease-in-out)
-                float smoothProgress = SmoothStep(progress);
+                float smoothProgress = MoveHelper.SmoothStep(progress);
 
                 // Интерполируем позиции
                 ref var fromView = ref swapAnimation.FromEntity.Get<GemView>();
@@ -113,14 +113,6 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                     UnityEngine.Debug.Log("[SwapAnimationSystem] Создан запрос на проверку совпадений");
                 }
             }
-        }
-
-        /// <summary>
-        /// Функция плавного перехода (smoothstep) для более естественной анимации
-        /// </summary>
-        private float SmoothStep(float t)
-        {
-            return t * t * (3f - 2f * t);
         }
     }
 }
