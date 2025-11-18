@@ -42,9 +42,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
             {
                 var touch = Input.GetTouch(0);
                 if (touch.phase == TouchPhase.Began)
-                {
                     HandleDragStart(touch.position);
-                }
             }
         }
 

@@ -184,8 +184,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
             // Ищем фишку на позиции соседа
             foreach (var i in _draggableFilter)
             {
-                ref var gridPosition = ref _draggableFilter.Get1(i);
-                
+                ref var gridPosition = ref _draggableFilter.Get1(i);                
                 if (gridPosition.X == neighborPosition.X && gridPosition.Y == neighborPosition.Y)
                 {
                     ref var entity = ref _draggableFilter.GetEntity(i);

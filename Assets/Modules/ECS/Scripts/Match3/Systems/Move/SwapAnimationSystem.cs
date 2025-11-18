@@ -1,6 +1,6 @@
 using Leopotam.Ecs;
 using Modules.ECS.Scripts.Match3.Components;
-using Modules.ECS.Scripts.Match3.Systems.Init;
+using Modules.Match3.Scripts.Helpers;
 using UnityEngine;
 
 namespace Modules.ECS.Scripts.Match3.Systems.Move
@@ -29,9 +29,8 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                     swapAnimationEntity.Del<SwapAnimation>();
                     // Удаляем состояние ожидания свапа
                     foreach (var j in _swapInProgressFilter)
-                    {
                         _swapInProgressFilter.GetEntity(j).Del<SwapInProgress>();
-                    }
+
                     continue;
                 }
 
@@ -41,9 +40,8 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                     swapAnimationEntity.Del<SwapAnimation>();
                     // Удаляем состояние ожидания свапа
                     foreach (var j in _swapInProgressFilter)
-                    {
                         _swapInProgressFilter.GetEntity(j).Del<SwapInProgress>();
-                    }
+
                     continue;
                 }
 
@@ -92,17 +90,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                     if (swapAnimation.FromEntity.Has<GridPosition>() && swapAnimation.ToEntity.Has<GridPosition>())
                     {
                         ref var fromPosition = ref swapAnimation.FromEntity.Get<GridPosition>();
-                        ref var toPosition = ref swapAnimation.ToEntity.Get<GridPosition>();
-
                         if (fromView.GemVisual != null)
-                        {
-                            fromView.GemVisual.name = GemsInitSystem.GEM_NAME + $"{fromPosition.X}_{fromPosition.Y}";
-                        }
+                            fromView.GemVisual.name = GemsHelper.GenerateGemName(fromPosition.X, fromPosition.Y);
 
+                        ref var toPosition = ref swapAnimation.ToEntity.Get<GridPosition>();
                         if (toView.GemVisual != null)
-                        {
-                            toView.GemVisual.name = GemsInitSystem.GEM_NAME + $"{toPosition.X}_{toPosition.Y}";
-                        }
+                            toView.GemVisual.name = GemsHelper.GenerateGemName(toPosition.X, toPosition.Y);
                     }
 
                     UnityEngine.Debug.Log("[SwapAnimationSystem] Анимация свапа завершена");
@@ -112,9 +105,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
 
                     // Удаляем состояние ожидания свапа
                     foreach (var j in _swapInProgressFilter)
-                    {
                         _swapInProgressFilter.GetEntity(j).Del<SwapInProgress>();
-                    }
                 }
             }
         }

@@ -19,8 +19,6 @@ namespace Modules.ECS.Scripts.Match3.Systems.Init
     /// </summary>
     public class GemsInitSystem : IEcsInitSystem
     {
-        public const string GEM_NAME = "Gem_";
-
         [Inject] private readonly DefinitionsManager _definitionsManager;
 
         private readonly EcsWorld _world = null;
@@ -94,18 +92,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Init
             var excludedGems = GetExcludedGems(x, y, createdGems);            
             var gemId = (excludedGems == null || excludedGems.Count < 1) ? _gemsData.GetRandomGem() : _gemsData.GetRandomGem(excludedGems);
             var gemDef = _definitionsManager.Gems[gemId];
-
-            var entity = _world.NewEntity();
-            entity.Get<GridPosition>() = new GridPosition { X = x, Y = y };         //Позиция
-            entity.Get<GemType>() = new GemType                                     //Тип
-            { 
-                Type = gemId
-            };
-            entity.Get<GemView>() = new GemView                                     //Визуал
-            {
-                GemVisual = CreateView(x, y, centeringOffset, gemDef)
-            };
-            entity.Get<Draggable>();                                                //Перетаскивание
+            GemsHelper.CreateEntity(x, y, gemId, _world, centeringOffset, gemDef);
 
             // Сохраняем созданный гем в словарь
             createdGems[new GridPosition { X = x, Y = y }] = gemId;
@@ -144,37 +131,6 @@ namespace Modules.ECS.Scripts.Match3.Systems.Init
             }
 
             return excludedGems;
-        }
-
-        private GemVisual CreateView(int x, int y, Vector2 centeringOffset, GemDef gemDef)
-        { 
-            var prefab = GetPrefab(gemDef.PrefabPath);
-            var gemObject = Object.Instantiate(prefab);
-            gemObject.Init(gemDef);
-            gemObject.name = GEM_NAME + $"{x}_{y}";
-            gemObject.transform.position = GridPositionHelper.GridToWorldPosition(x, y, centeringOffset, GridPositionHelper.GEM_POSITION_Z);
-
-            return gemObject;
-        }
-
-        private GemVisual GetPrefab(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                var error = $"[GemsInitSystem] Prefab path is null or empty!";
-                UnityEngine.Debug.LogError($"{error}");
-                throw new System.Exception(error);
-            }
-
-            var prefab = Resources.Load<GemVisual>(path);
-            if (prefab == null)
-            {
-                var error = $"[GemsInitSystem] Prefab \"{path}\" not loaded!";
-                UnityEngine.Debug.LogError($"{error}");
-                throw new System.Exception(error);
-            }
-
-            return prefab;
         }
     }
 }
