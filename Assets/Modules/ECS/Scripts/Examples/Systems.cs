@@ -175,7 +175,7 @@ namespace Modules.ECS.Scripts.Examples
 
                         if (gemView.GameObject == hit.transform.gameObject)
                         {
-                            var entity = _gemsFilter.GetEntity(i);
+                            ref var entity = ref _gemsFilter.GetEntity(i);
 
                             if (_selectedEntity.IsNull())
                             {

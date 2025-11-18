@@ -72,7 +72,12 @@ namespace Modules.Match3.Scripts.Implementation.Core
             // Создаем систему инициализации клеток
             var cellsInitSystem = _ecsSystemFactory.Create<CellsInitSystem>(new object[] { _gameZoneData });
             // Создаем систему инициализации фишек
-            var gemsInitSystem = _ecsSystemFactory.Create<GemsInitSystem>(new object[] { _gameZoneData, _gemsData });
+            var gemsInitSystem = _ecsSystemFactory.Create<GemsInitSystem>(new object[] { _gameZoneData, _gemsData });            
+            // Создаем системы для перетаскивания фишек
+            var dragStartSystem = _ecsSystemFactory.Create<DragStartSystem>();
+            var dragEndSystem = _ecsSystemFactory.Create<DragEndSystem>();
+            var swapSystem = _ecsSystemFactory.Create<SwapSystem>();
+            //...
 
             _systems
                 .Add(centeringOffsetCalculateSystem)
@@ -80,6 +85,10 @@ namespace Modules.Match3.Scripts.Implementation.Core
 
                 .Add(cellsInitSystem)
                 .Add(gemsInitSystem)
+                
+                .Add(dragStartSystem)
+                .Add(dragEndSystem)
+                .Add(swapSystem)
 
                 .Init();
         }
@@ -98,10 +107,6 @@ namespace Modules.Match3.Scripts.Implementation.Core
         {
             _systems?.Run();
         }
-
-        
-        
-
 
         public override void Dispose()
         {
