@@ -8,7 +8,7 @@ namespace Modules.Match3.Scripts.Helpers
 {
     public static class GemsHelper
     {
-        private const string GEM_NAME = "Gem_";
+        private const string GEM_NAME = "Gem";
 
 
         public static void CreateEntity(int x, int y, string gemId, EcsWorld world, Vector2 centeringOffset, GemDef gemDef)
