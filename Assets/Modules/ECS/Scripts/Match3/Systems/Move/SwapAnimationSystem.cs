@@ -1,5 +1,6 @@
 using Leopotam.Ecs;
 using Modules.ECS.Scripts.Match3.Components;
+using Modules.ECS.Scripts.Match3.Systems.Init;
 using UnityEngine;
 
 namespace Modules.ECS.Scripts.Match3.Systems.Move
@@ -85,6 +86,23 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                     if (toView.GemVisual != null)
                     {
                         toView.GemVisual.transform.position = swapAnimation.ToTargetPosition;
+                    }
+
+                    // Переименовываем фишки в соответствии с новыми координатами
+                    if (swapAnimation.FromEntity.Has<GridPosition>() && swapAnimation.ToEntity.Has<GridPosition>())
+                    {
+                        ref var fromPosition = ref swapAnimation.FromEntity.Get<GridPosition>();
+                        ref var toPosition = ref swapAnimation.ToEntity.Get<GridPosition>();
+
+                        if (fromView.GemVisual != null)
+                        {
+                            fromView.GemVisual.name = GemsInitSystem.GEM_NAME + $"{fromPosition.X}_{fromPosition.Y}";
+                        }
+
+                        if (toView.GemVisual != null)
+                        {
+                            toView.GemVisual.name = GemsInitSystem.GEM_NAME + $"{toPosition.X}_{toPosition.Y}";
+                        }
                     }
 
                     UnityEngine.Debug.Log("[SwapAnimationSystem] Анимация свапа завершена");

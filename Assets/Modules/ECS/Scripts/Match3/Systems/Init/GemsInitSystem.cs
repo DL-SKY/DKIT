@@ -19,6 +19,8 @@ namespace Modules.ECS.Scripts.Match3.Systems.Init
     /// </summary>
     public class GemsInitSystem : IEcsInitSystem
     {
+        public const string GEM_NAME = "Gem_";
+
         [Inject] private readonly DefinitionsManager _definitionsManager;
 
         private readonly EcsWorld _world = null;
@@ -149,7 +151,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Init
             var prefab = GetPrefab(gemDef.PrefabPath);
             var gemObject = Object.Instantiate(prefab);
             gemObject.Init(gemDef);
-            gemObject.name = $"Gem_{x}_{y}";
+            gemObject.name = GEM_NAME + $"{x}_{y}";
             gemObject.transform.position = GridPositionHelper.GridToWorldPosition(x, y, centeringOffset, GridPositionHelper.GEM_POSITION_Z);
 
             return gemObject;
