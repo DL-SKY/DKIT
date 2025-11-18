@@ -137,6 +137,8 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                             if (entity.IsNull())
                                 continue;
 
+
+
                             // Удаляем GameObject, если он существует
                             if (entity.Has<GemView>())
                             {

@@ -43,10 +43,20 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
             var matches = FindMatches(gemsMap);
 
             // Создаем компоненты MatchGroup для каждого найденного совпадения
+            // А также собьытия запросы на изменение очков
             foreach (var match in matches)
             {
                 var matchEntity = _world.NewEntity();
                 matchEntity.Get<MatchGroup>() = match;
+
+                // Создаем событие запроса на изменение очков 
+                var scoreRequestEntity = _world.NewEntity();
+                scoreRequestEntity.Get<MatchScoreRequest>() = new MatchScoreRequest
+                {
+                    GemType = match.GemType,
+                    Count = match.Count
+                };
+                UnityEngine.Debug.LogError($"    ===> MatchScoreRequest: GemType {match.GemType} / Count {match.Count}");
 
                 UnityEngine.Debug.Log($"[MatchDetectionSystem] Найдено совпадение: {match.Count} фишек типа '{match.GemType}' " +
                     $"в направлении {match.Direction} на позициях: {string.Join(", ", match.Positions)}");
