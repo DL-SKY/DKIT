@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
-namespace Modules.ECS.Scripts.Match3.Systems
+namespace Modules.ECS.Scripts.Match3.Systems.Init
 {
     /// <summary>
     /// Система инициализации, отвечающая за создание и размещение гемов (драгоценных камней) на игровом поле.
@@ -61,6 +61,7 @@ namespace Modules.ECS.Scripts.Match3.Systems
             {
                 ref var offset = ref _offsetFilter.Get1(i);
                 centeringOffset = offset.Offset;
+                break;
             }
 
             // Словарь для хранения уже созданных гемов по их позициям

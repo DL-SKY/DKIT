@@ -24,6 +24,7 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         private readonly Loader _loader;
         private readonly SimpleAsyncOperation _asyncOperation;
 
+        public Match3GlobalSettingsDef Match3GlobalSettings;
         public Dictionary<string, GameZoneDef> GameZones;
         public CellsMapDef CellsMap;
         public Dictionary<string, CellDef> Cells;
@@ -51,6 +52,7 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         {
             // Заполняем список методов-инициализаторов дэфов
             var loadMethods = new List<Action>{
+                LoadMatch3GlobalSettings,
                 LoadGameZones,
                 LoadCellsMap,
                 LoadCells,
@@ -71,6 +73,11 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
             }
 
             _asyncOperation.SetCompleted();
+        }
+
+        private void LoadMatch3GlobalSettings()
+        {
+            Match3GlobalSettings = _loader.LoadSingle<Match3GlobalSettingsDef>("Definitions/Match3GlobalSettings/Match3GlobalSettings");
         }
 
         private void LoadGameZones()

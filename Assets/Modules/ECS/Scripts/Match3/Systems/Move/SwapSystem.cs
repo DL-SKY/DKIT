@@ -3,7 +3,7 @@ using Modules.ECS.Scripts.Match3.Components;
 using Modules.Match3.Scripts.Helpers;
 using UnityEngine;
 
-namespace Modules.ECS.Scripts.Match3.Systems
+namespace Modules.ECS.Scripts.Match3.Systems.Move
 {
     /// <summary>
     /// Система выполнения свапа фишек.
@@ -11,12 +11,11 @@ namespace Modules.ECS.Scripts.Match3.Systems
     /// </summary>
     public class SwapSystem : IEcsRunSystem
     {
-        private const float SWAP_ANIMATION_DURATION = 0.2f;
-
         private readonly EcsWorld _world = null;
         private readonly EcsFilter<SwapRequest> _swapRequestFilter = null;
         private readonly EcsFilter<CenterOffsetData> _offsetFilter = null;
         private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
+        private readonly EcsFilter<Match3GlobalSettingsData> _globalSettingsFilter = null;
 
         public void Run()
         {
@@ -59,6 +58,7 @@ namespace Modules.ECS.Scripts.Match3.Systems
                 {
                     ref var offset = ref _offsetFilter.Get1(j);
                     centeringOffset = offset.Offset;
+                    break;
                 }
 
                 // Получаем текущие позиции на сетке
@@ -100,6 +100,13 @@ namespace Modules.ECS.Scripts.Match3.Systems
                 swapInProgressEntity.Get<SwapInProgress>();
 
                 // Создаем компонент анимации свапа
+                var duration = 0.0f;
+                foreach (var j in _globalSettingsFilter)
+                {
+                    ref var settings = ref _globalSettingsFilter.Get1(j);
+                    duration = settings.GetSwapAnimationDuration();
+                    break;
+                }
                 var swapAnimationEntity = _world.NewEntity();
                 swapAnimationEntity.Get<SwapAnimation>() = new SwapAnimation
                 {
@@ -110,7 +117,7 @@ namespace Modules.ECS.Scripts.Match3.Systems
                     ToStartPosition = toCurrentWorldPosition,
                     ToTargetPosition = toTargetWorldPosition,
                     StartTime = Time.time,
-                    Duration = SWAP_ANIMATION_DURATION
+                    Duration = duration
                 };
 
                 UnityEngine.Debug.Log($"[SwapSystem] Запущена анимация свапа: ({fromPosition.X}, {fromPosition.Y}) <-> ({toPosition.X}, {toPosition.Y})");

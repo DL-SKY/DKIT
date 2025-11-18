@@ -3,7 +3,7 @@ using Modules.Match3.Scripts.Helpers;
 using Modules.Match3.Scripts.Interfaces;
 using UnityEngine;
 
-namespace Modules.ECS.Scripts.Match3.Systems
+namespace Modules.ECS.Scripts.Match3.Systems.Settings
 {
     /// <summary>
     /// Система настройки камеры в зависимости от размеров игрового поля.

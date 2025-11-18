@@ -2,7 +2,7 @@ using Leopotam.Ecs;
 using Modules.ECS.Scripts.Match3.Components;
 using UnityEngine;
 
-namespace Modules.ECS.Scripts.Match3.Systems
+namespace Modules.ECS.Scripts.Match3.Systems.Move
 {
     /// <summary>
     /// Система обработки окончания перетаскивания фишек.

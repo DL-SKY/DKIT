@@ -3,7 +3,9 @@ using Modules.Definitions.Scripts.Implementation.Defs;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZoneGems;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
 using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
-using Modules.ECS.Scripts.Match3.Systems;
+using Modules.ECS.Scripts.Match3.Systems.Init;
+using Modules.ECS.Scripts.Match3.Systems.Move;
+using Modules.ECS.Scripts.Match3.Systems.Settings;
 using Modules.Match3.Scripts.Core;
 using Modules.Match3.Scripts.Implementation.Data;
 using Modules.Utils.Scripts.Components;
@@ -65,6 +67,8 @@ namespace Modules.Match3.Scripts.Implementation.Core
             _world = new EcsWorld();
             _systems = new EcsSystems(_world);
 
+            // Создаем систему хранения глобальных настроек для Match-3
+            var match3GlobalSettingsSystem = _ecsSystemFactory.Create<Match3GlobalSettingsSystem>();
             // Создаем систему вычисления отступа игрового поля относительно центра экрана и камеры
             var centeringOffsetCalculateSystem = _ecsSystemFactory.Create<CenteringOffsetCalculateSystem>(new object[] { _gameZoneData });
             // Создаем систему настройки камеры
@@ -81,6 +85,7 @@ namespace Modules.Match3.Scripts.Implementation.Core
             //...
 
             _systems
+                .Add(match3GlobalSettingsSystem)
                 .Add(centeringOffsetCalculateSystem)
                 .Add(cameraSetupSystem)
 

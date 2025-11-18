@@ -3,7 +3,7 @@ using Modules.ECS.Scripts.Match3.Components;
 using Modules.Match3.Scripts.Helpers;
 using Modules.Match3.Scripts.Interfaces;
 
-namespace Modules.ECS.Scripts.Match3.Systems
+namespace Modules.ECS.Scripts.Match3.Systems.Settings
 {
     /// <summary>
     /// Система инициализации, вычисляющая смещение для центрирования игрового поля относительно камеры.
@@ -40,7 +40,6 @@ namespace Modules.ECS.Scripts.Match3.Systems
             var centeringOffset = GridPositionHelper.CalculateCenteringOffset(mask);
 
             var entity = _world.NewEntity();
-            entity.Get<CenterOffsetData>();
             entity.Get<CenterOffsetData>() = new CenterOffsetData { Offset = centeringOffset };
         }
     }

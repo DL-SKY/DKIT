@@ -3,7 +3,7 @@ using Modules.ECS.Scripts.Match3.Components;
 using Modules.Match3.Scripts.Helpers;
 using UnityEngine;
 
-namespace Modules.ECS.Scripts.Match3.Systems
+namespace Modules.ECS.Scripts.Match3.Systems.Move
 {
     /// <summary>
     /// Система обработки начала перетаскивания фишек.
@@ -61,6 +61,7 @@ namespace Modules.ECS.Scripts.Match3.Systems
             {
                 ref var offset = ref _offsetFilter.Get1(j);
                 centeringOffset = offset.Offset;
+                break;
             }
 
             // Используем OverlapPointAll для получения всех коллайдеров в точке
