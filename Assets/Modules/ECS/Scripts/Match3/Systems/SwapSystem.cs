@@ -7,15 +7,25 @@ namespace Modules.ECS.Scripts.Match3.Systems
 {
     /// <summary>
     /// Система выполнения свапа фишек.
-    /// Меняет позиции двух фишек на сетке и обновляет их визуальное представление.
+    /// Создает состояние ожидания свапа и запускает анимацию обмена позициями двух фишек.
     /// </summary>
     public class SwapSystem : IEcsRunSystem
     {
+        private const float SWAP_ANIMATION_DURATION = 0.2f;
+
+        private readonly EcsWorld _world = null;
         private readonly EcsFilter<SwapRequest> _swapRequestFilter = null;
         private readonly EcsFilter<CenterOffsetData> _offsetFilter = null;
+        private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
 
         public void Run()
         {
+            // Если уже идет свап, не обрабатываем новые запросы
+            if (_swapInProgressFilter.GetEntitiesCount() > 0)
+            {
+                return;
+            }
+
             foreach (var i in _swapRequestFilter)
             {
                 ref var swapRequest = ref _swapRequestFilter.Get1(i);
@@ -51,40 +61,59 @@ namespace Modules.ECS.Scripts.Match3.Systems
                     centeringOffset = offset.Offset;
                 }
 
-                // Получаем позиции
+                // Получаем текущие позиции на сетке
                 ref var fromPosition = ref swapRequest.FromEntity.Get<GridPosition>();
                 ref var toPosition = ref swapRequest.ToEntity.Get<GridPosition>();
 
-                // Меняем позиции на сетке
+                // Получаем визуальные представления
+                ref var fromView = ref swapRequest.FromEntity.Get<GemView>();
+                ref var toView = ref swapRequest.ToEntity.Get<GemView>();
+
+                // Вычисляем текущие и целевые мировые позиции
+                var fromCurrentWorldPosition = fromView.GemVisual != null 
+                    ? fromView.GemVisual.transform.position 
+                    : GridPositionHelper.GridToWorldPosition(fromPosition.X, fromPosition.Y, centeringOffset, GridPositionHelper.GEM_POSITION_Z);
+                
+                var toCurrentWorldPosition = toView.GemVisual != null 
+                    ? toView.GemVisual.transform.position 
+                    : GridPositionHelper.GridToWorldPosition(toPosition.X, toPosition.Y, centeringOffset, GridPositionHelper.GEM_POSITION_Z);
+
+                var fromTargetWorldPosition = GridPositionHelper.GridToWorldPosition(
+                    toPosition.X,
+                    toPosition.Y,
+                    centeringOffset,
+                    GridPositionHelper.GEM_POSITION_Z);
+
+                var toTargetWorldPosition = GridPositionHelper.GridToWorldPosition(
+                    fromPosition.X,
+                    fromPosition.Y,
+                    centeringOffset,
+                    GridPositionHelper.GEM_POSITION_Z);
+
+                // Меняем позиции на сетке сразу (логика игры)
                 var tempPosition = fromPosition;
                 fromPosition = toPosition;
                 toPosition = tempPosition;
 
-                // Обновляем визуальное представление
-                ref var fromView = ref swapRequest.FromEntity.Get<GemView>();
-                ref var toView = ref swapRequest.ToEntity.Get<GemView>();
+                // Создаем состояние ожидания свапа
+                var swapInProgressEntity = _world.NewEntity();
+                swapInProgressEntity.Get<SwapInProgress>();
 
-                if (fromView.GemVisual != null)
+                // Создаем компонент анимации свапа
+                var swapAnimationEntity = _world.NewEntity();
+                swapAnimationEntity.Get<SwapAnimation>() = new SwapAnimation
                 {
-                    var newWorldPosition = GridPositionHelper.GridToWorldPosition(
-                        fromPosition.X,
-                        fromPosition.Y,
-                        centeringOffset,
-                        GridPositionHelper.GEM_POSITION_Z);
-                    fromView.GemVisual.transform.position = newWorldPosition;
-                }
+                    FromEntity = swapRequest.FromEntity,
+                    ToEntity = swapRequest.ToEntity,
+                    FromStartPosition = fromCurrentWorldPosition,
+                    FromTargetPosition = fromTargetWorldPosition,
+                    ToStartPosition = toCurrentWorldPosition,
+                    ToTargetPosition = toTargetWorldPosition,
+                    StartTime = Time.time,
+                    Duration = SWAP_ANIMATION_DURATION
+                };
 
-                if (toView.GemVisual != null)
-                {
-                    var newWorldPosition = GridPositionHelper.GridToWorldPosition(
-                        toPosition.X,
-                        toPosition.Y,
-                        centeringOffset,
-                        GridPositionHelper.GEM_POSITION_Z);
-                    toView.GemVisual.transform.position = newWorldPosition;
-                }
-
-                UnityEngine.Debug.Log($"[SwapSystem] Выполнен свап: ({fromPosition.X}, {fromPosition.Y}) <-> ({toPosition.X}, {toPosition.Y})");
+                UnityEngine.Debug.Log($"[SwapSystem] Запущена анимация свапа: ({fromPosition.X}, {fromPosition.Y}) <-> ({toPosition.X}, {toPosition.Y})");
 
                 // Удаляем событие свапа
                 swapRequestEntity.Del<SwapRequest>();

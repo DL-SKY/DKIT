@@ -77,6 +77,7 @@ namespace Modules.Match3.Scripts.Implementation.Core
             var dragStartSystem = _ecsSystemFactory.Create<DragStartSystem>();
             var dragEndSystem = _ecsSystemFactory.Create<DragEndSystem>();
             var swapSystem = _ecsSystemFactory.Create<SwapSystem>();
+            var swapAnimationSystem = _ecsSystemFactory.Create<SwapAnimationSystem>();
             //...
 
             _systems
@@ -89,6 +90,7 @@ namespace Modules.Match3.Scripts.Implementation.Core
                 .Add(dragStartSystem)
                 .Add(dragEndSystem)
                 .Add(swapSystem)
+                .Add(swapAnimationSystem)
 
                 .Init();
         }

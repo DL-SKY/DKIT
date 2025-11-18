@@ -15,11 +15,18 @@ namespace Modules.ECS.Scripts.Match3.Systems
         private readonly EcsFilter<GridPosition, GemView, Draggable> _draggableFilter = null;
         private readonly EcsFilter<DragState> _dragStateFilter = null;
         private readonly EcsFilter<CenterOffsetData> _offsetFilter = null;
+        private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
 
         public void Run()
         {
             // Проверяем, не идет ли уже перетаскивание
             if (_dragStateFilter.GetEntitiesCount() > 0)
+            {
+                return;
+            }
+
+            // Проверяем, не идет ли свап (блокируем перетаскивание во время свапа)
+            if (_swapInProgressFilter.GetEntitiesCount() > 0)
             {
                 return;
             }

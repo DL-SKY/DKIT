@@ -65,4 +65,59 @@ namespace Modules.ECS.Scripts.Match3.Components
         Left,
         Right        
     }
+
+    /// <summary>
+    /// Компонент состояния ожидания свапа. Создается при начале свапа и удаляется после завершения анимации.
+    /// Пока этот компонент существует, игрок не может перетаскивать фишки, а другие системы игрового поля заблокированы.
+    /// </summary>
+    public struct SwapInProgress
+    {
+
+    }
+
+    /// <summary>
+    /// Компонент данных анимации свапа. Содержит информацию о фишках, которые анимируются, и их целевых позициях.
+    /// </summary>
+    public struct SwapAnimation
+    {
+        /// <summary>
+        /// Сущность первой фишки
+        /// </summary>
+        public EcsEntity FromEntity;
+        
+        /// <summary>
+        /// Сущность второй фишки
+        /// </summary>
+        public EcsEntity ToEntity;
+        
+        /// <summary>
+        /// Начальная позиция первой фишки в мировых координатах
+        /// </summary>
+        public Vector3 FromStartPosition;
+        
+        /// <summary>
+        /// Целевая позиция первой фишки в мировых координатах
+        /// </summary>
+        public Vector3 FromTargetPosition;
+        
+        /// <summary>
+        /// Начальная позиция второй фишки в мировых координатах
+        /// </summary>
+        public Vector3 ToStartPosition;
+        
+        /// <summary>
+        /// Целевая позиция второй фишки в мировых координатах
+        /// </summary>
+        public Vector3 ToTargetPosition;
+        
+        /// <summary>
+        /// Время начала анимации
+        /// </summary>
+        public float StartTime;
+        
+        /// <summary>
+        /// Длительность анимации в секундах
+        /// </summary>
+        public float Duration;
+    }
 }
