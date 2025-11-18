@@ -106,6 +106,11 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                     // Удаляем состояние ожидания свапа
                     foreach (var j in _swapInProgressFilter)
                         _swapInProgressFilter.GetEntity(j).Del<SwapInProgress>();
+
+                    // Создаем запрос на проверку совпадений после завершения свапа
+                    var checkMatchesEntity = _world.NewEntity();
+                    checkMatchesEntity.Get<CheckMatchesRequest>();
+                    UnityEngine.Debug.Log("[SwapAnimationSystem] Создан запрос на проверку совпадений");
                 }
             }
         }

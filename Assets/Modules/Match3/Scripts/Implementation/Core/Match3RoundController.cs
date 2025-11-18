@@ -4,6 +4,7 @@ using Modules.Definitions.Scripts.Implementation.Defs.GameZoneGems;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
 using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
 using Modules.ECS.Scripts.Match3.Systems.Init;
+using Modules.ECS.Scripts.Match3.Systems.Match;
 using Modules.ECS.Scripts.Match3.Systems.Move;
 using Modules.ECS.Scripts.Match3.Systems.Settings;
 using Modules.Match3.Scripts.Core;
@@ -82,6 +83,8 @@ namespace Modules.Match3.Scripts.Implementation.Core
             var dragEndSystem = _ecsSystemFactory.Create<DragEndSystem>();
             var swapSystem = _ecsSystemFactory.Create<SwapSystem>();
             var swapAnimationSystem = _ecsSystemFactory.Create<SwapAnimationSystem>();
+            // Создаем систему определения совпадений
+            var matchDetectionSystem = _ecsSystemFactory.Create<MatchDetectionSystem>(new object[] { _gameZoneData });
             //...
 
             _systems
@@ -96,6 +99,7 @@ namespace Modules.Match3.Scripts.Implementation.Core
                 .Add(dragEndSystem)
                 .Add(swapSystem)
                 .Add(swapAnimationSystem)
+                .Add(matchDetectionSystem)
 
                 .Init();
         }

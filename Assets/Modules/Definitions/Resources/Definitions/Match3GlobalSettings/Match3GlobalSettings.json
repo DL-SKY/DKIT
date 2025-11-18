@@ -1,3 +1,4 @@
 {
-	"SwapAnimationDurationMs": 200
+	"SwapAnimationDurationMs": 200,
+	"MatchAnimationDurationMs": 500,
 }

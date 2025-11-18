@@ -1,9 +1,7 @@
 ﻿using Leopotam.Ecs;
 using Modules.Definitions.Scripts.Implementation.Defs;
-using Modules.Definitions.Scripts.Implementation.Defs.Gems;
 using Modules.ECS.Scripts.Match3.Components;
 using Modules.Match3.Scripts.Helpers;
-using Modules.Match3.Scripts.Implementation.Visual;
 using Modules.Match3.Scripts.Interfaces;
 using System.Collections.Generic;
 using UnityEngine;

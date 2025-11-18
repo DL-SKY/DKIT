@@ -20,10 +20,16 @@ namespace Modules.ECS.Scripts.Match3.Components
     public struct Match3GlobalSettingsData
     {
         public long SwapAnimationDurationMs;
+        public long MatchAnimationDurationMs;
 
         public float GetSwapAnimationDuration()
         {
             return SwapAnimationDurationMs / 1000.0f;
+        }
+
+        public float GetMatchAnimationDuration()
+        {
+            return MatchAnimationDurationMs / 1000.0f;
         }
     }
 }

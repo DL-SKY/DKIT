@@ -21,7 +21,8 @@ namespace Modules.ECS.Scripts.Match3.Systems.Settings
             var entity = _world.NewEntity();
             entity.Get<Match3GlobalSettingsData>() = new Match3GlobalSettingsData
             {
-                SwapAnimationDurationMs = settings.SwapAnimationDurationMs
+                SwapAnimationDurationMs = settings.SwapAnimationDurationMs,
+                MatchAnimationDurationMs = settings.MatchAnimationDurationMs
             };
         }
     }
