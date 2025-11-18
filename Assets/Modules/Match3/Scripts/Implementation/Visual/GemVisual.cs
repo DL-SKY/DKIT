@@ -14,7 +14,7 @@ namespace Modules.Match3.Scripts.Implementation.Visual
 
         public void StartDestroyAnimation()
         {
-            UnityEngine.Debug.LogError($"[{name}] StartDestroyAnimation()");
+            //TODO: ...
         }
     }
 }

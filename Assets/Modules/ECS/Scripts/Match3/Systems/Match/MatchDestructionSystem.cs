@@ -64,12 +64,14 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
             // Находим все сущности фишек по координатам
             var entitiesToDestroy = new List<EcsEntity>();
+            var viewsToDestroy = new List<GemView>();
             foreach (var i in _gemsFilter)
             {
                 ref var gridPosition = ref _gemsFilter.Get1(i);
                 if (positionsToDestroy.Contains(gridPosition))
                 {
                     entitiesToDestroy.Add(_gemsFilter.GetEntity(i));
+                    viewsToDestroy.Add(_gemsFilter.Get2(i));
                 }
             }
 
@@ -101,6 +103,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                 Duration = duration
             };
 
+            // Запускаем у фишек анимацию
+            foreach (var j in viewsToDestroy)
+            {
+                j.GemVisual?.StartDestroyAnimation();
+            }
+
             UnityEngine.Debug.Log($"[MatchDestructionSystem] Запущена анимация удаления {entitiesToDestroy.Count} фишек. Длительность: {duration}с");
         }
 
@@ -117,10 +125,6 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                 // Вычисляем прогресс анимации (0.0 - 1.0)
                 float elapsedTime = Time.time - destructionAnimation.StartTime;
                 float progress = Mathf.Clamp01(elapsedTime / destructionAnimation.Duration);
-
-                // Здесь можно добавить анимации и эффекты удаления
-                // Например, масштабирование, изменение прозрачности и т.д.
-                // Пока просто ждем завершения времени
 
                 // Если анимация завершена
                 if (progress >= 1.0f)
