@@ -65,6 +65,8 @@ namespace Modules.Match3.Scripts.Implementation.Core
             _world = new EcsWorld();
             _systems = new EcsSystems(_world);
 
+            // Создаем систему вычисления отступа игрового поля относительно центра экрана и камеры
+            var centeringOffsetCalculateSystem = _ecsSystemFactory.Create<CenteringOffsetCalculateSystem>(new object[] { _gameZoneData });
             // Создаем систему настройки камеры
             var cameraSetupSystem = _ecsSystemFactory.Create<CameraSetupSystem>(new object[] { _gameZoneData });
             // Создаем систему инициализации клеток
@@ -73,7 +75,9 @@ namespace Modules.Match3.Scripts.Implementation.Core
             var gemsInitSystem = _ecsSystemFactory.Create<GemsInitSystem>(new object[] { _gameZoneData, _gemsData });
 
             _systems
+                .Add(centeringOffsetCalculateSystem)
                 .Add(cameraSetupSystem)
+
                 .Add(cellsInitSystem)
                 .Add(gemsInitSystem)
 

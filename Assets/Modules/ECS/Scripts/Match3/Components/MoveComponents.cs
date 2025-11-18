@@ -2,16 +2,18 @@
 
 namespace Modules.ECS.Scripts.Match3.Components
 {
-    // Компонент для перетаскивания фишек
+    /// <summary>
+    /// Компонент для перетаскивания фишек
+    /// </summary>
     public struct Draggable
     {
 
     }
 
-    // Компонент-событие свапа фишек
-    public struct SwapEvent
-    {
-        public EcsEntity FromEntity;
-        public EcsEntity ToEntity;
-    }
+    //// Компонент-событие свапа фишек
+    //public struct SwapEvent
+    //{
+    //    public EcsEntity FromEntity;
+    //    public EcsEntity ToEntity;
+    //}
 }

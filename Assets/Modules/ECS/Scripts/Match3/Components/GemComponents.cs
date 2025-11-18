@@ -2,13 +2,20 @@
 
 namespace Modules.ECS.Scripts.Match3.Components
 {
-    // Компонент типа фишки
+    /// <summary>
+    /// Компонент типа фишки
+    /// </summary>
     public struct GemType
     {
+        /// <summary>
+        /// DefId фишки
+        /// </summary>
         public string Type;
     }
 
-    // Компонент визуала фишки
+    /// <summary>
+    /// Компонент визуала фишки
+    /// </summary>
     public struct GemView
     { 
         public GemVisual GemVisual;

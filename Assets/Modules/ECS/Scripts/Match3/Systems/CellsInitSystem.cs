@@ -10,12 +10,16 @@ using Zenject;
 
 namespace Modules.ECS.Scripts.Match3.Systems
 {
-    // Система инициализации фоновых клеток игрового поля
+    /// <summary>
+    /// Система инициализации фоновых клеток игрового поля
+    /// </summary>
     public class CellsInitSystem : IEcsInitSystem
     {
         [Inject] private readonly DefinitionsManager _definitionsManager;
 
-        private readonly EcsWorld _world = null;        
+        private readonly EcsWorld _world = null;
+        private readonly EcsFilter<CenterOffsetData> _offsetFilter = null;
+
         private readonly IGameZoneData _gameZoneData;
 
         public CellsInitSystem(IGameZoneData gameZoneData)
@@ -38,8 +42,13 @@ namespace Modules.ECS.Scripts.Match3.Systems
                 return;
             }
 
-            // Вычисляем смещение для центрирования поля относительно камеры
-            var centeringOffset = GridPositionHelper.CalculateCenteringOffset(mask);
+            // Получаем смещение для центрирования поля относительно камеры
+            var centeringOffset = Vector2.zero;
+            foreach (var i in _offsetFilter)
+            {
+                ref var offset = ref _offsetFilter.Get1(i);
+                centeringOffset = offset.Offset;
+            }
 
             // Создаем клетки / фоновые ячейки
             int width = mask.GetLength(1);

@@ -11,11 +11,19 @@ using Zenject;
 
 namespace Modules.ECS.Scripts.Match3.Systems
 {
+    /// <summary>
+    /// Система инициализации, отвечающая за создание и размещение гемов (драгоценных камней) на игровом поле.
+    /// Создает сущности ECS для каждого гема на основе маски игровой зоны и пресетов.
+    /// Предотвращает создание трех одинаковых гемов подряд (горизонтально или вертикально) для обеспечения
+    /// игрового баланса. Каждый созданный гем получает компоненты: GridPosition, GemType, GemView и Draggable.
+    /// </summary>
     public class GemsInitSystem : IEcsInitSystem
     {
         [Inject] private readonly DefinitionsManager _definitionsManager;
 
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<CenterOffsetData> _offsetFilter = null;
+
         private readonly IGameZoneData _gameZoneData;
         private readonly IGemsData _gemsData;
 
@@ -47,8 +55,13 @@ namespace Modules.ECS.Scripts.Match3.Systems
                 return;
             }
 
-            // Вычисляем смещение для центрирования поля относительно камеры
-            var centeringOffset = GridPositionHelper.CalculateCenteringOffset(mask);
+            // Получаем смещение для центрирования поля относительно камеры
+            var centeringOffset = Vector2.zero;
+            foreach (var i in _offsetFilter)
+            {
+                ref var offset = ref _offsetFilter.Get1(i);
+                centeringOffset = offset.Offset;
+            }
 
             // Словарь для хранения уже созданных гемов по их позициям
             var createdGems = new Dictionary<GridPosition, string>();
