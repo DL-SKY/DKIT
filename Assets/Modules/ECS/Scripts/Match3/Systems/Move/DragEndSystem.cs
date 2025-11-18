@@ -103,6 +103,24 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                 return;
             }
 
+            // Проверяем, что обе фишки имеют компонент GemType
+            if (!dragState.DraggedEntity.Has<GemType>() || !targetEntity.Has<GemType>())
+            {
+                dragStateEntity.Del<DragState>();
+                UnityEngine.Debug.Log("[DragEndSystem] Перетаскивание отменено: одна из фишек не имеет компонента GemType");
+                return;
+            }
+
+            // Проверяем, что типы фишек разные - если одинаковые, запрещаем свап
+            ref var draggedGemType = ref dragState.DraggedEntity.Get<GemType>();
+            ref var targetGemType = ref targetEntity.Get<GemType>();            
+            if (draggedGemType.Type == targetGemType.Type)
+            {
+                dragStateEntity.Del<DragState>();
+                UnityEngine.Debug.Log($"[DragEndSystem] Перетаскивание отменено: типы фишек одинаковые (Type: {draggedGemType.Type})");
+                return;
+            }
+
             // Создаем событие запроса свапа
             var swapRequestEntity = _world.NewEntity();
             swapRequestEntity.Get<SwapRequest>() = new SwapRequest
