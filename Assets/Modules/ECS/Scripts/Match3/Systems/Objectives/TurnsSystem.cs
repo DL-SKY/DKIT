@@ -17,15 +17,6 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
 
         public void Run()
         {
-            //TODO: ...
-            //throw new NotImplementedException();
-            UnityEngine.Debug.LogError($"[TurnsSystem] Run() :: entities: {_turnsFilter.GetEntitiesCount()} " +
-                $"/ requests: {_requestFilter.GetEntitiesCount()} " +
-                $"/ locked: {_swapInProgressFilter.GetEntitiesCount()}/{_destructionInProgressFilter.GetEntitiesCount()}/{_fallInProgressFilter.GetEntitiesCount()}");
-            //------------------------------------------------------------
-
-
-
             // Нет запросов
             if (_requestFilter.GetEntitiesCount() == 0)
             {
@@ -51,6 +42,28 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
             }
 
 
+            foreach (var i in _turnsFilter)
+            {
+                ref var turnsEntity = ref _turnsFilter.GetEntity(i);
+
+                foreach (var j in _requestFilter)
+                {
+                    ref var request = ref _requestFilter.Get1(j);
+
+                    // Применяем изменения из запроса
+                    turnsEntity.Get<TurnsData>().Turns += request.Delta;
+
+                    // Удаляем запрос
+                    _requestFilter.GetEntity(j).Del<ChangeTurnsRequest>();
+                }
+
+                // Создаем событие об изменении счетчика ходов
+                var callbackEntity = _world.NewEntity();
+                callbackEntity.Get<TurnsCallback>();
+
+                UnityEngine.Debug.LogError($"[TurnsSystem] TurnsCount: {turnsEntity.Get<TurnsData>().Turns}");
+                break;
+            }            
         }
     }
 }

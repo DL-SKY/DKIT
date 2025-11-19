@@ -107,6 +107,13 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                     foreach (var j in _swapInProgressFilter)
                         _swapInProgressFilter.GetEntity(j).Del<SwapInProgress>();
 
+                    // Создаем запрос на изменения ходов
+                    var turnsRequestEntity = _world.NewEntity();
+                    turnsRequestEntity.Get<ChangeTurnsRequest>() = new ChangeTurnsRequest
+                    { 
+                        Delta = -1
+                    };
+
                     // Создаем запрос на проверку совпадений после завершения свапа
                     var checkMatchesEntity = _world.NewEntity();
                     checkMatchesEntity.Get<CheckMatchesRequest>();
