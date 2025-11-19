@@ -65,6 +65,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
             // Находим все сущности фишек по координатам
             var entitiesToDestroy = new List<EcsEntity>();
             var viewsToDestroy = new List<GemView>();
+            var positionsToDestroyList = new List<GridPosition>(); // Сохраняем позиции для подсчета по колонкам
             foreach (var i in _gemsFilter)
             {
                 ref var gridPosition = ref _gemsFilter.Get1(i);
@@ -72,6 +73,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                 {
                     entitiesToDestroy.Add(_gemsFilter.GetEntity(i));
                     viewsToDestroy.Add(_gemsFilter.Get2(i));
+                    positionsToDestroyList.Add(gridPosition);
                 }
             }
 
@@ -99,6 +101,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
             destructionAnimationEntity.Get<MatchDestructionAnimation>() = new MatchDestructionAnimation
             {
                 Entities = entitiesToDestroy,
+                Positions = positionsToDestroyList, // Сохраняем позиции для подсчета по колонкам
                 StartTime = Time.time,
                 Duration = duration
             };
@@ -156,6 +159,23 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
                     UnityEngine.Debug.Log($"[MatchDestructionSystem] Удалено {destructionAnimation.Entities?.Count ?? 0} фишек");
 
+                    // Подсчитываем количество удаленных фишек по колонкам
+                    var gemsCountByColumn = new Dictionary<int, int>();
+                    if (destructionAnimation.Positions != null)
+                    {
+                        foreach (var pos in destructionAnimation.Positions)
+                        {
+                            if (gemsCountByColumn.ContainsKey(pos.X))
+                            {
+                                gemsCountByColumn[pos.X]++;
+                            }
+                            else
+                            {
+                                gemsCountByColumn[pos.X] = 1;
+                            }
+                        }
+                    }
+
                     // Удаляем компонент анимации
                     destructionAnimationEntity.Del<MatchDestructionAnimation>();
 
@@ -163,6 +183,17 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                     foreach (var j in _destructionInProgressFilter)
                     {
                         _destructionInProgressFilter.GetEntity(j).Del<MatchDestructionInProgress>();
+                    }
+
+                    // Создаем запрос на создание новых фишек (перед FallRequest)
+                    if (gemsCountByColumn.Count > 0)
+                    {
+                        var spawnRequestEntity = _world.NewEntity();
+                        spawnRequestEntity.Get<GemsSpawnRequest>() = new GemsSpawnRequest
+                        {
+                            GemsCountByColumn = gemsCountByColumn
+                        };
+                        UnityEngine.Debug.Log("[MatchDestructionSystem] Создан запрос на создание новых фишек");
                     }
 
                     // Создаем запрос на падение фишек после удаления

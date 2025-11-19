@@ -65,6 +65,11 @@ namespace Modules.ECS.Scripts.Match3.Components
         public System.Collections.Generic.List<Leopotam.Ecs.EcsEntity> Entities;
 
         /// <summary>
+        /// Список позиций удаляемых фишек (для подсчета количества по колонкам)
+        /// </summary>
+        public List<GridPosition> Positions;
+
+        /// <summary>
         /// Время начала анимации
         /// </summary>
         public float StartTime;
@@ -73,6 +78,18 @@ namespace Modules.ECS.Scripts.Match3.Components
         /// Длительность анимации в секундах
         /// </summary>
         public float Duration;
+    }
+
+    /// <summary>
+    /// Компонент-запрос на создание новых фишек. Создается после удаления фишек.
+    /// Содержит информацию о количестве фишек, которые нужно создать в каждой колонке.
+    /// </summary>
+    public struct GemsSpawnRequest
+    {
+        /// <summary>
+        /// Словарь, где ключ - номер колонки (X), значение - количество фишек для создания
+        /// </summary>
+        public Dictionary<int, int> GemsCountByColumn;
     }
 }
 
