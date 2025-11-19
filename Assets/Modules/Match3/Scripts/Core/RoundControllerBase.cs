@@ -11,12 +11,13 @@ namespace Modules.Match3.Scripts.Core
 
         protected IGameZoneData _gameZoneData;
         protected IGemsData _gemsData;
+        protected IObjectivesData _objectivesData;
 
-
-        protected void InitBase(IGameZoneData gameZoneData, IGemsData gemsData)
+        protected void InitBase(IGameZoneData gameZoneData, IGemsData gemsData, IObjectivesData objectivesData)
         {
             _gameZoneData = gameZoneData;
             _gemsData = gemsData;
+            _objectivesData = objectivesData;
 
             Subscribe();
             InitImplementation();

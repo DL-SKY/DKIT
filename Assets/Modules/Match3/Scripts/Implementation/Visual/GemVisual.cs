@@ -14,13 +14,13 @@ namespace Modules.Match3.Scripts.Implementation.Visual
 
         public void StartDestroyAnimation()
         {
-            UnityEngine.Debug.LogError($"    [GemVisual] {name} :: StartDestroyAnimation()");
+            //UnityEngine.Debug.LogError($"    [GemVisual] {name} :: StartDestroyAnimation()");
             //TODO: ...
         }
 
         private void OnDestroy()
         {
-            UnityEngine.Debug.LogError($"    [GemVisual] {name} :: OnDestroy()");
+            //UnityEngine.Debug.LogError($"    [GemVisual] {name} :: OnDestroy()");
             //TODO: ...
         }
     }

@@ -47,6 +47,13 @@ namespace Modules.ECS.Scripts.Match3.Components
     }
 
     /// <summary>
+    /// Компонент состояния анимации перед удалением фишек
+    /// </summary>
+    public struct MatchPrepareDestructionInProgress
+    { 
+    }
+
+    /// <summary>
     /// Компонент состояния удаления фишек. Создается при начале процесса удаления и удаляется после завершения.
     /// Пока этот компонент существует, игрок не может перетаскивать фишки, а другие системы игрового поля заблокированы.
     /// </summary>
@@ -75,7 +82,12 @@ namespace Modules.ECS.Scripts.Match3.Components
         public float StartTime;
 
         /// <summary>
-        /// Длительность анимации в секундах
+        /// Длительность анимации перед удалением в секундах
+        /// </summary>
+        public float MatchAnimationDuration;
+
+        /// <summary>
+        /// Длительность анимации + паузы после удаления в секундах
         /// </summary>
         public float Duration;
     }

@@ -14,6 +14,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
         private readonly EcsWorld _world = null;
         private readonly EcsFilter<MatchGroup> _matchGroupFilter = null;
         private readonly EcsFilter<MatchDestructionAnimation> _destructionAnimationFilter = null;
+        private readonly EcsFilter<MatchPrepareDestructionInProgress> _prepareDestructionInProgressFilter = null;
         private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
         private readonly EcsFilter<Match3GlobalSettingsData> _globalSettingsFilter = null;
         private readonly EcsFilter<GridPosition, GemView> _gemsFilter = null;
@@ -84,16 +85,19 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
             }
 
             // Получаем длительность анимации из настроек
-            var duration = 0.0f;
+            var matchDuration = 0.0f;
+            var allDuration = 0.0f;
             foreach (var j in _globalSettingsFilter)
             {
                 ref var settings = ref _globalSettingsFilter.Get1(j);
-                duration = settings.GetMatchAnimationDuration();
+                matchDuration = settings.GetMatchAnimationDuration();
+                allDuration = settings.GetMatchAnimationDuration() + settings.GetPauseAfterGemDestroy();
                 break;
             }
 
             // Создаем состояние удаления
             var destructionInProgressEntity = _world.NewEntity();
+            destructionInProgressEntity.Get<MatchPrepareDestructionInProgress>();
             destructionInProgressEntity.Get<MatchDestructionInProgress>();
 
             // Создаем компонент анимации удаления
@@ -101,9 +105,10 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
             destructionAnimationEntity.Get<MatchDestructionAnimation>() = new MatchDestructionAnimation
             {
                 Entities = entitiesToDestroy,
-                Positions = positionsToDestroyList, // Сохраняем позиции для подсчета по колонкам
+                Positions = positionsToDestroyList,         // Сохраняем позиции для подсчета по колонкам
                 StartTime = Time.time,
-                Duration = duration
+                MatchAnimationDuration = matchDuration,
+                Duration = allDuration
             };
 
             // Запускаем у фишек анимацию
@@ -112,7 +117,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                 j.GemVisual?.StartDestroyAnimation();
             }
 
-            UnityEngine.Debug.Log($"[MatchDestructionSystem] Запущена анимация удаления {entitiesToDestroy.Count} фишек. Длительность: {duration}с");
+            UnityEngine.Debug.Log($"[MatchDestructionSystem] Запущена анимация удаления {entitiesToDestroy.Count} фишек. Длительность: {allDuration}с");
         }
 
         /// <summary>
@@ -125,12 +130,13 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                 ref var destructionAnimation = ref _destructionAnimationFilter.Get1(i);
                 ref var destructionAnimationEntity = ref _destructionAnimationFilter.GetEntity(i);
 
-                // Вычисляем прогресс анимации (0.0 - 1.0)
+                // Вычисляем прошедшее время
                 float elapsedTime = Time.time - destructionAnimation.StartTime;
-                float progress = Mathf.Clamp01(elapsedTime / destructionAnimation.Duration);
 
-                // Если анимация завершена
-                if (progress >= 1.0f)
+                // Вычисляем прогресс анимации (0.0 - 1.0)
+                // Если анимация перед удалением завершена
+                float prepareProgress = Mathf.Clamp01(elapsedTime / destructionAnimation.MatchAnimationDuration);
+                if (prepareProgress >= 1.0f && _prepareDestructionInProgressFilter.GetEntitiesCount() > 0)
                 {
                     // Удаляем GameObject и сущности
                     if (destructionAnimation.Entities != null)
@@ -139,8 +145,6 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                         {
                             if (entity.IsNull())
                                 continue;
-
-
 
                             // Удаляем GameObject, если он существует
                             if (entity.Has<GemView>())
@@ -159,6 +163,18 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
                     UnityEngine.Debug.Log($"[MatchDestructionSystem] Удалено {destructionAnimation.Entities?.Count ?? 0} фишек");
 
+                    // Удаляем состояние подготовки перед удалением
+                    foreach (var j in _destructionInProgressFilter)
+                    {
+                        _destructionInProgressFilter.GetEntity(j).Del<MatchPrepareDestructionInProgress>();
+                    }
+                }
+
+                // Вычисляем прогресс анимации (0.0 - 1.0)
+                // Если анимация + пауза завершены
+                float allProgress = Mathf.Clamp01(elapsedTime / destructionAnimation.Duration);
+                if (allProgress >= 1.0f)
+                {
                     // Подсчитываем количество удаленных фишек по колонкам
                     var gemsCountByColumn = new Dictionary<int, int>();
                     if (destructionAnimation.Positions != null)

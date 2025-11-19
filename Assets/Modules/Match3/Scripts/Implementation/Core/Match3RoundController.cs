@@ -6,6 +6,7 @@ using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
 using Modules.ECS.Scripts.Match3.Systems.Init;
 using Modules.ECS.Scripts.Match3.Systems.Match;
 using Modules.ECS.Scripts.Match3.Systems.Move;
+using Modules.ECS.Scripts.Match3.Systems.Objectives;
 using Modules.ECS.Scripts.Match3.Systems.Settings;
 using Modules.Match3.Scripts.Core;
 using Modules.Match3.Scripts.Implementation.Data;
@@ -23,13 +24,16 @@ namespace Modules.Match3.Scripts.Implementation.Core
         [Inject] private readonly Updater _updater;
         [Inject] private readonly EcsSystemFactory _ecsSystemFactory;
 
-        private RoundDef _roundDef;
-        private GameZoneDef _gameZoneDef;
-        private GameZoneGemsDef _gameZoneGemsDef;
+        public EcsWorld World => _world;
+        public EcsSystems Systems => _systems;
 
         private EcsWorld _world;
         private EcsSystems _systems;
 
+        private RoundDef _roundDef;
+        private GameZoneDef _gameZoneDef;
+        private GameZoneGemsDef _gameZoneGemsDef;
+        
 
         public void Init(string defId)
         {
@@ -56,9 +60,10 @@ namespace Modules.Match3.Scripts.Implementation.Core
             }
             _gameZoneGemsDef = gameZoneGemsDef;
 
-            _gemsData = new GemsData(_gameZoneGemsDef);
-
-            InitBase(_gameZoneDef, _gemsData);
+            var gameZoneData = new GameZoneData(_gameZoneDef);
+            var gemsData = new GemsData(_gameZoneGemsDef);
+            var objectivesData = new ObjectivesData();
+            InitBase(gameZoneData, gemsData, objectivesData);
         }
 
 
@@ -74,10 +79,20 @@ namespace Modules.Match3.Scripts.Implementation.Core
             var centeringOffsetCalculateSystem = _ecsSystemFactory.Create<CenteringOffsetCalculateSystem>(new object[] { _gameZoneData });
             // Создаем систему настройки камеры
             var cameraSetupSystem = _ecsSystemFactory.Create<CameraSetupSystem>(new object[] { _gameZoneData });
+
+            // Создаем систему инициализации счетчика ходов
+            var turnsInitSystem = _ecsSystemFactory.Create<TurnsInitSystem>(new object[] { _objectivesData });
+            // Создаем систему инициализации счетчика очков, целей и т.д.
+            var scoreInitSystem = _ecsSystemFactory.Create<ScoreInitSystem>(new object[] { _objectivesData });
             // Создаем систему инициализации клеток
             var cellsInitSystem = _ecsSystemFactory.Create<CellsInitSystem>(new object[] { _gameZoneData });
             // Создаем систему инициализации фишек
-            var gemsInitSystem = _ecsSystemFactory.Create<GemsInitSystem>(new object[] { _gameZoneData, _gemsData });            
+            var gemsInitSystem = _ecsSystemFactory.Create<GemsInitSystem>(new object[] { _gameZoneData, _gemsData });
+
+            // Создаем систему учета ходов
+            var turnsSystem = _ecsSystemFactory.Create<TurnsSystem>();
+            // Создаем систему учета очков, целей и т.д.
+            var scoreSystem = _ecsSystemFactory.Create<ScoreSystem>();
             // Создаем системы для перетаскивания фишек
             var dragStartSystem = _ecsSystemFactory.Create<DragStartSystem>();
             var dragEndSystem = _ecsSystemFactory.Create<DragEndSystem>();
@@ -99,9 +114,13 @@ namespace Modules.Match3.Scripts.Implementation.Core
                 .Add(centeringOffsetCalculateSystem)
                 .Add(cameraSetupSystem)
 
+                .Add(turnsInitSystem)
+                .Add(scoreInitSystem)
                 .Add(cellsInitSystem)
                 .Add(gemsInitSystem)
-                
+
+                .Add(turnsSystem)
+                .Add(scoreSystem)
                 .Add(dragStartSystem)
                 .Add(dragEndSystem)
                 .Add(swapSystem)
@@ -113,7 +132,21 @@ namespace Modules.Match3.Scripts.Implementation.Core
                 .Add(fallAnimationSystem)
 
                 .Init();
+
+
+
+            //// TMP
+            //EcsFilter filter;
+            //filter = _world.GetFilter(typeof(EcsFilter<MatchScoreRequest>));
+            //UnityEngine.Debug.LogError($"OnUpdateHandler() : filter: {filter.GetEntitiesCount()}");
+            //foreach (var i in filter)
+            //{
+            //    ref var entity = ref filter.GetEntity(i);
+            //    UnityEngine.Debug.LogError($"     filter<MatchScoreRequest>: {entity.Has<MatchScoreRequest>()} / {entity.Get<MatchScoreRequest>().GemType}");
+            //}
+
         }
+
 
         protected override void Subscribe()
         {
