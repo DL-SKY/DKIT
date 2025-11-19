@@ -23,6 +23,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Settings
             {
                 SwapAnimationDurationMs = settings.SwapAnimationDurationMs,
                 MatchAnimationDurationMs = settings.MatchAnimationDurationMs,
+                PauseAfterGemDestroyMs = settings.PauseAfterGemDestroyMs,
                 FallAnimationDurationMs = settings.FallAnimationDurationMs
             };
         }

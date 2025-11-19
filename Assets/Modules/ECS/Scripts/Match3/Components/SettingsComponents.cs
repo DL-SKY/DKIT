@@ -23,21 +23,34 @@ namespace Modules.ECS.Scripts.Match3.Components
 
         public long SwapAnimationDurationMs;
         public long MatchAnimationDurationMs;
+        public long PauseAfterGemDestroyMs;
         public long FallAnimationDurationMs;
+
 
         public float GetSwapAnimationDuration()
         {
-            return Mathf.Max(SwapAnimationDurationMs / 1000.0f, DEFAULT_DURATION);
+            return ConvertMsecToSec(SwapAnimationDurationMs);
         }
 
         public float GetMatchAnimationDuration()
         {
-            return Mathf.Max(MatchAnimationDurationMs / 1000.0f, DEFAULT_DURATION);
+            return ConvertMsecToSec(MatchAnimationDurationMs);
+        }
+
+        public float GetPauseAfterGemDestroy()
+        { 
+            return ConvertMsecToSec(PauseAfterGemDestroyMs);
         }
 
         public float GetFallAnimationDuration()
         {
-            return Mathf.Max(FallAnimationDurationMs / 1000.0f, DEFAULT_DURATION);
+            return ConvertMsecToSec(FallAnimationDurationMs);
+        }
+
+
+        private float ConvertMsecToSec(long ms)
+        {
+            return Mathf.Max(ms / 1000.0f, DEFAULT_DURATION);
         }
     }
 }

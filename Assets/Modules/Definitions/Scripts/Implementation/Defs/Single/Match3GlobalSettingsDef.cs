@@ -6,6 +6,7 @@ namespace Modules.Definitions.Scripts.Implementation.Defs.Single
     {
         public long SwapAnimationDurationMs;
         public long MatchAnimationDurationMs;
+        public long PauseAfterGemDestroyMs;
         public long FallAnimationDurationMs;
     }
 }
