@@ -106,8 +106,8 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                     // Если позиция свободна (нет фишки)
                     if (!gemsMap.ContainsKey(currentPos))
                     {
-                        // Ищем самую верхнюю фишку выше этой позиции, которая еще не назначена
-                        var gemAbove = FindHighestUnassignedGemAbove(x, y, height, gemsMap, cellsMap, assignedGems);
+                        // Ищем самую верхнюю фишку выше этой позиции, которая еще не назначена (с учетом появившихся НАД полем новых фишек)
+                        var gemAbove = FindHighestUnassignedGemAbove(x, y, height * 2, gemsMap, cellsMap, assignedGems);
 
                         if (!gemAbove.entity.IsNull())
                         {
@@ -115,7 +115,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                             var targetPos = currentPos;
                             var (entity, currentGemPos) = gemAbove;
 
-                            if (entity.IsNull() || !entity.Has<GemView>() || !entity.Has<GridPosition>())
+                            if (!entity.Has<GemView>() || !entity.Has<GridPosition>())
                             {
                                 continue;
                             }
@@ -208,12 +208,6 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
             for (int y = currentY + 1; y < height; y++)
             {
                 var pos = new GridPosition { X = x, Y = y };
-
-                // Пропускаем, если нет клетки на этой позиции
-                if (!cellsMap.ContainsKey(pos))
-                {
-                    continue;
-                }
 
                 // Если на этой позиции есть фишка
                 if (gemsMap.TryGetValue(pos, out var gemEntity))
