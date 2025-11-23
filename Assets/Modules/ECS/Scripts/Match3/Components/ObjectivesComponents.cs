@@ -29,14 +29,30 @@
     { 
     }
 
+
+    /// <summary>
+    /// Типы очков прогресса
+    /// </summary>
+    public enum ScoreType
+    { 
+        NA = 0,
+
+        HitPoints,
+        ShieldPoints,
+
+        Progress,
+
+
+    }
+
     /// <summary>
     /// Компонент данных об очках, заданиях и прогрессе выполнения целей раунда.
     /// Используется для отслеживания текущего состояния игровых целей и набранных очков.
     /// </summary>
     public struct ScoreData
-    { 
-        //TODO: ...
-        //...
+    {
+        public ScoreType Type;
+        public int Value;
     }
 
     /// <summary>
@@ -54,5 +70,13 @@
         /// Тип фишки (DefId), которая совпала
         /// </summary>
         public string GemType;
+    }
+
+    /// <summary>
+    /// Компонент-событие, уведомляющее об изменении в очках (прогрессе)
+    /// </summary>
+    public struct ScoreCallback
+    {
+        public ScoreType Type;
     }
 }
