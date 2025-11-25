@@ -11,9 +11,9 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
         private readonly EcsWorld _world = null;
         private readonly EcsFilter<TurnsData> _turnsFilter = null;
         private readonly EcsFilter<ChangeTurnsRequest> _requestFilter = null;
-        private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
-        private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
-        private readonly EcsFilter<FallInProgress> _fallInProgressFilter = null;
+        //private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
+        //private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
+        //private readonly EcsFilter<FallInProgress> _fallInProgressFilter = null;
 
         public void Run()
         {
@@ -23,23 +23,23 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
                 return;
             }
 
-            // Проверяем, не идет ли свап (блок)
-            if (_swapInProgressFilter.GetEntitiesCount() > 0)
-            {
-                return;
-            }
+            //// Проверяем, не идет ли свап (блок)
+            //if (_swapInProgressFilter.GetEntitiesCount() > 0)
+            //{
+            //    return;
+            //}
 
-            // Проверяем, не идет ли удаление фишек (блок)
-            if (_destructionInProgressFilter.GetEntitiesCount() > 0)
-            {
-                return;
-            }
+            //// Проверяем, не идет ли удаление фишек (блок)
+            //if (_destructionInProgressFilter.GetEntitiesCount() > 0)
+            //{
+            //    return;
+            //}
 
-            // Проверяем, не идет ли падение фишек (блок)
-            if (_fallInProgressFilter.GetEntitiesCount() > 0)
-            {
-                return;
-            }
+            //// Проверяем, не идет ли падение фишек (блок)
+            //if (_fallInProgressFilter.GetEntitiesCount() > 0)
+            //{
+            //    return;
+            //}
 
 
             foreach (var i in _turnsFilter)

@@ -15,9 +15,9 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
         private readonly EcsWorld _world = null;
         private readonly EcsFilter<MatchScoreRequest> _requestFilter = null;
-        private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
-        private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
-        private readonly EcsFilter<FallInProgress> _fallInProgressFilter = null;
+        //private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
+        //private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
+        //private readonly EcsFilter<FallInProgress> _fallInProgressFilter = null;
 
         public void Run()
         {
@@ -27,23 +27,23 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                 return;
             }
 
-            // Проверяем, не идет ли свап (блок)
-            if (_swapInProgressFilter.GetEntitiesCount() > 0)
-            {
-                return;
-            }
+            //// Проверяем, не идет ли свап (блок)
+            //if (_swapInProgressFilter.GetEntitiesCount() > 0)
+            //{
+            //    return;
+            //}
 
-            // Проверяем, не идет ли удаление фишек (блок)
-            if (_destructionInProgressFilter.GetEntitiesCount() > 0)
-            {
-                return;
-            }
+            //// Проверяем, не идет ли удаление фишек (блок)
+            //if (_destructionInProgressFilter.GetEntitiesCount() > 0)
+            //{
+            //    return;
+            //}
 
-            // Проверяем, не идет ли падение фишек (блок)
-            if (_fallInProgressFilter.GetEntitiesCount() > 0)
-            {
-                return;
-            }
+            //// Проверяем, не идет ли падение фишек (блок)
+            //if (_fallInProgressFilter.GetEntitiesCount() > 0)
+            //{
+            //    return;
+            //}
 
             // Обработка запросов
             foreach (var i in _requestFilter)
