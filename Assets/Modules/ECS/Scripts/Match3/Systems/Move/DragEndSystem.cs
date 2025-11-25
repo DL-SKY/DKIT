@@ -154,10 +154,10 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
                 Direction = swapDirection
             };
 
+            UnityEngine.Debug.Log($"[DragEndSystem] Создан запрос свапа: ({dragState.StartGridPosition.X}, {dragState.StartGridPosition.Y}) -> {swapDirection}");
+
             // Удаляем состояние перетаскивания
             dragStateEntity.Del<DragState>();
-
-            UnityEngine.Debug.Log($"[DragEndSystem] Создан запрос свапа: ({dragState.StartGridPosition.X}, {dragState.StartGridPosition.Y}) -> {swapDirection}");
         }
 
         private SwapDirection GetSwapDirection(Vector3 dragVector)

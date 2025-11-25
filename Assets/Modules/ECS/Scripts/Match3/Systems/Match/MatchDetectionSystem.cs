@@ -57,7 +57,6 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
                     GemType = match.GemType,
                     Count = match.Count
                 };
-                UnityEngine.Debug.LogError($"    ===> MatchScoreRequest: GemType {match.GemType} / Count {match.Count}");   //TODO: удалить после реализации системы очков
 
                 UnityEngine.Debug.Log($"[MatchDetectionSystem] Найдено совпадение: {match.Count} фишек типа '{match.GemType}' " +
                     $"в направлении {match.Direction} на позициях: {string.Join(", ", match.Positions)}");

@@ -3,6 +3,8 @@ using Modules.Definitions.Scripts.Implementation.Defs;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZoneGems;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
 using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
+using Modules.ECS.Scripts.Match3.Systems.Actions;
+using Modules.ECS.Scripts.Match3.Systems.Events;
 using Modules.ECS.Scripts.Match3.Systems.Init;
 using Modules.ECS.Scripts.Match3.Systems.Match;
 using Modules.ECS.Scripts.Match3.Systems.Move;
@@ -89,10 +91,17 @@ namespace Modules.Match3.Scripts.Implementation.Core
             // Создаем систему инициализации фишек
             var gemsInitSystem = _ecsSystemFactory.Create<GemsInitSystem>(new object[] { _gameZoneData, _gemsData });
 
+            // Создаем систему работы с коллбэками
+            var callbackSystem = _ecsSystemFactory.Create<CallbackSystem>();
             // Создаем систему учета ходов
             var turnsSystem = _ecsSystemFactory.Create<TurnsSystem>();
-            // Создаем систему учета очков, целей и т.д.
+            // Создаем систему учета очков / задач / прогресса
             var scoreSystem = _ecsSystemFactory.Create<ScoreSystem>();
+            // Создаем систему обработки match-запросов
+            var matchScoreRequestProcessSystem = _ecsSystemFactory.Create<MatchScoreRequestProcessSystem>();
+            // Создаем систему обработки экшен-запросов
+            var actionProcessSystem = _ecsSystemFactory.Create<ActionProcessSystem>();
+
             // Создаем системы для перетаскивания фишек
             var dragStartSystem = _ecsSystemFactory.Create<DragStartSystem>();
             var dragEndSystem = _ecsSystemFactory.Create<DragEndSystem>();
@@ -113,14 +122,18 @@ namespace Modules.Match3.Scripts.Implementation.Core
                 .Add(match3GlobalSettingsSystem)
                 .Add(centeringOffsetCalculateSystem)
                 .Add(cameraSetupSystem)
-
+                
                 .Add(turnsInitSystem)
                 .Add(scoreInitSystem)
                 .Add(cellsInitSystem)
                 .Add(gemsInitSystem)
 
+                .Add(callbackSystem)
                 .Add(turnsSystem)
                 .Add(scoreSystem)
+                .Add(matchScoreRequestProcessSystem)
+                .Add(actionProcessSystem)
+                
                 .Add(dragStartSystem)
                 .Add(dragEndSystem)
                 .Add(swapSystem)
@@ -135,8 +148,10 @@ namespace Modules.Match3.Scripts.Implementation.Core
 
 
 
-            //// TMP
+            // TMP: использование фильтров в других объектах, н-р, в VM
+            //
             //EcsFilter filter;
+            //
             //filter = _world.GetFilter(typeof(EcsFilter<MatchScoreRequest>));
             //UnityEngine.Debug.LogError($"OnUpdateHandler() : filter: {filter.GetEntitiesCount()}");
             //foreach (var i in filter)

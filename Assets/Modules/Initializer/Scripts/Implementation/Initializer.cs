@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Defs.Gems;
 using Modules.Initializer.Scripts.Core;
 using Modules.Initializer.Scripts.Implementation.Tasks.Core;
 using Modules.Initializer.Scripts.Tasks;
@@ -33,6 +34,11 @@ namespace Modules.Initializer.Scripts.Implementation
 
             UnityEngine.Debug.LogError($"Initializer.Start() => _updater: {_updater != null}");
             UnityEngine.Debug.LogError($"                       _viewModelFactory: {_viewModelFactory != null}");
+
+
+            //Debug...
+            //DebugMethod03();
+
 
             var loaderViewModel = _viewModelFactory.Create<MainLoadViewModel>();
 
@@ -145,9 +151,98 @@ namespace Modules.Initializer.Scripts.Implementation
             //  ]
             //]
         }
+
+        private void DebugMethod03()
+        {
+            //public Dictionary<int, MatchActionsData> MatchCountActions;
+            var matchCountActions = new Dictionary<int, MatchActionsData>();
+            for (int i = 1; i <= 5; i++)
+            {
+                var data = new MatchActionsData();
+                data.Actions = new List<MatchAction>();
+                data.Actions.Add(new MatchAction() 
+                {
+                    Type = MatchActionType.ScoreChange,
+                    StringParameter1 = "StringParameter1 :: " + i.ToString()
+                }); 
+                matchCountActions.Add(i, data);
+            }
+
+            // Сериализуем объект в JSON-строку
+            string save = JsonConvert.SerializeObject(matchCountActions, Formatting.Indented);
+
+            UnityEngine.Debug.LogError($"matchCountActions: {save}");
+
+            //matchCountActions:
+            //{
+            //    "1": {
+            //        "Actions": [
+            //          {
+            //            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 1",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        },
+            //        "2": {
+            //                        "Actions": [
+            //                            {
+            //                            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 2",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        },
+            //        "3": {
+            //                        "Actions": [
+            //                            {
+            //                            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 3",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        },
+            //        "4": {
+            //                        "Actions": [
+            //                            {
+            //                            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 4",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        },
+            //        "5": {
+            //                        "Actions": [
+            //                            {
+            //                            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 5",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        }
+            //}
+        }
     }
-
-
 
 
 

@@ -16,8 +16,8 @@ namespace Modules.Definitions.Scripts.Implementation.Defs.Gems
     { 
         NA = 0,
 
-        TurnsChange,
-        ScoreChange,
+        TurnsChange = 1,
+        ScoreChange = 2,
     }
 
     public class MatchAction

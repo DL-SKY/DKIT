@@ -23,26 +23,20 @@
     }
 
     /// <summary>
-    /// Компонент-событие, уведомляющее об изменении в оставшихся ходах
-    /// </summary>
-    public struct TurnsCallback
-    { 
-    }
-
-
-    /// <summary>
     /// Типы очков прогресса
     /// </summary>
     public enum ScoreType
     { 
         NA = 0,
 
+        Boost,
+
         HitPoints,
         ShieldPoints,
 
         Progress,
 
-
+        //...
     }
 
     /// <summary>
@@ -56,27 +50,18 @@
     }
 
     /// <summary>
-    /// Компонент-запрос на начисление очков за обнаруженное совпадение фишек.
-    /// Создается системой MatchDetectionSystem при обнаружении группы совпавших фишек.
+    /// Компонент-запрос на изменение счетчика очков.
     /// </summary>
-    public struct MatchScoreRequest
+    public struct ChangeScoreRequest
     {
         /// <summary>
-        /// Количество фишек в группе (3, 4, 5+)
+        /// Тип очков
         /// </summary>
-        public int Count;
-
-        /// <summary>
-        /// Тип фишки (DefId), которая совпала
-        /// </summary>
-        public string GemType;
-    }
-
-    /// <summary>
-    /// Компонент-событие, уведомляющее об изменении в очках (прогрессе)
-    /// </summary>
-    public struct ScoreCallback
-    {
         public ScoreType Type;
+
+        /// <summary>
+        /// Дельта изменения счетчика
+        /// </summary>
+        public int Delta;
     }
 }

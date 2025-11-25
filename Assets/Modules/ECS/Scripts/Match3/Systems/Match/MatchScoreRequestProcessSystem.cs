@@ -1,20 +1,20 @@
 ﻿using Leopotam.Ecs;
 using Modules.Definitions.Scripts.Implementation.Defs;
 using Modules.ECS.Scripts.Match3.Components;
+using Modules.ECS.Scripts.Match3.Helpers;
 using Zenject;
 
-namespace Modules.ECS.Scripts.Match3.Systems.Objectives
+namespace Modules.ECS.Scripts.Match3.Systems.Match
 {
     /// <summary>
-    /// Система учета очков / буста / прогресса
+    /// Система обработки запросов изменения очков после match-механики
     /// </summary>
-    public class ScoreSystem : IEcsRunSystem
+    public class MatchScoreRequestProcessSystem : IEcsRunSystem
     {
         [Inject] private readonly DefinitionsManager _definitionsManager;
 
         private readonly EcsWorld _world = null;
-        private readonly EcsFilter<ScoreData> _scoreFilter = null;
-        private readonly EcsFilter<ChangeScoreRequest> _requestFilter = null;
+        private readonly EcsFilter<MatchScoreRequest> _requestFilter = null;
         private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
         private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
         private readonly EcsFilter<FallInProgress> _fallInProgressFilter = null;
@@ -50,35 +50,13 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
             {
                 ref var request = ref _requestFilter.Get1(i);
 
-                var applied = false;
-                foreach (var j in _scoreFilter)
-                {
-                    ref var score = ref _scoreFilter.Get1(j);
-                    if (score.Type == request.Type)
-                    {
-                        score.Value += request.Delta;
-                        applied = true;
-                        break;
-                    }
-                }
-
-                if (!applied)
-                {
-                    var entity = _world.NewEntity();
-                    entity.Get<ScoreData>() = new ScoreData { 
-                        Type = request.Type,
-                        Value = request.Delta
-                    };
-                }
-
-                // Создаем событие об изменении счетчика очков
-                var callbackEntity = _world.NewEntity();
-                callbackEntity.Get<ScoreCallback>() = new ScoreCallback { 
-                    Type = request.Type
-                };
+                // Создаем MatchActionRequest для каждого экшена, в зависимости от фишки и величины совпадения
+                var gemId = request.GemType;
+                if (_definitionsManager.Gems.TryGetValue(gemId, out var def))
+                    MatchActionHelper.TrySendMatchActions(def, request.Count, _world);
 
                 // Удаляем запрос
-                _requestFilter.GetEntity(i).Del<ChangeScoreRequest>();
+                _requestFilter.GetEntity(i).Del<MatchScoreRequest>();
             }
         }
     }
