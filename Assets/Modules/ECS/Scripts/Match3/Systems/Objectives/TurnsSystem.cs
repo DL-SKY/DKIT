@@ -62,6 +62,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
                 callbackEntity.Get<TurnsCallback>();
 
                 UnityEngine.Debug.LogError($"[TurnsSystem] TurnsCount: {turnsEntity.Get<TurnsData>().Turns}");
+                UnityEngine.Debug.Log($"[TurnsSystem] Update TurnsCount: {turnsEntity.Get<TurnsData>().Turns}");
                 break;
             }            
         }

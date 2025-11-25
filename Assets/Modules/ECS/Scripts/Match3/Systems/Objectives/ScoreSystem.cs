@@ -58,6 +58,10 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
                     {
                         score.Value += request.Delta;
                         applied = true;
+
+                        UnityEngine.Debug.Log($"[ScoreSystem] Update Score({request.Type}): {score.Value}");
+                        UnityEngine.Debug.LogError($"[ScoreSystem] Update Score({request.Type}): {score.Value}");
+
                         break;
                     }
                 }
@@ -69,6 +73,9 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
                         Type = request.Type,
                         Value = request.Delta
                     };
+
+                    UnityEngine.Debug.Log($"[ScoreSystem] Update Score({request.Type}): {entity.Get<ScoreData>().Value}");
+                    UnityEngine.Debug.LogError($"[ScoreSystem] Update Score({request.Type}): {entity.Get<ScoreData>().Value}");
                 }
 
                 // Создаем событие об изменении счетчика очков
