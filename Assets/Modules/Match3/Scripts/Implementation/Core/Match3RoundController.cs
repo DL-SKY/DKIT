@@ -180,8 +180,6 @@ namespace Modules.Match3.Scripts.Implementation.Core
 
         public override void Dispose()
         {
-            UnityEngine.Debug.LogError($"Match3RoundController.Dispose()");
-
             // Очищаем ECS
             _systems?.Destroy();
             _systems = null;

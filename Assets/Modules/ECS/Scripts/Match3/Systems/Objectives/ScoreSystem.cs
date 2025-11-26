@@ -59,8 +59,10 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
                         score.Value += request.Delta;
                         applied = true;
 
-                        UnityEngine.Debug.Log($"[ScoreSystem] Update Score({request.Type}): {score.Value}");
-                        UnityEngine.Debug.LogError($"[ScoreSystem] Update Score({request.Type}): {score.Value}");
+                        UnityEngine.Debug.Log($"[ScoreSystem] Update Score({request.Type}): " +
+                            $"{score.Value} ({(request.Delta > 0 ? "+" : "")}{request.Delta})");
+                        UnityEngine.Debug.LogError($"[ScoreSystem] Update Score({request.Type}): " +
+                            $"{score.Value} ({(request.Delta > 0 ? "+" : "")}{request.Delta})");
 
                         break;
                     }
@@ -74,8 +76,8 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
                         Value = request.Delta
                     };
 
-                    UnityEngine.Debug.Log($"[ScoreSystem] Update Score({request.Type}): {entity.Get<ScoreData>().Value}");
-                    UnityEngine.Debug.LogError($"[ScoreSystem] Update Score({request.Type}): {entity.Get<ScoreData>().Value}");
+                    UnityEngine.Debug.Log($"[ScoreSystem] Create Score({request.Type}): {entity.Get<ScoreData>().Value}");
+                    UnityEngine.Debug.LogError($"[ScoreSystem] Create Score({request.Type}): {entity.Get<ScoreData>().Value}");
                 }
 
                 // Создаем событие об изменении счетчика очков
