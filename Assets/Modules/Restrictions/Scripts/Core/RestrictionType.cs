@@ -2,7 +2,7 @@
 {
     public enum RestrictionType
     {
-        TimeNowRestriction = 0,
+        TimeNow = 0,
 
 
         // = 1000,

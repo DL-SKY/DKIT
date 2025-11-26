@@ -2,8 +2,8 @@
 
 namespace Modules.Restrictions.Scripts.Checker
 {
-    public interface ICheckerContext
+    public interface IChecker
     {
-        T GetContext<T>(RestrictionType type);
+        bool Check(Restriction restriction);
     }
 }

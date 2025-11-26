@@ -3,22 +3,12 @@ using System;
 
 namespace Modules.Restrictions.Scripts.Checker.Checkers
 {
-    public class TimeNowRestrictionChecker : IRestrictionChecker
+    public class TimeNowRestrictionChecker : IChecker
     {
-        public RestrictionType RestrictionType => RestrictionType.TimeNowRestriction;
-
-        public bool Check(ICheckerContext context, Restriction restriction)
+        public bool Check(Restriction restriction)
         {
-            return CompareRestrictionStaticChecker.Check<long>(
-                context.GetContext<long>(RestrictionType),
-                restriction.LongValues[0],
-                restriction.CompareOptions
-            );
-        }
-
-        public static long GetContextData()
-        {
-            return new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+            var now = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+            return CompareRestrictionStaticChecker.Check(now, restriction.LongValues[0], restriction.CompareOptions);
         }
     }
 }

@@ -1,4 +1,5 @@
 using Modules.Definitions.Scripts.Implementation.Defs;
+using Modules.Restrictions.Scripts.Core;
 using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Managers;
 using UnityEngine;
@@ -15,6 +16,7 @@ namespace Zenject.Scripts.Installers
             //Utils
             Container.Bind<Updater>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<CoroutineHolder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<RestrictionsChecker>().AsSingle().NonLazy();
             //...
 
             //Container.Bind<GuiManager>().FromComponentInNewPrefab(_guiManager).AsSingle().NonLazy();
@@ -35,6 +37,7 @@ namespace Zenject.Scripts.Installers
 
             //Factories
             Container.Bind<ViewModelFactory>().AsSingle();
+            Container.Bind<RestrictionFactory>().AsSingle();
             //...
         }
     }
