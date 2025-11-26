@@ -6,5 +6,7 @@ namespace Modules.Windows.Scripts.Base
     {
         event Action OnChange;
         event Action<string> OnChangeCustom;
+
+        void SetHandle(int handle);
     }
 }

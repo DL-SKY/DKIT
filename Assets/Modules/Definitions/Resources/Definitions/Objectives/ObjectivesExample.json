@@ -1,0 +1,12 @@
+{
+	"StartScores": [
+		{
+			"Type": "Progress",
+			"Value": 0
+		},
+		{
+			"Type": "Boost",
+			"Value": 0
+		}
+	]
+}

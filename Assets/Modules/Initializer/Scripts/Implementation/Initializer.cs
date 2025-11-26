@@ -18,10 +18,14 @@ using Zenject.Scripts.Factories;
 
 namespace Modules.Initializer.Scripts.Implementation
 {
+    /// <summary>
+    /// TODO:
+    /// Обязательно почистить код после реализации MVP
+    /// </summary>
     public class Initializer : MonoBehaviour
     {
-        private const string DEBUG_START_SCENE = "Match3Scene";
-        private const string DEBUG_START_ROUND = "RoundExample";
+        private const string DEBUG_START_SCENE = "Match3Scene";     //DEBUG
+        private const string DEBUG_START_ROUND = "RoundExample";    //DEBUG
 
         private WindowsManager _windowsManager;
         private Updater _updater;

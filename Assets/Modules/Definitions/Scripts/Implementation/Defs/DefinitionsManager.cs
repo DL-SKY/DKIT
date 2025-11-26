@@ -3,6 +3,7 @@ using Modules.Definitions.Scripts.Implementation.Defs.Cells;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZoneGems;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
 using Modules.Definitions.Scripts.Implementation.Defs.Gems;
+using Modules.Definitions.Scripts.Implementation.Defs.Objectives;
 using Modules.Definitions.Scripts.Implementation.Defs.Presets;
 using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
 using Modules.Definitions.Scripts.Implementation.Defs.Single;
@@ -32,6 +33,7 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         public Dictionary<string, PresetDef> Presets;
         public Dictionary<string, GemDef> Gems;
         public Dictionary<string, GameZoneGemsDef> GameZoneGems;
+        public Dictionary<string, ObjectivesDef> Objectives;
         public Dictionary<string, RoundDef> Rounds;
 
 
@@ -51,7 +53,8 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         private IEnumerator LoadAll()
         {
             // Заполняем список методов-инициализаторов дэфов
-            var loadMethods = new List<Action>{
+            var loadMethods = new List<Action>
+            {
                 LoadMatch3GlobalSettings,
                 LoadGameZones,
                 LoadCellsMap,
@@ -60,13 +63,14 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
                 LoadPresets,
                 LoadGems,
                 LoadGameZoneGems,
+                LoadObjectives,
                 LoadRounds,
             };            
 
             for (int i = 0; i < loadMethods.Count; i++)
             {
                 loadMethods[i].Invoke();
-                UnityEngine.Debug.Log($"[DefinitionsManager] Load defs by {loadMethods[i].Method.Name} done.");
+                UnityEngine.Debug.Log($"[DefinitionsManager] Загрузка настроек в {loadMethods[i].Method.Name} завершена.");
 
                 if ((i + 1) % LOAD_METHODS_BATCH == 0)
                     yield return null;
@@ -113,6 +117,11 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         private void LoadGameZoneGems()
         {
             GameZoneGems = _loader.LoadCollection<GameZoneGemsDef>("Definitions/GameZoneGems");
+        }
+
+        private void LoadObjectives()
+        {
+            Objectives = _loader.LoadCollection<ObjectivesDef>("Definitions/Objectives");
         }
 
         private void LoadRounds()

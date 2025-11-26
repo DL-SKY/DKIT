@@ -16,5 +16,10 @@ namespace Modules.Definitions.Scripts.Implementation.Defs.Rounds
         /// GameZoneGemsDef
         /// </summary>
         public string Gems;
+
+        /// <summary>
+        /// ObjectivesDef
+        /// </summary>
+        public string Objectives;
     }
 }

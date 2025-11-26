@@ -2,6 +2,7 @@
 using Modules.Definitions.Scripts.Implementation.Defs;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZoneGems;
 using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
+using Modules.Definitions.Scripts.Implementation.Defs.Objectives;
 using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
 using Modules.ECS.Scripts.Match3.Systems.Actions;
 using Modules.ECS.Scripts.Match3.Systems.Events;
@@ -35,7 +36,8 @@ namespace Modules.Match3.Scripts.Implementation.Core
         private RoundDef _roundDef;
         private GameZoneDef _gameZoneDef;
         private GameZoneGemsDef _gameZoneGemsDef;
-        
+        private ObjectivesDef _objectivesDef;
+
 
         public void Init(string roundDefId)
         {
@@ -62,9 +64,16 @@ namespace Modules.Match3.Scripts.Implementation.Core
             }
             _gameZoneGemsDef = gameZoneGemsDef;
 
+            if (!_definitionsManager.Objectives.TryGetValue(_roundDef.Objectives, out var objectivesDef))
+            {
+                UnityEngine.Debug.LogError($"[Match3RoundController] Init({roundDefId}) :: Not found Objectives def with ID \"{_roundDef.Objectives}\"!");
+                return;
+            }
+            _objectivesDef = objectivesDef;
+
             var gameZoneData = new GameZoneData(_gameZoneDef);
             var gemsData = new GemsData(_gameZoneGemsDef);
-            var objectivesData = new ObjectivesData();
+            var objectivesData = new ObjectivesData(_objectivesDef);
             InitBase(gameZoneData, gemsData, objectivesData);
         }
 
