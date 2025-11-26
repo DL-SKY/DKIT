@@ -31,8 +31,16 @@
 
         Boost,
 
-        HitPoints,
-        ShieldPoints,
+        HitPointsA,
+        ShieldPointsA,
+        HitPointsB,
+        ShieldPointsB,
+        HitPointsC,
+        ShieldPointsC,
+        HitPointsD,
+        ShieldPointsD,
+        HitPointsE,
+        ShieldPointsE,
 
         Progress,
 

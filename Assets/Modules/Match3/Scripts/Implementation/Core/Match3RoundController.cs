@@ -37,27 +37,27 @@ namespace Modules.Match3.Scripts.Implementation.Core
         private GameZoneGemsDef _gameZoneGemsDef;
         
 
-        public void Init(string defId)
+        public void Init(string roundDefId)
         {
-            UnityEngine.Debug.LogError($"Match3RoundController.Init({defId})");
+            UnityEngine.Debug.LogError($"Match3RoundController.Init({roundDefId})");
 
-            if (!_definitionsManager.Rounds.TryGetValue(defId, out var roundDef))
+            if (!_definitionsManager.Rounds.TryGetValue(roundDefId, out var roundDef))
             {
-                UnityEngine.Debug.LogError($"[Match3RoundController] Init({defId}) :: Not found Rounds def with ID \"{defId}\"!");
+                UnityEngine.Debug.LogError($"[Match3RoundController] Init({roundDefId}) :: Not found Rounds def with ID \"{roundDefId}\"!");
                 return;
             }
             _roundDef = roundDef;
 
             if (!_definitionsManager.GameZones.TryGetValue(_roundDef.GameZone, out var gameZoneDef))
             {
-                UnityEngine.Debug.LogError($"[Match3RoundController] Init({defId}) :: Not found GameZones def with ID \"{_roundDef.GameZone}\"!");
+                UnityEngine.Debug.LogError($"[Match3RoundController] Init({roundDefId}) :: Not found GameZones def with ID \"{_roundDef.GameZone}\"!");
                 return;
             }
             _gameZoneDef = gameZoneDef;
 
             if (!_definitionsManager.GameZoneGems.TryGetValue(_roundDef.Gems, out var gameZoneGemsDef))
             {
-                UnityEngine.Debug.LogError($"[Match3RoundController] Init({defId}) :: Not found GameZoneGems def with ID \"{_roundDef.Gems}\"!");
+                UnityEngine.Debug.LogError($"[Match3RoundController] Init({roundDefId}) :: Not found GameZoneGems def with ID \"{_roundDef.Gems}\"!");
                 return;
             }
             _gameZoneGemsDef = gameZoneGemsDef;

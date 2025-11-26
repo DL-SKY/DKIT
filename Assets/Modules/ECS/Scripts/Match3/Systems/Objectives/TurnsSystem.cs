@@ -41,7 +41,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
             //    return;
             //}
 
-
+            var totalDelta = 0;
             foreach (var i in _turnsFilter)
             {
                 ref var turnsEntity = ref _turnsFilter.GetEntity(i);
@@ -52,6 +52,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
 
                     // Применяем изменения из запроса
                     turnsEntity.Get<TurnsData>().Turns += request.Delta;
+                    totalDelta += request.Delta;
 
                     // Удаляем запрос
                     _requestFilter.GetEntity(j).Del<ChangeTurnsRequest>();
@@ -61,8 +62,10 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
                 var callbackEntity = _world.NewEntity();
                 callbackEntity.Get<TurnsCallback>();
 
-                UnityEngine.Debug.LogError($"[TurnsSystem] Update TurnsCount: {turnsEntity.Get<TurnsData>().Turns}");
-                UnityEngine.Debug.Log($"[TurnsSystem] Update TurnsCount: {turnsEntity.Get<TurnsData>().Turns}");
+                UnityEngine.Debug.LogError($"[TurnsSystem] Обновление счетчика Ходов: " +
+                    $"{turnsEntity.Get<TurnsData>().Turns} ({(totalDelta > 0 ? "+" : "")}{totalDelta})");
+                UnityEngine.Debug.Log($"[TurnsSystem] Обновление счетчика Ходов: " +
+                    $"{turnsEntity.Get<TurnsData>().Turns} ({(totalDelta > 0 ? "+" : "")}{totalDelta}");
                 break;
             }            
         }

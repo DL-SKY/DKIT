@@ -20,11 +20,15 @@ namespace Modules.ECS.Scripts.Match3.Systems.Init
 
         public void Init()
         {
+            var startTurns = _objectivesData.GetTurnsCount();
             var entity = _world.NewEntity();
             entity.Get<TurnsData>() = new TurnsData
             {
-                Turns = _objectivesData.GetTurnsCount()
+                Turns = startTurns
             };
+
+            UnityEngine.Debug.Log($"[TurnsInitSystem] Создан счетчик Ходов: {startTurns}");
+            UnityEngine.Debug.LogError($"[TurnsInitSystem] Создан счетчик Ходов: {startTurns}");
         }
     }
 }

@@ -8,6 +8,7 @@ using Modules.Windows.Scripts.Base;
 using Modules.Windows.Scripts.Implementation.Loading;
 using Modules.Windows.Scripts.Managers;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -19,6 +20,9 @@ namespace Modules.Initializer.Scripts.Implementation
 {
     public class Initializer : MonoBehaviour
     {
+        private const string DEBUG_START_SCENE = "Match3Scene";
+        private const string DEBUG_START_ROUND = "RoundExample";
+
         private WindowsManager _windowsManager;
         private Updater _updater;
         private CoroutineHolder _coroutineHolder;
@@ -58,7 +62,7 @@ namespace Modules.Initializer.Scripts.Implementation
                 //new PauseTask(_updater, 1f, 1),
 
                 //new LoadSceneTask("SampleEcs", LoadSceneMode.Single, 1),
-                new LoadSceneTask("Match3Scene", LoadSceneMode.Single, _coroutineHolder, 1),
+                new LoadSceneTask(DEBUG_START_SCENE, LoadSceneMode.Single, _coroutineHolder, 1),
 
                 //new PauseTask(_updater, 1f, 1),
 
@@ -78,7 +82,7 @@ namespace Modules.Initializer.Scripts.Implementation
             var loaderView = _windowsManager.OpenView<MainLoadView, MainLoadViewModel>(MainLoadView.Path, loaderViewModel);
 
             //TODO: subscribe and callbacks
-            tasker.OnProgressChange += (x, y) => UnityEngine.Debug.LogError($"{x}/{y}");
+            tasker.OnProgressChange += (x, y) => UnityEngine.Debug.LogError($"...LOADING PROGRESS {x}/{y}...");
             tasker.Run(OnCompletedCallback, OnFailedCallback);
         }
 
@@ -95,7 +99,7 @@ namespace Modules.Initializer.Scripts.Implementation
             //TEST
             var container = ProjectContext.Instance.Container;
             var match3RoundController = container.TryResolveFromRegistry<Match3RoundController>();
-            match3RoundController.Init("Example");
+            match3RoundController.Init(DEBUG_START_ROUND);
         }
 
         private void OnFailedCallback(int error)
@@ -103,6 +107,7 @@ namespace Modules.Initializer.Scripts.Implementation
             UnityEngine.Debug.LogError($"OnFailedCallback({error}) => ");
         }
 
+        [Obsolete("Watch TestViewModel")]
         private void DebugMethod01()
         {
             var s = ProjectContext.Instance.Container.TryResolve<SceneContextRegistry>();

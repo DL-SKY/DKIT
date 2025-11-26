@@ -20,11 +20,18 @@ namespace Modules.ECS.Scripts.Match3.Systems.Init
 
         public void Init()
         {
-            var entity = _world.NewEntity();
-            entity.Get<ScoreData>() = new ScoreData
-            { 
-                //TODO: ...
-            };
+            foreach (var score in _objectivesData.GetStartScoreValues())
+            {
+                var entity = _world.NewEntity();
+                entity.Get<ScoreData>() = new ScoreData
+                {
+                    Type = score.Type,
+                    Value = score.Value
+                };
+
+                UnityEngine.Debug.Log($"[ScoreInitSystem] Создан стартовый счетчик очков: {score.Type}={score.Value}");
+                UnityEngine.Debug.LogError($"[ScoreInitSystem] Создан стартовый счетчик очков: {score.Type}={score.Value}");
+            }
         }
     }
 }
