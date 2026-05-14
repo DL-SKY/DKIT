@@ -8,5 +8,9 @@
 			"Type": "Boost",
 			"Value": 0
 		}
+	],
+	"VictoryСonditions": [
+	],
+	"DefeatСonditions": [
 	]
 }

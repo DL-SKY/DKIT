@@ -1,4 +1,5 @@
 ﻿using Modules.ECS.Scripts.Match3.Components;
+using Modules.Restrictions.Scripts.Core;
 using System.Collections.Generic;
 
 namespace Modules.Match3.Scripts.Interfaces
@@ -28,5 +29,23 @@ namespace Modules.Match3.Scripts.Interfaces
         /// буста, здоровья, щитов, прогресса и других игровых метрик.
         /// </returns>
         List<ScoreData> GetStartScoreValues();
+
+        /// <summary>
+        /// Получает список условий победы раунда в виде рестрикшенов.
+        /// При выполнении соответствующих проверок по этим ограничениям раунд считается выигранным.
+        /// </summary>
+        /// <returns>
+        /// Список рестрикшенов (тип, пороговые значения, операция сравнения), задающих критерии победы.
+        /// </returns>
+        List<Restriction> GetVictoryСonditions();
+
+        /// <summary>
+        /// Получает список условий поражения раунда в виде рестрикшенов.
+        /// При срабатывании соответствующих проверок по этим ограничениям раунд считается проигранным.
+        /// </summary>
+        /// <returns>
+        /// Список рестрикшенов (тип, пороговые значения, операция сравнения), задающих критерии поражения.
+        /// </returns>
+        List<Restriction> GetDefeatСonditions();
     }
 }

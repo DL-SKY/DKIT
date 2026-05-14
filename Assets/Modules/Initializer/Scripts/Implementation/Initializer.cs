@@ -5,6 +5,7 @@ using Modules.Initializer.Scripts.Tasks;
 using Modules.Match3.Scripts.Implementation.Core;
 using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Base;
+using Modules.Windows.Scripts.Implementation.Match3;
 using Modules.Windows.Scripts.Implementation.Loading;
 using Modules.Windows.Scripts.Managers;
 using Newtonsoft.Json;
@@ -104,6 +105,9 @@ namespace Modules.Initializer.Scripts.Implementation
             var container = ProjectContext.Instance.Container;
             var match3RoundController = container.TryResolveFromRegistry<Match3RoundController>();
             match3RoundController.Init(DEBUG_START_ROUND);
+
+            var match3ViewModel = _viewModelFactory.Create<DefaultMatch3ViewModel>();
+            _windowsManager.OpenView<DefaultMatch3View, DefaultMatch3ViewModel>(DefaultMatch3View.Path, match3ViewModel);
         }
 
         private void OnFailedCallback(int error)
