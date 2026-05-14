@@ -101,15 +101,15 @@ namespace Modules.Match3.Scripts.Implementation.Core
             var gemsInitSystem = _ecsSystemFactory.Create<GemsInitSystem>(new object[] { _gameZoneData, _gemsData });
 
             // Создаем систему работы с коллбэками
-            var callbackSystem = _ecsSystemFactory.Create<CallbackSystem>();
-            // Создаем систему учета ходов
-            var turnsSystem = _ecsSystemFactory.Create<TurnsSystem>();
-            // Создаем систему учета очков / задач / прогресса
-            var scoreSystem = _ecsSystemFactory.Create<ScoreSystem>();
+            var callbackSystem = _ecsSystemFactory.Create<CallbackSystem>();            
             // Создаем систему обработки match-запросов
             var matchScoreRequestProcessSystem = _ecsSystemFactory.Create<MatchScoreRequestProcessSystem>();
             // Создаем систему обработки экшен-запросов
             var actionProcessSystem = _ecsSystemFactory.Create<ActionProcessSystem>();
+            // Создаем систему учета ходов
+            var turnsSystem = _ecsSystemFactory.Create<TurnsSystem>();
+            // Создаем систему учета очков / задач / прогресса
+            var scoreSystem = _ecsSystemFactory.Create<ScoreSystem>();
 
             // Создаем системы для перетаскивания фишек
             var dragStartSystem = _ecsSystemFactory.Create<DragStartSystem>();
@@ -137,12 +137,12 @@ namespace Modules.Match3.Scripts.Implementation.Core
                 .Add(cellsInitSystem)
                 .Add(gemsInitSystem)
 
-                .Add(callbackSystem)
-                .Add(turnsSystem)
-                .Add(scoreSystem)
+                .Add(callbackSystem)                
                 .Add(matchScoreRequestProcessSystem)
                 .Add(actionProcessSystem)
-                
+                .Add(turnsSystem)
+                .Add(scoreSystem)
+
                 .Add(dragStartSystem)
                 .Add(dragEndSystem)
                 .Add(swapSystem)
