@@ -14,6 +14,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
         [Inject] private readonly DefinitionsManager _definitionsManager;
 
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<MatchScoreRequest> _requestFilter = null;
         //private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
         //private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
@@ -21,6 +22,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
         public void Run()
         {
+            // Игра не активна
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             // Нет запросов
             if (_requestFilter.GetEntitiesCount() == 0)
             {

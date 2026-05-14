@@ -95,6 +95,8 @@ namespace Modules.Match3.Scripts.Implementation.Core
             var turnsInitSystem = _ecsSystemFactory.Create<TurnsInitSystem>(new object[] { _objectivesData });
             // Создаем систему инициализации счетчика очков, целей и т.д.
             var scoreInitSystem = _ecsSystemFactory.Create<ScoreInitSystem>(new object[] { _objectivesData });
+            // Создаём систему записи условий победы/поражения в ECS
+            var roundConditionsInitSystem = _ecsSystemFactory.Create<RoundConditionsInitSystem>(new object[] { _objectivesData });
             // Создаем систему инициализации клеток
             var cellsInitSystem = _ecsSystemFactory.Create<CellsInitSystem>(new object[] { _gameZoneData });
             // Создаем систему инициализации фишек
@@ -110,6 +112,8 @@ namespace Modules.Match3.Scripts.Implementation.Core
             var turnsSystem = _ecsSystemFactory.Create<TurnsSystem>();
             // Создаем систему учета очков / задач / прогресса
             var scoreSystem = _ecsSystemFactory.Create<ScoreSystem>();
+            // Проверка условий победы/поражения после TurnsSystem и ScoreSystem (триггер — коллбэки ходов/очков)
+            var roundConditionsCheckSystem = _ecsSystemFactory.Create<RoundConditionsCheckSystem>();
 
             // Создаем системы для перетаскивания фишек
             var dragStartSystem = _ecsSystemFactory.Create<DragStartSystem>();
@@ -134,6 +138,7 @@ namespace Modules.Match3.Scripts.Implementation.Core
                 
                 .Add(turnsInitSystem)
                 .Add(scoreInitSystem)
+                .Add(roundConditionsInitSystem)
                 .Add(cellsInitSystem)
                 .Add(gemsInitSystem)
 
@@ -142,6 +147,7 @@ namespace Modules.Match3.Scripts.Implementation.Core
                 .Add(actionProcessSystem)
                 .Add(turnsSystem)
                 .Add(scoreSystem)
+                .Add(roundConditionsCheckSystem)
 
                 .Add(dragStartSystem)
                 .Add(dragEndSystem)

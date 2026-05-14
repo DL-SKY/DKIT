@@ -14,6 +14,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
     public class FallSystem : IEcsRunSystem
     {
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<FallRequest> _fallRequestFilter = null;
         private readonly EcsFilter<FallInProgress> _fallInProgressFilter = null;
         private readonly EcsFilter<Match3GlobalSettingsData> _globalSettingsFilter = null;
@@ -30,6 +31,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
 
         public void Run()
         {
+            // Игра не активна            
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             // Если уже идет падение, не обрабатываем новые запросы
             if (_fallInProgressFilter.GetEntitiesCount() > 0)
             {

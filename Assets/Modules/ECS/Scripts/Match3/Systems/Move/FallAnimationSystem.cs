@@ -12,11 +12,18 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
     public class FallAnimationSystem : IEcsRunSystem
     {
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<FallAnimation> _fallAnimationFilter = null;
         private readonly EcsFilter<FallInProgress> _fallInProgressFilter = null;
 
         public void Run()
         {
+            // Игра не активна            
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             foreach (var i in _fallAnimationFilter)
             {
                 ref var fallAnimation = ref _fallAnimationFilter.Get1(i);

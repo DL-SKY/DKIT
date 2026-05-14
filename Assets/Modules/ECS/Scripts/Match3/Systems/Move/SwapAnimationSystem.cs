@@ -12,11 +12,18 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
     public class SwapAnimationSystem : IEcsRunSystem
     {
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<SwapAnimation> _swapAnimationFilter = null;
         private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
 
         public void Run()
         {
+            // Игра не активна            
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             foreach (var i in _swapAnimationFilter)
             {
                 ref var swapAnimation = ref _swapAnimationFilter.Get1(i);

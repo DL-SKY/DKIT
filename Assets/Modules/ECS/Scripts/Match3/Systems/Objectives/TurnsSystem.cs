@@ -9,6 +9,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
     public class TurnsSystem : IEcsRunSystem
     {
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<TurnsData> _turnsFilter = null;
         private readonly EcsFilter<ChangeTurnsRequest> _requestFilter = null;
         //private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
@@ -17,6 +18,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
 
         public void Run()
         {
+            // Игра не активна            
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             // Нет запросов
             if (_requestFilter.GetEntitiesCount() == 0)
             {

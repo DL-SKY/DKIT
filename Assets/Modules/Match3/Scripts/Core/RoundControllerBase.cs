@@ -6,6 +6,7 @@ namespace Modules.Match3.Scripts.Core
     public abstract class RoundControllerBase : IDisposable
     {
         public Action<RoundStateType> OnStateChange;
+
         public RoundStateType StateType => _stateType;
         protected RoundStateType _stateType;
 

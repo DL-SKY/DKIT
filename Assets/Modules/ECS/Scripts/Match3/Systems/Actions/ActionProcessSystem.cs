@@ -12,12 +12,19 @@ namespace Modules.ECS.Scripts.Match3.Systems.Actions
     public class ActionProcessSystem : IEcsRunSystem
     {
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<MatchActionRequest> _actionsFilter = null;
 
         private Dictionary<MatchActionType, IActionApplier> _appliers = new Dictionary<MatchActionType, IActionApplier>();
 
         public void Run()
         {
+            // Игра не активна
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             // Нет запросов
             if (_actionsFilter.GetEntitiesCount() == 0)
             {

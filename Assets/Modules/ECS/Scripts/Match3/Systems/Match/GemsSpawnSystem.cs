@@ -17,6 +17,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
         [Inject] private readonly DefinitionsManager _definitionsManager;
 
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<GemsSpawnRequest> _spawnRequestFilter = null;
         private readonly EcsFilter<CenterOffsetData> _offsetFilter = null;
 
@@ -31,6 +32,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
         public void Run()
         {
+            // Игра не активна            
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             // Проверяем наличие запросов на создание фишек
             if (_spawnRequestFilter.GetEntitiesCount() == 0)
             {

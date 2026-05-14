@@ -14,6 +14,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
         private const float MAX_DRAG_DISTANCE = 2.0f;
 
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<DragState> _dragStateFilter = null;
         private readonly EcsFilter<GridPosition, GemView, Draggable> _draggableFilter = null;
         private readonly EcsFilter<MatchDestructionInProgress> _destructionInProgressFilter = null;
@@ -21,6 +22,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
 
         public void Run()
         {
+            // Игра не активна            
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             // Проверяем, не идет ли удаление фишек (блокируем перетаскивание во время удаления)
             if (_destructionInProgressFilter.GetEntitiesCount() > 0)
             {

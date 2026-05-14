@@ -12,6 +12,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
     public class MatchDestructionSystem : IEcsRunSystem
     {
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<MatchGroup> _matchGroupFilter = null;
         private readonly EcsFilter<MatchDestructionAnimation> _destructionAnimationFilter = null;
         private readonly EcsFilter<MatchPrepareDestructionInProgress> _prepareDestructionInProgressFilter = null;
@@ -21,6 +22,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
         public void Run()
         {
+            // Игра не активна            
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             // Обрабатываем анимацию удаления, если она идет
             ProcessDestructionAnimation();
 

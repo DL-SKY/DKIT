@@ -5,5 +5,8 @@
         NA = 0,
 
         Loading = 1,
+
+        Win = 2,
+        Lose = 3,
     }
 }

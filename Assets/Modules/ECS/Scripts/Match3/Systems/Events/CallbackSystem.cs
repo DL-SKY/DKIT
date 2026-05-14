@@ -11,11 +11,13 @@ namespace Modules.ECS.Scripts.Match3.Systems.Events
         private readonly EcsWorld _world = null;
         private readonly EcsFilter<TurnsCallback> _turnCallbackFilter = null;
         private readonly EcsFilter<ScoreCallback> _scoreCallbackFilter = null;
+        private readonly EcsFilter<RoundEndCallback> _roundEndCallbackFilter = null;
 
         public void Run()
         {
             TurnsCallbackProcess();
             ScoreCallbackProcess();
+            RoundEndCallbackProcess();
         }
 
         private void ClearCallbacks<T>(EcsFilter<T> filter) where T : struct
@@ -39,6 +41,14 @@ namespace Modules.ECS.Scripts.Match3.Systems.Events
                 return;
 
             ClearCallbacks(_scoreCallbackFilter);
+        }
+
+        private void RoundEndCallbackProcess()
+        {
+            if (_roundEndCallbackFilter.GetEntitiesCount() == 0)
+                return;
+
+            ClearCallbacks(_roundEndCallbackFilter);
         }
     }
 }

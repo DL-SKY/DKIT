@@ -13,6 +13,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
     public class MatchDetectionSystem : IEcsRunSystem
     {
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<CheckMatchesRequest> _checkMatchesFilter = null;
         private readonly EcsFilter<GridPosition, GemType> _gemsFilter = null;
 
@@ -25,6 +26,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Match
 
         public void Run()
         {
+            // Игра не активна            
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             // Проверяем наличие запроса на проверку совпадений
             if (_checkMatchesFilter.GetEntitiesCount() == 0)
             {

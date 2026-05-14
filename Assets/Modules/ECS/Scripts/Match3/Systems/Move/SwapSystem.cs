@@ -12,6 +12,7 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
     public class SwapSystem : IEcsRunSystem
     {
         private readonly EcsWorld _world = null;
+        private readonly EcsFilter<GameState> _gameStateFilter = null;
         private readonly EcsFilter<SwapRequest> _swapRequestFilter = null;
         private readonly EcsFilter<CenterOffsetData> _offsetFilter = null;
         private readonly EcsFilter<SwapInProgress> _swapInProgressFilter = null;
@@ -19,6 +20,12 @@ namespace Modules.ECS.Scripts.Match3.Systems.Move
 
         public void Run()
         {
+            // Игра не активна            
+            if (Helpers.GameStateHelper.IsGameStopped(_gameStateFilter))
+            {
+                return;
+            }
+
             // Если уже идет свап, не обрабатываем новые запросы
             if (_swapInProgressFilter.GetEntitiesCount() > 0)
             {
