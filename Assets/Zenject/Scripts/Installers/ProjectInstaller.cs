@@ -1,5 +1,6 @@
 using Modules.Definitions.Scripts.Implementation.Defs;
 using Modules.Restrictions.Scripts.Core;
+using Modules.State.Scripts.Implementation.Match3;
 using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Managers;
 using UnityEngine;
@@ -25,8 +26,9 @@ namespace Zenject.Scripts.Installers
             //Container.BindInterfacesAndSelfTo<SortingOrderManager>().AsSingle().NonLazy();
 
             //Core classes
-            //Container.Bind<StateManager>().AsSingle().NonLazy();
+            Container.Bind<Match3StateManager>().AsSingle().NonLazy();
             //Container.Bind<AdventuresManager>().AsSingle().NonLazy();
+            //Container.Bind<SaveManager>().AsSingle().NonLazy();
             Container.Bind<DefinitionsManager>().AsSingle().NonLazy();
             //LOCALIZATION!!!
             //...
