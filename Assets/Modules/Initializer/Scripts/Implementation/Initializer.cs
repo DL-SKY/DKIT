@@ -57,6 +57,7 @@ namespace Modules.Initializer.Scripts.Implementation
                 //new PauseTask(_updater, 0.1f, 1),
 
                 //Core
+                //TODO: state task (load or create new state profile)
                 container.Instantiate<DefinitionsInitTask>(new object[] { 10 }),
                 container.Instantiate<LocalizationInitTask>(new object[] { 10 }),
 
