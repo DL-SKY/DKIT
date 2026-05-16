@@ -70,7 +70,7 @@ namespace Modules.Windows.Scripts.Base
         {
             Unsubscribe();
 
-            _viewModel.Dispose();
+            _viewModel?.Dispose();
             OnViewDestroy?.Invoke(Handle);
         }
     }

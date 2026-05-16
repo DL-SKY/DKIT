@@ -40,7 +40,9 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
                 ref var gameState = ref _gameStateFilter.Get1(0);
                 ref var data = ref _conditionsFilter.Get1(i);
 
-                if (_restrictionsChecker.Check(data.Victory))
+                if (data.Victory != null
+                    && data.Victory.Count > 0
+                    && _restrictionsChecker.Check(data.Victory))
                 {
                     UnityEngine.Debug.LogError($"WIN");
                     gameState.State = RoundStateType.Win;
@@ -55,7 +57,9 @@ namespace Modules.ECS.Scripts.Match3.Systems.Objectives
                     return;
                 }
 
-                if (_restrictionsChecker.Check(data.Defeat))
+                if (data.Defeat != null
+                    && data.Defeat.Count > 0
+                    && _restrictionsChecker.Check(data.Defeat))
                 {
                     UnityEngine.Debug.LogError($"LOSE");
                     gameState.State = RoundStateType.Lose;

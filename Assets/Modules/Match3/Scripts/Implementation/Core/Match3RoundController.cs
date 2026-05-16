@@ -13,6 +13,7 @@ using Modules.ECS.Scripts.Match3.Systems.Objectives;
 using Modules.ECS.Scripts.Match3.Systems.Settings;
 using Modules.Match3.Scripts.Core;
 using Modules.Match3.Scripts.Implementation.Data;
+using Modules.State.Scripts.Implementation.Match3;
 using Modules.Utils.Scripts.Components;
 using Zenject;
 using Zenject.Scripts.Factories;
@@ -23,6 +24,7 @@ namespace Modules.Match3.Scripts.Implementation.Core
     {
         //[Inject] private readonly WindowsManager _windowsManager;
 
+        [Inject] private readonly Match3StateManager _stateManager;
         [Inject] private readonly DefinitionsManager _definitionsManager;
         [Inject] private readonly Updater _updater;
         [Inject] private readonly EcsSystemFactory _ecsSystemFactory;

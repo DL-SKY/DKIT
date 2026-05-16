@@ -26,10 +26,8 @@ namespace Zenject.Scripts.Installers
             //Container.BindInterfacesAndSelfTo<SortingOrderManager>().AsSingle().NonLazy();
 
             //Core classes
-            Container.Bind<Match3StateManager>().AsSingle().NonLazy();
-            //Container.Bind<AdventuresManager>().AsSingle().NonLazy();
-            //Container.Bind<SaveManager>().AsSingle().NonLazy();
             Container.Bind<DefinitionsManager>().AsSingle().NonLazy();
+            Container.Bind<Match3StateManager>().AsSingle().NonLazy();
             //LOCALIZATION!!!
             //...
 

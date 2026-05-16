@@ -1,0 +1,7 @@
+{
+	"SaveName": "Player",
+	"SaveFolder": "Saves",
+	"FileExtension": ".sv",
+	"EnabledEncryption": false,
+	"EncryptionKey": "Silmarillion"
+}

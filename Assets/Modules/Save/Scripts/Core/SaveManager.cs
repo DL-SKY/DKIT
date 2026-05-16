@@ -7,16 +7,32 @@ using UnityEngine;
 
 namespace Modules.Save.Scripts.Core
 {
-    public class SaveManager : ISaveManager
+    public sealed class SaveManager : ISaveManager
     {
+        private const string DEFAULT_FILE_FOLDER = "Saves";
         private const string DEFAULT_FILE_EXTENSION = ".json";
         private const string DEFAULT_ENCRYPTION_KEY = "31415";
 
-        public string SavesDirectory { get; }
+        public string SavesDirectory { get; private set; }
+        public string FileExtension { get; private set; }
+        public string EncryptionKey { get; private set; }
 
         public SaveManager()
         {
-            SavesDirectory = Path.Combine(Application.persistentDataPath, "saves");
+            Init(DEFAULT_FILE_FOLDER, DEFAULT_FILE_EXTENSION, DEFAULT_ENCRYPTION_KEY);
+        }
+
+        public SaveManager(string folder, string extension, string key)
+        {
+            Init(folder, extension, key);
+        }
+
+        private void Init(string folder, string extension, string key)
+        {
+            SavesDirectory = Path.Combine(Application.persistentDataPath, folder);
+            FileExtension = extension;
+            EncryptionKey = key;
+
             Directory.CreateDirectory(SavesDirectory);
         }
 
@@ -90,12 +106,13 @@ namespace Modules.Save.Scripts.Core
             foreach (var invalidFileNameChar in Path.GetInvalidFileNameChars())
                 safeProfileId = safeProfileId.Replace(invalidFileNameChar, '_');
 
-            return Path.Combine(SavesDirectory, $"{safeProfileId}{DEFAULT_FILE_EXTENSION}");
+            UnityEngine.Debug.LogError($" >> GetProfilePath({profileId}) :: {Path.Combine(SavesDirectory, $"{safeProfileId}{FileExtension}")}");
+            return Path.Combine(SavesDirectory, $"{safeProfileId}{FileExtension}");
         }
 
-        private static string ResolveEncryptionKey(string encryptionKey)
+        private string ResolveEncryptionKey(string encryptionKey)
         {
-            return string.IsNullOrEmpty(encryptionKey) ? DEFAULT_ENCRYPTION_KEY : encryptionKey;
+            return string.IsNullOrEmpty(encryptionKey) ? EncryptionKey : encryptionKey;
         }
     }
 }

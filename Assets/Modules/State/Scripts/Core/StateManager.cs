@@ -8,18 +8,20 @@ namespace Modules.State.Scripts.Core
     public abstract class StateManager<TStateData> : IStateManager<TStateData>
         where TStateData : class, IStateData, new()
     {
-        private readonly ISaveManager _saveManager;
+        private ISaveManager _saveManager;
         public TStateData State { get; protected set; }
 
-        protected StateManager()
+
+        public void Init(string folder, string extension, string key)
         {
-            _saveManager = new SaveManager();
+            _saveManager = new SaveManager(folder, extension, key);
         }
 
-        protected StateManager(ISaveManager saveManager)
+        public void Init(ISaveManager saveManager)
         {
             _saveManager = saveManager ?? throw new ArgumentNullException(nameof(saveManager));
         }
+
 
         public virtual void SaveProfileState(string profileId, bool useLightEncryption = false, string encryptionKey = null)
         {
@@ -32,7 +34,10 @@ namespace Modules.State.Scripts.Core
         public TStateData LoadProfileState(string profileId, bool useLightEncryption = false, string encryptionKey = null)
         {
             if (!_saveManager.TryLoad(profileId, out TStateData stateData, useLightEncryption, encryptionKey))
+            {
                 stateData = CreateNewState(profileId);
+                SaveProfileState(profileId, useLightEncryption, encryptionKey);
+            }
 
             State = stateData;
             return State;

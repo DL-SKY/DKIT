@@ -59,6 +59,7 @@ namespace Modules.Initializer.Scripts.Implementation
                 //Core
                 //TODO: state task (load or create new state profile)
                 container.Instantiate<DefinitionsInitTask>(new object[] { 10 }),
+                container.Instantiate<Match3StateInitTask>(new object[] { 10 }),
                 container.Instantiate<LocalizationInitTask>(new object[] { 10 }),
 
 
