@@ -36,8 +36,7 @@ namespace Zenject.Scripts.Installers
             //...
 
             //Debug
-            Container.BindInterfacesAndSelfTo<Modules.Debug.Scripts.Logger.Logger>().AsSingle().NonLazy();
-            Container.BindDisposableExecutionOrder<Modules.Debug.Scripts.Logger.Logger>(0);
+            Container.BindInterfacesAndSelfTo<Modules.Debug.Scripts.Logger.Logger>().AsSingle().NonLazy();  //IDisposable
         }
     }
 }
