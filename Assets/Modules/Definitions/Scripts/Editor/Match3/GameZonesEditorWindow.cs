@@ -18,20 +18,14 @@ namespace Modules.Definitions.Scripts.Editor.Match3
         private const string DEFAULT_NEW_FILE_NAME = "NewGameZone";
         private const int DEFAULT_NEW_MASK_WIDTH = 6;
         private const int DEFAULT_NEW_MASK_HEIGHT = 6;
-        private const string DEFAULT_MASK_JSON =
-@"[
-  [0, 0, 0],
-  [0, 0, 0],
-  [0, 0, 0]
-]";
 
         private readonly List<string> _fileNames = new List<string>();
 
         private Vector2 _filesScroll;
-        private Vector2 _jsonScroll;
+        private Vector2 _maskScroll;
 
         private string _selectedFileName;
-        private string _jsonContent = string.Empty;
+        private int[][] _mask;
         private string _newFileName = DEFAULT_NEW_FILE_NAME;
         private int _newMaskWidth = DEFAULT_NEW_MASK_WIDTH;
         private int _newMaskHeight = DEFAULT_NEW_MASK_HEIGHT;
@@ -39,6 +33,8 @@ namespace Modules.Definitions.Scripts.Editor.Match3
         private bool _isDirty;
         private readonly List<CellsMapEntry> _cellsMapEntries = new List<CellsMapEntry>();
         private readonly HashSet<int> _availableTileIds = new HashSet<int> { 0 };
+        private GUIStyle _normalTileButtonStyle;
+        private GUIStyle _zeroTileButtonStyle;
 
         [MenuItem(MENU_PATH)]
         public static GameZonesEditorWindow Open()
@@ -216,18 +212,13 @@ namespace Modules.Definitions.Scripts.Editor.Match3
                 EditorGUILayout.LabelField("Only 'Mask' is editable. 'Presets' is always saved as an empty array.", EditorStyles.miniLabel);
                 EditorGUILayout.Space(4f);
 
-                using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_jsonScroll))
+                if (_mask == null || _mask.Length == 0)
                 {
-                    _jsonScroll = scope.scrollPosition;
-
-                    EditorGUI.BeginChangeCheck();
-                    string updatedJson = EditorGUILayout.TextArea(_jsonContent, GUILayout.ExpandHeight(true));
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        _jsonContent = updatedJson;
-                        _isDirty = true;
-                    }
+                    EditorGUILayout.HelpBox("Mask is empty.", MessageType.Warning);
+                    return;
                 }
+
+                DrawMaskEditorGrid();
             }
         }
 
@@ -262,7 +253,7 @@ namespace Modules.Definitions.Scripts.Editor.Match3
             else
             {
                 _selectedFileName = null;
-                _jsonContent = string.Empty;
+                _mask = null;
                 _isDirty = false;
             }
         }
@@ -288,20 +279,20 @@ namespace Modules.Definitions.Scripts.Editor.Match3
             string path = GetFilePath(_selectedFileName);
             if (!File.Exists(path))
             {
-                _jsonContent = string.Empty;
+                _mask = null;
                 _isDirty = false;
                 return;
             }
 
             string fileJson = File.ReadAllText(path);
-            if (!TryExtractMaskJson(fileJson, out string maskJson, out string error))
+            if (!TryExtractMask(fileJson, out int[][] parsedMask, out string error))
             {
                 EditorUtility.DisplayDialog("Invalid GameZone JSON", error, "OK");
-                _jsonContent = DEFAULT_MASK_JSON;
+                _mask = BuildEmptyMask(3, 3);
             }
             else
             {
-                _jsonContent = maskJson;
+                _mask = parsedMask;
             }
 
             _isDirty = false;
@@ -341,16 +332,15 @@ namespace Modules.Definitions.Scripts.Editor.Match3
                 return;
             }
 
-            if (!TryParseMask(_jsonContent, out int[][] parsedMask, out string error))
+            if (_mask == null || _mask.Length == 0)
             {
-                EditorUtility.DisplayDialog("Invalid JSON", error, "OK");
+                EditorUtility.DisplayDialog("Invalid mask", "Mask is empty.", "OK");
                 return;
             }
 
-            string formattedJson = BuildGameZoneJson(parsedMask);
+            string formattedJson = BuildGameZoneJson(_mask);
             string path = GetFilePath(_selectedFileName);
             File.WriteAllText(path, formattedJson);
-            _jsonContent = JsonConvert.SerializeObject(parsedMask, Formatting.Indented);
             _isDirty = false;
             AssetDatabase.Refresh();
         }
@@ -379,7 +369,7 @@ namespace Modules.Definitions.Scripts.Editor.Match3
             }
 
             _selectedFileName = null;
-            _jsonContent = string.Empty;
+            _mask = null;
             _isDirty = false;
             AssetDatabase.Refresh();
             RefreshFiles();
@@ -399,29 +389,6 @@ namespace Modules.Definitions.Scripts.Editor.Match3
                 "Cancel");
         }
 
-        private static bool TryParseMask(string rawMaskJson, out int[][] mask, out string error)
-        {
-            mask = null;
-            error = string.Empty;
-
-            try
-            {
-                mask = JsonConvert.DeserializeObject<int[][]>(rawMaskJson);
-                if (mask == null || mask.Length == 0)
-                {
-                    error = "Mask must be a non-empty 2D int array.";
-                    return false;
-                }
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                error = e.Message;
-                return false;
-            }
-        }
-
         private static string NormalizeFileName(string name)
         {
             string result = (name ?? string.Empty).Trim();
@@ -433,9 +400,9 @@ namespace Modules.Definitions.Scripts.Editor.Match3
             return result.Replace(" ", string.Empty);
         }
 
-        private static bool TryExtractMaskJson(string fileJson, out string maskJson, out string error)
+        private static bool TryExtractMask(string fileJson, out int[][] mask, out string error)
         {
-            maskJson = string.Empty;
+            mask = null;
             error = string.Empty;
 
             try
@@ -447,7 +414,7 @@ namespace Modules.Definitions.Scripts.Editor.Match3
                     return false;
                 }
 
-                maskJson = JsonConvert.SerializeObject(model.Mask, Formatting.Indented);
+                mask = model.Mask;
                 return true;
             }
             catch (Exception e)
@@ -473,13 +440,7 @@ namespace Modules.Definitions.Scripts.Editor.Match3
         {
             int safeWidth = Mathf.Max(1, width);
             int safeHeight = Mathf.Max(1, height);
-            int[][] defaultMask = new int[safeHeight][];
-            for (int row = 0; row < safeHeight; row++)
-            {
-                defaultMask[row] = new int[safeWidth];
-            }
-
-            return BuildGameZoneJson(defaultMask);
+            return BuildGameZoneJson(BuildEmptyMask(safeWidth, safeHeight));
         }
 
         private void RefreshCellsMapEntries()
@@ -539,11 +500,129 @@ namespace Modules.Definitions.Scripts.Editor.Match3
             _availableTileIds.Add(0);
         }
 
-        private IEnumerable<int> GetSortedAvailableTileIds()
+        private List<int> GetSortedAvailableTileIds()
         {
             List<int> ids = new List<int>(_availableTileIds);
             ids.Sort();
             return ids;
+        }
+
+        private void DrawMaskEditorGrid()
+        {
+            List<int> availableIds = GetSortedAvailableTileIds();
+            if (availableIds.Count == 0)
+            {
+                EditorGUILayout.HelpBox("No available tile ids.", MessageType.Warning);
+                return;
+            }
+
+            const float INDEX_CELL_WIDTH = 24f;
+            const float TILE_BUTTON_SIZE = 34f;
+            const float COLUMN_LABEL_EXTRA_OFFSET = 12f;
+            const float ROW_LABEL_TOP_OFFSET = 2f;
+
+            int maxColumns = 0;
+            for (int row = 0; row < _mask.Length; row++)
+            {
+                int rowLength = _mask[row]?.Length ?? 0;
+                if (rowLength > maxColumns)
+                {
+                    maxColumns = rowLength;
+                }
+            }
+
+            using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_maskScroll))
+            {
+                _maskScroll = scope.scrollPosition;
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    GUILayout.Space(INDEX_CELL_WIDTH);
+                    GUILayout.Space(COLUMN_LABEL_EXTRA_OFFSET);
+                    for (int col = 0; col < maxColumns; col++)
+                    {
+                        GUILayout.Label((col + 1).ToString(), EditorStyles.miniBoldLabel, GUILayout.Width(TILE_BUTTON_SIZE));
+                    }
+                }
+
+                for (int row = 0; row < _mask.Length; row++)
+                {
+                    int[] rowValues = _mask[row] ?? Array.Empty<int>();
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        using (new EditorGUILayout.VerticalScope(GUILayout.Width(INDEX_CELL_WIDTH)))
+                        {
+                            GUILayout.Space(ROW_LABEL_TOP_OFFSET);
+                            GUILayout.Label((row + 1).ToString(), EditorStyles.miniBoldLabel, GUILayout.Width(INDEX_CELL_WIDTH));
+                        }
+
+                        for (int col = 0; col < rowValues.Length; col++)
+                        {
+                            int currentValue = rowValues[col];
+                            bool isVoidCell = currentValue == 0;
+                            Color previousGuiColor = GUI.color;
+                            GUI.color = isVoidCell ? new Color(1f, 1f, 1f, 0.55f) : previousGuiColor;
+
+                            GUIStyle buttonStyle = isVoidCell ? GetZeroTileButtonStyle() : GetNormalTileButtonStyle();
+                            if (GUILayout.Button(currentValue.ToString(), buttonStyle, GUILayout.Width(TILE_BUTTON_SIZE), GUILayout.Height(TILE_BUTTON_SIZE)))
+                            {
+                                rowValues[col] = GetNextTileId(currentValue, availableIds);
+                                _isDirty = true;
+                            }
+
+                            GUI.color = previousGuiColor;
+                        }
+                    }
+                }
+            }
+        }
+
+        private static int GetNextTileId(int currentValue, List<int> availableIds)
+        {
+            if (availableIds == null || availableIds.Count == 0)
+            {
+                return currentValue;
+            }
+
+            int index = availableIds.IndexOf(currentValue);
+            if (index < 0 || index >= availableIds.Count - 1)
+            {
+                return availableIds[0];
+            }
+
+            return availableIds[index + 1];
+        }
+
+        private GUIStyle GetNormalTileButtonStyle()
+        {
+            if (_normalTileButtonStyle == null)
+            {
+                _normalTileButtonStyle = new GUIStyle(GUI.skin.button)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    fontSize = 12
+                };
+            }
+
+            return _normalTileButtonStyle;
+        }
+
+        private GUIStyle GetZeroTileButtonStyle()
+        {
+            if (_zeroTileButtonStyle == null)
+            {
+                _zeroTileButtonStyle = new GUIStyle(GetNormalTileButtonStyle())
+                {
+                    fontSize = 10
+                };
+
+                _zeroTileButtonStyle.normal.textColor = new Color(1f, 1f, 1f, 0.6f);
+                _zeroTileButtonStyle.hover.textColor = new Color(1f, 1f, 1f, 0.75f);
+                _zeroTileButtonStyle.active.textColor = new Color(1f, 1f, 1f, 0.8f);
+                _zeroTileButtonStyle.focused.textColor = new Color(1f, 1f, 1f, 0.75f);
+            }
+
+            return _zeroTileButtonStyle;
         }
 
         private static void EnsureDirectoryExists()
@@ -592,6 +671,17 @@ namespace Modules.Definitions.Scripts.Editor.Match3
             }
 
             return sb.ToString();
+        }
+
+        private static int[][] BuildEmptyMask(int width, int height)
+        {
+            int[][] mask = new int[height][];
+            for (int row = 0; row < height; row++)
+            {
+                mask[row] = new int[width];
+            }
+
+            return mask;
         }
 
         [Serializable]
