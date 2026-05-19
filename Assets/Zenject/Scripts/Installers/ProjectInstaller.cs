@@ -17,13 +17,8 @@ namespace Zenject.Scripts.Installers
             //Utils
             Container.Bind<Updater>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<CoroutineHolder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<RestrictionsChecker>().AsSingle().NonLazy();
+            Container.Bind<RestrictionsChecker>().AsSingle().NonLazy();            
             //...
-
-            //Container.Bind<GuiManager>().FromComponentInNewPrefab(_guiManager).AsSingle().NonLazy();
-            //Container.Bind<EventSystem>().FromComponentInNewPrefab(_eventSystem).AsSingle().NonLazy();
-            //Container.Bind<IViewAnimation>().To<ViewAnimationWithAnimator>().AsTransient();
-            //Container.BindInterfacesAndSelfTo<SortingOrderManager>().AsSingle().NonLazy();
 
             //Core classes
             Container.Bind<DefinitionsManager>().AsSingle().NonLazy();
@@ -32,13 +27,23 @@ namespace Zenject.Scripts.Installers
             //...
 
             //Core prefabs
-            Container.Bind<WindowsManager>().FromComponentInNewPrefab(_windowsManagerPrefab).AsSingle().NonLazy();            
+            Container.Bind<WindowsManager>().FromComponentInNewPrefab(_windowsManagerPrefab).AsSingle().NonLazy();
             //...
 
             //Factories
             Container.Bind<ViewModelFactory>().AsSingle();
             Container.Bind<RestrictionFactory>().AsSingle();
             //...
+
+            //Debug
+            Container.BindInterfacesAndSelfTo<Modules.Debug.Scripts.Logger.Logger>().AsSingle().NonLazy();
+            Container.BindDisposableExecutionOrder<Modules.Debug.Scripts.Logger.Logger>(0);
         }
     }
 }
+
+// Example
+//Container.Bind<GuiManager>().FromComponentInNewPrefab(_guiManager).AsSingle().NonLazy();
+//Container.Bind<EventSystem>().FromComponentInNewPrefab(_eventSystem).AsSingle().NonLazy();
+//Container.Bind<IViewAnimation>().To<ViewAnimationWithAnimator>().AsTransient();
+//Container.BindInterfacesAndSelfTo<SortingOrderManager>().AsSingle().NonLazy();

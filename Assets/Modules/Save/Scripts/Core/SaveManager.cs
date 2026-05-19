@@ -9,9 +9,9 @@ namespace Modules.Save.Scripts.Core
 {
     public sealed class SaveManager : ISaveManager
     {
-        private const string DEFAULT_FILE_FOLDER = "Saves";
-        private const string DEFAULT_FILE_EXTENSION = ".json";
-        private const string DEFAULT_ENCRYPTION_KEY = "31415";
+        public const string DEFAULT_FILE_FOLDER = "Saves";
+        public const string DEFAULT_FILE_EXTENSION = ".json";
+        public const string DEFAULT_ENCRYPTION_KEY = "31415";
 
         public string SavesDirectory { get; private set; }
         public string FileExtension { get; private set; }

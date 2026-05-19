@@ -2,6 +2,9 @@
 
 namespace Modules.Initializer.Scripts.Tasks
 {
+    /// <summary>
+    /// Don't forget call Complete() and/or Fail() in Run()
+    /// </summary>
     public abstract class TaskBase
     {
         public event Action<TaskBase> OnComplete;
