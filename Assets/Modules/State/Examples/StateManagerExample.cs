@@ -7,20 +7,20 @@ namespace Modules.State.Examples
     {
         private void Start()
         {
-            var stateManager = new Match3StateManager();
-            var profileId = "player_profile_01";
-            stateManager.LoadProfileState(profileId, useLightEncryption: true);
+            //var stateManager = new Match3StateManager();
+            //var profileId = "player_profile_01";
+            //stateManager.LoadProfileState(profileId, useLightEncryption: true);
 
-            if (stateManager.State != null)
-            {
-                stateManager.State.Coins += 100;
-                stateManager.State.Lives = Mathf.Max(1, stateManager.State.Lives);
-            }
+            //if (stateManager.State != null)
+            //{
+            //    stateManager.State.Coins += 100;
+            //    stateManager.State.Lives = Mathf.Max(1, stateManager.State.Lives);
+            //}
 
-            stateManager.SaveProfileState(profileId, useLightEncryption: true);
+            //stateManager.SaveProfileState(profileId, useLightEncryption: true);
 
-            UnityEngine.Debug.Log($"[StateManagerExample] Profile '{stateManager.State.ProfileId}' loaded. " +
-                                  $"Level={stateManager.State.PlayerLevel}, Coins={stateManager.State.Coins}, Lives={stateManager.State.Lives}");
+            //UnityEngine.Debug.Log($"[StateManagerExample] Profile '{stateManager.State.ProfileId}' loaded. " +
+            //                      $"Level={stateManager.State.PlayerLevel}, Coins={stateManager.State.Coins}, Lives={stateManager.State.Lives}");
         }
     }
 }

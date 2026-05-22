@@ -9,12 +9,12 @@ namespace Modules.State.Examples
         {
             return new StateData
             {
-                ProfileId = profileId,
-                PlayerLevel = 7,
-                Coins = 1250,
-                Lives = 5,
-                CurrentRoundDefId = "RoundExample",
-                LastSaveUtcTicks = DateTime.UtcNow.Ticks
+                //ProfileId = profileId,
+                //PlayerLevel = 7,
+                //Coins = 1250,
+                //Lives = 5,
+                //CurrentRoundDefId = "RoundExample",
+                //LastSaveUtcTicks = DateTime.UtcNow.Ticks
             };
         }
     }
