@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-15 10:49:24 (+03:00)
+**Последнее обновление:** 2026-06-15 12:15:00 (+03:00)
 
 ## Назначение
 
@@ -12,16 +12,19 @@
 - структуру выбора игрока и набора действий (`ChoiceData`, `ChoiceActionData`);
 - базовый контейнер состояния прогресса (`StateData`, `PlayerData`, `AdventureStateData`).
 
-На текущем этапе это в первую очередь **data-contract слой**: модели готовы, а runtime-логика менеджеров находится в заготовочном состоянии.
+На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`). Оркестраторы приключения и состояния пока в заготовочном состоянии.
 
 ## Структура модуля
 
 - `Assets/Modules/RPG/Scripts/Adventure`
   - `AdventuresManager` — будущий оркестратор запуска/переходов по приключениям.
+  - `IAdventureFlowController` — интерфейс контроллера переходов между сценами/узлами.
   - `Data/*` — модели adventure/scene/content.
   - `Choice/*` — модели выбора и действий по выбору.
+  - `Choice/Executors/*` — фабрика и обработчики `ChoiceActionData`.
 - `Assets/Modules/RPG/Scripts/State`
   - `StateManager` — будущий менеджер состояния RPG.
+  - `IRpgVariablesController` — интерфейс изменения int-переменных/статов по строковому ключу.
   - `StateData`, `PlayerData`, `AdventureStateData` — root и секции состояния.
 
 ## Модель данных Adventure
@@ -73,10 +76,55 @@
 ### `ChoiceActionData` и `ChoiceActionType`
 
 - `ChoiceActionData.Type` — тип действия при выборе.
-- `ChoiceActionData.StringValues`, `IntValues` — параметры действия (generic payload-контейнеры).
-- `ChoiceActionType` — enum-заготовка (пока без значений).
+- `ChoiceActionData.Params` — именованные параметры действия через типизированные словари:
+  - `Params.Strings: Dictionary<string, string>`
+  - `Params.Ints: Dictionary<string, int>`
+  - `Params.Bools: Dictionary<string, bool>`
+  - `Params.Floats: Dictionary<string, float>`
+- `ChoiceActionType` — базовый enum действий (может расширяться по мере роста механик).
 
-Текущий формат гибкий, но требует строгой договоренности о позициях аргументов для каждого `Type`.
+Формат с `Params` сохраняет гибкость, но убирает "позиционные" ошибки (`StringValues[0]`, `IntValues[1]`) и делает JSON-контент более читаемым.
+
+Примеры JSON и псевдокод интерпретации `Params` приведены в комментариях класса `ChoiceActionData`.
+
+## Выполнение действий (ChoiceAction Executors)
+
+Для выполнения `ChoiceActionData` используется паттерн **pre-bound command**:
+
+1. `IChoiceActionExecutorFactory.Create(ChoiceActionData)` получает DTO действия.
+2. `ChoiceActionExecutorFactory` (через `DiContainer`) парсит `Params`, валидирует обязательные ключи и создает конкретный executor.
+3. Executor в конструкторе получает уже распарсенные данные и ссылки на нужные контроллеры/сервисы.
+4. Вызов `IChoiceActionExecutor.Execute()` выполняется **без входных параметров и без return**.
+
+Ключевые типы:
+
+- `IChoiceActionExecutor` — `void Execute();`
+- `IChoiceActionExecutorFactory` — `IChoiceActionExecutor Create(ChoiceActionData actionData);`
+- `ChoiceActionExecutorFactory` — фабрика на Zenject `DiContainer`, содержит `GetRequiredString/Int/Bool/Float` для валидации `Params`.
+
+Реализованные executors (на текущий момент):
+
+| `ChoiceActionType` | Executor | Обязательные `Params` | Контроллер |
+|---|---|---|---|
+| `GoToNode` | `GoToNodeChoiceActionExecutor` | `Strings.nodeId` | `IAdventureFlowController.GoToNode` |
+| `ModifyVariable` | `ModifyVariableChoiceActionExecutor` | `Strings.key`, `Ints.delta` | `IRpgVariablesController.ModifyInt` |
+
+Остальные значения `ChoiceActionType` объявлены в enum, но пока не подключены к фабрике.
+
+## Ключи статов и параметров (договоренность)
+
+Для персонажей, партии, квестов и мира рекомендуется хранить значения в состоянии через словари по строковым ключам:
+
+- `Dictionary<string, int>`
+- `Dictionary<string, string>`
+- `Dictionary<string, bool>`
+- опционально `Dictionary<string, float>`
+
+Рекомендация по неймингу ключей:
+- `char.*` — параметры персонажа (`char.hp`, `char.armor_class`);
+- `party.*` — параметры группы;
+- `quest.*` — квестовые флаги/счетчики;
+- `world.*` — глобальные флаги мира/локаций.
 
 ## Слой состояния RPG
 
@@ -100,6 +148,12 @@
 - `Restrictions`: `AdventureData` и `ChoiceData` используют `Restriction` для описания условий доступа.
 - Остальные интеграции (сохранения, UI, события, инициализация) пока явно не реализованы в коде модуля.
 
+## Целевые runtime-паттерны (следующий этап)
+
+- **Вложенные приключения:** одно adventure может запускать другое через стек контекстов (push/pop), затем возвращать игрока в родительский сценарий.
+- **Карта и локации:** глобальная навигация выносится в отдельный world/map JSON слой; adventure остается локальным графом сцен.
+- **Стартовый хаб:** рекомендуемая стартовая локация — Таверна, где создается персонаж и выбирается доступное приключение.
+
 ## Предполагаемый runtime-поток (по модели данных)
 
 1. Загрузка/получение `AdventureData`.
@@ -109,29 +163,38 @@
 5. Формирование списка `Choices`:
    - либо по `AlwaysShow`;
    - либо по результату проверки `ChoiceData.Restictions`.
-6. Применение `ChoiceActionData` выбранного варианта.
-7. Обновление `StateData.Adventure` и переход к следующей сцене.
+6. Для каждого `ChoiceActionData` из `Actions` фабрика создает `IChoiceActionExecutor` и вызывает `Execute()`.
+7. Обновление `StateData.Adventure` и переход к следующей сцене (через контроллеры/менеджеры).
 
-Этот поток логически следует из структуры моделей, но на уровне классов-менеджеров (`AdventuresManager`, `StateManager`) еще не реализован.
+Полный runtime-поток еще не замкнут: `AdventuresManager` и `StateManager` не реализованы, а контроллеры (`IAdventureFlowController`, `IRpgVariablesController`) пока только объявлены как интерфейсы.
 
 ## Текущее состояние реализации
 
 - Реализованы доменные DTO/POCO-модели для adventure-данных и state-root.
-- Подготовлены точки расширения через enums (`SceneContentType`, `ChoiceActionType`), но без конкретных значений.
+- `ChoiceActionData` переведен на контракт `Params` (`Strings/Ints/Bools/Floats`).
+- `ChoiceActionType` содержит базовый набор значений для переходов, проверок и боевых/ресурсных эффектов.
+- Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
+- Реализованы executors: `GoToNodeChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor`.
+- Объявлены интерфейсы контроллеров: `IAdventureFlowController`, `IRpgVariablesController`.
+- `SceneContentType` пока остается точкой расширения без конкретных значений.
 - `AdventuresManager` и `StateManager` содержат только конструкторы с `Debug.LogError(...)` и не выполняют бизнес-логику.
-- Отсутствуют валидаторы данных, обработка ошибок, сериализация и тесты модуля.
+- Отсутствуют DI-биндинги фабрики/контроллеров в installer, валидаторы adventure-данных, сериализация и тесты модуля.
 
 ## Рекомендации по дальнейшему развитию
 
-1. Заполнить `SceneContentType` и `ChoiceActionType` конкретными значениями.
-2. Определить контракт параметров для каждого `ChoiceActionType` (что хранится в `StringValues`/`IntValues`).
-3. Реализовать `AdventuresManager`:
+1. Заполнить `SceneContentType` конкретными значениями.
+2. Добавить executors и маппинг в фабрику для остальных `ChoiceActionType` (`SetFlag`, `SkillCheck`, `StartCombat` и т.д.).
+3. Зарегистрировать в Zenject installer:
+   - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`;
+   - реализации `IAdventureFlowController`, `IRpgVariablesController`.
+4. Реализовать `AdventuresManager`:
    - запуск приключения;
    - вычисление доступных выборов;
-   - применение действий и переход между сценами.
-4. Расширить `AdventureStateData` и `PlayerData` минимально необходимыми полями прогресса.
-5. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).
-6. Добавить unit-тесты на:
+   - применение списка `ChoiceActionData` через фабрику executors.
+5. Расширить `AdventureStateData` и `PlayerData` минимально необходимыми полями прогресса (словари статов/флагов).
+6. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).
+7. Добавить unit-тесты на:
+   - фабрику executors и валидацию `Params`;
    - проверку ограничений;
    - вычисление доступных choices;
    - корректность переходов по сценам и изменения состояния.

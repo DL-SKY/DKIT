@@ -10,7 +10,10 @@
 
 Текущий статус модуля:
 - модели `AdventureData`, `SceneData`, `ChoiceData`, `ChoiceActionData` есть;
-- enums `SceneContentType` и `ChoiceActionType` пустые;
+- `ChoiceActionData` использует контракт `Params` (`Strings/Ints/Bools/Floats`);
+- `ChoiceActionType` содержит базовый набор значений;
+- реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, два executor-а (`GoToNode`, `ModifyVariable`);
+- объявлены интерфейсы `IAdventureFlowController`, `IRpgVariablesController`;
 - `AdventuresManager` и `StateManager` не реализованы;
 - `PlayerData` и `AdventureStateData` пустые.
 
@@ -21,6 +24,24 @@
 - Бои в упрощенной форме: без полноценной тактической карты, с минимальным числом правил.
 - Внутри приключения переходы идут по `nodeId`/`sceneId`.
 - Поля с текущими опечатками (`Restictions`) лучше не ломать сразу, а мигрировать безопасно (через совместимость на чтение).
+
+## Зафиксированные решения по формату (после обсуждения)
+
+1. Статы/параметры персонажей и мира хранятся в состоянии в виде словарей:
+   - `Dictionary<string, int>`
+   - `Dictionary<string, string>`
+   - `Dictionary<string, bool>`
+   - опционально `Dictionary<string, float>`
+2. Доступ к статам/параметрам из adventure JSON всегда идет по строковому ключу.
+3. `AdventureData` остается единицей описания приключения/события, `SceneData` — единицей показа контента и выбора.
+4. `NotClearScene` используется как режим накопления нарратива в UI (append).
+5. Для встраивания одного приключения в другое вводится стек приключений (push/pop контекстов).
+6. Карта/локации выносятся в отдельный world-слой JSON, чтобы разделить глобальную навигацию и локальные сцены.
+7. Стартовый хаб игры: Таверна (создание персонажа + выбор доступного приключения).
+8. Выполнение `ChoiceActionData` — через фабрику executors (Zenject `DiContainer`), без передачи параметров в `Execute()`:
+   - фабрика парсит `Params` при создании executor-а;
+   - executor хранит готовые данные и ссылки на контроллеры;
+   - `Execute()` вызывается без аргументов и без return.
 
 ## Варианты реализации
 
@@ -47,7 +68,8 @@
 
 Идея:
 - ввести явный runtime-слой поверх DTO:
-  - `RpgEngine` (оркестратор шага),
+  - `AdventuresManager` (оркестратор шага),
+  - `ChoiceActionExecutorFactory` + `IChoiceActionExecutor` (выполнение действий),
   - `RulesService` (d20 проверки),
   - `CombatService` (упрощенный бой),
   - `AdventureRepository` (загрузка JSON).
@@ -157,33 +179,49 @@
 - сериализация в локальный save-slot;
 - детерминированный seed для воспроизводимости бросков (опционально).
 
-## 5) Действия (ChoiceActionType) — минимальный список
+## 5) Действия (ChoiceActionType), контракт Params и executors
 
-- `GoToNode(nodeId)`
-- `SetFlag(flag, value)`
-- `ModifyVariable(name, delta)`
-- `SkillCheck(skill, dc, onSuccessNodeId, onFailNodeId, advantageMode)`
-- `StartCombat(encounterId, onWinNodeId, onLoseNodeId)`
-- `ApplyDamage(target, amount)`
-- `Heal(target, amount)`
-- `GrantItem(itemId, count)` (если инвентарь нужен в MVP)
+### Enum `ChoiceActionType` (объявлено)
 
-Важно:
-- отказаться от "позиционных" `StringValues/IntValues` в пользу typed payload (или хотя бы ключ-значение), иначе сложная поддержка.
+- `GoToNode`, `SetFlag`, `ModifyVariable`
+- `SkillCheck`, `StartCombat`
+- `ApplyDamage`, `Heal`, `GrantItem`
+
+### Контракт `Params`
+
+- `Params.Strings`, `Params.Ints`, `Params.Bools`, `Params.Floats`
+- для каждого `ChoiceActionType` — обязательные именованные ключи (таблица контракта, TBD)
+- legacy `StringValues/IntValues` не поддерживается
+
+### Фабрика и executors (реализовано частично)
+
+Паттерн:
+1. `IChoiceActionExecutorFactory.Create(ChoiceActionData)`
+2. `ChoiceActionExecutorFactory` валидирует `Params` через `GetRequiredString/Int/Bool/Float`
+3. `DiContainer.Instantiate<TExecutor>(parsedParams)` — executor создается с готовыми данными
+4. `executor.Execute()` — side-effect через контроллер/сервис
+
+| Type | Executor | Required Params | Controller |
+|---|---|---|---|
+| `GoToNode` | `GoToNodeChoiceActionExecutor` | `Strings.nodeId` | `IAdventureFlowController` |
+| `ModifyVariable` | `ModifyVariableChoiceActionExecutor` | `Strings.key`, `Ints.delta` | `IRpgVariablesController` |
+
+Остальные типы — добавить executor + case в фабрике.
 
 ## Пошаговый план внедрения
 
 ## Этап 1 — Контракты и совместимость данных
 
 1. Зафиксировать JSON-схему приключения v1.
-2. Заполнить `SceneContentType` и `ChoiceActionType`.
-3. Добавить типизированные payload-модели для действий.
+2. Заполнить `SceneContentType`.
+3. ~~Добавить типизированные payload-модели для действий~~ — сделано через `ChoiceActionParamsData`.
 4. Оставить backward compatibility со старыми полями (`Restictions`) на время миграции.
 5. Добавить валидацию JSON:
    - существование `startNodeId`;
    - уникальность `node.id`;
    - валидность ссылок переходов;
    - корректность action payload.
+6. Зарегистрировать в Zenject installer фабрику и контроллеры.
 
 Результат этапа:
 - валидный и проверяемый формат контента.
@@ -194,15 +232,17 @@
    - загрузка приключения;
    - переход к узлу;
    - выдача доступных выборов;
-   - применение выбора.
-2. Реализовать `RulesService`:
+   - применение списка `ChoiceActionData` через `IChoiceActionExecutorFactory`.
+2. ~~Реализовать фабрику executors~~ — базовая версия готова; расширить на все `ChoiceActionType`.
+3. Реализовать `IAdventureFlowController`, `IRpgVariablesController` и остальные контроллеры.
+4. Реализовать `RulesService`:
    - d20 броски;
    - skill checks;
    - advantage/disadvantage.
-3. Реализовать `StateManager`:
+5. Реализовать `StateManager`:
    - инициализация/чтение/сохранение `StateData`;
    - работа с флагами и переменными.
-4. Добавить журнал событий шага (для UI и дебага).
+6. Добавить журнал событий шага (для UI и дебага).
 
 Результат этапа:
 - рабочий цикл "показ сцены -> выбор -> действия -> переход".
@@ -257,9 +297,11 @@
 
 Спринт 1:
 - JSON-схема v1 + валидатор;
-- enums и typed actions;
+- ~~enums и typed actions~~ — `ChoiceActionType` + `Params` готовы;
+- ~~фабрика executors (GoToNode, ModifyVariable)~~ — готово;
+- реализации `IAdventureFlowController`, `IRpgVariablesController` + DI-биндинги;
 - базовый `AdventuresManager` + `StateManager`;
-- `GoToNode`, `SetFlag`, `SkillCheck`.
+- executors для `SetFlag`, `SkillCheck`.
 
 Спринт 2:
 - `StartCombat` + `CombatService` (MVP);
