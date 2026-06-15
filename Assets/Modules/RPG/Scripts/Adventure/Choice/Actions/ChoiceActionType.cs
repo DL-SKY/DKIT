@@ -4,7 +4,7 @@
     {
         None = 0,
 
-        GoToNode = 100,
+        GoToScene = 100,
         SetFlag = 110,
         ModifyVariable = 120,
 

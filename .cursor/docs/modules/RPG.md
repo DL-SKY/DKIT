@@ -106,7 +106,7 @@
 
 | `ChoiceActionType` | Executor | Обязательные `Params` | Контроллер |
 |---|---|---|---|
-| `GoToNode` | `GoToNodeChoiceActionExecutor` | `Strings.nodeId` | `IAdventureFlowController.GoToNode` |
+| `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.sceneId` | `IAdventureFlowController.GoToScene` |
 | `ModifyVariable` | `ModifyVariableChoiceActionExecutor` | `Strings.key`, `Ints.delta` | `IRpgVariablesController.ModifyInt` |
 
 Остальные значения `ChoiceActionType` объявлены в enum, но пока не подключены к фабрике.
@@ -174,7 +174,7 @@
 - `ChoiceActionData` переведен на контракт `Params` (`Strings/Ints/Bools/Floats`).
 - `ChoiceActionType` содержит базовый набор значений для переходов, проверок и боевых/ресурсных эффектов.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
-- Реализованы executors: `GoToNodeChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor`.
+- Реализованы executors: `GoToSceneChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor`.
 - Объявлены интерфейсы контроллеров: `IAdventureFlowController`, `IRpgVariablesController`.
 - `SceneContentType` пока остается точкой расширения без конкретных значений.
 - `AdventuresManager` и `StateManager` содержат только конструкторы с `Debug.LogError(...)` и не выполняют бизнес-логику.

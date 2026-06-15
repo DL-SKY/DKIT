@@ -19,10 +19,10 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
 
             return actionData.Type switch
             {
-                ChoiceActionType.GoToNode => _container.Instantiate<GoToNodeChoiceActionExecutor>(
+                ChoiceActionType.GoToScene => _container.Instantiate<GoToSceneChoiceActionExecutor>(
                     new object[]
                     {
-                        GetRequiredString(actionData.Params.Strings, "nodeId", actionData.Type),
+                        GetRequiredString(actionData.Params.Strings, "sceneId", actionData.Type),
                     }),
 
                 ChoiceActionType.ModifyVariable => _container.Instantiate<ModifyVariableChoiceActionExecutor>(
@@ -30,6 +30,13 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
                     {
                         GetRequiredString(actionData.Params.Strings, "key", actionData.Type),
                         GetRequiredInt(actionData.Params.Ints, "delta", actionData.Type),
+                    }),
+
+                ChoiceActionType.SetFlag => _container.Instantiate<SetFlagChoiceActionExecutor>(
+                    new object[]
+                    {
+                        GetRequiredString(actionData.Params.Strings, "key", actionData.Type),
+                        GetRequiredBool(actionData.Params.Bools, "value", actionData.Type),
                     }),
 
                 _ => throw new NotImplementedException($"ChoiceActionType '{actionData.Type}' is not supported by factory yet."),

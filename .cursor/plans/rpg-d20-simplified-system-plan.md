@@ -12,7 +12,7 @@
 - модели `AdventureData`, `SceneData`, `ChoiceData`, `ChoiceActionData` есть;
 - `ChoiceActionData` использует контракт `Params` (`Strings/Ints/Bools/Floats`);
 - `ChoiceActionType` содержит базовый набор значений;
-- реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, два executor-а (`GoToNode`, `ModifyVariable`);
+- реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, два executor-а (`GoToScene`, `ModifyVariable`);
 - объявлены интерфейсы `IAdventureFlowController`, `IRpgVariablesController`;
 - `AdventuresManager` и `StateManager` не реализованы;
 - `PlayerData` и `AdventureStateData` пустые.
@@ -22,7 +22,7 @@
 - Требуется максимально простая, предсказуемая и контентно-ориентированная система.
 - Контент должен собираться геймдизайнером через JSON без правок кода.
 - Бои в упрощенной форме: без полноценной тактической карты, с минимальным числом правил.
-- Внутри приключения переходы идут по `nodeId`/`sceneId`.
+- Внутри приключения переходы идут по `sceneId`.
 - Поля с текущими опечатками (`Restictions`) лучше не ломать сразу, а мигрировать безопасно (через совместимость на чтение).
 
 ## Зафиксированные решения по формату (после обсуждения)
@@ -183,7 +183,7 @@
 
 ### Enum `ChoiceActionType` (объявлено)
 
-- `GoToNode`, `SetFlag`, `ModifyVariable`
+- `GoToScene`, `SetFlag`, `ModifyVariable`
 - `SkillCheck`, `StartCombat`
 - `ApplyDamage`, `Heal`, `GrantItem`
 
@@ -203,7 +203,7 @@
 
 | Type | Executor | Required Params | Controller |
 |---|---|---|---|
-| `GoToNode` | `GoToNodeChoiceActionExecutor` | `Strings.nodeId` | `IAdventureFlowController` |
+| `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.sceneId` | `IAdventureFlowController` |
 | `ModifyVariable` | `ModifyVariableChoiceActionExecutor` | `Strings.key`, `Ints.delta` | `IRpgVariablesController` |
 
 Остальные типы — добавить executor + case в фабрике.
@@ -298,7 +298,7 @@
 Спринт 1:
 - JSON-схема v1 + валидатор;
 - ~~enums и typed actions~~ — `ChoiceActionType` + `Params` готовы;
-- ~~фабрика executors (GoToNode, ModifyVariable)~~ — готово;
+- ~~фабрика executors (GoToScene, ModifyVariable)~~ — готово;
 - реализации `IAdventureFlowController`, `IRpgVariablesController` + DI-биндинги;
 - базовый `AdventuresManager` + `StateManager`;
 - executors для `SetFlag`, `SkillCheck`.

@@ -2,22 +2,22 @@ using Modules.RPG.Scripts.Adventure;
 
 namespace Modules.RPG.Scripts.Adventure.Choice.Executors
 {
-    public class GoToNodeChoiceActionExecutor : IChoiceActionExecutor
+    public class GoToSceneChoiceActionExecutor : IChoiceActionExecutor
     {
         private readonly IAdventureFlowController _adventureFlowController;
-        private readonly string _nodeId;
+        private readonly string _sceneId;
 
-        public GoToNodeChoiceActionExecutor(
+        public GoToSceneChoiceActionExecutor(
             IAdventureFlowController adventureFlowController,
-            string nodeId)
+            string sceneId)
         {
             _adventureFlowController = adventureFlowController;
-            _nodeId = nodeId;
+            _sceneId = sceneId;
         }
 
         public void Execute()
         {
-            _adventureFlowController.GoToNode(_nodeId);
+            _adventureFlowController.GoToScene(_sceneId);
         }
     }
 }

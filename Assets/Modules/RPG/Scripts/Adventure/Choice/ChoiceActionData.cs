@@ -33,8 +33,8 @@ namespace Modules.RPG.Scripts.Adventure.Choice
     //   "Params": {
     //     "Strings": {
     //       "skill": "char.skill.stealth",
-    //       "onSuccessNodeId": "SCENE_STEALTH_OK",
-    //       "onFailNodeId": "SCENE_STEALTH_FAIL",
+    //       "onSuccessSceneId": "SCENE_STEALTH_OK",
+    //       "onFailSceneId": "SCENE_STEALTH_FAIL",
     //       "advantageMode": "none"
     //     },
     //     "Ints": { "dc": 12 }
