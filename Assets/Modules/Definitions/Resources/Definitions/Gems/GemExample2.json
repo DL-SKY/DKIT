@@ -1,0 +1,70 @@
+{
+	"Tags": [
+		"TAG_1",
+		"TAG_2"
+	],
+	
+	"PrefabPath": "Prefabs/Gems/Gem2",
+	
+	"MatchCountActions": {
+		1: {
+			"Actions": [
+				{
+					"Type": "ScoreChange",
+					"StringParameter1": "Progress",
+					"IntParameter1": 1
+				}
+			]
+		},
+		2: {
+			"Actions": [
+				{
+					"Type": "ScoreChange",
+					"StringParameter1": "Progress",
+					"IntParameter1": 2
+				}
+			]
+		},
+		3: {
+			"Actions": [
+				{
+					"Type": "ScoreChange",
+					"StringParameter1": "Progress",
+					"IntParameter1": 3
+				}
+			]
+		},
+		4: {
+			"Actions": [
+				{
+					"Type": "ScoreChange",
+					"StringParameter1": "Progress",
+					"IntParameter1": 4
+				},
+				{
+					"Type": "ScoreChange",
+					"StringParameter1": "Boost",
+					"IntParameter1": 1
+				}
+			]
+		},
+		5: {
+			"Actions": [
+				{
+					"Type": "ScoreChange",
+					"StringParameter1": "Progress",
+					"IntParameter1": 5
+				},
+				{
+					"Type": "ScoreChange",
+					"StringParameter1": "Boost",
+					"IntParameter1": 2
+				},
+				{
+					"Type": "TurnsChange",
+					"IntParameter1": 25
+				}
+			]
+		}
+	}
+}

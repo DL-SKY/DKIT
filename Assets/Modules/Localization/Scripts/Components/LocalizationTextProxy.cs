@@ -59,7 +59,29 @@ namespace Modules.Localization.Scripts.Components
             if (string.IsNullOrEmpty(_key))
                 return false;
 
-            _textComponent.text = string.Format(_manager.GetString(_key), _args);
+            var localizedText = _manager.GetString(_key);
+            if (string.IsNullOrEmpty(localizedText))
+            {
+                _textComponent.text = string.Empty;
+                return false;
+            }
+
+            if (_args == null || _args.Length == 0)
+            {
+                _textComponent.text = localizedText;
+                return true;
+            }
+
+            try
+            {
+                _textComponent.text = string.Format(localizedText, _args);
+            }
+            catch (System.FormatException ex)
+            {
+                UnityEngine.Debug.LogWarning($"[LocalizationTextProxy] Format failed for key '{_key}': {ex.Message}");
+                _textComponent.text = localizedText;
+                return false;
+            }
 
             return true;
         }

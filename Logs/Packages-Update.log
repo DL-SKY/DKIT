@@ -79,3 +79,26 @@ The following packages were updated:
   com.unity.visualscripting from version 1.9.6 to 1.9.8
 The following packages were removed:
   com.unity.textmeshpro@3.0.9
+
+=== Mon May 11 14:43:21 2026
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were added:
+  com.unity.modules.adaptiveperformance@1.0.0
+  com.unity.modules.vectorgraphics@1.0.0
+The following packages were updated:
+  com.unity.ads from version 4.4.2 to 4.16.4
+  com.unity.ai.navigation from version 2.0.9 to 2.0.12
+  com.unity.analytics from version 3.8.1 to 3.8.2
+  com.unity.collab-proxy from version 2.10.0 to 2.12.4
+  com.unity.feature.2d from version 2.0.1 to 2.0.2
+  com.unity.ide.rider from version 3.0.38 to 3.0.39
+  com.unity.ide.visualstudio from version 2.0.25 to 2.0.27
+  com.unity.multiplayer.center from version 1.0.0 to 1.0.1
+  com.unity.purchasing from version 4.12.2 to 4.15.0
+  com.unity.services.core from version 1.15.2 to 1.16.0
+  com.unity.timeline from version 1.8.9 to 1.8.12
+  com.unity.visualscripting from version 1.9.9 to 1.9.11
+  com.unity.xr.legacyinputhelpers from version 2.1.13 to 3.0.1

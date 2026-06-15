@@ -5,7 +5,7 @@ namespace Modules.Localization.Scripts.Core
 {
     public abstract class LocalizationManagerBase
     {
-        public Action<SystemLanguage> OnChangeLanguage;
+        public event Action<SystemLanguage> OnChangeLanguage;
 
         public SystemLanguage Language => _language;
         protected SystemLanguage _language;
@@ -21,6 +21,11 @@ namespace Modules.Localization.Scripts.Core
             TrySetLanguage(GetCurrentLanguage());
         }
 
+        public void Init(SystemLanguage language)
+        {
+            TrySetLanguage(language);
+        }
+
         public bool TrySetLanguage(SystemLanguage newLanguage)
         {
             if (CheckAvailableLanguage(newLanguage))
@@ -29,6 +34,7 @@ namespace Modules.Localization.Scripts.Core
                 _data = LoadLanguage(Language);
 
                 OnChangeLanguage?.Invoke(Language);
+                return true;
             }
 
             UnityEngine.Debug.LogWarning($"[LocalizationManager] TrySetLanguage({newLanguage}) -> not supported language: {newLanguage}!");

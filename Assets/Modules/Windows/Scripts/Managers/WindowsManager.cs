@@ -35,13 +35,19 @@ namespace Modules.Windows.Scripts.Managers
             instance.SetSortingOrder(_views.Count + (int)instance.Options.SortingLayer);
             instance.Show();
 
+            UnityEngine.Debug.Log($"[WindowsManager] Open window {instance.GetType().Name}({instance.Handle} / 0x{instance.Handle:X8}).");
+
             return instance;
         }
 
         public void CloseView(int handle)
         {
             if (_views.TryGetValue(handle, out var view))
+            {
                 view.Hide();
+
+                UnityEngine.Debug.Log($"[WindowsManager] Close window {view.GetType().Name}({view.Handle} / 0x{view.Handle:X8}).");
+            }
         }
 
         private void OnViewDestroyHandler(int handle)

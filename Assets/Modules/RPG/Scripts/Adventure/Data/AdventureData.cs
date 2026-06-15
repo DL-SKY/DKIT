@@ -1,4 +1,4 @@
-﻿using Modules.RPG.Scripts.Restrictions;
+﻿using Modules.Restrictions.Scripts.Core;
 using System.Collections.Generic;
 
 namespace Modules.RPG.Scripts.Adventure.Data

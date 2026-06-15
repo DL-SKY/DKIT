@@ -9,6 +9,9 @@ namespace Modules.Windows.Scripts.Base
     [RequireComponent(typeof(GraphicRaycaster))]
     public abstract class ViewBase<T> : MonoBehaviour, IView where T : ViewModelBase
     {
+        private static int _counter = 0;
+        private static readonly int _typeHash = typeof(T).GetHashCode();
+
         public event Action<int> OnViewDestroy;
 
         public int Handle { get; private set; }
@@ -27,7 +30,10 @@ namespace Modules.Windows.Scripts.Base
 
         private int GenerateHandle()
         {
-            return string.Format("{0}-{1}", typeof(T), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()).GetHashCode();
+            //return string.Format("{0}-{1}", typeof(T), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()).GetHashCode();
+
+            int count = System.Threading.Interlocked.Increment(ref _counter);
+            return (_typeHash << 16) | (count & 0xFFFF);
         }
 
         public void Init(T viewModel)
@@ -36,12 +42,14 @@ namespace Modules.Windows.Scripts.Base
             _viewModel.SetHandle(Handle);
 
             Subscribe();
+            InitImplementation();
 
             _isInited = true;
         }
 
         protected abstract void Subscribe();
         protected abstract void Unsubscribe();
+        protected abstract void InitImplementation();
 
         public void SetSortingOrder(int value)
         {
@@ -62,7 +70,7 @@ namespace Modules.Windows.Scripts.Base
         {
             Unsubscribe();
 
-            _viewModel.Dispose();
+            _viewModel?.Dispose();
             OnViewDestroy?.Invoke(Handle);
         }
     }

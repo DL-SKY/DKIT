@@ -1,0 +1,6 @@
+{
+	"SwapAnimationDurationMs": 250,
+	"MatchAnimationDurationMs": 500,
+	"PauseAfterGemDestroyMs": 500,
+	"FallAnimationDurationMs": 500
+}

@@ -4,8 +4,8 @@ namespace Modules.Initializer.Scripts.Tasks
 {
     public class LogTask : TaskBase
     {
-        private string _message;
-        private LogType _type;
+        private readonly string _message;
+        private readonly LogType _type;
 
         public LogTask(string message, LogType type, int weight) : base(weight)
         {

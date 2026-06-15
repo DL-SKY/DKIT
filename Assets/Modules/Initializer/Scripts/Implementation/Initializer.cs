@@ -1,0 +1,282 @@
+using Modules.Definitions.Scripts.Implementation.Defs.Gems;
+using Modules.Initializer.Scripts.Core;
+using Modules.Initializer.Scripts.Implementation.Tasks.Core;
+using Modules.Initializer.Scripts.Tasks;
+using Modules.Match3.Scripts.Implementation.Core;
+using Modules.Utils.Scripts.Components;
+using Modules.Windows.Scripts.Base;
+using Modules.Windows.Scripts.Implementation.Match3;
+using Modules.Windows.Scripts.Implementation.Loading;
+using Modules.Windows.Scripts.Managers;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using Zenject;
+using Zenject.Scripts.Extention;
+using Zenject.Scripts.Factories;
+
+namespace Modules.Initializer.Scripts.Implementation
+{
+    /// <summary>
+    /// TODO:
+    /// Обязательно почистить код после реализации MVP
+    /// </summary>
+    public class Initializer : MonoBehaviour
+    {
+        private const string DEBUG_START_SCENE = "Match3Scene";     //DEBUG
+        private const string DEBUG_START_ROUND = "RoundExample";    //DEBUG
+
+        private WindowsManager _windowsManager;
+        private Updater _updater;
+        private CoroutineHolder _coroutineHolder;
+        private ViewModelFactory _viewModelFactory;
+
+        private void Start()
+        {
+            var container = ProjectContext.Instance.Container;
+            _windowsManager = container.Resolve<WindowsManager>();
+            _updater = container.Resolve<Updater>();
+            _coroutineHolder = container.Resolve<CoroutineHolder>();
+            _viewModelFactory = container.Resolve<ViewModelFactory>();
+
+            UnityEngine.Debug.LogError($"Initializer.Start() => _updater: {_updater != null}");
+            UnityEngine.Debug.LogError($"                       _viewModelFactory: {_viewModelFactory != null}");
+
+
+            //Debug...
+            //DebugMethod03();
+
+
+            var loaderViewModel = _viewModelFactory.Create<MainLoadViewModel>();
+
+            var tasks = new List<TaskBase>()
+            {
+                //Filler
+                //new PauseTask(_updater, 0.1f, 1),
+
+                //Core
+                //TODO: state task (load or create new state profile)
+                container.Instantiate<DefinitionsInitTask>(new object[] { 10 }),
+                container.Instantiate<Match3StateInitTask>(new object[] { 10 }),
+                container.Instantiate<LocalizationInitTask>(new object[] { 10 }),
+
+
+
+
+
+                //new PauseTask(_updater, 1f, 1),
+
+                //new LoadSceneTask("SampleEcs", LoadSceneMode.Single, 1),
+                new LoadSceneTask(DEBUG_START_SCENE, LoadSceneMode.Single, _coroutineHolder, 1),
+
+                //new PauseTask(_updater, 1f, 1),
+
+
+
+
+
+                //Show progress 100% pause / filler
+                new PauseTask(_updater, 0.25f, 0),
+                new CloseViewTask(_windowsManager, loaderViewModel, 0),
+            };
+
+            //DebugMethod01();
+
+            var tasker = new InitializeTasker(tasks);
+            loaderViewModel.Init(tasker);
+            var loaderView = _windowsManager.OpenView<MainLoadView, MainLoadViewModel>(MainLoadView.Path, loaderViewModel);
+
+            //TODO: subscribe and callbacks
+            tasker.OnProgressChange += (x, y) => UnityEngine.Debug.LogError($"...LOADING PROGRESS {x}/{y}...");
+            tasker.Run(OnCompletedCallback, OnFailedCallback);
+        }
+
+        private void OnCompletedCallback()
+        {
+            UnityEngine.Debug.LogError($"OnCompletedCallback() => ");
+
+            //DebugMethod01();
+            //DebugMethod02();
+
+            //var test = _viewModelFactory.Create<TestViewModel>();
+            //test.Init();
+
+            //TEST
+            var container = ProjectContext.Instance.Container;
+            var match3RoundController = container.TryResolveFromRegistry<Match3RoundController>();
+            match3RoundController.Init(DEBUG_START_ROUND);
+
+            var match3ViewModel = _viewModelFactory.Create<DefaultMatch3ViewModel>();
+            _windowsManager.OpenView<DefaultMatch3View, DefaultMatch3ViewModel>(DefaultMatch3View.Path, match3ViewModel);
+        }
+
+        private void OnFailedCallback(int error)
+        {
+            UnityEngine.Debug.LogError($"OnFailedCallback({error}) => ");
+        }
+
+        [Obsolete("Watch TestViewModel")]
+        private void DebugMethod01()
+        {
+            var s = ProjectContext.Instance.Container.TryResolve<SceneContextRegistry>();
+            var c = s.GetContainerForScene(SceneManager.GetActiveScene());
+            var match3RoundController = c?.TryResolve<Match3RoundController>();
+            UnityEngine.Debug.LogError($"m3Prop: {match3RoundController != null}");
+
+            /*
+             * DiContainer GetContainerForCurrentScene()
+                {
+                    return ProjectContext.Instance.Container.Resolve<SceneContextRegistry>()
+                        .GetContainerForScene(gameObject.scene);
+                }
+             * */
+        }
+
+        private void DebugMethod02()
+        {
+
+            int[,] matrix = {
+                { 1, 1, 1 },
+                { 1, 0, 1 },
+                { 1, 1, 1 }
+            };
+
+            // Сериализуем объект в JSON-строку
+            string save = JsonConvert.SerializeObject(matrix, Formatting.Indented);
+
+            UnityEngine.Debug.LogError($"matrix: {save}");
+
+            //matrix:[
+            //  [
+            //    1,
+            //    1,
+            //    1
+            //  ],
+            //  [
+            //    1,
+            //    0,
+            //    1
+            //  ],
+            //  [
+            //    1,
+            //    1,
+            //    1
+            //  ]
+            //]
+        }
+
+        private void DebugMethod03()
+        {
+            //public Dictionary<int, MatchActionsData> MatchCountActions;
+            var matchCountActions = new Dictionary<int, MatchActionsData>();
+            for (int i = 1; i <= 5; i++)
+            {
+                var data = new MatchActionsData();
+                data.Actions = new List<MatchAction>();
+                data.Actions.Add(new MatchAction() 
+                {
+                    Type = MatchActionType.ScoreChange,
+                    StringParameter1 = "StringParameter1 :: " + i.ToString()
+                }); 
+                matchCountActions.Add(i, data);
+            }
+
+            // Сериализуем объект в JSON-строку
+            string save = JsonConvert.SerializeObject(matchCountActions, Formatting.Indented);
+
+            UnityEngine.Debug.LogError($"matchCountActions: {save}");
+
+            //matchCountActions:
+            //{
+            //    "1": {
+            //        "Actions": [
+            //          {
+            //            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 1",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        },
+            //        "2": {
+            //                        "Actions": [
+            //                            {
+            //                            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 2",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        },
+            //        "3": {
+            //                        "Actions": [
+            //                            {
+            //                            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 3",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        },
+            //        "4": {
+            //                        "Actions": [
+            //                            {
+            //                            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 4",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        },
+            //        "5": {
+            //                        "Actions": [
+            //                            {
+            //                            "Type": 2,
+            //            "IntParameter1": 0,
+            //            "IntParameter2": 0,
+            //            "IntParameter3": 0,
+            //            "StringParameter1": "StringParameter1 :: 5",
+            //            "StringParameter2": null,
+            //            "StringParameter3": null
+            //                            }
+            //        ]
+            //        }
+            //}
+        }
+    }
+
+
+
+    public class TestViewModel : ViewModelBase
+    {
+        [Inject] private readonly DiContainer _diContainer;
+
+        private Match3RoundController _match3RoundController;
+
+        public void Init()
+        {
+            _match3RoundController = _diContainer.TryResolveFromRegistry<Match3RoundController>();
+
+            UnityEngine.Debug.LogError($"TestViewModel.Init() => _match3RoundController: {_match3RoundController != null}");
+        }
+
+        public override void Dispose()
+        {
+            //throw new System.NotImplementedException();
+        }
+    }
+}

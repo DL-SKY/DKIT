@@ -1,0 +1,9 @@
+{
+	"Tags": [
+		"TAG"
+	],
+	
+	"GameZone": "ZoneExample",
+	"Gems": "DefaultZoneGemsExample",
+	"Objectives": "ObjectivesExample"
+}

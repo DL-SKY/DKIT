@@ -1,10 +1,11 @@
-﻿using Assets.Modules.Utils.Scripts.Components;
+﻿using Modules.Utils.Scripts.Components;
 
 namespace Modules.Initializer.Scripts.Tasks
 {
     public class PauseTask : TaskBase
     {
-        private Updater _updater;
+        private readonly Updater _updater;
+
         private float _timer;
 
         public PauseTask(Updater updater, float duration, int weight) : base(weight)
