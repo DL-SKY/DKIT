@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-17 10:12:00 (+03:00)
+**Последнее обновление:** 2026-06-17 18:00:00 (+03:00)
 
 ## Назначение
 
@@ -14,7 +14,9 @@
 
 На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`). Оркестраторы приключения и состояния пока в заготовочном состоянии.
 
-> **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живет в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Локальный `Assets/Modules/RPG/Scripts/State` — отдельный каркас; при интеграции изменения прогресса должны проходить через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
+> **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живет в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Локальный `Assets/Modules/RPG/Scripts/State` — отдельный каркас для runtime-сессии; при интеграции изменения прогресса должны проходить через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
+>
+> Персонажи, отряд и инвентарь хранятся в `Modules.State` (`CharactersStateData`, `InventoryStateData`). Подробности — в [документации модуля State](State.md).
 
 ## Структура модуля
 
@@ -124,28 +126,58 @@
 - `Dictionary<string, bool>`
 - опционально `Dictionary<string, float>`
 
+В `Modules.State` эти словари для персонажа лежат в `CharacterStateData.IntParameters`; временные эффекты — в `StatusEffects`. Дополнительные словари (`BoolParameters`, `StringParameters`, `FloatParameters`) зарезервированы в коде, но пока не активны.
+
 Рекомендация по неймингу ключей:
 - `char.*` — параметры персонажа (`char.hp`, `char.armor_class`);
 - `party.*` — параметры группы;
 - `quest.*` — квестовые флаги/счетчики;
 - `world.*` — глобальные флаги мира/локаций.
 
+**Идентификаторы:**
+- runtime-сущности (персонаж) — `int`, выдаются игрой (`NextCharacterId`);
+- ссылки на дефы (класс, происхождение, тип предмета) — `string` (id дефа = имя JSON-файла в `Definitions`).
+
+## Персистентное состояние в `Modules.State`
+
+RPG-контент (сцены, выборы, действия) описывается в модуле `RPG`, а **сейв профиля** — в `Modules.State.Implementation.Adventure`.
+
+Корневой `StateData` Adventure содержит секции-поля; каждая секция — **отдельный файл** в `StateDatas/`. Дочерние типы секции (например, `CharacterStateData`) — **отдельные классы в том же файле**, не nested class. Подробнее: [State.md — Организация файлов данных состояния](State.md#организация-файлов-данных-состояния).
+
+### Персонажи (`CharactersStateData`, `CharacterStateData`, `EquippedItemStateData`)
+
+- `Characters` — `Dictionary<int, CharacterStateData>`: весь ростер профиля.
+- `ActivePartyCharacterIds` — `List<int>`: текущий отряд (до 4 персонажей).
+- `CharacterStateData`: `Name`, `Class`, `Ancestry` (дефы), `IsDead`, `DeathTime`, `IntParameters`, `StatusEffects`, `EquippedItems`.
+- `EquippedItemStateData`: `{ Slot, ItemId }` — слот и id дефа надетого предмета.
+
+### Инвентарь (`InventoryStateData`)
+
+- `Items` — `Dictionary<string, int>`: расходники и стакающиеся предметы (`defId → count`), общий пул отряда.
+- Надетая экипировка — `CharacterStateData.EquippedItems` (отдельно от инвентаря).
+
+### Создание нового профиля
+
+При первом запуске или отсутствии сейва `AdventureStateManager` создаёт профиль через `IAdventureStateDataFactory` (`DiContainer.Resolve`). Фабрика инициализирует все секции и может использовать дефы (`DefinitionsManager` уже инжектирован). Подробнее — [State.md](State.md).
+
+Лимиты переноски и модификаторы от травм/бафов задаются в дефах и учитываются в runtime-сервисе; в state хранятся источники (статы, `StatusEffects`), а не вычисленный итог.
+
 ## Слой состояния RPG
 
-### `StateData`
+### Локальный runtime (`Assets/Modules/RPG/Scripts/State`)
 
-Корневой контейнер состояния RPG:
+Каркас для сессионного состояния приключения (ещё не связан с сейвом):
 
-- `Id` — идентификатор состояния/слота.
-- `Player` — блок данных игрока (`PlayerData`).
-- `Adventure` — блок данных прогресса adventure (`AdventureStateData`).
+- `StateData` — `Id`, `Player`, `Adventure`.
+- `PlayerData`, `AdventureStateData` — пустые точки расширения для runtime-сессии (текущая сцена, combat snapshot и т.п.).
 
-### `PlayerData` и `AdventureStateData`
+### Персистентный профиль (`Modules.State`)
 
-Оба класса пока пустые и служат точками расширения:
+Долгосрочный прогресс — в `Modules.State.Implementation.Adventure.StateData`:
 
-- `PlayerData` — ожидаемые направления: статистика персонажа, ресурсы, прогресс мета-игры.
-- `AdventureStateData` — ожидаемые направления: текущая сцена, пройденные сцены, флаги и переменные приключения.
+- `Profile`, `Wallet`, `Characters`, `Inventory`, `Adventures`.
+
+Изменения — только через `AdventureStateLogic.ProcessAction(...)` и state-actions.
 
 ## Интеграции с другими модулями
 
@@ -175,6 +207,7 @@
 ## Текущее состояние реализации
 
 - Реализованы доменные DTO/POCO-модели для adventure-данных и state-root.
+- В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData` / `CharacterStateData` / `EquippedItemStateData`, `InventoryStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
 - `ChoiceActionData` переведен на контракт `Params` (`Strings/Ints/Bools/Floats`).
 - `ChoiceActionType` содержит базовый набор значений для переходов, проверок и боевых/ресурсных эффектов.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
@@ -196,7 +229,7 @@
    - вычисление доступных выборов;
    - применение списка `ChoiceActionData` через фабрику executors.
 5. Подключить изменение прогресса через `Modules.State` (`AdventureStateLogic.ProcessAction`, state-actions), а не прямую мутацию `StateData`.
-6. Расширить `AdventureStateData` и `PlayerData` минимально необходимыми полями прогресса (словари статов/флагов).
+6. Расширить `AdventuresStateData` и runtime-слой RPG (`PlayerData`, `AdventureStateData`) для сессионного прогресса приключения; персонажи и инвентарь уже описаны в `Modules.State`.
 7. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).
 8. Добавить unit-тесты на:
    - фабрику executors и валидацию `Params`;

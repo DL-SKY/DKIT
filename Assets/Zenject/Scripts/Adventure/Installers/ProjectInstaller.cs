@@ -1,5 +1,6 @@
 using Modules.Restrictions.Scripts.Core;
 using Modules.State.Scripts.Implementation.Adventure;
+using Modules.State.Scripts.Implementation.Adventure.Factories;
 using Modules.State.Scripts.Implementation.Adventure.Logic;
 using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Managers;
@@ -23,7 +24,7 @@ namespace Zenject.Scripts.Adventure.Installers
             //Core classes
             Container.Bind<Modules.Definitions.Scripts.Implementation.Adventures.DefinitionsManager>().AsSingle().NonLazy();
             Container.Bind<AdventureStateManager>().AsSingle().NonLazy();
-            Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();
+            Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();            
             //LOCALIZATION!!!
             //...
 
@@ -32,6 +33,7 @@ namespace Zenject.Scripts.Adventure.Installers
             //...
 
             //Factories
+            Container.Bind<IAdventureStateDataFactory>().To<AdventureStateDataFactory>().AsTransient();
             Container.Bind<ViewModelFactory>().AsSingle();
             Container.Bind<RestrictionFactory>().AsSingle();
             //...

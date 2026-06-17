@@ -12,7 +12,10 @@ namespace Modules.State.Scripts.Implementation.Adventure
         public WalletStateData Wallet;
 
         public CharactersStateData Characters;
+        public InventoryStateData Inventory;
+
         public AdventuresStateData Adventures;
+
 
         public WalletStateData GetWalletStateData()
         {

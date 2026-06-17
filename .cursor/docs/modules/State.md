@@ -12,7 +12,7 @@
 
 1. Конкретный менеджер (`StateManager<TStateData>` наследник) инициализируется параметрами сохранения или готовым `ISaveManager`.
 2. `LoadProfileState(profileId)` пытается прочитать состояние из хранилища.
-3. Если состояния нет — создается новое через `CreateNewState(profileId)` и сразу сохраняется.
+3. Если состояния нет — создается новое через `CreateNewState(profileId)` (для Adventure — через `IAdventureStateDataFactory`) и сразу сохраняется.
 4. `SaveProfileState(profileId)` сохраняет текущее `State` (с optional light-encryption).
 5. `DeleteProfileState(profileId)` удаляет профиль и очищает `State` в памяти.
 
@@ -32,8 +32,44 @@
   - `Models/StateActionValidationResult.cs`
   - `Core/StateActionBase.cs`, `StateLogic.cs`
 - `Scripts/Implementation/Match3` — Match-3 state, manager, logic, actions.
-- `Scripts/Implementation/Adventure` — Adventure state, manager, logic, actions.
+- `Scripts/Implementation/Adventure` — Adventure state, manager, logic, actions, factories.
 - `Scripts/Implementation/Wallet` — общие wallet-структуры, интерфейсы и actions.
+
+## Организация файлов данных состояния
+
+Для любого корневого `StateData : IStateData` действует единое соглашение:
+
+1. **Корневой класс** (`StateData`) — один файл в папке реализации режима, например  
+   `Implementation/Adventure/StateData.cs`.
+2. **Поля-корни** (`Profile`, `Wallet`, `Characters`, `Inventory`, …) — **отдельный файл на каждую секцию** в подпапке `StateDatas/`, например  
+   `StateDatas/CharactersStateData.cs`, `StateDatas/InventoryStateData.cs`.
+3. **Вложенные типы секции** (`CharacterStateData`, `ItemInstanceStateData`, …) — **отдельные классы в том же `.cs`-файле и том же `namespace`**, объявленные ниже класса-контейнера секции.  
+   Не вкладывать их как `nested class` внутрь контейнера.
+
+Пример структуры для Adventure:
+
+```text
+Implementation/Adventure/
+  StateData.cs                    ← корень: поля-секции
+  AdventureStateManager.cs
+  Factories/
+    IAdventureStateDataFactory.cs
+    AdventureStateDataFactory.cs  ← создание нового профиля
+  StateDatas/
+    ProfileStateData.cs
+    CharactersStateData.cs        ← CharactersStateData + CharacterStateData + EquippedItemStateData
+    InventoryStateData.cs
+    AdventuresStateData.cs
+Implementation/Wallet/
+  StateDatas/WalletStateData.cs   ← общая секция, переиспользуется в режимах
+```
+
+При добавлении новой секции:
+
+1. создать `*StateData.cs` в `StateDatas/`;
+2. при необходимости описать дочерние POCO в том же файле;
+3. добавить поле в корневой `StateData`;
+4. инициализировать дефолты в `AdventureStateDataFactory` (или аналогичной фабрике режима).
 
 ## Основные классы
 
@@ -47,7 +83,13 @@
   Маркерный интерфейс для структуры данных состояния.
 
 - `Match3StateManager` / `AdventureStateManager`  
-  Конкретные менеджеры для Match-3 и Adventure. Содержат `SaveState()` — обертку над `SaveProfileState` с настройками из `DefinitionsManager`.
+  Конкретные менеджеры для Match-3 и Adventure. Содержат `SaveState()` — обертку над `SaveProfileState` с настройками из `DefinitionsManager`.  
+  `AdventureStateManager.CreateNewState()` делегирует создание профиля фабрике через `DiContainer`.
+
+- `IAdventureStateDataFactory` / `AdventureStateDataFactory`  
+  Фабрика начального состояния Adventure-профиля. Создаёт и инициализирует все секции `StateData`.  
+  Инжектируется `DefinitionsManager` — для будущего использования дефов при старте нового игрока.  
+  Регистрация в DI: `IAdventureStateDataFactory → AdventureStateDataFactory`, `AsTransient()`.
 
 - `StateLogic<TStateData>`  
   Единая точка применения state-actions. Принимает `IStateManager`, callback сохранения и `batchSize`.
@@ -64,10 +106,93 @@
 - `StateData`  
   Корневые данные профиля.
   - Match-3: `Profile`, `Wallet`, `Hangar`, `Storage`.
-  - Adventure: `Profile`, `Wallet`, `Characters`, `Adventures`.
+  - Adventure: `Profile`, `Wallet`, `Characters`, `Inventory`, `Adventures`.
 
 - `WalletStateData` / `IWalletStateDataOwner`  
   Общая структура кошелька вынесена в `Implementation/Wallet` и переиспользуется в Match-3 и Adventure. Оба `StateData` реализуют `IWalletStateDataOwner`.
+
+### Adventure: `CharactersStateData` и `CharacterStateData`
+
+Файл: `Implementation/Adventure/StateDatas/CharactersStateData.cs`.
+
+`CharactersStateData` — ростер персонажей профиля и текущий отряд:
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `NextCharacterId` | `int` | Счётчик для выдачи новых runtime-id персонажей |
+| `Characters` | `Dictionary<int, CharacterStateData>` | Все персонажи профиля (живые и погибшие) |
+| `ActivePartyCharacterIds` | `List<int>` | Текущий отряд: упорядоченный список id персонажей |
+
+`CharacterStateData` — данные одного персонажа (в том же файле):
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `Id` | `int` | Runtime-id; должен совпадать с ключом в `Characters` |
+| `Class` | `string` | Id дефа класса (имя JSON-файла дефа) |
+| `Ancestry` | `string` | Id дефа происхождения/расы |
+| `Name` | `string` | Отображаемое имя персонажа |
+| `IsDead` | `bool` | Признак смерти (доска славы, исключение из отряда) |
+| `DeathTime` | `long` | Время смерти, Unix ms UTC; `0` — не умер |
+| `StatusEffects` | `Dictionary<string, int>` | Статусные эффекты: id эффекта → значение (стаки/длительность — по дефу) |
+| `IntParameters` | `Dictionary<string, int>` | Числовые параметры (`hp`, навыки, модификаторы) |
+| `EquippedItems` | `List<EquippedItemStateData>` | Надетая экипировка |
+
+`EquippedItemStateData` — одна запись экипировки (в том же файле):
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `Slot` | `string` | Идентификатор слота (`HAND`, `BAG`, …) |
+| `ItemId` | `string` | Id дефа предмета (имя JSON-файла дефа) |
+
+**Соглашения по id:**
+- runtime-сущности, создаваемые игрой (персонажи) — `int`, выдаются через `NextCharacterId`;
+- ссылки на контент из дефов — `string` (имя дефа / id из `Definitions`).
+
+### Adventure: `InventoryStateData`
+
+Файл: `Implementation/Adventure/StateDatas/InventoryStateData.cs`.
+
+`InventoryStateData` — инвентарь отряда (отдельно от персонажей):
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `Items` | `Dictionary<string, int>` | Предметы и расходники: defId → количество (общий пул отряда) |
+
+**Разделение экипировки:**
+- стакающиеся предметы и расходники — в `Inventory.Items`;
+- надетая экипировка персонажа — в `CharacterStateData.EquippedItems` (слот + defId предмета).
+
+### Adventure: создание нового профиля
+
+`AdventureStateManager` не собирает секции напрямую — делегирует фабрике:
+
+```csharp
+protected override StateData CreateNewState(string profileId)
+{
+    var factory = _container.Resolve<IAdventureStateDataFactory>();
+    return factory.Create(profileId);
+}
+```
+
+Для интерфейса используется `Resolve` (по DI-биндингу), а не `Instantiate` — Zenject не может напрямую инстанцировать абстрактный тип/интерфейс.
+
+`AdventureStateDataFactory.Create(profileId)` возвращает `StateData` с инициализированными секциями:
+
+| Секция | Дефолты при создании |
+|--------|----------------------|
+| `Profile` | `CreateTime`, `UpdateTime` = текущее Unix ms UTC |
+| `Wallet` | пустой `Resources` |
+| `Characters` | `NextCharacterId = 1`, пустые `Characters`, `ActivePartyCharacterIds` |
+| `Inventory` | пустой `Items` |
+| `Adventures` | пустой контейнер |
+
+**DI (Adventure `ProjectInstaller`):**
+
+```csharp
+Container.Bind<IAdventureStateDataFactory>().To<AdventureStateDataFactory>().AsTransient();
+```
+
+`AsTransient()` — при каждом `Resolve` создаётся новый экземпляр фабрики (не singleton). После выхода из `CreateNewState()` ссылок на фабрику нет; Zenject её явно не удаляет — объект собирается GC.
 
 ## Батчинг сохранений
 
@@ -116,16 +241,18 @@ stateLogic.ProcessAction(new SetProfileUpdateTimeStateAction(updateTime), forceB
 
 ## Как добавить новый state-модуль/профиль
 
-1. Создать класс данных состояния (например, `RpgStateData`), реализующий `IStateData`.
-2. Создать менеджер `RpgStateManager : StateManager<RpgStateData>`.
-3. Создать `RpgStateLogic : StateLogic<RpgStateData>` с нужным `batchSize`.
-4. Реализовать `CreateNewState(profileId)` с валидными дефолтами домена.
-5. Добавить папку `Actions/` и state-actions для изменений прогресса.
-6. Зарегистрировать менеджер и logic в DI-инсталлере.
-7. На этапе инициализации вызвать:
+1. Создать корневой класс данных (например, `RpgStateData`), реализующий `IStateData`, в `Implementation/<Mode>/StateData.cs`.
+2. Для каждой секции состояния создать `*StateData.cs` в `StateDatas/`; дочерние POCO — отдельными классами в том же файле (см. раздел «Организация файлов данных состояния»).
+3. Создать менеджер `RpgStateManager : StateManager<RpgStateData>`.
+4. Создать фабрику начального состояния (по аналогии с `IAdventureStateDataFactory`) и вызывать её из `CreateNewState()` через `DiContainer`.
+5. Создать `RpgStateLogic : StateLogic<RpgStateData>` с нужным `batchSize`.
+6. Реализовать дефолты секций в фабрике (пустые словари, начальные счётчики `Next*Id`).
+7. Добавить папку `Actions/` и state-actions для изменений прогресса.
+8. Зарегистрировать менеджер, logic и фабрику в DI-инсталлере.
+9. На этапе инициализации вызвать:
    - `Init(folder, extension, key)` или `Init(ISaveManager)`;
    - `LoadProfileState(profileId, encryptionFlags...)`.
-8. Проверить жизненный цикл:
+10. Проверить жизненный цикл:
    - первое создание профиля;
    - загрузка существующего;
    - применение экшенов и батч-сохранение;
@@ -134,5 +261,7 @@ stateLogic.ProcessAction(new SetProfileUpdateTimeStateAction(updateTime), forceB
 ## Текущий статус runtime
 
 - На старте приложения state загружается/создается через `Match3StateInitTask` / `AdventureStateInitTask`.
+- Для Adventure новый профиль создаётся через `IAdventureStateDataFactory` (`AdventureStateDataFactory`).
+- Реализованы секции Adventure state: `Characters`, `Inventory` (см. выше); `Adventures` — заготовка.
 - Прямых gameplay-мутаций `State` вне state-actions сейчас нет.
 - `ProcessAction` пока не вызывается из геймплейного кода — инфраструктура готова к подключению.
