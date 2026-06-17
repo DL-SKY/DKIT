@@ -2,6 +2,7 @@ using Modules.Save.Scripts.Core;
 using Modules.Save.Scripts.Interfaces;
 using Modules.State.Scripts.Interfaces;
 using System;
+using UnityEngine;
 
 namespace Modules.State.Scripts.Core
 {
@@ -9,17 +10,20 @@ namespace Modules.State.Scripts.Core
         where TStateData : class, IStateData, new()
     {
         private ISaveManager _saveManager;
+        private bool _isSubscribedToApplicationQuitting;
         public TStateData State { get; protected set; }
 
 
         public void Init(string folder, string extension, string key)
         {
             _saveManager = new SaveManager(folder, extension, key);
+            SubscribeToApplicationQuitting();
         }
 
         public void Init(ISaveManager saveManager)
         {
             _saveManager = saveManager ?? throw new ArgumentNullException(nameof(saveManager));
+            SubscribeToApplicationQuitting();
         }
 
 
@@ -52,6 +56,21 @@ namespace Modules.State.Scripts.Core
             return deleted;
         }
 
+        private void SubscribeToApplicationQuitting()
+        {
+            if (_isSubscribedToApplicationQuitting)
+                return;
+
+            Application.quitting += HandleApplicationQuitting;
+            _isSubscribedToApplicationQuitting = true;
+        }
+
+        private void HandleApplicationQuitting()
+        {
+            OnApplicationQuitting();
+        }
+
+        protected abstract void OnApplicationQuitting();
         protected abstract TStateData CreateNewState(string profileId);
     }
 }

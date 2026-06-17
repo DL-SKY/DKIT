@@ -20,6 +20,11 @@ namespace Modules.State.Scripts.Implementation.Match3
             
         }
 
+        protected override void OnApplicationQuitting()
+        {
+            SaveState();
+        }
+
         protected override StateData CreateNewState(string profileId)
         {
             return new StateData
