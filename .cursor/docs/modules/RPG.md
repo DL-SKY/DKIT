@@ -14,6 +14,8 @@
 
 На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`). Оркестраторы приключения и состояния пока в заготовочном состоянии.
 
+> **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живет в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Локальный `Assets/Modules/RPG/Scripts/State` — отдельный каркас; при интеграции изменения прогресса должны проходить через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
+
 ## Структура модуля
 
 - `Assets/Modules/RPG/Scripts/Adventure`
@@ -193,9 +195,10 @@
    - запуск приключения;
    - вычисление доступных выборов;
    - применение списка `ChoiceActionData` через фабрику executors.
-5. Расширить `AdventureStateData` и `PlayerData` минимально необходимыми полями прогресса (словари статов/флагов).
-6. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).
-7. Добавить unit-тесты на:
+5. Подключить изменение прогресса через `Modules.State` (`AdventureStateLogic.ProcessAction`, state-actions), а не прямую мутацию `StateData`.
+6. Расширить `AdventureStateData` и `PlayerData` минимально необходимыми полями прогресса (словари статов/флагов).
+7. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).
+8. Добавить unit-тесты на:
    - фабрику executors и валидацию `Params`;
    - проверку ограничений;
    - вычисление доступных choices;

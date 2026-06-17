@@ -1,6 +1,7 @@
 using Modules.Definitions.Scripts.Implementation.Defs;
 using Modules.Restrictions.Scripts.Core;
 using Modules.State.Scripts.Implementation.Match3;
+using Modules.State.Scripts.Implementation.Match3.Logic;
 using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Managers;
 using UnityEngine;
@@ -23,6 +24,7 @@ namespace Zenject.Scripts.Installers
             //Core classes
             Container.Bind<DefinitionsManager>().AsSingle().NonLazy();
             Container.Bind<Match3StateManager>().AsSingle().NonLazy();
+            Container.Bind<Match3StateLogic>().AsSingle().NonLazy();
             //LOCALIZATION!!!
             //...
 
