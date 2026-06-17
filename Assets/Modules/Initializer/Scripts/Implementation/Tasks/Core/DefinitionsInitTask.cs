@@ -1,5 +1,4 @@
-﻿using Modules.Definitions.Scripts.Implementation.Defs;
-using Modules.Initializer.Scripts.Tasks;
+﻿using Modules.Initializer.Scripts.Tasks;
 using Modules.Utils.Scripts.Components;
 using System.Collections;
 using Zenject;
@@ -8,7 +7,8 @@ namespace Modules.Initializer.Scripts.Implementation.Tasks.Core
 {
     public class DefinitionsInitTask : TaskBase
     {
-        [Inject] private readonly DefinitionsManager _definitionsManager;
+        //[Inject] private readonly Definitions.Scripts.Implementation.Defs.DefinitionsManager _definitionsManager;
+        [Inject] private readonly Definitions.Scripts.Implementation.Adventures.DefinitionsManager _definitionsManager;
         [Inject] private readonly CoroutineHolder _coroutineHolder;
 
         public DefinitionsInitTask(int weight) : base(weight)

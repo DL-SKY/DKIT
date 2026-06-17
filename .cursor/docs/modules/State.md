@@ -26,8 +26,16 @@
 - `Match3StateManager`  
   Конкретная реализация для Match-3 с дефолтной инициализацией состояния.
 
+- `AdventureStateManager`  
+  Конкретная реализация для Adventure, использующая `Modules.Definitions.Scripts.Implementation.Adventures.DefinitionsManager`.
+
 - `StateData`  
-  Данные профиля Match-3 (`ProfileId`, `PlayerLevel`, `Coins`, `Lives`, `CurrentRoundDefId`, `LastSaveUtcTicks`).
+  Корневые данные профиля.
+  - Match-3: `Profile`, `Wallet`, `Hangar`, `Storage`.
+  - Adventure: `Profile`, `Wallet`, `Characters`, `Adventures`.
+
+- `WalletStateData`
+  Общая структура кошелька вынесена в `Modules.State.Scripts.Implementation.Wallet.StateDatas` и переиспользуется в Match-3 и Adventure.
 
 ## Как добавить новый state-модуль/профиль
 

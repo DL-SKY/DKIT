@@ -2,21 +2,26 @@
 
 ## Назначение
 
-`Initializer` управляет стартовой последовательностью приложения: выполняет набор задач загрузки, показывает прогресс и после успешной инициализации открывает основной экран игры.
+`Initializer` управляет стартовой последовательностью приложения: выполняет набор задач загрузки, показывает прогресс и после успешной инициализации завершает запуск выбранной ветки (Match3 или Adventure).
 
 ## Краткая логика работы
 
 1. `Initializer.Start()` получает зависимости из `ProjectContext` (менеджеры, фабрики, апдейтер).
-2. Создает `MainLoadViewModel`, собирает список `TaskBase` (definitions, state, localization, загрузка сцены, закрытие loader-окна).
+2. Создает `MainLoadViewModel`, собирает список `TaskBase` (definitions, state, localization и служебные task-ы).
 3. Передает список в `InitializeTasker`, который выполняет задачи строго последовательно.
 4. `InitializeTasker` считает суммарный `Weight`, после завершения каждой задачи шлет прогресс (`current/max`).
 5. `MainLoadViewModel` подписывается на прогресс и обновляет `MainLoadView` (progress bar).
-6. После успеха вызывается `OnCompletedCallback()`: инициализируется `Match3RoundController` и открывается `DefaultMatch3View`.
+6. После успеха вызывается `OnCompletedCallback()`:  
+   - в Match3-ветке инициализируется `Match3RoundController` и открывается `DefaultMatch3View`;  
+   - в Adventure-ветке завершается loader и управление передается следующему слою приложения.
 
 ## Основные классы
 
 - `Initializer`  
   Компоновка стартового пайплайна и callback-ов успеха/ошибки.
+
+- `Modules.Initializer.Scripts.Implementation.Adventure.Initializer`  
+  Adventure-вариант стартового пайплайна с `AdventureStateInitTask`.
 
 - `InitializeTasker`  
   Оркестратор очереди задач (`Run`, `TryStartTask`, `OnProgressChange`, обработка fail).
@@ -24,7 +29,7 @@
 - `TaskBase`  
   Базовый контракт задач (`Run`, `Weight`, `Complete()`, `Fail(errorCode)`).
 
-- `DefinitionsInitTask`, `Match3StateInitTask`, `LocalizationInitTask`  
+- `DefinitionsInitTask`, `Match3StateInitTask`, `AdventureStateInitTask`, `LocalizationInitTask`  
   Ядро стартовой инициализации данных.
 
 - `LoadSceneTask`, `PauseTask`, `CloseViewTask`  

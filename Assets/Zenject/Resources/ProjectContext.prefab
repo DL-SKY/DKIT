@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8535069469622197310}
   - component: {fileID: 1839397328785507674}
-  - component: {fileID: 2072275776063398236}
+  - component: {fileID: -5794577088045208875}
   m_Layer: 0
   m_Name: ProjectContext
   m_TagString: Untagged
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scriptableObjectInstallers: []
   _monoInstallers:
-  - {fileID: 2072275776063398236}
+  - {fileID: -5794577088045208875}
   _installerPrefabs: []
   _parentNewObjectsUnderContext: 1
   _editorReflectionBakingCoverageMode: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
       _missingHandlerDefaultResponse: 2
       _requireStrictUnsubscribe: 0
       _defaultAsyncTickPriority: 1
---- !u!114 &2072275776063398236
+--- !u!114 &-5794577088045208875
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -71,7 +71,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6764209133376136409}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cc01c49da464314c83ddc8b502611d2, type: 3}
+  m_Script: {fileID: 11500000, guid: ef6c8206f10d4534fbb11f6119ed3774, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zenject.Scripts.Adventure.Installers.ProjectInstaller
   _windowsManagerPrefab: {fileID: 7876915917344967144, guid: 72d15aed7e5e1a241b1516ae20482eca, type: 3}

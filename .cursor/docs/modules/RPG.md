@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-15 12:15:00 (+03:00)
+**Последнее обновление:** 2026-06-17 10:12:00 (+03:00)
 
 ## Назначение
 
@@ -24,6 +24,7 @@
   - `Choice/Executors/*` — фабрика и обработчики `ChoiceActionData`.
 - `Assets/Modules/RPG/Scripts/State`
   - `StateManager` — будущий менеджер состояния RPG.
+  - `IRpgFlagsController` — интерфейс установки bool-флагов по строковому ключу.
   - `IRpgVariablesController` — интерфейс изменения int-переменных/статов по строковому ключу.
   - `StateData`, `PlayerData`, `AdventureStateData` — root и секции состояния.
 
@@ -107,6 +108,7 @@
 | `ChoiceActionType` | Executor | Обязательные `Params` | Контроллер |
 |---|---|---|---|
 | `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.sceneId` | `IAdventureFlowController.GoToScene` |
+| `SetFlag` | `SetFlagChoiceActionExecutor` | `Strings.key`, `Bools.value` | `IRpgFlagsController.SetBool` |
 | `ModifyVariable` | `ModifyVariableChoiceActionExecutor` | `Strings.key`, `Ints.delta` | `IRpgVariablesController.ModifyInt` |
 
 Остальные значения `ChoiceActionType` объявлены в enum, но пока не подключены к фабрике.
@@ -166,7 +168,7 @@
 6. Для каждого `ChoiceActionData` из `Actions` фабрика создает `IChoiceActionExecutor` и вызывает `Execute()`.
 7. Обновление `StateData.Adventure` и переход к следующей сцене (через контроллеры/менеджеры).
 
-Полный runtime-поток еще не замкнут: `AdventuresManager` и `StateManager` не реализованы, а контроллеры (`IAdventureFlowController`, `IRpgVariablesController`) пока только объявлены как интерфейсы.
+Полный runtime-поток еще не замкнут: `AdventuresManager` и `StateManager` не реализованы, а контроллеры (`IAdventureFlowController`, `IRpgFlagsController`, `IRpgVariablesController`) пока только объявлены как интерфейсы.
 
 ## Текущее состояние реализации
 
@@ -174,8 +176,8 @@
 - `ChoiceActionData` переведен на контракт `Params` (`Strings/Ints/Bools/Floats`).
 - `ChoiceActionType` содержит базовый набор значений для переходов, проверок и боевых/ресурсных эффектов.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
-- Реализованы executors: `GoToSceneChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor`.
-- Объявлены интерфейсы контроллеров: `IAdventureFlowController`, `IRpgVariablesController`.
+- Реализованы executors: `GoToSceneChoiceActionExecutor`, `SetFlagChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor`.
+- Объявлены интерфейсы контроллеров: `IAdventureFlowController`, `IRpgFlagsController`, `IRpgVariablesController`.
 - `SceneContentType` пока остается точкой расширения без конкретных значений.
 - `AdventuresManager` и `StateManager` содержат только конструкторы с `Debug.LogError(...)` и не выполняют бизнес-логику.
 - Отсутствуют DI-биндинги фабрики/контроллеров в installer, валидаторы adventure-данных, сериализация и тесты модуля.
@@ -183,10 +185,10 @@
 ## Рекомендации по дальнейшему развитию
 
 1. Заполнить `SceneContentType` конкретными значениями.
-2. Добавить executors и маппинг в фабрику для остальных `ChoiceActionType` (`SetFlag`, `SkillCheck`, `StartCombat` и т.д.).
+2. Добавить executors и маппинг в фабрику для остальных `ChoiceActionType` (`SkillCheck`, `StartCombat` и т.д.).
 3. Зарегистрировать в Zenject installer:
    - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`;
-   - реализации `IAdventureFlowController`, `IRpgVariablesController`.
+   - реализации `IAdventureFlowController`, `IRpgFlagsController`, `IRpgVariablesController`.
 4. Реализовать `AdventuresManager`:
    - запуск приключения;
    - вычисление доступных выборов;

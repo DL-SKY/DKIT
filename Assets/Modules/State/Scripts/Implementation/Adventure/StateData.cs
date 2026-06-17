@@ -1,8 +1,8 @@
-using Modules.State.Scripts.Implementation.Match3.StateDatas;
+using Modules.State.Scripts.Implementation.Adventure.StateDatas;
 using Modules.State.Scripts.Implementation.Wallet.StateDatas;
 using Modules.State.Scripts.Interfaces;
 
-namespace Modules.State.Scripts.Implementation.Match3
+namespace Modules.State.Scripts.Implementation.Adventure
 {
     public class StateData : IStateData
     {
@@ -10,7 +10,7 @@ namespace Modules.State.Scripts.Implementation.Match3
 
         public WalletStateData Wallet;
 
-        public HangarStateData Hangar;
-        public StorageStateData Storage;
+        public CharactersStateData Characters;
+        public AdventuresStateData Adventures;
     }
 }
