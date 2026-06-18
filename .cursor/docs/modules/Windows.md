@@ -30,12 +30,13 @@
 - `Options`, `SortingOrderLayer`  
   Настройки поведения окна (закрытие по Esc, скрытие из истории, слой сортировки).
 
-- Примеры реализаций: `MainLoadView`/`MainLoadViewModel`, `DefaultMatch3View`/`DefaultMatch3ViewModel`.
+- Примеры реализаций: `MainLoadView`/`MainLoadViewModel`, `DefaultMatch3View`/`DefaultMatch3ViewModel`, `AdventureMainView`/`AdventureMainViewModel`.
 
 ## Как добавить новое окно (View + ViewModel)
 
 1. Создать VM, наследованный от `ViewModelBase`:
    - добавить состояние и команды;
+   - при необходимости — метод `Init(...)` с входными параметрами (вызывать после `ViewModelFactory.Create`, до `OpenView`);
    - реализовать `Dispose()` (отписки и cleanup).
 2. Создать View, наследованный от `ViewBase<YourViewModel>`:
    - реализовать `Subscribe`, `Unsubscribe`, `InitImplementation`;

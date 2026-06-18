@@ -2,6 +2,7 @@ using Modules.Initializer.Scripts.Core;
 using Modules.Initializer.Scripts.Implementation.Tasks.Core;
 using Modules.Initializer.Scripts.Tasks;
 using Modules.Utils.Scripts.Components;
+using Modules.Windows.Scripts.Implementation.Adventure.Main;
 using Modules.Windows.Scripts.Implementation.Loading;
 using Modules.Windows.Scripts.Managers;
 using System.Collections.Generic;
@@ -74,19 +75,10 @@ namespace Modules.Initializer.Scripts.Implementation.Adventure
         {
             UnityEngine.Debug.LogError($"OnCompletedCallback() => ");
 
-            //DebugMethod01();
-            //DebugMethod02();
-
-            //var test = _viewModelFactory.Create<TestViewModel>();
-            //test.Init();
-
-            //TEST
-            //var container = ProjectContext.Instance.Container;
-            //var match3RoundController = container.TryResolveFromRegistry<Match3RoundController>();
-            //match3RoundController.Init(DEBUG_START_ROUND);
-
-            //var match3ViewModel = _viewModelFactory.Create<DefaultMatch3ViewModel>();
-            //_windowsManager.OpenView<DefaultMatch3View, DefaultMatch3ViewModel>(DefaultMatch3View.Path, match3ViewModel);
+            string DEBUG_START_SCENARIO = "Tavern";   //DEBUG
+            var adventureMainViewModel = _viewModelFactory.Create<AdventureMainViewModel>();
+            adventureMainViewModel.Init(DEBUG_START_SCENARIO);
+            _windowsManager.OpenView<AdventureMainView, AdventureMainViewModel>(AdventureMainView.Path, adventureMainViewModel);
         }
 
         private void OnFailedCallback(int error)

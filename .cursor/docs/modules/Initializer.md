@@ -13,7 +13,7 @@
 5. `MainLoadViewModel` подписывается на прогресс и обновляет `MainLoadView` (progress bar).
 6. После успеха вызывается `OnCompletedCallback()`:  
    - в Match3-ветке инициализируется `Match3RoundController` и открывается `DefaultMatch3View`;  
-   - в Adventure-ветке завершается loader и управление передается следующему слою приложения.
+   - в Adventure-ветке создаётся `AdventureMainViewModel`, вызывается `Init(scenarioName)` и открывается `AdventureMainView`.
 
 ## Основные классы
 
@@ -37,6 +37,9 @@
 
 - `MainLoadViewModel` + `MainLoadView`  
   Отображение прогресса загрузки.
+
+- `AdventureMainViewModel` + `AdventureMainView` (Adventure-ветка)  
+  Главный экран приключения после загрузки. VM принимает имя сценария через `Init(string scenarioName)` до открытия View.
 
 ## Как добавить новый task загрузки
 

@@ -1,0 +1,21 @@
+---
+description: Do not create Unity .meta files manually
+alwaysApply: true
+---
+
+# Do Not Create .meta Files
+
+Never create, edit, or commit Unity `.meta` files.
+
+Unity generates and maintains `.meta` files automatically when it imports assets. Manually created `.meta` files can cause GUID conflicts, broken references, and merge issues.
+
+## Rules
+
+- Do **not** create `*.meta` files for new scripts, prefabs, folders, or other assets.
+- Do **not** edit existing `.meta` files (including GUIDs) unless the user explicitly asks.
+- Do **not** update prefab or scene YAML to reference script GUIDs from hand-written `.meta` files.
+- When adding new C# scripts or assets, create only the asset file itself; let Unity generate the `.meta` on import.
+
+## If a reference is needed
+
+After creating a script, tell the user to open Unity so import runs and `.meta` files are generated. If a prefab must reference a new component, the user can attach it in the Editor, or you may update the prefab only after Unity has assigned a real GUID.
