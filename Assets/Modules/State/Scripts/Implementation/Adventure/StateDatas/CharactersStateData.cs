@@ -6,6 +6,8 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
     {
         public int NextCharacterId;
 
+        public int HeroPoints;
+
         public Dictionary<int, CharacterStateData> Characters;
         public List<int> ActivePartyCharacterIds;
     }

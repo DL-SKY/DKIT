@@ -8,7 +8,7 @@ namespace Modules.Definitions.Scripts.Implementation.Defs.Objectives
     public class ObjectivesDef : AbstractDefinition
     {
         public List<ScoreData> StartScores;
-        public List<Restriction> VictoryСonditions;
-        public List<Restriction> DefeatСonditions;
+        public List<Restriction> VictoryConditions;
+        public List<Restriction> DefeatConditions;
     }
 }

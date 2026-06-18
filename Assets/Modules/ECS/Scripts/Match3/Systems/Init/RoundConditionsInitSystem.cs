@@ -25,8 +25,8 @@ namespace Modules.ECS.Scripts.Match3.Systems.Init
             var entity = _world.NewEntity();
             entity.Get<RoundEndConditionsData>() = new RoundEndConditionsData
             {
-                Victory = CloneList(_objectivesData.GetVictoryСonditions()),
-                Defeat = CloneList(_objectivesData.GetDefeatСonditions()),
+                Victory = CloneList(_objectivesData.GetVictoryConditions()),
+                Defeat = CloneList(_objectivesData.GetDefeatConditions()),
             };
 
             entity = _world.NewEntity();

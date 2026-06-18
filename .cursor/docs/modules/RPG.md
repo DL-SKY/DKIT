@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-17 20:00:00 (+03:00)
+**Последнее обновление:** 2026-06-18 18:00:00 (+03:00)
 
 ## Назначение
 
@@ -38,13 +38,11 @@
 - `AdventureLinks` — связи с другими adventure-узлами (для карты/иерархии).
 - `Title`, `Description` — метаданные и текстовое описание.
 - `IgnoredTags` — теги, игнорируемые в контексте этого adventure.
-- `Restictions` — список ограничений на доступ к приключению (тип `Restriction` из модуля `Restrictions`).
+- `Restrictions` — список ограничений на доступ к приключению (тип `Restriction` из модуля `Restrictions`).
 - `StartScenes` — список стартовых сцен (по `Scene.Id`).
 - `Scenes` — словарь `sceneId -> SceneData` со всем графом сцен.
 
 > Не путать с `Modules.State...AdventureStateData` — это **прогресс** конкретного приключения в сейве (`AdventureId`, `SceneId`, `Parameters`).
-
-Важно: поле `Restictions` в коде называется именно так (с опечаткой); при дальнейшей доработке желательно унифицировать нейминг, чтобы снизить вероятность ошибок сериализации/маппинга.
 
 ### `SceneData`
 
@@ -58,9 +56,22 @@
 
 ### `SceneContentData` и `SceneContentType`
 
-- `SceneContentData.Type` — тип контентного элемента (текст, иллюстрация, звук и т.д. — пока не реализовано).
-- `SceneContentData.Value` — payload в строковом виде.
-- `SceneContentType` — enum-заготовка (пока без значений).
+Оба типа объявлены в `SceneContentData.cs`.
+
+- `SceneContentData.Type` — тип контентного элемента (`SceneContentType`).
+- `SceneContentData.Restrictions` — список ограничений видимости элемента (тип `Restriction` из модуля `Restrictions`).
+- `SceneContentData.Value` — payload в строковом виде (текст, id ресурса и т.д.).
+
+`SceneContentType`:
+
+| Значение | Код | Назначение |
+|---|---|---|
+| `Text` | `0` | Текстовый блок |
+| `Image` | `10` | Изображение |
+| `Splitter` | `20` | Разделитель / визуальный отступ |
+| `Item` | `30` | Элемент предмета / иконки |
+
+Проверка `Restrictions` для контента сцены пока не подключена в runtime; контракт данных готов для UI/оркестратора.
 
 ## Модель данных Choice
 
@@ -72,7 +83,7 @@
 - `Tags` — теги для аналитики/фильтрации/UI.
 - `Text`, `Description` — основной и дополнительный тексты выбора.
 - `AlwaysShow` — всегда показывать выбор, даже если ограничения не прошли (ожидаемая интерпретация по названию поля).
-- `Restictions` — список ограничений доступности выбора.
+- `Restrictions` — список ограничений доступности выбора.
 - `Actions` — список действий (`ChoiceActionData`), выполняемых при выборе.
 
 В классе также есть комментарии-заготовки про `Type`, `ViewOptions`, `Icon`; это маркеры планируемого расширения визуальной и семантической модели choice.
@@ -147,6 +158,7 @@ RPG-контент (сцены, выборы, действия) описывае
 
 ### Персонажи (`CharactersStateData`, `CharacterStateData`, `EquippedItemStateData`)
 
+- `HeroPoints` — очки героя на уровне профиля (ресурс кампании; дефолт `0` при создании профиля).
 - `Characters` — `Dictionary<int, CharacterStateData>`: весь ростер профиля.
 - `ActivePartyCharacterIds` — `List<int>`: текущий отряд (до 4 персонажей).
 - `CharacterStateData`: `CreateTime`, `Name`, `Ancestry`, `Class`, `Level`, `Experience`, `IsDead`, `DeathTime`, `Parameters`, `SavingThrows`, `Spells`, `StatusEffects`, `EquippedItems`.
@@ -185,12 +197,12 @@ RPG-контент (сцены, выборы, действия) описывае
 ## Предполагаемый runtime-поток (по модели данных)
 
 1. Загрузка/получение `AdventureData`.
-2. Проверка `AdventureData.Restictions` через `RestrictionsChecker`.
+2. Проверка `AdventureData.Restrictions` через `RestrictionsChecker`.
 3. Выбор стартовой сцены из `StartScenes`.
-4. Рендер `SceneData.Content`.
+4. Рендер `SceneData.Content` с фильтрацией элементов по `SceneContentData.Restrictions` (когда будет подключён runtime).
 5. Формирование списка `Choices`:
    - либо по `AlwaysShow`;
-   - либо по результату проверки `ChoiceData.Restictions`.
+   - либо по результату проверки `ChoiceData.Restrictions`.
 6. Для каждого `ChoiceActionData` из `Actions` фабрика создает `IChoiceActionExecutor` и вызывает `Execute()`.
 7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
@@ -199,6 +211,8 @@ RPG-контент (сцены, выборы, действия) описывае
 ## Текущее состояние реализации
 
 - Реализованы доменные DTO/POCO-модели для adventure-данных и state-root.
+- `SceneContentType` заполнен базовыми значениями (`Text`, `Image`, `Splitter`, `Item`); `SceneContentData` поддерживает `Restrictions`.
+- Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
 - `ChoiceActionType` содержит базовый набор значений для переходов, проверок и боевых/ресурсных эффектов.
@@ -210,7 +224,7 @@ RPG-контент (сцены, выборы, действия) описывае
 
 ## Рекомендации по дальнейшему развитию
 
-1. Заполнить `SceneContentType` конкретными значениями.
+1. Подключить runtime-фильтрацию `SceneContentData.Restrictions` при рендере сцены.
 2. Добавить executors и маппинг в фабрику для остальных `ChoiceActionType` (`SkillCheck`, `StartCombat` и т.д.).
 3. Зарегистрировать в Zenject installer:
    - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`;

@@ -1,5 +1,7 @@
 # Модуль State
 
+**Последнее обновление:** 2026-06-18 18:00:00 (+03:00)
+
 ## Назначение
 
 `State` хранит и управляет профилем игрового состояния (загрузка, сохранение, удаление), опираясь на `Save`-модуль.
@@ -120,6 +122,7 @@ Implementation/Wallet/
 | Поле | Тип | Назначение |
 |------|-----|------------|
 | `NextCharacterId` | `int` | Счётчик для выдачи новых runtime-id персонажей |
+| `HeroPoints` | `int` | Очки героя на уровне профиля (ресурс кампании) |
 | `Characters` | `Dictionary<int, CharacterStateData>` | Все персонажи профиля (живые и погибшие) |
 | `ActivePartyCharacterIds` | `List<int>` | Текущий отряд: упорядоченный список id персонажей |
 
@@ -226,7 +229,7 @@ protected override StateData CreateNewState(string profileId)
 |--------|----------------------|
 | `Profile` | `CreateTime`, `UpdateTime` = текущее Unix ms UTC |
 | `Wallet` | пустой `Resources` |
-| `Characters` | `NextCharacterId = 1`, пустые `Characters`, `ActivePartyCharacterIds` |
+| `Characters` | `NextCharacterId = 1`, `HeroPoints = 0`, пустые `Characters`, `ActivePartyCharacterIds` |
 | `Inventory` | пустой `Items` |
 | `Adventures` | `World` с пустыми `Parameters`; пустой словарь `Adventures` |
 

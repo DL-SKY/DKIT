@@ -37,7 +37,7 @@ namespace Modules.Match3.Scripts.Interfaces
         /// <returns>
         /// Список рестрикшенов (тип, пороговые значения, операция сравнения), задающих критерии победы.
         /// </returns>
-        List<Restriction> GetVictoryСonditions();
+        List<Restriction> GetVictoryConditions();
 
         /// <summary>
         /// Получает список условий поражения раунда в виде рестрикшенов.
@@ -46,6 +46,6 @@ namespace Modules.Match3.Scripts.Interfaces
         /// <returns>
         /// Список рестрикшенов (тип, пороговые значения, операция сравнения), задающих критерии поражения.
         /// </returns>
-        List<Restriction> GetDefeatСonditions();
+        List<Restriction> GetDefeatConditions();
     }
 }

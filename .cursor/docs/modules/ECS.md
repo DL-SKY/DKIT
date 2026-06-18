@@ -1,5 +1,7 @@
 # Модуль ECS
 
+**Последнее обновление:** 2026-06-18 18:00:00 (+03:00)
+
 ## Назначение
 
 `ECS` — модуль с компонентами и системами на `Leopotam.Ecs`, который реализует игровой цикл Match-3 (инициализация поля, ввод, матчи, разрушение, спавн, падение, цели раунда).
@@ -24,7 +26,10 @@
   Системы подготовительного слоя (глобальные настройки Match-3, смещение поля, настройка камеры).
 
 - `CellsInitSystem`, `GemsInitSystem`, `TurnsInitSystem`, `ScoreInitSystem`, `RoundConditionsInitSystem`  
-  Системы начального наполнения ECS-компонентов.
+  Системы начального наполнения ECS-компонентов. `RoundConditionsInitSystem` копирует `VictoryConditions` / `DefeatConditions` из `IObjectivesData` в `RoundEndConditionsData`.
+
+- `RoundEndConditionsData` (`RoundEndComponents.cs`)  
+  Хранит копии `List<Restriction>` для победы (`Victory`) и поражения (`Defeat`); источник — `ObjectivesDef` через data-слой Match3.
 
 - `DragStartSystem`, `DragEndSystem`, `SwapSystem`, `SwapAnimationSystem`, `MatchDetectionSystem`, `MatchDestructionSystem`, `GemsSpawnSystem`, `FallSystem`, `FallAnimationSystem`  
   Игровой цикл хода: от пользовательского ввода до стабилизации поля после матчей.

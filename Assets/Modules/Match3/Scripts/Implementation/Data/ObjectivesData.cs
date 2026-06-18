@@ -10,8 +10,8 @@ namespace Modules.Match3.Scripts.Implementation.Data
     {
         private int _startTurnsCount;
         private List<ScoreData> _startScoreValues;
-        private List<Restriction> _victoryСonditions;
-        private List<Restriction> _defeatСonditions;
+        private List<Restriction> _victoryConditions;
+        private List<Restriction> _defeatConditions;
 
         public ObjectivesData(ObjectivesDef objectivesDef)
         {
@@ -25,8 +25,8 @@ namespace Modules.Match3.Scripts.Implementation.Data
                 _startScoreValues.Add(score);
 
             // Данные об условиях окончания игры
-            _victoryСonditions = objectivesDef.VictoryСonditions;
-            _defeatСonditions = objectivesDef.DefeatСonditions;
+            _victoryConditions = objectivesDef.VictoryConditions;
+            _defeatConditions = objectivesDef.DefeatConditions;
         }
 
         public int GetTurnsCount()
@@ -39,14 +39,14 @@ namespace Modules.Match3.Scripts.Implementation.Data
             return _startScoreValues;
         }
 
-        public List<Restriction> GetVictoryСonditions()
+        public List<Restriction> GetVictoryConditions()
         {
-            return _victoryСonditions;
+            return _victoryConditions;
         }
 
-        public List<Restriction> GetDefeatСonditions()
+        public List<Restriction> GetDefeatConditions()
         {
-            return _defeatСonditions;
+            return _defeatConditions;
         }
     }
 }

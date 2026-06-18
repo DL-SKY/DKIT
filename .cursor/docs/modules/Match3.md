@@ -1,5 +1,7 @@
 # Модуль Match3
 
+**Последнее обновление:** 2026-06-18 18:00:00 (+03:00)
+
 ## Назначение
 
 `Match3` формирует доменную модель раунда (поле, набор фишек, цели) и запускает игровой цикл через ECS-пайплайн.
@@ -27,7 +29,10 @@
 - `IGameZoneData`, `IGemsData`, `IObjectivesData`  
   Контракты доступа к конфигурации поля, генерации фишек и условиям раунда.
 
-- `GameZoneData`, `GemsData`, `ObjectivesData`  
+- `ObjectivesData`  
+  Реализация `IObjectivesData` поверх `ObjectivesDef`; предоставляет стартовые счётчики и списки `VictoryConditions` / `DefeatConditions` (`List<Restriction>`) через методы `GetVictoryConditions()` / `GetDefeatConditions()`.
+
+- `GameZoneData`, `GemsData`  
   Реализации интерфейсов поверх def-объектов из `Definitions`.
 
 - `GridPositionHelper`  
@@ -47,7 +52,7 @@
 1. Добавить или обновить def-файлы в `Definitions`:
    - `GameZones/<NewZone>.json`;
    - `GameZoneGems/<NewGemsSet>.json`;
-   - `Objectives/<NewObjectives>.json`;
+   - `Objectives/<NewObjectives>.json` с ключами `StartScores`, `VictoryConditions`, `DefeatConditions`;
    - `Rounds/<NewRound>.json` со ссылками на три дефа выше.
 2. Убедиться, что имена файлов совпадают с id, которые используются в ссылках `RoundDef`.
 3. Проверить, что для всех gem-id из `GameZoneGems` существуют соответствующие `GemDef` и валидные `PrefabPath`.

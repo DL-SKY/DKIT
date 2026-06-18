@@ -1,5 +1,7 @@
 # Модуль Restrictions
 
+**Последнее обновление:** 2026-06-18 18:00:00 (+03:00)
+
 ## Назначение
 
 `Restrictions` выполняет проверку условий доступа/доступности через список ограничений (`Restriction`) и набор специализированных checker-классов.
@@ -45,3 +47,21 @@
    - положительный и отрицательный кейс;
    - отсутствие падений при пустых/некорректных данных в `Restriction`.
 
+## Где используется `Restriction` в проекте
+
+| Модуль | Класс / поле | Назначение |
+|---|---|---|
+| `RPG` | `AdventureData.Restrictions` | Ограничения доступа к приключению |
+| `RPG` | `ChoiceData.Restrictions` | Ограничения доступности выбора |
+| `RPG` | `SceneContentData.Restrictions` | Ограничения видимости элемента контента сцены |
+| `Definitions` | `ObjectivesDef.VictoryConditions` | Условия победы раунда Match3 |
+| `Definitions` | `ObjectivesDef.DefeatConditions` | Условия поражения раунда Match3 |
+| `Match3` | `IObjectivesData.GetVictoryConditions()` / `GetDefeatConditions()` | Доступ к условиям из data-слоя |
+| `ECS` | `RoundEndConditionsData.Victory` / `.Defeat` | Копии условий в ECS для проверки в рантайме |
+
+JSON-ключи в дефах и adventure-контенте должны совпадать с именами полей C#-классов (`Restrictions`, `VictoryConditions`, `DefeatConditions`).
+
+## Соглашения по именованию
+
+- Имена полей, методов и JSON-ключей пишутся **латиницей**; кириллические homoglyph-символы (например, `С` вместо `C`) недопустимы в идентификаторах.
+- Исторические опечатки исправлены: `Restictions` → `Restrictions`, `VictoryСonditions` / `DefeatСonditions` → `VictoryConditions` / `DefeatConditions` (вторая пара содержала кириллическую `С`).
