@@ -1,9 +1,12 @@
-using Modules.RPG.Scripts.Character.Data;
+using Modules.Definitions.Scripts.Defs;
 
 namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes
 {
-    public class ClassDef : ClassData
+    public class ClassDef : AbstractDefinition
     {
-        // >>ClassData
+        public string Title;
+        public string Description;
+        public string KeyAbility;
+        public int HitPointsPerLevel;
     }
 }

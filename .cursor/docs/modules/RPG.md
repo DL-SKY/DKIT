@@ -1,18 +1,20 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-18 18:00:00 (+03:00)
+**Последнее обновление:** 2026-06-18 22:30:00 (+03:00)
 
 ## Назначение
 
 `RPG` — доменный каркас для adventure-геймплея в формате сцен и выборов.  
 Модуль задает:
 
-- структуру данных приключения (`AdventureData`);
+- структуру данных приключения (`AdventureData` — доменный контракт в `RPG`; в рантайме загружается как `AdventureDef` из модуля `Definitions`);
 - структуру сцены и ее контента (`SceneData`, `SceneContentData`);
 - структуру выбора игрока и набора действий (`ChoiceData`, `ChoiceActionData`).
 
 На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`). Оркестраторы приключения пока в заготовочном состоянии.
 
+> **Связь с `Modules.Definitions`:** JSON-дефы adventure-проекта загружаются через `DefinitionsManager` (Adventures). `AdventureDef` — единственный деф, который наследует RPG-модель (`AdventureData`); классы, происхождения, черты, предметы и заклинания описаны как `ClassDef` / `AncestryDef` / `FeatDef` / `ItemDef` / `SpellDef` и наследуют `AbstractDefinition` напрямую. Подробности — в [документации модуля Definitions](Definitions.md).
+>
 > **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живёт в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Изменения прогресса из choice-executors проходят через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
 >
 > Персонажи, отряд, инвентарь и прогресс приключений хранятся в `Modules.State` (`CharactersStateData`, `InventoryStateData`, `AdventuresStateData`). Подробности — в [документации модуля State](State.md).
@@ -30,7 +32,7 @@
 
 ### `AdventureData`
 
-Описывает целое приключение (контентный JSON, модуль `RPG`):
+Описывает целое приключение (контентный JSON, модуль `RPG`). В `Resources/Definitions` десериализуется в `AdventureDef` (`AdventureDef : AdventureData`).
 
 - `Id` — уникальный идентификатор adventure.
 - `Tags` — набор тегов для фильтрации/поиска/категоризации.
@@ -148,7 +150,7 @@
 
 **Идентификаторы:**
 - runtime-сущности (персонаж) — `int`, выдаются игрой (`NextCharacterId`);
-- ссылки на дефы (класс, происхождение, тип предмета) — `string` (id дефа = имя JSON-файла в `Definitions`).
+- ссылки на дефы (класс, происхождение, предмет, заклинание, черта) — `string` (id дефа = имя JSON-файла в `Definitions/_ADVENTURES_/...`; см. [Definitions.md](Definitions.md)).
 
 ## Персистентное состояние (`Modules.State`)
 
@@ -162,6 +164,9 @@ RPG-контент (сцены, выборы, действия) описывае
 - `Characters` — `Dictionary<int, CharacterStateData>`: весь ростер профиля.
 - `ActivePartyCharacterIds` — `List<int>`: текущий отряд (до 4 персонажей).
 - `CharacterStateData`: `CreateTime`, `Name`, `Ancestry`, `Class`, `Level`, `Experience`, `IsDead`, `DeathTime`, `Parameters`, `SavingThrows`, `Spells`, `StatusEffects`, `EquippedItems`.
+  - `Ancestry`, `Class` — id дефов `AncestryDef` / `ClassDef`;
+  - `Spells` — словарь id заклинаний (`SpellDef`) или связанных счётчиков (контракт уточняется при подключении runtime);
+  - `EquippedItems` — экипировка персонажа.
 - `EquippedItemStateData`: `{ Slot, ItemId }` — слот и id дефа надетого предмета.
 
 ### Инвентарь (`InventoryStateData`)
@@ -185,8 +190,10 @@ RPG-контент (сцены, выборы, действия) описывае
 
 ## Интеграции с другими модулями
 
+- `Definitions`: adventure-контент загружается как JSON-дефы (`AdventureDef`, `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef`). Доменная модель приключения (`AdventureData`, `SceneData`, `ChoiceData`) остаётся в `RPG`; `AdventureDef` — тонкая обёртка для загрузчика.
 - `Restrictions`: `AdventureData` и `ChoiceData` используют `Restriction` для описания условий доступа.
-- Остальные интеграции (сохранения, UI, события, инициализация) пока явно не реализованы в коде модуля.
+- `State`: персистентный прогресс профиля и ссылки персонажа на id дефов (см. выше).
+- Остальные интеграции (UI, события, полный оркестратор приключения) пока явно не реализованы в коде модуля.
 
 ## Целевые runtime-паттерны (следующий этап)
 
@@ -196,7 +203,7 @@ RPG-контент (сцены, выборы, действия) описывае
 
 ## Предполагаемый runtime-поток (по модели данных)
 
-1. Загрузка/получение `AdventureData`.
+1. Загрузка/получение `AdventureDef` (контракт `AdventureData`) из `DefinitionsManager`.
 2. Проверка `AdventureData.Restrictions` через `RestrictionsChecker`.
 3. Выбор стартовой сцены из `StartScenes`.
 4. Рендер `SceneData.Content` с фильтрацией элементов по `SceneContentData.Restrictions` (когда будет подключён runtime).
@@ -210,7 +217,8 @@ RPG-контент (сцены, выборы, действия) описывае
 
 ## Текущее состояние реализации
 
-- Реализованы доменные DTO/POCO-модели для adventure-данных и state-root.
+- Реализованы доменные DTO/POCO-модели для adventure-данных (`AdventureData`, `SceneData`, `ChoiceData` и связанные типы).
+- В `Modules.Definitions` добавлены adventure-дефы персонажа и контента: `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef` (наследуют `AbstractDefinition`); `AdventureDef` наследует `AdventureData`.
 - `SceneContentType` заполнен базовыми значениями (`Text`, `Image`, `Splitter`, `Item`); `SceneContentData` поддерживает `Restrictions`.
 - Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).

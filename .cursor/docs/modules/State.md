@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-06-18 18:00:00 (+03:00)
+**Последнее обновление:** 2026-06-18 22:30:00 (+03:00)
 
 ## Назначение
 
@@ -135,8 +135,8 @@ Implementation/Wallet/
 | `IsDead` | `bool` | Признак смерти (доска славы, исключение из отряда) |
 | `DeathTime` | `long` | Время смерти, Unix ms UTC; `0` — не умер |
 | `Name` | `string` | Отображаемое имя персонажа |
-| `Ancestry` | `string` | Id дефа происхождения/расы |
-| `Class` | `string` | Id дефа класса |
+| `Ancestry` | `string` | Id дефа происхождения (`AncestryDef`) |
+| `Class` | `string` | Id дефа класса (`ClassDef`) |
 | `Level` | `int` | Уровень персонажа |
 | `Experience` | `int` | Опыт персонажа |
 | `Parameters` | `Dictionary<string, int>` | Числовые параметры: abilities, skills, HP, speed, feats и т.д. |
@@ -150,11 +150,11 @@ Implementation/Wallet/
 | Поле | Тип | Назначение |
 |------|-----|------------|
 | `Slot` | `string` | Идентификатор слота (`HAND`, `BAG`, …) |
-| `ItemId` | `string` | Id дефа предмета (имя JSON-файла дефа) |
+| `ItemId` | `string` | Id дефа предмета (`ItemDef`, имя JSON-файла) |
 
 **Соглашения по id:**
 - runtime-сущности, создаваемые игрой (персонажи) — `int`, выдаются через `NextCharacterId`;
-- ссылки на контент из дефов — `string` (имя дефа / id из `Definitions`).
+- ссылки на контент из дефов — `string` (имя дефа / id из `Definitions`; типы дефов — в [Definitions.md](Definitions.md)).
 
 ### Adventure: `InventoryStateData`
 

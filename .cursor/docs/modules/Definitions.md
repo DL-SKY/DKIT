@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-06-18 21:00:00 (+03:00)
+**Последнее обновление:** 2026-06-18 22:30:00 (+03:00)
 
 ## Назначение
 
@@ -33,10 +33,39 @@
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
   - single-def: `GlobalSettings`;
-  - коллекции: `Adventures`.
+  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`.
+
+### Соглашение по наследованию adventure-дефов
+
+- **По умолчанию** класс дефа наследуется напрямую от `AbstractDefinition` и содержит все сериализуемые поля (пример: `GemDef`, `GameZoneDef`, `ClassDef`, `ItemDef`).
+- **Исключение — `AdventureDef`:** наследует `AdventureData` из модуля `RPG`, потому что большой контракт приключения (сцены, выборы, ограничения) живёт в `RPG` и будет использоваться `AdventuresManager` / `IAdventureFlowController`. Промежуточные `*Data`-прослойки для остальных типов не используются.
+
+| Def | Базовый класс | JSON-папка |
+|---|---|---|
+| `AdventureDef` | `AdventureData` (модуль `RPG`) | `Definitions/_ADVENTURES_/Adventures` |
+| `ClassDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Classes` |
+| `AncestryDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Ancestries` |
+| `FeatDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Feats` |
+| `ItemDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Items` |
+| `SpellDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Spells` |
 
 - `AdventureDef`  
-  Деф приключения; наследует `AdventureData` из модуля `RPG` (сцены, выборы, ограничения, метаданные). JSON размещается в `Definitions/_ADVENTURES_/Adventures`.
+  Деф приключения; наследует `AdventureData` из модуля `RPG` (сцены, выборы, ограничения, метаданные). Подробнее о полях — в [RPG.md](RPG.md#модель-данных-adventure).
+
+- `ClassDef`  
+  Класс персонажа (PF2e-ориентированный контракт): `Title`, `Description`, `KeyAbility`, `HitPointsPerLevel`.
+
+- `AncestryDef`  
+  Происхождение персонажа: `Title`, `Description`, `Size` (`AncestrySize`), `Speed`, `AbilityBoosts`, `AbilityFlaws`.
+
+- `FeatDef`  
+  Черта/способность: `Title`, `Description`, `Type` (`FeatType`), `Level`, `Prerequisites`.
+
+- `ItemDef`  
+  Предмет: `Title`, `Description`, `Category` (`ItemCategory`), `Level`, `Price`, `Bulk`.
+
+- `SpellDef`  
+  Заклинание: `Title`, `Description`, `Type` (`SpellType`), `Level`, `Traditions`.
 
 - `RoundDef`  
   Деф раунда Match3; связывает `GameZone`, `Gems`, `Objectives` по id.
@@ -75,7 +104,8 @@
 ## Практические заметки
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
-- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (например `GlobalSettings`, коллекция `Adventures`).
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`).
+- Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла).
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.
 - `LoadCollection()` загружает JSON из указанной папки и всех вложенных подпапок; `Id` — только имя файла, без пути.
 - Для коллекций id должен быть уникален в рамках всего дерева папки; при совпадении имён побеждает первый загруженный деф, дубликат пишется в `LogWarning`.

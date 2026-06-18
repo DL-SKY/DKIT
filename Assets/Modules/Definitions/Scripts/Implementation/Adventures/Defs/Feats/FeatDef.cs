@@ -1,9 +1,25 @@
-using Modules.RPG.Scripts.Character.Data;
+using Modules.Definitions.Scripts.Defs;
+using System.Collections.Generic;
 
 namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats
 {
-    public class FeatDef : FeatData
+    public enum FeatType
     {
-        // >>FeatData
+        AncestryFeat = 0,
+        BackgroundSkillFeat = 1,
+        SkillFeat = 2,
+        GeneralFeat = 3,
+        ClassFeat = 4,
+        ClassFeature = 5,
+        Boost = 6,
+    }
+
+    public class FeatDef : AbstractDefinition
+    {
+        public string Title;
+        public string Description;
+        public FeatType Type;
+        public int Level;
+        public List<string> Prerequisites;
     }
 }

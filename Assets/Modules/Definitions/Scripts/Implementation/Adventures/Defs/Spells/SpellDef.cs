@@ -1,9 +1,22 @@
-using Modules.RPG.Scripts.Character.Data;
+using Modules.Definitions.Scripts.Defs;
+using System.Collections.Generic;
 
 namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Spells
 {
-    public class SpellDef : SpellData
+    public enum SpellType
     {
-        // >>SpellData
+        Cantrip = 0,
+        Spell = 1,
+        Focus = 2,
+        Ritual = 3,
+    }
+
+    public class SpellDef : AbstractDefinition
+    {
+        public string Title;
+        public string Description;
+        public SpellType Type;
+        public int Level;
+        public List<string> Traditions;
     }
 }
