@@ -8,10 +8,13 @@ namespace Modules.RPG.Scripts.Adventure.Data
         public string Id;
         public List<string> Tags;
 
+        public AdventureType Type;
+        public List<string> AdventureLinks;
+
         public string Title;
         public string Description;
         
-        //public List<string> IgnoredTags;                      //*options...
+        public List<string> IgnoredTags;
 
         public List<Restriction> Restictions;
 
@@ -21,5 +24,13 @@ namespace Modules.RPG.Scripts.Adventure.Data
         //...
 
         //public List<string> Variables;                        //*options... for state Dictionary<string, int> AdventureVariables
+    }
+
+    public enum AdventureType
+    {
+        Adventure = 0,
+        Chapter = 1,
+
+        Location = 10,
     }
 }

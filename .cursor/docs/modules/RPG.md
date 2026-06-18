@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-17 18:00:00 (+03:00)
+**Последнее обновление:** 2026-06-17 19:00:00 (+03:00)
 
 ## Назначение
 
@@ -16,7 +16,7 @@
 
 > **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живет в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Локальный `Assets/Modules/RPG/Scripts/State` — отдельный каркас для runtime-сессии; при интеграции изменения прогресса должны проходить через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
 >
-> Персонажи, отряд и инвентарь хранятся в `Modules.State` (`CharactersStateData`, `InventoryStateData`). Подробности — в [документации модуля State](State.md).
+> Персонажи, отряд, инвентарь и прогресс приключений хранятся в `Modules.State` (`CharactersStateData`, `InventoryStateData`, `AdventuresStateData`). Подробности — в [документации модуля State](State.md).
 
 ## Структура модуля
 
@@ -36,14 +36,19 @@
 
 ### `AdventureData`
 
-Описывает целое приключение:
+Описывает целое приключение (контентный JSON, модуль `RPG`):
 
 - `Id` — уникальный идентификатор adventure.
 - `Tags` — набор тегов для фильтрации/поиска/категоризации.
+- `Type` — тип узла (`AdventureType`: `Adventure`, `Chapter`, `Location`).
+- `AdventureLinks` — связи с другими adventure-узлами (для карты/иерархии).
 - `Title`, `Description` — метаданные и текстовое описание.
+- `IgnoredTags` — теги, игнорируемые в контексте этого adventure.
 - `Restictions` — список ограничений на доступ к приключению (тип `Restriction` из модуля `Restrictions`).
 - `StartScenes` — список стартовых сцен (по `Scene.Id`).
 - `Scenes` — словарь `sceneId -> SceneData` со всем графом сцен.
+
+> Не путать с `Modules.State...AdventureStateData` — это **прогресс** конкретного приключения в сейве (`AdventureId`, `SceneId`, `Parameters`).
 
 Важно: поле `Restictions` в коде называется именно так (с опечаткой); при дальнейшей доработке желательно унифицировать нейминг, чтобы снизить вероятность ошибок сериализации/маппинга.
 
@@ -85,7 +90,6 @@
   - `Params.Strings: Dictionary<string, string>`
   - `Params.Ints: Dictionary<string, int>`
   - `Params.Bools: Dictionary<string, bool>`
-  - `Params.Floats: Dictionary<string, float>`
 - `ChoiceActionType` — базовый enum действий (может расширяться по мере роста механик).
 
 Формат с `Params` сохраняет гибкость, но убирает "позиционные" ошибки (`StringValues[0]`, `IntValues[1]`) и делает JSON-контент более читаемым.
@@ -124,9 +128,10 @@
 - `Dictionary<string, int>`
 - `Dictionary<string, string>`
 - `Dictionary<string, bool>`
-- опционально `Dictionary<string, float>`
 
-В `Modules.State` эти словари для персонажа лежат в `CharacterStateData.IntParameters`; временные эффекты — в `StatusEffects`. Дополнительные словари (`BoolParameters`, `StringParameters`, `FloatParameters`) зарезервированы в коде, но пока не активны.
+В `Modules.State` для персонажа:
+- `CharacterStateData.Parameters`, `SavingThrows`, `Spells`, `StatusEffects` — `Dictionary<string, int>`;
+- прогресс мира и приключений — `AdventureStateParamsData` (`Strings` / `Ints` / `Bools`) в `AdventuresStateData`.
 
 Рекомендация по неймингу ключей:
 - `char.*` — параметры персонажа (`char.hp`, `char.armor_class`);
@@ -148,13 +153,19 @@ RPG-контент (сцены, выборы, действия) описывае
 
 - `Characters` — `Dictionary<int, CharacterStateData>`: весь ростер профиля.
 - `ActivePartyCharacterIds` — `List<int>`: текущий отряд (до 4 персонажей).
-- `CharacterStateData`: `Name`, `Class`, `Ancestry` (дефы), `IsDead`, `DeathTime`, `IntParameters`, `StatusEffects`, `EquippedItems`.
+- `CharacterStateData`: `CreateTime`, `Name`, `Ancestry`, `Class`, `Level`, `Experience`, `IsDead`, `DeathTime`, `Parameters`, `SavingThrows`, `Spells`, `StatusEffects`, `EquippedItems`.
 - `EquippedItemStateData`: `{ Slot, ItemId }` — слот и id дефа надетого предмета.
 
 ### Инвентарь (`InventoryStateData`)
 
 - `Items` — `Dictionary<string, int>`: расходники и стакающиеся предметы (`defId → count`), общий пул отряда.
 - Надетая экипировка — `CharacterStateData.EquippedItems` (отдельно от инвентаря).
+
+### Прогресс приключений (`AdventuresStateData`)
+
+- `World.Parameters` — глобальные параметры кампании (`AdventureStateParamsData`).
+- `Adventures` — `Dictionary<string, AdventureStateData>`: прогресс по каждому adventure (`AdventureId`, `SceneId`, `Parameters`).
+- Формат `Parameters` совпадает с `ChoiceActionParamsData` (`Strings` / `Ints` / `Bools`).
 
 ### Создание нового профиля
 
@@ -200,15 +211,15 @@ RPG-контент (сцены, выборы, действия) описывае
    - либо по `AlwaysShow`;
    - либо по результату проверки `ChoiceData.Restictions`.
 6. Для каждого `ChoiceActionData` из `Actions` фабрика создает `IChoiceActionExecutor` и вызывает `Execute()`.
-7. Обновление `StateData.Adventure` и переход к следующей сцене (через контроллеры/менеджеры).
+7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
 Полный runtime-поток еще не замкнут: `AdventuresManager` и `StateManager` не реализованы, а контроллеры (`IAdventureFlowController`, `IRpgFlagsController`, `IRpgVariablesController`) пока только объявлены как интерфейсы.
 
 ## Текущее состояние реализации
 
 - Реализованы доменные DTO/POCO-модели для adventure-данных и state-root.
-- В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData` / `CharacterStateData` / `EquippedItemStateData`, `InventoryStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
-- `ChoiceActionData` переведен на контракт `Params` (`Strings/Ints/Bools/Floats`).
+- В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
+- `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
 - `ChoiceActionType` содержит базовый набор значений для переходов, проверок и боевых/ресурсных эффектов.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
 - Реализованы executors: `GoToSceneChoiceActionExecutor`, `SetFlagChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor`.
@@ -229,7 +240,7 @@ RPG-контент (сцены, выборы, действия) описывае
    - вычисление доступных выборов;
    - применение списка `ChoiceActionData` через фабрику executors.
 5. Подключить изменение прогресса через `Modules.State` (`AdventureStateLogic.ProcessAction`, state-actions), а не прямую мутацию `StateData`.
-6. Расширить `AdventuresStateData` и runtime-слой RPG (`PlayerData`, `AdventureStateData`) для сессионного прогресса приключения; персонажи и инвентарь уже описаны в `Modules.State`.
+6. Расширить runtime-слой RPG (`PlayerData`, локальный `AdventureStateData`) для сессионного прогресса; персонажи, инвентарь и `AdventuresStateData` уже описаны в `Modules.State`.
 7. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).
 8. Добавить unit-тесты на:
    - фабрику executors и валидацию `Params`;

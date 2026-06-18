@@ -43,7 +43,7 @@
    `Implementation/Adventure/StateData.cs`.
 2. **Поля-корни** (`Profile`, `Wallet`, `Characters`, `Inventory`, …) — **отдельный файл на каждую секцию** в подпапке `StateDatas/`, например  
    `StateDatas/CharactersStateData.cs`, `StateDatas/InventoryStateData.cs`.
-3. **Вложенные типы секции** (`CharacterStateData`, `ItemInstanceStateData`, …) — **отдельные классы в том же `.cs`-файле и том же `namespace`**, объявленные ниже класса-контейнера секции.  
+3. **Вложенные типы секции** (`CharacterStateData`, `EquippedItemStateData`, `AdventureStateParamsData`, …) — **отдельные классы в том же `.cs`-файле и том же `namespace`**, объявленные ниже класса-контейнера секции.  
    Не вкладывать их как `nested class` внутрь контейнера.
 
 Пример структуры для Adventure:
@@ -59,7 +59,7 @@ Implementation/Adventure/
     ProfileStateData.cs
     CharactersStateData.cs        ← CharactersStateData + CharacterStateData + EquippedItemStateData
     InventoryStateData.cs
-    AdventuresStateData.cs
+    AdventuresStateData.cs        ← AdventuresStateData + WorldStateData + AdventureStateData + AdventureStateParamsData
 Implementation/Wallet/
   StateDatas/WalletStateData.cs   ← общая секция, переиспользуется в режимах
 ```
@@ -128,14 +128,19 @@ Implementation/Wallet/
 | Поле | Тип | Назначение |
 |------|-----|------------|
 | `Id` | `int` | Runtime-id; должен совпадать с ключом в `Characters` |
-| `Class` | `string` | Id дефа класса (имя JSON-файла дефа) |
-| `Ancestry` | `string` | Id дефа происхождения/расы |
-| `Name` | `string` | Отображаемое имя персонажа |
+| `CreateTime` | `long` | Время создания персонажа, Unix ms UTC |
 | `IsDead` | `bool` | Признак смерти (доска славы, исключение из отряда) |
 | `DeathTime` | `long` | Время смерти, Unix ms UTC; `0` — не умер |
-| `StatusEffects` | `Dictionary<string, int>` | Статусные эффекты: id эффекта → значение (стаки/длительность — по дефу) |
-| `IntParameters` | `Dictionary<string, int>` | Числовые параметры (`hp`, навыки, модификаторы) |
+| `Name` | `string` | Отображаемое имя персонажа |
+| `Ancestry` | `string` | Id дефа происхождения/расы |
+| `Class` | `string` | Id дефа класса |
+| `Level` | `int` | Уровень персонажа |
+| `Experience` | `int` | Опыт персонажа |
+| `Parameters` | `Dictionary<string, int>` | Числовые параметры: abilities, skills, HP, speed, feats и т.д. |
+| `SavingThrows` | `Dictionary<string, int>` | Спасброски |
 | `EquippedItems` | `List<EquippedItemStateData>` | Надетая экипировка |
+| `Spells` | `Dictionary<string, int>` | Заклинания |
+| `StatusEffects` | `Dictionary<string, int>` | Статусные эффекты: id эффекта → значение |
 
 `EquippedItemStateData` — одна запись экипировки (в том же файле):
 
@@ -162,6 +167,41 @@ Implementation/Wallet/
 - стакающиеся предметы и расходники — в `Inventory.Items`;
 - надетая экипировка персонажа — в `CharacterStateData.EquippedItems` (слот + defId предмета).
 
+### Adventure: `AdventuresStateData` и связанные типы
+
+Файл: `Implementation/Adventure/StateDatas/AdventuresStateData.cs`.
+
+`AdventuresStateData` — прогресс приключений и мира:
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `World` | `WorldStateData` | Глобальные параметры мира/кампании |
+| `Adventures` | `Dictionary<string, AdventureStateData>` | Прогресс по отдельным приключениям: adventureId → состояние |
+
+`WorldStateData` (в том же файле):
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `Parameters` | `AdventureStateParamsData` | Параметры мира (`world.*` и др.) |
+
+`AdventureStateData` (в том же файле) — **прогресс одного приключения в сейве** (не путать с контентным `Modules.RPG.Scripts.Adventure.Data.AdventureData`):
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `AdventureId` | `string` | Id приключения из контента |
+| `SceneId` | `string` | Текущая сцена |
+| `Parameters` | `AdventureStateParamsData` | Локальные флаги/переменные приключения |
+
+`AdventureStateParamsData` (в том же файле) — универсальный контейнер параметров:
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `Strings` | `Dictionary<string, string>` | Строковые значения |
+| `Ints` | `Dictionary<string, int>` | Числовые значения |
+| `Bools` | `Dictionary<string, bool>` | Булевы флаги |
+
+Формат `AdventureStateParamsData` согласован с `ChoiceActionParamsData` в модуле RPG (`Strings` / `Ints` / `Bools`).
+
 ### Adventure: создание нового профиля
 
 `AdventureStateManager` не собирает секции напрямую — делегирует фабрике:
@@ -184,7 +224,7 @@ protected override StateData CreateNewState(string profileId)
 | `Wallet` | пустой `Resources` |
 | `Characters` | `NextCharacterId = 1`, пустые `Characters`, `ActivePartyCharacterIds` |
 | `Inventory` | пустой `Items` |
-| `Adventures` | пустой контейнер |
+| `Adventures` | `World` с пустыми `Parameters`; пустой словарь `Adventures` |
 
 **DI (Adventure `ProjectInstaller`):**
 
@@ -262,6 +302,6 @@ stateLogic.ProcessAction(new SetProfileUpdateTimeStateAction(updateTime), forceB
 
 - На старте приложения state загружается/создается через `Match3StateInitTask` / `AdventureStateInitTask`.
 - Для Adventure новый профиль создаётся через `IAdventureStateDataFactory` (`AdventureStateDataFactory`).
-- Реализованы секции Adventure state: `Characters`, `Inventory` (см. выше); `Adventures` — заготовка.
+- Реализованы секции Adventure state: `Characters`, `Inventory`, `Adventures` (см. выше).
 - Прямых gameplay-мутаций `State` вне state-actions сейчас нет.
 - `ProcessAction` пока не вызывается из геймплейного кода — инфраструктура готова к подключению.

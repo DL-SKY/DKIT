@@ -62,7 +62,24 @@ namespace Modules.State.Scripts.Implementation.Adventure.Factories
 
         private AdventuresStateData CreateNewAdventuresState()
         {
-            return new AdventuresStateData();
+            return new AdventuresStateData
+            {
+                World = new WorldStateData
+                {
+                    Parameters = CreateEmptyAdventureStateParamsData(),
+                },
+                Adventures = new Dictionary<string, AdventureStateData>(),
+            };
+        }
+
+        private static AdventureStateParamsData CreateEmptyAdventureStateParamsData()
+        {
+            return new AdventureStateParamsData
+            {
+                Strings = new Dictionary<string, string>(),
+                Ints = new Dictionary<string, int>(),
+                Bools = new Dictionary<string, bool>(),
+            };
         }
     }
 }

@@ -14,20 +14,30 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
     {
         public int Id;
 
-        public string Name;
-        public string Class;
-        public string Ancestry;
-
+        public long CreateTime;
         public bool IsDead;
         public long DeathTime;
 
-        public Dictionary<string, int> IntParameters;
-        //public Dictionary<string, bool> BoolParameters;
-        //public Dictionary<string, string> StringParameters;
-        //public Dictionary<string, float> FloatParameters;
+        public string Name;
+        public string Ancestry;
+        public string Class;
+
+        public int Level;
+        public int Experience;
+
+        /// <summary>
+        /// Abilities, Skills, HP, Speed, Feats, etc...
+        /// </summary>
+        public Dictionary<string, int> Parameters;
+        public Dictionary<string, int> SavingThrows;
 
         public List<EquippedItemStateData> EquippedItems;
 
+        public Dictionary<string, int> Spells;
+
+        /// <summary>
+        /// <Effect, Value>
+        /// </summary>
         public Dictionary<string, int> StatusEffects;
     }
 

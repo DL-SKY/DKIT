@@ -15,7 +15,6 @@ namespace Modules.RPG.Scripts.Adventure.Choice
         public Dictionary<string, string> Strings;
         public Dictionary<string, int> Ints;
         public Dictionary<string, bool> Bools;
-        public Dictionary<string, float> Floats;
     }
 
     // JSON example: Change character HP by stat key
