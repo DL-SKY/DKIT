@@ -30,6 +30,7 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
                     {
                         GetRequiredString(actionData.Params.Strings, "key", actionData.Type),
                         GetRequiredInt(actionData.Params.Ints, "delta", actionData.Type),
+                        GetOptionalString(actionData.Params.Strings, "adventureId"),
                     }),
 
                 ChoiceActionType.SetFlag => _container.Instantiate<SetFlagChoiceActionExecutor>(
@@ -37,6 +38,7 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
                     {
                         GetRequiredString(actionData.Params.Strings, "key", actionData.Type),
                         GetRequiredBool(actionData.Params.Bools, "value", actionData.Type),
+                        GetOptionalString(actionData.Params.Strings, "adventureId"),
                     }),
 
                 _ => throw new NotImplementedException($"ChoiceActionType '{actionData.Type}' is not supported by factory yet."),
@@ -76,13 +78,13 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
             return value;
         }
 
-        private static float GetRequiredFloat(Dictionary<string, float> dictionary, string key, ChoiceActionType type)
+        private static string GetOptionalString(Dictionary<string, string> dictionary, string key)
         {
             if (dictionary == null)
-                throw new ArgumentException($"Params.Floats is null for action type '{type}'.");
+                return null;
 
-            if (!dictionary.TryGetValue(key, out float value))
-                throw new ArgumentException($"Required float param '{key}' is missing for action type '{type}'.");
+            if (!dictionary.TryGetValue(key, out string value) || string.IsNullOrWhiteSpace(value))
+                return null;
 
             return value;
         }

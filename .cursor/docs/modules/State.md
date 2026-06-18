@@ -202,6 +202,10 @@ Implementation/Wallet/
 
 Формат `AdventureStateParamsData` согласован с `ChoiceActionParamsData` в модуле RPG (`Strings` / `Ints` / `Bools`).
 
+**Резолвинг ключей в state-actions прогресса:**
+- `world.*` → `Adventures.World.Parameters`;
+- `adventure.*` → `Adventures[adventureId].Parameters` (нужен `adventureId` в state-action / в `Params.Strings.adventureId` у choice-action).
+
 ### Adventure: создание нового профиля
 
 `AdventureStateManager` не собирает секции напрямую — делегирует фабрике:
@@ -266,7 +270,9 @@ stateLogic.ProcessAction(new SetProfileUpdateTimeStateAction(updateTime), forceB
 ## Готовые state-actions
 
 - `ChangeWalletResourceStateAction<TStateData>` — общий экшен кошелька (Match-3 и Adventure).
-- `SetProfileUpdateTimeStateAction` — обновление `Profile.UpdateTime` (отдельные реализации для Match-3 и Adventure).
+- `SetProfileUpdateTimeStateAction` — обновление `Profile.UpdateTime` (Adventure).
+- `SetAdventureProgressBoolStateAction` — установка bool-параметра в `AdventuresStateData` (`world.*` / `adventure.*`).
+- `ModifyAdventureProgressIntStateAction` — изменение int-параметра в `AdventuresStateData` (`world.*` / `adventure.*`).
 
 ## Как добавить новый state-action
 

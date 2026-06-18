@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-17 19:00:00 (+03:00)
+**Последнее обновление:** 2026-06-17 20:00:00 (+03:00)
 
 ## Назначение
 
@@ -9,12 +9,11 @@
 
 - структуру данных приключения (`AdventureData`);
 - структуру сцены и ее контента (`SceneData`, `SceneContentData`);
-- структуру выбора игрока и набора действий (`ChoiceData`, `ChoiceActionData`);
-- базовый контейнер состояния прогресса (`StateData`, `PlayerData`, `AdventureStateData`).
+- структуру выбора игрока и набора действий (`ChoiceData`, `ChoiceActionData`).
 
-На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`). Оркестраторы приключения и состояния пока в заготовочном состоянии.
+На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`). Оркестраторы приключения пока в заготовочном состоянии.
 
-> **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живет в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Локальный `Assets/Modules/RPG/Scripts/State` — отдельный каркас для runtime-сессии; при интеграции изменения прогресса должны проходить через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
+> **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живёт в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Изменения прогресса из choice-executors проходят через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
 >
 > Персонажи, отряд, инвентарь и прогресс приключений хранятся в `Modules.State` (`CharactersStateData`, `InventoryStateData`, `AdventuresStateData`). Подробности — в [документации модуля State](State.md).
 
@@ -25,12 +24,7 @@
   - `IAdventureFlowController` — интерфейс контроллера переходов между сценами/узлами.
   - `Data/*` — модели adventure/scene/content.
   - `Choice/*` — модели выбора и действий по выбору.
-  - `Choice/Executors/*` — фабрика и обработчики `ChoiceActionData`.
-- `Assets/Modules/RPG/Scripts/State`
-  - `StateManager` — будущий менеджер состояния RPG.
-  - `IRpgFlagsController` — интерфейс установки bool-флагов по строковому ключу.
-  - `IRpgVariablesController` — интерфейс изменения int-переменных/статов по строковому ключу.
-  - `StateData`, `PlayerData`, `AdventureStateData` — root и секции состояния.
+  - `Choice/Executors/*` — фабрика и обработчики `ChoiceActionData` (часть executors пишет в `Modules.State` через state-actions).
 
 ## Модель данных Adventure
 
@@ -109,15 +103,17 @@
 
 - `IChoiceActionExecutor` — `void Execute();`
 - `IChoiceActionExecutorFactory` — `IChoiceActionExecutor Create(ChoiceActionData actionData);`
-- `ChoiceActionExecutorFactory` — фабрика на Zenject `DiContainer`, содержит `GetRequiredString/Int/Bool/Float` для валидации `Params`.
+- `ChoiceActionExecutorFactory` — фабрика на Zenject `DiContainer`, содержит `GetRequiredString/Int/Bool` для валидации `Params`.
 
 Реализованные executors (на текущий момент):
 
-| `ChoiceActionType` | Executor | Обязательные `Params` | Контроллер |
+| `ChoiceActionType` | Executor | `Params` | Куда пишет |
 |---|---|---|---|
 | `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.sceneId` | `IAdventureFlowController.GoToScene` |
-| `SetFlag` | `SetFlagChoiceActionExecutor` | `Strings.key`, `Bools.value` | `IRpgFlagsController.SetBool` |
-| `ModifyVariable` | `ModifyVariableChoiceActionExecutor` | `Strings.key`, `Ints.delta` | `IRpgVariablesController.ModifyInt` |
+| `SetFlag` | `SetFlagChoiceActionExecutor` | `Strings.key`, `Bools.value`, опц. `Strings.adventureId` | `SetAdventureProgressBoolStateAction` → `AdventuresStateData` |
+| `ModifyVariable` | `ModifyVariableChoiceActionExecutor` | `Strings.key`, `Ints.delta`, опц. `Strings.adventureId` | `ModifyAdventureProgressIntStateAction` → `AdventuresStateData` |
+
+Ключи с префиксом `world.*` пишутся в `World.Parameters`; `adventure.*` — в `Adventures[adventureId].Parameters` (для них нужен `adventureId` в `Params.Strings` или из runtime-контекста позже).
 
 Остальные значения `ChoiceActionType` объявлены в enum, но пока не подключены к фабрике.
 
@@ -133,17 +129,17 @@
 - `CharacterStateData.Parameters`, `SavingThrows`, `Spells`, `StatusEffects` — `Dictionary<string, int>`;
 - прогресс мира и приключений — `AdventureStateParamsData` (`Strings` / `Ints` / `Bools`) в `AdventuresStateData`.
 
-Рекомендация по неймингу ключей:
-- `char.*` — параметры персонажа (`char.hp`, `char.armor_class`);
-- `party.*` — параметры группы;
-- `quest.*` — квестовые флаги/счетчики;
-- `world.*` — глобальные флаги мира/локаций.
+Рекомендация по неймингу ключей для `SetFlag` / `ModifyVariable`:
+- `world.*` — глобальные флаги/счётчики мира (`World.Parameters`);
+- `adventure.*` — локальные флаги/счётчики приключения (`Adventures[adventureId].Parameters`);
+- `char.*` — параметры персонажа (будущие state-actions для `CharacterStateData`);
+- `party.*` — параметры группы (будущие state-actions).
 
 **Идентификаторы:**
 - runtime-сущности (персонаж) — `int`, выдаются игрой (`NextCharacterId`);
 - ссылки на дефы (класс, происхождение, тип предмета) — `string` (id дефа = имя JSON-файла в `Definitions`).
 
-## Персистентное состояние в `Modules.State`
+## Персистентное состояние (`Modules.State`)
 
 RPG-контент (сцены, выборы, действия) описывается в модуле `RPG`, а **сейв профиля** — в `Modules.State.Implementation.Adventure`.
 
@@ -171,24 +167,9 @@ RPG-контент (сцены, выборы, действия) описывае
 
 При первом запуске или отсутствии сейва `AdventureStateManager` создаёт профиль через `IAdventureStateDataFactory` (`DiContainer.Resolve`). Фабрика инициализирует все секции и может использовать дефы (`DefinitionsManager` уже инжектирован). Подробнее — [State.md](State.md).
 
+Изменения прогресса из choice-executors — через `AdventureStateLogic.ProcessAction(...)` и state-actions. Папка `RPG/Scripts/State` удалена.
+
 Лимиты переноски и модификаторы от травм/бафов задаются в дефах и учитываются в runtime-сервисе; в state хранятся источники (статы, `StatusEffects`), а не вычисленный итог.
-
-## Слой состояния RPG
-
-### Локальный runtime (`Assets/Modules/RPG/Scripts/State`)
-
-Каркас для сессионного состояния приключения (ещё не связан с сейвом):
-
-- `StateData` — `Id`, `Player`, `Adventure`.
-- `PlayerData`, `AdventureStateData` — пустые точки расширения для runtime-сессии (текущая сцена, combat snapshot и т.п.).
-
-### Персистентный профиль (`Modules.State`)
-
-Долгосрочный прогресс — в `Modules.State.Implementation.Adventure.StateData`:
-
-- `Profile`, `Wallet`, `Characters`, `Inventory`, `Adventures`.
-
-Изменения — только через `AdventureStateLogic.ProcessAction(...)` и state-actions.
 
 ## Интеграции с другими модулями
 
@@ -213,7 +194,7 @@ RPG-контент (сцены, выборы, действия) описывае
 6. Для каждого `ChoiceActionData` из `Actions` фабрика создает `IChoiceActionExecutor` и вызывает `Execute()`.
 7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
-Полный runtime-поток еще не замкнут: `AdventuresManager` и `StateManager` не реализованы, а контроллеры (`IAdventureFlowController`, `IRpgFlagsController`, `IRpgVariablesController`) пока только объявлены как интерфейсы.
+Полный runtime-поток еще не замкнут: `AdventuresManager` не реализован, `IAdventureFlowController` пока только объявлен.
 
 ## Текущее состояние реализации
 
@@ -222,10 +203,9 @@ RPG-контент (сцены, выборы, действия) описывае
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
 - `ChoiceActionType` содержит базовый набор значений для переходов, проверок и боевых/ресурсных эффектов.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
-- Реализованы executors: `GoToSceneChoiceActionExecutor`, `SetFlagChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor`.
-- Объявлены интерфейсы контроллеров: `IAdventureFlowController`, `IRpgFlagsController`, `IRpgVariablesController`.
-- `SceneContentType` пока остается точкой расширения без конкретных значений.
-- `AdventuresManager` и `StateManager` содержат только конструкторы с `Debug.LogError(...)` и не выполняют бизнес-логику.
+- Реализованы executors: `GoToSceneChoiceActionExecutor`, `SetFlagChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor` (два последних через `AdventureStateLogic`).
+- Объявлен интерфейс `IAdventureFlowController`.
+- `AdventuresManager` содержит только заготовку и не выполняет бизнес-логику.
 - Отсутствуют DI-биндинги фабрики/контроллеров в installer, валидаторы adventure-данных, сериализация и тесты модуля.
 
 ## Рекомендации по дальнейшему развитию
@@ -234,13 +214,13 @@ RPG-контент (сцены, выборы, действия) описывае
 2. Добавить executors и маппинг в фабрику для остальных `ChoiceActionType` (`SkillCheck`, `StartCombat` и т.д.).
 3. Зарегистрировать в Zenject installer:
    - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`;
-   - реализации `IAdventureFlowController`, `IRpgFlagsController`, `IRpgVariablesController`.
+   - реализацию `IAdventureFlowController`.
 4. Реализовать `AdventuresManager`:
    - запуск приключения;
    - вычисление доступных выборов;
    - применение списка `ChoiceActionData` через фабрику executors.
-5. Подключить изменение прогресса через `Modules.State` (`AdventureStateLogic.ProcessAction`, state-actions), а не прямую мутацию `StateData`.
-6. Расширить runtime-слой RPG (`PlayerData`, локальный `AdventureStateData`) для сессионного прогресса; персонажи, инвентарь и `AdventuresStateData` уже описаны в `Modules.State`.
+5. Подключить остальные `ChoiceActionType` к state-actions в `Modules.State`.
+6. Добавить state-actions для персонажей (`char.*`) и инвентаря.
 7. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).
 8. Добавить unit-тесты на:
    - фабрику executors и валидацию `Params`;
