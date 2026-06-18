@@ -1,0 +1,7 @@
+{
+	"Title": "Выносливость",
+	"Description": "Вы получаете дополнительные очки здоровья.",
+	"Type": "GeneralFeat",
+	"Level": 1,
+	"Prerequisites": []
+}

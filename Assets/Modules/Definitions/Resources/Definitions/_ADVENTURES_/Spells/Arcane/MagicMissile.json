@@ -1,0 +1,10 @@
+{
+	"Title": "Волшебная стрела",
+	"Description": "Три безошибочных снаряда чистой магии.",
+	"Type": "Spell",
+	"Level": 1,
+	"Traditions": [
+		"Arcane",
+		"Occult"
+	]
+}

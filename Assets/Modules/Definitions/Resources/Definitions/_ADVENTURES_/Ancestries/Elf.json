@@ -1,0 +1,12 @@
+{
+	"Title": "Эльф",
+	"Description": "Долгоживущий народ с острыми чувствами и связью с магией.",
+	"Size": "Medium",
+	"Speed": 30,
+	"AbilityBoosts": [
+		"Dexterity"
+	],
+	"AbilityFlaws": [
+		"Constitution"
+	]
+}

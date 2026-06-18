@@ -1,0 +1,6 @@
+{
+	"Title": "Воин",
+	"Description": "Мастер оружия и доспехов, специализирующийся на ближнем бою.",
+	"KeyAbility": "Strength",
+	"HitPointsPerLevel": 10
+}

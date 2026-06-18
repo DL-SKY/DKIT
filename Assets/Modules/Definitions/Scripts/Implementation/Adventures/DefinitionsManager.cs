@@ -1,12 +1,10 @@
 using Modules.Definitions.Scripts.Core;
-using Modules.Definitions.Scripts.Implementation.Defs.Cells;
-using Modules.Definitions.Scripts.Implementation.Defs.GameZoneGems;
-using Modules.Definitions.Scripts.Implementation.Defs.GameZones;
-using Modules.Definitions.Scripts.Implementation.Defs.Gems;
-using Modules.Definitions.Scripts.Implementation.Defs.Objectives;
-using Modules.Definitions.Scripts.Implementation.Defs.Presets;
-using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Adventures;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Spells;
 using Modules.Definitions.Scripts.Implementation.Defs.Single;
 using Modules.Utils.Scripts.Components;
 using Modules.Utils.Scripts.UnityImplementation;
@@ -23,22 +21,18 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
 
         [Inject] private readonly CoroutineHolder _coroutineHolder;
 
+
         private readonly Loader _loader;
         private readonly SimpleAsyncOperation _asyncOperation;
 
 
         public ProjectGlobalSettingsDef GlobalSettings;
         public Dictionary<string, AdventureDef> Adventures;
-        //public Match3GlobalSettingsDef Match3GlobalSettings;
-        //public Dictionary<string, GameZoneDef> GameZones;
-        //public CellsMapDef CellsMap;
-        //public Dictionary<string, CellDef> Cells;
-        //public CellsMapDef PresetsMap;
-        //public Dictionary<string, PresetDef> Presets;
-        //public Dictionary<string, GemDef> Gems;
-        //public Dictionary<string, GameZoneGemsDef> GameZoneGems;
-        //public Dictionary<string, ObjectivesDef> Objectives;
-        //public Dictionary<string, RoundDef> Rounds;
+        public Dictionary<string, ClassDef> Classes;
+        public Dictionary<string, AncestryDef> Ancestries;
+        public Dictionary<string, FeatDef> Feats;
+        public Dictionary<string, ItemDef> Items;
+        public Dictionary<string, SpellDef> Spells;
 
 
         public DefinitionsManager()
@@ -61,17 +55,12 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
             {
                 LoadGlobalSettings,
                 LoadAdventures,
-                //LoadMatch3GlobalSettings,
-                //LoadGameZones,
-                //LoadCellsMap,
-                //LoadCells,
-                //LoadPresetsMap,
-                //LoadPresets,
-                //LoadGems,
-                //LoadGameZoneGems,
-                //LoadObjectives,
-                //LoadRounds,
-            };            
+                LoadClasses,
+                LoadAncestries,
+                LoadFeats,
+                LoadItems,
+                LoadSpells,
+            };
 
             for (int i = 0; i < loadMethods.Count; i++)
             {
@@ -95,54 +84,29 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
             Adventures = _loader.LoadCollection<AdventureDef>("Definitions/_ADVENTURES_/Adventures");
         }
 
-        //private void LoadMatch3GlobalSettings()
-        //{
-        //    Match3GlobalSettings = _loader.LoadSingle<Match3GlobalSettingsDef>("Definitions/Match3GlobalSettings/Match3GlobalSettings");
-        //}
+        private void LoadClasses()
+        {
+            Classes = _loader.LoadCollection<ClassDef>("Definitions/_ADVENTURES_/Classes");
+        }
 
-        //private void LoadGameZones()
-        //{
-        //    GameZones = _loader.LoadCollection<GameZoneDef>("Definitions/GameZones");
-        //}
+        private void LoadAncestries()
+        {
+            Ancestries = _loader.LoadCollection<AncestryDef>("Definitions/_ADVENTURES_/Ancestries");
+        }
 
-        //private void LoadCellsMap()
-        //{
-        //    CellsMap = _loader.LoadSingle<CellsMapDef>("Definitions/CellsMap/CellsMap");
-        //}
+        private void LoadFeats()
+        {
+            Feats = _loader.LoadCollection<FeatDef>("Definitions/_ADVENTURES_/Feats");
+        }
 
-        //private void LoadCells()
-        //{
-        //    Cells = _loader.LoadCollection<CellDef>("Definitions/Cells");
-        //}
+        private void LoadItems()
+        {
+            Items = _loader.LoadCollection<ItemDef>("Definitions/_ADVENTURES_/Items");
+        }
 
-        //private void LoadPresetsMap()
-        //{
-        //    PresetsMap = _loader.LoadSingle<CellsMapDef>("Definitions/PresetsMap/PresetsMap");
-        //}
-
-        //private void LoadPresets()
-        //{
-        //    Presets = _loader.LoadCollection<PresetDef>("Definitions/Presets");
-        //}
-
-        //private void LoadGems()
-        //{
-        //    Gems = _loader.LoadCollection<GemDef>("Definitions/Gems");
-        //}
-
-        //private void LoadGameZoneGems()
-        //{
-        //    GameZoneGems = _loader.LoadCollection<GameZoneGemsDef>("Definitions/GameZoneGems");
-        //}
-
-        //private void LoadObjectives()
-        //{
-        //    Objectives = _loader.LoadCollection<ObjectivesDef>("Definitions/Objectives");
-        //}
-
-        //private void LoadRounds()
-        //{ 
-        //    Rounds = _loader.LoadCollection<RoundDef>("Definitions/Rounds");
-        //}
+        private void LoadSpells()
+        {
+            Spells = _loader.LoadCollection<SpellDef>("Definitions/_ADVENTURES_/Spells");
+        }
     }
 }

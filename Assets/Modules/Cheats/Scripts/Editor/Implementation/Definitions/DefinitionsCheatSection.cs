@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Modules.Cheats.Scripts.Editor.Core;
-using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Adventures;
 using UnityEditor;
 using UnityEngine;
 using Zenject;
@@ -54,19 +53,44 @@ namespace Modules.Cheats.Scripts.Editor.Implementation.Definitions
 
             EditorGUILayout.LabelField("Adventures:");
             EditorGUI.indentLevel++;
-            DrawAdventuresList(definitionsManager.Adventures);
+            DrawDefinitionIds(definitionsManager.Adventures);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.LabelField("Classes:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.Classes);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.LabelField("Ancestries:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.Ancestries);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.LabelField("Feats:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.Feats);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.LabelField("Items:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.Items);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.LabelField("Spells:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.Spells);
             EditorGUI.indentLevel--;
         }
 
-        private static void DrawAdventuresList(Dictionary<string, AdventureDef> adventures)
+        private static void DrawDefinitionIds<T>(Dictionary<string, T> definitions)
         {
-            if (adventures == null || adventures.Count == 0)
+            if (definitions == null || definitions.Count == 0)
             {
                 EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
                 return;
             }
 
-            List<string> ids = new List<string>(adventures.Keys);
+            List<string> ids = new List<string>(definitions.Keys);
             ids.Sort(StringComparer.Ordinal);
 
             for (int i = 0; i < ids.Count; i++)

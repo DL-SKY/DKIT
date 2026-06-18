@@ -1,0 +1,10 @@
+{
+	"Title": "Луч холода",
+	"Description": "Ледяной луч, наносящий урон холодом.",
+	"Type": "Cantrip",
+	"Level": 0,
+	"Traditions": [
+		"Arcane",
+		"Primal"
+	]
+}

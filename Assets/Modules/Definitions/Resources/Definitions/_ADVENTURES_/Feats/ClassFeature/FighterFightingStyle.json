@@ -1,0 +1,9 @@
+{
+	"Title": "Боевой стиль",
+	"Description": "Вы выбираете специализацию владения оружием.",
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Prerequisites": [
+		"Fighter"
+	]
+}

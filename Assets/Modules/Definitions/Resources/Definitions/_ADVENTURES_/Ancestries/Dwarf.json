@@ -1,0 +1,13 @@
+{
+	"Title": "Дварф",
+	"Description": "Выносливый и упрямый народ горных крепостей.",
+	"Size": "Medium",
+	"Speed": 20,
+	"AbilityBoosts": [
+		"Constitution",
+		"Wisdom"
+	],
+	"AbilityFlaws": [
+		"Charisma"
+	]
+}

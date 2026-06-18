@@ -1,0 +1,11 @@
+{
+	"Title": "Человек",
+	"Description": "Универсальное и адаптивное происхождение.",
+	"Size": "Medium",
+	"Speed": 25,
+	"AbilityBoosts": [
+		"Free",
+		"Free"
+	],
+	"AbilityFlaws": []
+}
