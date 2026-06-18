@@ -23,8 +23,29 @@ namespace Modules.Definitions.Scripts.Core
 
             var dic = new Dictionary<string, T>();
             var assets = Resources.LoadAll<TextAsset>(pathToFolder);
-            foreach (var asset in assets)
-                dic.Add(asset.name, Deserialize<T>(asset.text, asset.name));
+
+            for (int i = 0; i < assets.Length; i++)
+            {
+                var asset = assets[i];
+                if (asset == null)
+                {
+                    continue;
+                }
+
+                var definition = Deserialize<T>(asset.text, asset.name);
+                if (definition == null)
+                {
+                    UnityEngine.Debug.LogWarning($"[Loader] Не удалось десериализовать деф '{asset.name}' из '{pathToFolder}'!");
+                    continue;
+                }
+
+                // При дубликате id побеждает первый загруженный деф, остальные пропускаются
+                if (!dic.TryAdd(definition.Id, definition))
+                {
+                    UnityEngine.Debug.LogWarning($"[Loader] Дубликат id '{definition.Id}' в '{pathToFolder}'! Деф пропущен.");
+                    continue;
+                }
+            }
 
             return dic;
         }
@@ -35,6 +56,9 @@ namespace Modules.Definitions.Scripts.Core
                 return null;
 
             var definition = JsonConvert.DeserializeObject<T>(text);
+            if (definition == null)
+                return null;
+
             definition.Id = name;
             return definition;
         }

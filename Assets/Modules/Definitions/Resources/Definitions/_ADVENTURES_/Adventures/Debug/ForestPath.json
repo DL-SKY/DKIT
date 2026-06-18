@@ -1,0 +1,62 @@
+{
+	"Tags": [
+		"tutorial",
+		"exploration"
+	],
+	"IsRepeatable": true,
+	"Type": "Adventure",
+	"Title": "Лесная тропа",
+	"Description": "Небольшая развилка на опушке леса.",
+	"Restrictions": [],
+	"StartScenes": [
+		"fork"
+	],
+	"Scenes": {
+		"fork": {
+			"Id": "fork",
+			"Tags": [],
+			"Content": [
+				{
+					"Type": "Text",
+					"Restrictions": [],
+					"Value": "Тропа раздваивается: слева слышен шум ручья, справа темнеет чаща."
+				}
+			],
+			"NotClearScene": false,
+			"Choices": [
+				{
+					"Id": "to_stream",
+					"Tags": [],
+					"Type": "Dafault",
+					"Text": "Идти к ручью",
+					"Description": "",
+					"AlwaysShow": true,
+					"Restrictions": [],
+					"Actions": [
+						{
+							"Type": "GoToScene",
+							"Params": {
+								"Strings": {
+									"sceneId": "stream"
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		"stream": {
+			"Id": "stream",
+			"Tags": [],
+			"Content": [
+				{
+					"Type": "Text",
+					"Restrictions": [],
+					"Value": "У ручья вы находите следы недавнего лагеря."
+				}
+			],
+			"NotClearScene": false,
+			"Choices": []
+		}
+	}
+}

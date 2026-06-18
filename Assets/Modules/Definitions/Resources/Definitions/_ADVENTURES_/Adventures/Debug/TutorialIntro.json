@@ -1,0 +1,28 @@
+{
+	"Tags": [
+		"tutorial"
+	],
+	"IsRepeatable": false,
+	"Type": "Adventure",
+	"Title": "Вступление",
+	"Description": "Короткое знакомство с миром.",
+	"Restrictions": [],
+	"StartScenes": [
+		"intro"
+	],
+	"Scenes": {
+		"intro": {
+			"Id": "intro",
+			"Tags": [],
+			"Content": [
+				{
+					"Type": "Text",
+					"Restrictions": [],
+					"Value": "Вы стоите у ворот города. Ветер несёт запах дыма из таверны."
+				}
+			],
+			"NotClearScene": false,
+			"Choices": []
+		}
+	}
+}

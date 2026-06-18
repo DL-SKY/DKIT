@@ -6,6 +6,7 @@ using Modules.Definitions.Scripts.Implementation.Defs.Gems;
 using Modules.Definitions.Scripts.Implementation.Defs.Objectives;
 using Modules.Definitions.Scripts.Implementation.Defs.Presets;
 using Modules.Definitions.Scripts.Implementation.Defs.Rounds;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Adventures;
 using Modules.Definitions.Scripts.Implementation.Defs.Single;
 using Modules.Utils.Scripts.Components;
 using Modules.Utils.Scripts.UnityImplementation;
@@ -27,6 +28,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
 
 
         public ProjectGlobalSettingsDef GlobalSettings;
+        public Dictionary<string, AdventureDef> Adventures;
         //public Match3GlobalSettingsDef Match3GlobalSettings;
         //public Dictionary<string, GameZoneDef> GameZones;
         //public CellsMapDef CellsMap;
@@ -58,6 +60,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
             var loadMethods = new List<Action>
             {
                 LoadGlobalSettings,
+                LoadAdventures,
                 //LoadMatch3GlobalSettings,
                 //LoadGameZones,
                 //LoadCellsMap,
@@ -85,6 +88,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         private void LoadGlobalSettings()
         {
             GlobalSettings = _loader.LoadSingle<ProjectGlobalSettingsDef>("Definitions/_ADVENTURES_/GlobalSettings/GlobalSettings");
+        }
+
+        private void LoadAdventures()
+        {
+            Adventures = _loader.LoadCollection<AdventureDef>("Definitions/_ADVENTURES_/Adventures");
         }
 
         //private void LoadMatch3GlobalSettings()

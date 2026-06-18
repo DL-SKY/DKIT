@@ -1,0 +1,31 @@
+---
+description: Use full UnityEngine.Debug namespace for Unity log calls
+globs: **/*.cs
+alwaysApply: false
+---
+
+# Unity Debug — полное пространство имён
+
+При вызове Unity-логов **всегда** указывай полное имя `UnityEngine.Debug`, даже если в файле есть `using UnityEngine;`.
+
+## Правило
+
+- Используй: `UnityEngine.Debug.Log`, `UnityEngine.Debug.LogWarning`, `UnityEngine.Debug.LogError`, `UnityEngine.Debug.LogException`, `UnityEngine.Debug.LogFormat` и т.д.
+- Не используй сокращённую форму: `Debug.Log`, `Debug.LogWarning`, `Debug.LogError`.
+- Не добавляй алиасы вроде `using Debug = UnityEngine.Debug;`, чтобы обойти это правило.
+
+## Примеры
+
+```csharp
+// ❌ Плохо
+Debug.LogWarning("[Loader] Duplicate definition id.");
+Debug.LogError("[Save] Failed to read settings.");
+
+// ✅ Хорошо
+UnityEngine.Debug.LogWarning("[Loader] Duplicate definition id.");
+UnityEngine.Debug.LogError("[Save] Failed to read settings.");
+```
+
+## Зачем
+
+Явное `UnityEngine.Debug` сразу отличает Unity-логи от других API с именем `Debug` (например, `System.Diagnostics.Debug`) и делает вызовы однозначными при чтении и ревью кода.

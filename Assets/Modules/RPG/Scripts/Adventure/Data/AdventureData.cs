@@ -1,4 +1,5 @@
-﻿using Modules.Restrictions.Scripts.Core;
+﻿using Modules.Definitions.Scripts.Defs;
+using Modules.Restrictions.Scripts.Core;
 using System.Collections.Generic;
 
 namespace Modules.RPG.Scripts.Adventure.Data
@@ -12,9 +13,9 @@ namespace Modules.RPG.Scripts.Adventure.Data
     }
 
 
-    public class AdventureData
+    public class AdventureData : AbstractDefinition
     {
-        public string Id;
+        public bool Disabled;
 
         public List<string> Tags;
         public List<string> IgnoredTags;
@@ -28,7 +29,7 @@ namespace Modules.RPG.Scripts.Adventure.Data
 
         public List<Restriction> Restrictions;
 
-        public List<string> StartScenes;                        //Scene.Id
+        public List<string> StartScenes;
         public Dictionary<string, SceneData> Scenes;
 
         //...

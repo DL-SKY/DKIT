@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-06-18 18:00:00 (+03:00)
+**Последнее обновление:** 2026-06-18 21:00:00 (+03:00)
 
 ## Назначение
 
@@ -9,11 +9,12 @@
 ## Краткая логика работы
 
 1. На старте вызывается `DefinitionsManager.InitAsync()`, который запускает корутину `LoadAll()`.
-2. `LoadAll()` последовательно вызывает набор методов загрузки (`LoadGlobalSettings`, `LoadGameZones`, `LoadRounds` и т.д.).
+2. `LoadAll()` последовательно вызывает набор методов загрузки (`LoadGlobalSettings`, `LoadAdventures`, `LoadGameZones`, `LoadRounds` и т.д.).
 3. Каждый метод делегирует чтение в `Loader`:
    - `LoadSingle<T>()` для одиночного JSON;
    - `LoadCollection<T>()` для папки JSON-файлов.
-4. `Loader` загружает `TextAsset` через `Resources.Load*`, десериализует JSON через `JsonConvert.DeserializeObject<T>()` и присваивает `definition.Id = asset.name`.
+4. `Loader` загружает `TextAsset` через `Resources.Load*`, десериализует JSON через `JsonConvert.DeserializeObject<T>()` и присваивает `definition.Id = asset.name`.  
+   `LoadCollection()` обходит папку рекурсивно (`Resources.LoadAll`), пропускает битые JSON и дубликаты id (в словарь попадает первый деф, остальные — с `LogWarning`).
 5. Загруженные данные кэшируются в полях `DefinitionsManager` (single-def поля и словари коллекций), после чего выставляется флаг завершения `SimpleAsyncOperation`.
 
 ## Основные классы
@@ -24,10 +25,18 @@
 - `Loader`  
   Универсальный загрузчик: чтение JSON из `Resources`, десериализация и возврат typed-объектов.
 
-- `DefinitionsManager`  
-  Фасад доступа к дефам проекта. Хранит:
+- `DefinitionsManager` (Match3)  
+  Фасад доступа к дефам Match3. Хранит:
   - single-def: `GlobalSettings`, `Match3GlobalSettings`, `CellsMap`, `PresetsMap`;
   - коллекции: `GameZones`, `Cells`, `Presets`, `Gems`, `GameZoneGems`, `Objectives`, `Rounds`.
+
+- `DefinitionsManager` (Adventures)  
+  Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
+  - single-def: `GlobalSettings`;
+  - коллекции: `Adventures`.
+
+- `AdventureDef`  
+  Деф приключения; наследует `AdventureData` из модуля `RPG` (сцены, выборы, ограничения, метаданные). JSON размещается в `Definitions/_ADVENTURES_/Adventures`.
 
 - `RoundDef`  
   Деф раунда Match3; связывает `GameZone`, `Gems`, `Objectives` по id.
@@ -65,7 +74,10 @@
 
 ## Практические заметки
 
+- В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (например `GlobalSettings`, коллекция `Adventures`).
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.
-- Для коллекций id должен быть уникален в рамках папки.
+- `LoadCollection()` загружает JSON из указанной папки и всех вложенных подпапок; `Id` — только имя файла, без пути.
+- Для коллекций id должен быть уникален в рамках всего дерева папки; при совпадении имён побеждает первый загруженный деф, дубликат пишется в `LogWarning`.
 - При ссылках между дефами (`RoundDef -> GameZone/Gems/Objectives`) валидность обеспечивается только на этапе использования (`TryGetValue`), поэтому полезно держать ручную/авто-проверку ссылок.
 - JSON-ключи должны точно совпадать с именами публичных полей C#-классов (латиница; см. также [Restrictions.md](Restrictions.md#соглашения-по-именованию)).
