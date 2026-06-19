@@ -14,12 +14,17 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats
         Boost = 6,
     }
 
+
     public class FeatDef : AbstractDefinition
     {
-        public string Title;
-        public string Description;
+        public bool Disabled;
+
         public FeatType Type;
         public int Level;
-        public List<string> Prerequisites;
+
+        public List<string> Tags;
+
+        public string Title;
+        public string Description;
     }
 }

@@ -11,12 +11,17 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Spells
         Ritual = 3,
     }
 
+
     public class SpellDef : AbstractDefinition
     {
-        public string Title;
-        public string Description;
+        public bool Disabled;
+
         public SpellType Type;
         public int Level;
-        public List<string> Traditions;
+
+        public List<string> Tags;
+
+        public string Title;
+        public string Description;
     }
 }

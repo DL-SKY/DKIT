@@ -1,4 +1,5 @@
 using Modules.Definitions.Scripts.Defs;
+using System.Collections.Generic;
 
 namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
 {
@@ -11,13 +12,19 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
         Equipment = 4,
     }
 
+
     public class ItemDef : AbstractDefinition
     {
-        public string Title;
-        public string Description;
+        public bool Disabled;
+
         public ItemCategory Category;
         public int Level;
+
+        public List<string> Tags;
+
+        public string Title;
+        public string Description;
+
         public int Price;
-        public string Bulk;
     }
 }

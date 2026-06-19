@@ -10,13 +10,20 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries
         Large = 2,
     }
 
+
     public class AncestryDef : AbstractDefinition
     {
-        public string Title;
-        public string Description;
+        public bool Disabled;
+
         public AncestrySize Size;
         public int Speed;
-        public List<string> AbilityBoosts;
-        public List<string> AbilityFlaws;
+
+        public List<string> Tags;
+
+        public string Title;
+        public string Description;
+        
+        //public List<string> AbilityBoosts;
+        //public List<string> AbilityFlaws;
     }
 }
