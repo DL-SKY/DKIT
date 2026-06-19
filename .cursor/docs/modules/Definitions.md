@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-06-18 22:30:00 (+03:00)
+**Последнее обновление:** 2026-06-18 23:45:00 (+03:00)
 
 ## Назначение
 
@@ -53,19 +53,19 @@
   Деф приключения; наследует `AdventureData` из модуля `RPG` (сцены, выборы, ограничения, метаданные). Подробнее о полях — в [RPG.md](RPG.md#модель-данных-adventure).
 
 - `ClassDef`  
-  Класс персонажа (PF2e-ориентированный контракт): `Title`, `Description`, `KeyAbility`, `HitPointsPerLevel`.
+  Класс персонажа. Поля: `Disabled`, `Tags`, `Title`, `Description`.
 
 - `AncestryDef`  
-  Происхождение персонажа: `Title`, `Description`, `Size` (`AncestrySize`), `Speed`, `AbilityBoosts`, `AbilityFlaws`.
+  Происхождение персонажа. Поля: `Disabled`, `Size` (`AncestrySize`), `Speed`, `Tags`, `Title`, `Description`.
 
 - `FeatDef`  
-  Черта/способность: `Title`, `Description`, `Type` (`FeatType`), `Level`, `Prerequisites`.
+  Черта/способность. Поля: `Disabled`, `Type` (`FeatType`), `Level`, `Tags`, `Title`, `Description`.
 
 - `ItemDef`  
-  Предмет: `Title`, `Description`, `Category` (`ItemCategory`), `Level`, `Price`, `Bulk`.
+  Предмет. Поля: `Disabled`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`.
 
 - `SpellDef`  
-  Заклинание: `Title`, `Description`, `Type` (`SpellType`), `Level`, `Traditions`.
+  Заклинание. Поля: `Disabled`, `Type` (`SpellType`), `Level`, `Tags`, `Title`, `Description`.
 
 - `RoundDef`  
   Деф раунда Match3; связывает `GameZone`, `Gems`, `Objectives` по id.
@@ -84,6 +84,54 @@
 
 - `GameZonesEditorWindow` (Editor-only)  
   Визуальный редактор `GameZone` JSON в `Tools/Definitions/Match3/GameZonesEditor`.
+
+## Adventure-дефы персонажа: текущий контракт и эволюция
+
+### Минимальный контракт (сейчас)
+
+На текущем этапе adventure-дефы персонажа содержат **необходимый минимум** для загрузки, отображения в UI и ссылок из `Modules.State`:
+
+- идентификация через `Id` (имя JSON-файла);
+- метаданные (`Title`, `Description`, `Disabled`);
+- классификация (`Type`, `Level`, `Category`, `Size`, `Speed` — где применимо);
+- `Tags` — произвольные строковые метки (источник книги, роль, черновые механические подсказки).
+
+`Tags` **не являются** финальным механическим слоем: это временный способ группировки и заметок до появления структурированных полей.
+
+### Разделение Defs и State
+
+| Слой | Что хранит |
+|---|---|
+| **Defs** | Статический контент: что даёт класс, раса, черта, предмет или заклинание |
+| **State** | Персистентный прогресс персонажа: `CharacterStateData.Parameters`, `SavingThrows`, `Spells`, `StatusEffects`, экипировка и т.д. |
+
+Runtime в будущем читает деф → вычисляет или применяет эффекты → записывает результат в state (через state-actions / сервисы персонажа).
+
+### Планируемое расширение (механики)
+
+По мере разработки в дефы будут добавляться **структурированные данные** с конкретными величинами:
+
+- бонусы и штрафы к характеристикам, навыкам, спасброскам;
+- особенности (сопротивления, чувства, ограничения);
+- эффекты черт, предметов и заклинаний с явными значениями для записи в `CharacterStateData` и связанные секции.
+
+Формат этих блоков будет согласован с уже существующими контрактами (`ChoiceActionData.Params`, state-actions), чтобы не дублировать способы описания модификаторов.
+
+### Порядок полей в JSON
+
+Порядок ключей в JSON следует порядку полей в C#-классе дефа (см. таблицу выше). `Id` в JSON не задаётся — присваивается загрузчиком из имени файла.
+
+### Контент `_ADVENTURES_` (стартовый набор)
+
+Стартовый контент ориентирован на PF2e Player Core (и смежные книги — в `Tags`). Подпапки используются для удобства редактирования; `LoadCollection()` загружает их рекурсивно, `Id` — только имя файла.
+
+| Коллекция | Папка | Примеры подпапок | Ориентир по объёму |
+|---|---|---|---|
+| `Classes` | `_ADVENTURES_/Classes` | — | ~24 класса |
+| `Ancestries` | `_ADVENTURES_/Ancestries` | — | 8 ancestries Player Core |
+| `Feats` | `_ADVENTURES_/Feats` | `General`, `Ancestry`, `Class`, `ClassFeature`, `Skill` | ~15+ черт |
+| `Spells` | `_ADVENTURES_/Spells` | `Cantrips`, `Arcane`, `Divine`, `Primal` | ~13+ заклинаний |
+| `Items` | `_ADVENTURES_/Items` | `Weapons`, `Armor`, `Shields`, `Consumables`, `Equipment` | ~18+ предметов |
 
 ## Добавление нового def (явный чек-лист)
 
@@ -104,8 +152,9 @@
 ## Практические заметки
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
-- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`).
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`). Коллекции персонажа могут иметь вложенные подпапки — на загрузку это не влияет.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла).
+- Механические эффекты дефов пока не применяются автоматически; `Tags` — вспомогательные метки до появления структурированных модификаторов (см. [Adventure-дефы персонажа](#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.
 - `LoadCollection()` загружает JSON из указанной папки и всех вложенных подпапок; `Id` — только имя файла, без пути.
 - Для коллекций id должен быть уникален в рамках всего дерева папки; при совпадении имён побеждает первый загруженный деф, дубликат пишется в `LogWarning`.

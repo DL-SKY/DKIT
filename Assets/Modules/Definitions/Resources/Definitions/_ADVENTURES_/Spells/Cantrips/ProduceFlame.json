@@ -1,0 +1,13 @@
+{
+	"Disabled": false,
+	"Type": "Cantrip",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"Primal",
+		"school-evocation",
+		"actions-2"
+	],
+	"Title": "Создание пламени",
+	"Description": "В руке вспыхивает огонь: метаете его во врага или используете как источник света."
+}

@@ -1,0 +1,13 @@
+{
+	"Disabled": false,
+	"Category": "Equipment",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"length-50ft",
+		"bulk-L"
+	],
+	"Title": "Верёвка (50 футов)",
+	"Description": "Прочная пеньковая верёвка для лазания, связывания и спасательных работ.",
+	"Price": 5
+}

@@ -1,0 +1,16 @@
+{
+	"Disabled": false,
+	"Size": "Small",
+	"Speed": 25,
+	"Tags": [
+		"player-core",
+		"hp-8",
+		"boost-constitution",
+		"boost-charisma",
+		"boost-free",
+		"flaw-strength",
+		"sense-low-light"
+	],
+	"Title": "Гном",
+	"Description": "Низкорослый и выносливый народ с неутолимым любопытством и эксцентричными привычками."
+}

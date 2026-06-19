@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Type": "AncestryFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-goblin",
+		"trait-movement"
+	],
+	"Title": "Гоблинский рывок",
+	"Description": "Когда союзник рядом совершает Отход, вы можете Шагнуть как реакцию."
+}

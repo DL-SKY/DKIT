@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"player-core",
+		"key-charisma",
+		"hp_per_level-8",
+		"tradition-occult",
+		"role-caster"
+	],
+	"Title": "Бард",
+	"Description": "Вдохновитель и артист, усиливающий союзников музыкой, словом и оккультной магией."
+}

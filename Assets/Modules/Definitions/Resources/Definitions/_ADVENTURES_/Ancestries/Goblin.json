@@ -1,0 +1,16 @@
+{
+	"Disabled": false,
+	"Size": "Small",
+	"Speed": 25,
+	"Tags": [
+		"player-core",
+		"hp-6",
+		"boost-dexterity",
+		"boost-charisma",
+		"boost-free",
+		"flaw-wisdom",
+		"sense-darkvision"
+	],
+	"Title": "Гоблин",
+	"Description": "Низкорослый, энергичный и дерзкий народ с любовью к приключениям и хаосу."
+}

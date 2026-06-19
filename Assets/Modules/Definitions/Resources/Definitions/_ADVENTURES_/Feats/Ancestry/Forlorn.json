@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Type": "AncestryFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-elf",
+		"trait-skill"
+	],
+	"Title": "Одинокий эльф",
+	"Description": "Жизнь среди короткоживущих народов закалила вас: вы обучены одному дополнительному навыку на выбор."
+}

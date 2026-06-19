@@ -1,0 +1,15 @@
+{
+	"Disabled": false,
+	"Category": "Consumable",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"alchemical",
+		"consumable-elixir",
+		"trait-disease",
+		"bulk-L"
+	],
+	"Title": "Противочумное средство (меньшее)",
+	"Description": "Алхимический эликсир, дающий бонус к спасброскам против болезней на 24 часа.",
+	"Price": 30
+}

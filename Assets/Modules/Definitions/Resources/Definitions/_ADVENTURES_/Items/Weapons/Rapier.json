@@ -1,0 +1,19 @@
+{
+	"Disabled": false,
+	"Category": "Weapon",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"group-sword",
+		"hands-1",
+		"martial",
+		"damage-1d6",
+		"trait-deadly-d8",
+		"trait-disarm",
+		"trait-finesse",
+		"bulk-1"
+	],
+	"Title": "Рапира",
+	"Description": "Изящное одноручное оружие дуэлянтов с высоким потенциалом критического урона.",
+	"Price": 20
+}

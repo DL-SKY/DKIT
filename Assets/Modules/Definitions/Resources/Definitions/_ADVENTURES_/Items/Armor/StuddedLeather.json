@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Category": "Armor",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"armor-light",
+		"ac-bonus-2",
+		"check-penalty-2",
+		"speed-penalty-0",
+		"strength-1",
+		"bulk-1"
+	],
+	"Title": "Проклёпанный кожаный доспех",
+	"Description": "Усиленный металлическими заклёпками лёгкий доспех с лучшей защитой.",
+	"Price": 30
+}

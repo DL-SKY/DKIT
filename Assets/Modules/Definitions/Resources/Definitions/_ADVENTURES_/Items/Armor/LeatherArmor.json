@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Category": "Armor",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"armor-light",
+		"ac-bonus-1",
+		"check-penalty-1",
+		"speed-penalty-0",
+		"strength-0",
+		"bulk-1"
+	],
+	"Title": "Кожаный доспех",
+	"Description": "Лёгкий доспех из выдубленной кожи, минимально мешает подвижности.",
+	"Price": 20
+}

@@ -2,7 +2,12 @@
 	"Disabled": false,
 	"Size": "Medium",
 	"Speed": 25,
-	"Tags": [],
+	"Tags": [
+		"player-core",
+		"hp-8",
+		"boost-free",
+		"boost-free"
+	],
 	"Title": "Человек",
-	"Description": "Универсальное и адаптивное происхождение."
+	"Description": "Разнообразный и адаптивный народ с широким потенциалом и амбициями."
 }

@@ -1,0 +1,11 @@
+{
+	"Disabled": false,
+	"Type": "GeneralFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"trait-initiative"
+	],
+	"Title": "Невероятная инициатива",
+	"Description": "Вы реагируете на угрозы мгновенно и получаете бонус +2 к проверкам инициативы."
+}

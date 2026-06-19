@@ -1,0 +1,15 @@
+{
+	"Disabled": false,
+	"Category": "Consumable",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"alchemical",
+		"consumable-elixir",
+		"trait-poison",
+		"bulk-L"
+	],
+	"Title": "Противоядие (меньшее)",
+	"Description": "Алхимический эликсир, дающий бонус к спасброскам против ядов на 6 часов.",
+	"Price": 30
+}

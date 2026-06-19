@@ -1,0 +1,11 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"player-core",
+		"key-intelligence",
+		"hp_per_level-8",
+		"role-martial"
+	],
+	"Title": "Следователь",
+	"Description": "Дедуктивный охотник за уликами, раскрывающий тайны и эксплуатирующий слабости противника."
+}

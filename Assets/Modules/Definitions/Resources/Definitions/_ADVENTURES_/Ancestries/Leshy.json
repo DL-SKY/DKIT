@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Size": "Small",
+	"Speed": 25,
+	"Tags": [
+		"player-core",
+		"hp-8",
+		"boost-constitution",
+		"boost-wisdom",
+		"boost-free",
+		"flaw-intelligence",
+		"sense-low-light",
+		"trait-plant"
+	],
+	"Title": "Леший",
+	"Description": "Бессмертный дух природы в растительном теле, стремящийся познать мир."
+}

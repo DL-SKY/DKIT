@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Type": "AncestryFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"trait-movement"
+	],
+	"Title": "Скалолаз",
+	"Description": "Дварфийская уверенность на неровной местности: игнорируете сложную поверхность при Беге и Карабканье."
+}

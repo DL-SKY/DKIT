@@ -1,0 +1,15 @@
+{
+	"Disabled": false,
+	"Type": "Spell",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"Arcane",
+		"Occult",
+		"Primal",
+		"school-emotion",
+		"actions-2"
+	],
+	"Title": "Страх",
+	"Description": "Враги в конусе должны пройти спасбросок Воли или получить испуган 1."
+}

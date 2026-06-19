@@ -1,9 +1,12 @@
 {
 	"Disabled": false,
 	"Tags": [
-		"Wisdom",
-		"divine"
+		"player-core",
+		"key-wisdom",
+		"hp_per_level-8",
+		"tradition-divine",
+		"role-caster"
 	],
 	"Title": "Жрец",
-	"Description": "Посвящённый божеству, черпающий силу из веры и молитв."
+	"Description": "Посвящённый божеству служитель, черпающий силу из веры и божественных заклинаний."
 }

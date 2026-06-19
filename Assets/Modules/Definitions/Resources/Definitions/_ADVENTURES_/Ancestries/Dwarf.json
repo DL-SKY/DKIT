@@ -3,8 +3,14 @@
 	"Size": "Medium",
 	"Speed": 20,
 	"Tags": [
-		"dwarf"
+		"player-core",
+		"hp-10",
+		"boost-constitution",
+		"boost-wisdom",
+		"boost-free",
+		"flaw-charisma",
+		"sense-darkvision"
 	],
 	"Title": "Дварф",
-	"Description": "Выносливый и упрямый народ горных крепостей."
+	"Description": "Низкорослый и крепкий народ с сильными традициями ремесла, чести и упрямства."
 }

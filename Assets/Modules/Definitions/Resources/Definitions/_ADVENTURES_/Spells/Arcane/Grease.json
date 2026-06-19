@@ -1,0 +1,14 @@
+{
+	"Disabled": false,
+	"Type": "Spell",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"Arcane",
+		"Primal",
+		"school-conjuration",
+		"actions-2"
+	],
+	"Title": "Скользкая лужа",
+	"Description": "Масло или жир покрывает поверхность, делая её труднопроходимой и опасной для равновесия."
+}

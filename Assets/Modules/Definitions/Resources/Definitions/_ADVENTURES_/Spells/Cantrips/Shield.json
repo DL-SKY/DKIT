@@ -1,0 +1,15 @@
+{
+	"Disabled": false,
+	"Type": "Cantrip",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"Arcane",
+		"Divine",
+		"Occult",
+		"school-abjuration",
+		"actions-1"
+	],
+	"Title": "Щит",
+	"Description": "Магический барьер даёт ситуационный бонус +1 к КБ до начала вашего следующего хода."
+}

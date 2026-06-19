@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Type": "SkillFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"skill-medicine",
+		"prerequisite-trained-medicine"
+	],
+	"Title": "Полевая медицина",
+	"Description": "Один раз в день лечите союзника действием Медицина, восстанавливая ОЗ без магии и наборов."
+}

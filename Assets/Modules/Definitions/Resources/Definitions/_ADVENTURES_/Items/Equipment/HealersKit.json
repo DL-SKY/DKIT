@@ -1,0 +1,14 @@
+{
+	"Disabled": false,
+	"Category": "Equipment",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"trait-healing",
+		"uses-10",
+		"bulk-L"
+	],
+	"Title": "Набор целителя",
+	"Description": "Инструменты и припасы для лечения ран; требуется для многих проверок Медицины.",
+	"Price": 50
+}

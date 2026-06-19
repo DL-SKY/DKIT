@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"player-core",
+		"key-strength",
+		"hp_per_level-8",
+		"tradition-arcane",
+		"role-martial-caster"
+	],
+	"Title": "Магус",
+	"Description": "Гибрид мага и воина, сочетающий клинок и арканные заклинания в едином боевом стиле."
+}

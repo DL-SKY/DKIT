@@ -1,0 +1,14 @@
+{
+	"Disabled": false,
+	"Type": "Spell",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"Divine",
+		"Occult",
+		"school-enchantment",
+		"actions-2"
+	],
+	"Title": "Приказ",
+	"Description": "Цель должна пройти спасбросок Воли или выполнить одно действие из двух указанных вами."
+}

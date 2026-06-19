@@ -1,9 +1,11 @@
 {
 	"Disabled": false,
 	"Tags": [
-		"Strength",
-		"martial"
+		"player-core",
+		"key-strength|dexterity",
+		"hp_per_level-10",
+		"role-martial"
 	],
 	"Title": "Воин",
-	"Description": "Мастер оружия и доспехов, специализирующийся на ближнем бою."
+	"Description": "Непревзойдённый мастер оружия и боевых приёмов, специализирующийся на атаке и защите."
 }

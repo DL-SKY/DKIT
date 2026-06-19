@@ -1,0 +1,19 @@
+{
+	"Disabled": false,
+	"Category": "Weapon",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"group-sword",
+		"hands-1",
+		"martial",
+		"damage-1d6",
+		"trait-agile",
+		"trait-finesse",
+		"trait-versatile-slashing",
+		"bulk-L"
+	],
+	"Title": "Короткий меч",
+	"Description": "Одноручный фехтовальный клинок для точных ударов.",
+	"Price": 9
+}

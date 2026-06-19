@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"player-core",
+		"key-strength|dexterity",
+		"hp_per_level-10",
+		"tradition-divine",
+		"role-martial"
+	],
+	"Title": "Чемпион",
+	"Description": "Святой воин, защищающий идеалы и союзников силой божественной клятвы."
+}

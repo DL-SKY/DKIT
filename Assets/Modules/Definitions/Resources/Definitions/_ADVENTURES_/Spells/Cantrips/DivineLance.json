@@ -1,0 +1,13 @@
+{
+	"Disabled": false,
+	"Type": "Cantrip",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"Divine",
+		"school-evocation",
+		"actions-2"
+	],
+	"Title": "Божественное копьё",
+	"Description": "Снаряд чистой энергии, наносящий урон силой или исцеляющий нежить."
+}

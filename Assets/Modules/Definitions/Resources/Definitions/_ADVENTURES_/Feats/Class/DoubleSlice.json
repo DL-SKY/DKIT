@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"trait-flourish"
+	],
+	"Title": "Двойной удар",
+	"Description": "Два удара одним действием: атакуете двумя одноручными оружиями с уменьшенным штрафом за серию атак."
+}

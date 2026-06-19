@@ -1,0 +1,14 @@
+{
+	"Disabled": false,
+	"Type": "Cantrip",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"Arcane",
+		"Primal",
+		"school-evocation",
+		"actions-2"
+	],
+	"Title": "Электрическая дуга",
+	"Description": "Разряд молнии по одному или двум существам в пределах дистанции."
+}

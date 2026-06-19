@@ -1,0 +1,11 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"player-core",
+		"key-charisma",
+		"hp_per_level-8",
+		"role-esoteric"
+	],
+	"Title": "Тауматург",
+	"Description": "Исследователь оккультных тайн, использующий эзотерические имплементации против сверхъестественных угроз."
+}

@@ -1,0 +1,11 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-rogue"
+	],
+	"Title": "Ловкое уклонение",
+	"Description": "Реакцией уклоняетесь от удара, получая ситуационный бонус +2 к КБ против атаки."
+}

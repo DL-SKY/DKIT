@@ -3,8 +3,14 @@
 	"Size": "Medium",
 	"Speed": 30,
 	"Tags": [
-		"elf"
+		"player-core",
+		"hp-6",
+		"boost-dexterity",
+		"boost-intelligence",
+		"boost-free",
+		"flaw-constitution",
+		"sense-low-light"
 	],
 	"Title": "Эльф",
-	"Description": "Долгоживущий народ с острыми чувствами и связью с магией."
+	"Description": "Высокий долгоживущий народ с сильными традициями искусства и магии."
 }

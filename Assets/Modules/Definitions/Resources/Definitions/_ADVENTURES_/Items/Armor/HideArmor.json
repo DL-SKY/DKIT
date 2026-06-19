@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Category": "Armor",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"armor-medium",
+		"ac-bonus-3",
+		"check-penalty-2",
+		"speed-penalty-0",
+		"strength-2",
+		"bulk-2"
+	],
+	"Title": "Шкурный доспех",
+	"Description": "Средний доспех из толстых шкур и кожи, популярен у следопытов и варваров.",
+	"Price": 20
+}

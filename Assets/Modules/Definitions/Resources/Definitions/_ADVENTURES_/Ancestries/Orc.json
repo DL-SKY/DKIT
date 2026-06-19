@@ -1,0 +1,14 @@
+{
+	"Disabled": false,
+	"Size": "Medium",
+	"Speed": 25,
+	"Tags": [
+		"player-core",
+		"hp-10",
+		"boost-free",
+		"boost-free",
+		"sense-darkvision"
+	],
+	"Title": "Орк",
+	"Description": "Гордый и сильный народ с закалённым телом, ценящий физическую мощь и славу в бою."
+}

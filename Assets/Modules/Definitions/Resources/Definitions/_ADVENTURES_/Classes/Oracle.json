@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"player-core",
+		"key-charisma",
+		"hp_per_level-8",
+		"tradition-divine",
+		"role-caster"
+	],
+	"Title": "Оракул",
+	"Description": "Провидец, несущий божественное проклятие и силу тайн, выходящих за пределы контроля."
+}

@@ -1,0 +1,16 @@
+{
+	"Disabled": false,
+	"Size": "Small",
+	"Speed": 25,
+	"Tags": [
+		"player-core",
+		"hp-6",
+		"boost-dexterity",
+		"boost-wisdom",
+		"boost-free",
+		"flaw-strength",
+		"trait-keen-eyes"
+	],
+	"Title": "Полурослик",
+	"Description": "Низкорослый выносливый народ с удивительным любопытством и чувством юмора."
+}

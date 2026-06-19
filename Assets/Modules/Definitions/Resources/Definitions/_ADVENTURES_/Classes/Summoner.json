@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"player-core",
+		"key-charisma",
+		"hp_per_level-10",
+		"tradition-varies",
+		"role-caster"
+	],
+	"Title": "Призыватель",
+	"Description": "Маг, связанный с эйдолоном — существом из иных планов, сражающимся рядом с хозяином."
+}

@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Category": "Weapon",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"group-bow",
+		"hands-2",
+		"martial",
+		"damage-1d6",
+		"trait-deadly-d10",
+		"range-60",
+		"bulk-1"
+	],
+	"Title": "Короткий лук",
+	"Description": "Компактный дальнобойный лук для стрельбы на средней дистанции.",
+	"Price": 30
+}

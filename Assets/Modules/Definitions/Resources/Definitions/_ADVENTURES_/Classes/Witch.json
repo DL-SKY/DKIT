@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"player-core",
+		"key-intelligence|charisma",
+		"hp_per_level-6",
+		"tradition-varies",
+		"role-caster"
+	],
+	"Title": "Ведьма",
+	"Description": "Заклинатель с покровителем, владеющий фамильяром и уроками тайной магии."
+}

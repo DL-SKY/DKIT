@@ -1,0 +1,19 @@
+{
+	"Disabled": false,
+	"Category": "Weapon",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"group-dagger",
+		"hands-1",
+		"simple",
+		"damage-1d4",
+		"trait-agile",
+		"trait-finesse",
+		"trait-thrown-10",
+		"bulk-L"
+	],
+	"Title": "Кинжал",
+	"Description": "Лёгкое простое оружие ближнего и метательного боя.",
+	"Price": 2
+}

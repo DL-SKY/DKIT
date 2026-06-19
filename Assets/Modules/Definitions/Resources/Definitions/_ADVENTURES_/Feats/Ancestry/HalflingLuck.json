@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Type": "AncestryFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-halfling",
+		"trait-fortune"
+	],
+	"Title": "Везение полурослика",
+	"Description": "Раз в день перебросьте проваленную проверку и возьмите второй результат."
+}

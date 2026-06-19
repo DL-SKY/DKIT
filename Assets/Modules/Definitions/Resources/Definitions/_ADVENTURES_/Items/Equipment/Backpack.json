@@ -1,0 +1,13 @@
+{
+	"Disabled": false,
+	"Category": "Equipment",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"capacity-4-bulk",
+		"bulk-0-worn"
+	],
+	"Title": "Рюкзак",
+	"Description": "Вмещает до 4 единиц объёма снаряжения; стандартная ноша путешественника.",
+	"Price": 1
+}

@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Category": "Weapon",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"group-axe",
+		"hands-1",
+		"martial",
+		"damage-1d8",
+		"trait-sweep",
+		"bulk-1"
+	],
+	"Title": "Боевой топор",
+	"Description": "Одноручный рубящий топор для мощных ударов по нескольким целям.",
+	"Price": 10
+}

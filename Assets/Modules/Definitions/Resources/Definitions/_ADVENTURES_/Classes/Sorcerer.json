@@ -1,0 +1,12 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"player-core",
+		"key-charisma",
+		"hp_per_level-6",
+		"tradition-varies",
+		"role-caster"
+	],
+	"Title": "Чародей",
+	"Description": "Врождённый заклинатель, чья магия рождается из крови, родословной или внутреннего дарования."
+}

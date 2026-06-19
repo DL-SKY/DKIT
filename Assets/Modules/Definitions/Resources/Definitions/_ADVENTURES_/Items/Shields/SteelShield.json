@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Category": "Shield",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"ac-bonus-2",
+		"hardness-5",
+		"hp-20",
+		"bt-10",
+		"hands-1",
+		"bulk-1"
+	],
+	"Title": "Стальной щит",
+	"Description": "Надёжный металлический щит для блокирования ударов и заклинаний Shield Block.",
+	"Price": 20
+}

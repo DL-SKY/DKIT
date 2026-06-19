@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Category": "Armor",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"armor-medium",
+		"ac-bonus-4",
+		"check-penalty-2",
+		"speed-penalty-0",
+		"strength-3",
+		"bulk-2"
+	],
+	"Title": "Кираса",
+	"Description": "Металлический средний доспех с высокой защитой и умеренной подвижностью.",
+	"Price": 80
+}
