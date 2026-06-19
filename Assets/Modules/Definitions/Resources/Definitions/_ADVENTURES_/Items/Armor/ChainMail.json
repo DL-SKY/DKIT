@@ -1,8 +1,11 @@
 {
-	"Title": "Кольчуга",
-	"Description": "Гибкий металлический доспех средней защиты.",
+	"Disabled": false,
 	"Category": "Armor",
 	"Level": 0,
-	"Price": 150,
-	"Bulk": "2"
+	"Tags": [
+		"medium"
+	],
+	"Title": "Кольчуга",
+	"Description": "Гибкий металлический доспех средней защиты.",
+	"Price": 150
 }

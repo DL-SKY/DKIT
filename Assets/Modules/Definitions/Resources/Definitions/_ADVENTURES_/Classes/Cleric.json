@@ -1,6 +1,9 @@
 {
+	"Disabled": false,
+	"Tags": [
+		"Wisdom",
+		"divine"
+	],
 	"Title": "Жрец",
-	"Description": "Посвящённый божеству, черпающий силу из веры и молитв.",
-	"KeyAbility": "Wisdom",
-	"HitPointsPerLevel": 8
+	"Description": "Посвящённый божеству, черпающий силу из веры и молитв."
 }

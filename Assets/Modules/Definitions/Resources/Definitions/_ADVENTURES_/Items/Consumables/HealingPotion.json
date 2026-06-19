@@ -1,8 +1,11 @@
 {
-	"Title": "Зелье лечения (малое)",
-	"Description": "Восстанавливает здоровье при употреблении.",
+	"Disabled": false,
 	"Category": "Consumable",
 	"Level": 1,
-	"Price": 40,
-	"Bulk": "L"
+	"Tags": [
+		"healing"
+	],
+	"Title": "Зелье лечения (малое)",
+	"Description": "Восстанавливает здоровье при употреблении.",
+	"Price": 40
 }

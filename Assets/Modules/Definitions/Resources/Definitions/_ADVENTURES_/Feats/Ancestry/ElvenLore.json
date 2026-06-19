@@ -1,9 +1,10 @@
 {
-	"Title": "Эльфийские знания",
-	"Description": "Вы изучаете магию и традиции своего народа.",
+	"Disabled": false,
 	"Type": "AncestryFeat",
 	"Level": 1,
-	"Prerequisites": [
+	"Tags": [
 		"Elf"
-	]
+	],
+	"Title": "Эльфийские знания",
+	"Description": "Вы изучаете магию и традиции своего народа."
 }

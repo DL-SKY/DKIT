@@ -1,10 +1,11 @@
 {
-	"Title": "Луч холода",
-	"Description": "Ледяной луч, наносящий урон холодом.",
+	"Disabled": false,
 	"Type": "Cantrip",
 	"Level": 0,
-	"Traditions": [
+	"Tags": [
 		"Arcane",
 		"Primal"
-	]
+	],
+	"Title": "Луч холода",
+	"Description": "Ледяной луч, наносящий урон холодом."
 }

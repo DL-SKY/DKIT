@@ -1,10 +1,11 @@
 {
-	"Title": "Исцеление",
-	"Description": "Восстанавливает очки здоровья цели.",
+	"Disabled": false,
 	"Type": "Spell",
 	"Level": 1,
-	"Traditions": [
+	"Tags": [
 		"Divine",
 		"Primal"
-	]
+	],
+	"Title": "Исцеление",
+	"Description": "Восстанавливает очки здоровья цели."
 }

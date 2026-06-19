@@ -1,10 +1,11 @@
 {
-	"Title": "Волшебная стрела",
-	"Description": "Три безошибочных снаряда чистой магии.",
+	"Disabled": false,
 	"Type": "Spell",
 	"Level": 1,
-	"Traditions": [
+	"Tags": [
 		"Arcane",
 		"Occult"
-	]
+	],
+	"Title": "Волшебная стрела",
+	"Description": "Три безошибочных снаряда чистой магии."
 }

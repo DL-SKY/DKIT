@@ -1,11 +1,8 @@
 {
-	"Title": "Человек",
-	"Description": "Универсальное и адаптивное происхождение.",
+	"Disabled": false,
 	"Size": "Medium",
 	"Speed": 25,
-	"AbilityBoosts": [
-		"Free",
-		"Free"
-	],
-	"AbilityFlaws": []
+	"Tags": [],
+	"Title": "Человек",
+	"Description": "Универсальное и адаптивное происхождение."
 }

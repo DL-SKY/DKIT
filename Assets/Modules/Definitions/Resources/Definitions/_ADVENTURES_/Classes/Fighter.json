@@ -1,6 +1,9 @@
 {
+	"Disabled": false,
+	"Tags": [
+		"Strength",
+		"martial"
+	],
 	"Title": "Воин",
-	"Description": "Мастер оружия и доспехов, специализирующийся на ближнем бою.",
-	"KeyAbility": "Strength",
-	"HitPointsPerLevel": 10
+	"Description": "Мастер оружия и доспехов, специализирующийся на ближнем бою."
 }

@@ -1,12 +1,10 @@
 {
-	"Title": "Эльф",
-	"Description": "Долгоживущий народ с острыми чувствами и связью с магией.",
+	"Disabled": false,
 	"Size": "Medium",
 	"Speed": 30,
-	"AbilityBoosts": [
-		"Dexterity"
+	"Tags": [
+		"elf"
 	],
-	"AbilityFlaws": [
-		"Constitution"
-	]
+	"Title": "Эльф",
+	"Description": "Долгоживущий народ с острыми чувствами и связью с магией."
 }

@@ -1,9 +1,10 @@
 {
-	"Title": "Мощная атака",
-	"Description": "Вы совершаете удар с меньшей точностью, но большим уроном.",
+	"Disabled": false,
 	"Type": "ClassFeat",
 	"Level": 1,
-	"Prerequisites": [
+	"Tags": [
 		"Fighter"
-	]
+	],
+	"Title": "Мощная атака",
+	"Description": "Вы совершаете удар с меньшей точностью, но большим уроном."
 }

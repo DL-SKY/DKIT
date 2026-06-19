@@ -1,13 +1,10 @@
 {
-	"Title": "Дварф",
-	"Description": "Выносливый и упрямый народ горных крепостей.",
+	"Disabled": false,
 	"Size": "Medium",
 	"Speed": 20,
-	"AbilityBoosts": [
-		"Constitution",
-		"Wisdom"
+	"Tags": [
+		"dwarf"
 	],
-	"AbilityFlaws": [
-		"Charisma"
-	]
+	"Title": "Дварф",
+	"Description": "Выносливый и упрямый народ горных крепостей."
 }
