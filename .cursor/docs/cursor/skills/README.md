@@ -105,3 +105,30 @@ disable-model-invocation: true
 В ней есть:
 - `SKILL.md` — готовый пример Skill;
 - `reference.md` — расширенная памятка с шаблонами и контрольным списком.
+
+## 9) Skills проекта DKIT (актуальные)
+
+Проектные Skills лежат в `.cursor/skills/`:
+
+| Skill | Путь | Назначение |
+|---|---|---|
+| `definitions-defmanager` | `.cursor/skills/definitions-defmanager/` | Новый def в любом подпроекте (Match3 или Adventures) |
+| `definitions-adventures-defmanager` | `.cursor/skills/definitions-adventures-defmanager/` | Новый def только для Adventures (`_ADVENTURES_`) |
+
+Оба Skill:
+- запускаются **только по явному указанию** пользователя;
+- имеют `disable-model-invocation: true` (не автозапускаются из контекста);
+- требуют уточнить в чате `single` или `dictionary`, если формат не указан при вызове.
+
+Пример вызова в чате:
+
+```text
+Используй скилл для нового Adventure дэфа.
+TraitDef, dictionary.
+Поля: Disabled, Tags, Title, Description.
+JSON: Definitions/_ADVENTURES_/Traits.
+```
+
+Допустим и естественный вызов без технического имени skill — главное, чтобы было явно сказано «используй скилл …».
+
+Подробнее о модуле Definitions и текущих типах дефов: [Definitions.md](../../modules/Definitions.md).

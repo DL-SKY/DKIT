@@ -1,9 +1,12 @@
 using Modules.Definitions.Scripts.Core;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.BattleRules;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Adventures;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Rules;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Single;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Spells;
 using Modules.Definitions.Scripts.Implementation.Defs.Single;
 using Modules.Utils.Scripts.Components;
@@ -27,12 +30,15 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
 
 
         public ProjectGlobalSettingsDef GlobalSettings;
+        public RuleSettingsDef RuleSettings;
         public Dictionary<string, AdventureDef> Adventures;
         public Dictionary<string, ClassDef> Classes;
         public Dictionary<string, AncestryDef> Ancestries;
         public Dictionary<string, FeatDef> Feats;
         public Dictionary<string, ItemDef> Items;
         public Dictionary<string, SpellDef> Spells;
+        public Dictionary<string, RuleDef> Rules;
+        public Dictionary<string, BattleRuleDef> BattleRules;
 
 
         public DefinitionsManager()
@@ -54,12 +60,18 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
             var loadMethods = new List<Action>
             {
                 LoadGlobalSettings,
+                
+                LoadRules,
+                LoadBattleRules,
+                LoadRuleSettings,
+
                 LoadAdventures,
+
                 LoadClasses,
                 LoadAncestries,
                 LoadFeats,
                 LoadItems,
-                LoadSpells,
+                LoadSpells,                
             };
 
             for (int i = 0; i < loadMethods.Count; i++)
@@ -107,6 +119,21 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         private void LoadSpells()
         {
             Spells = _loader.LoadCollection<SpellDef>("Definitions/_ADVENTURES_/Spells");
+        }
+
+        private void LoadRules()
+        {
+            Rules = _loader.LoadCollection<RuleDef>("Definitions/_ADVENTURES_/Rules");
+        }
+
+        private void LoadBattleRules()
+        {
+            BattleRules = _loader.LoadCollection<BattleRuleDef>("Definitions/_ADVENTURES_/BattleRules");
+        }
+
+        private void LoadRuleSettings()
+        {
+            RuleSettings = _loader.LoadSingle<RuleSettingsDef>("Definitions/_ADVENTURES_/RuleSettings/RuleSettings");
         }
     }
 }

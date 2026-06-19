@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-06-18 23:45:00 (+03:00)
+**Последнее обновление:** 2026-06-19 17:40:00 (+03:00)
 
 ## Назначение
 
@@ -32,8 +32,8 @@
 
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
-  - single-def: `GlobalSettings`;
-  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`.
+  - single-def: `GlobalSettings`, `RuleSettings`;
+  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`.
 
 ### Соглашение по наследованию adventure-дефов
 
@@ -48,6 +48,9 @@
 | `FeatDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Feats` |
 | `ItemDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Items` |
 | `SpellDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Spells` |
+| `RuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Rules` |
+| `BattleRuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/BattleRules` |
+| `RuleSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/RuleSettings/RuleSettings` (single) |
 
 - `AdventureDef`  
   Деф приключения; наследует `AdventureData` из модуля `RPG` (сцены, выборы, ограничения, метаданные). Подробнее о полях — в [RPG.md](RPG.md#модель-данных-adventure).
@@ -67,6 +70,15 @@
 - `SpellDef`  
   Заклинание. Поля: `Disabled`, `Type` (`SpellType`), `Level`, `Tags`, `Title`, `Description`.
 
+- `RuleDef`  
+  Общее правило приключения (вне боя). Поля: `Tags`. Стартовый контент: `GeneralRule` (`core`, `exploration`, `social`).
+
+- `BattleRuleDef`  
+  Боевое правило приключения. Поля: `Tags`. Стартовый контент: `GeneralBattleRule` (`core`, `combat`, `encounter`).
+
+- `RuleSettingsDef`  
+  Single-def настроек правил; связывает активные правила по id. Поля: `Tags`, `Rule` (`RuleDef`), `BattleRule` (`BattleRuleDef`). Стартовое значение: `Rule = "GeneralRule"`, `BattleRule = "GeneralBattleRule"`.
+
 - `RoundDef`  
   Деф раунда Match3; связывает `GameZone`, `Gems`, `Objectives` по id.
 
@@ -84,6 +96,20 @@
 
 - `GameZonesEditorWindow` (Editor-only)  
   Визуальный редактор `GameZone` JSON в `Tools/Definitions/Match3/GameZonesEditor`.
+
+## Adventure-дефы правил: текущий контракт
+
+На текущем этапе правила приключения вынесены в отдельные типы:
+
+| Слой | Назначение |
+|---|---|
+| `RuleDef` | Статические правила вне боя (исследование, социальное взаимодействие и т.п.) |
+| `BattleRuleDef` | Статические боевые правила (столкновения, тактика и т.п.) |
+| `RuleSettingsDef` | Single-def, указывающий, какие правила из коллекций считаются активными по умолчанию |
+
+Ссылки между дефами — строковые id (имя JSON-файла), по тому же принципу, что `RoundDef -> GameZone/Gems/Objectives`.
+
+Порядок загрузки в adventures `DefinitionsManager`: `LoadRules` и `LoadBattleRules` выполняются **до** `LoadRuleSettings`, чтобы к моменту чтения настроек коллекции правил уже были в памяти (валидация ссылок по-прежнему на стороне потребителя).
 
 ## Adventure-дефы персонажа: текущий контракт и эволюция
 
@@ -132,10 +158,17 @@ Runtime в будущем читает деф → вычисляет или пр
 | `Feats` | `_ADVENTURES_/Feats` | `General`, `Ancestry`, `Class`, `ClassFeature`, `Skill` | ~15+ черт |
 | `Spells` | `_ADVENTURES_/Spells` | `Cantrips`, `Arcane`, `Divine`, `Primal` | ~13+ заклинаний |
 | `Items` | `_ADVENTURES_/Items` | `Weapons`, `Armor`, `Shields`, `Consumables`, `Equipment` | ~18+ предметов |
+| `Rules` | `_ADVENTURES_/Rules` | — | 1+ правило (`GeneralRule`) |
+| `BattleRules` | `_ADVENTURES_/BattleRules` | — | 1+ боевое правило (`GeneralBattleRule`) |
+
+Single-def `RuleSettings` лежит в `_ADVENTURES_/RuleSettings/RuleSettings.json`.
 
 ## Добавление нового def (явный чек-лист)
 
-1. Создать C#-класс def в `Assets/Modules/Definitions/Scripts/Implementation/Defs/...` и унаследовать его от `AbstractDefinition`.
+1. Создать C#-класс def:
+   - Match3: `Assets/Modules/Definitions/Scripts/Implementation/Defs/...`;
+   - Adventures: `Assets/Modules/Definitions/Scripts/Implementation/Adventures/Defs/...`;
+   - унаследовать от `AbstractDefinition` (или от проектного исключения вроде `AdventureData` для `AdventureDef`).
 2. Разместить JSON-файл(ы) в `Assets/Modules/Definitions/Resources/Definitions/<Folder>`.
 3. Добавить поле в `DefinitionsManager`:
    - одиночный def: `MyDef MySettings;`
@@ -152,7 +185,8 @@ Runtime в будущем читает деф → вычисляет или пр
 ## Практические заметки
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
-- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`). Коллекции персонажа могут иметь вложенные подпапки — на загрузку это не влияет.
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
+- `RuleSettingsDef` ссылается на `RuleDef` и `BattleRuleDef` по id; при добавлении новых правил обновляйте JSON настроек или потребляющий код, если нужно переключить активный набор.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла).
 - Механические эффекты дефов пока не применяются автоматически; `Tags` — вспомогательные метки до появления структурированных модификаторов (см. [Adventure-дефы персонажа](#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.

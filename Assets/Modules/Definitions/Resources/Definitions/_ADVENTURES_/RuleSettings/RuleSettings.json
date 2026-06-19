@@ -1,0 +1,5 @@
+{
+	"Tags": ["core", "settings"],
+	"Rule": "GeneralRule",
+	"BattleRule": "GeneralBattleRule"
+}
