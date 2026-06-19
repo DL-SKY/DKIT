@@ -1,6 +1,6 @@
 # Модуль Restrictions
 
-**Последнее обновление:** 2026-06-18 18:00:00 (+03:00)
+**Последнее обновление:** 2026-06-19 20:00:00 (+03:00)
 
 ## Назначение
 
@@ -56,6 +56,7 @@
 | `RPG` | `SceneContentData.Restrictions` | Ограничения видимости элемента контента сцены |
 | `Definitions` | `ObjectivesDef.VictoryConditions` | Условия победы раунда Match3 |
 | `Definitions` | `ObjectivesDef.DefeatConditions` | Условия поражения раунда Match3 |
+| `Definitions` | `FeatDef.Restrictions` | Требования/ограничения для взятия или использования черты (prerequisites; checker’ы для персонажа — в планах) |
 | `Match3` | `IObjectivesData.GetVictoryConditions()` / `GetDefeatConditions()` | Доступ к условиям из data-слоя |
 | `ECS` | `RoundEndConditionsData.Victory` / `.Defeat` | Копии условий в ECS для проверки в рантайме |
 

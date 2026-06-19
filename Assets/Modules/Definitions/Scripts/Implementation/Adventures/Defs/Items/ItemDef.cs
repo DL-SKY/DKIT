@@ -16,6 +16,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
     public class ItemDef : AbstractDefinition
     {
         public bool Disabled;
+        public bool IsQuestItem;
 
         public ItemCategory Category;
         public int Level;

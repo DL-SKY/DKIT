@@ -1,4 +1,5 @@
 using Modules.Definitions.Scripts.Defs;
+using Modules.Restrictions.Scripts.Core;
 using System.Collections.Generic;
 
 namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats
@@ -26,5 +27,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats
 
         public string Title;
         public string Description;
+
+        public List<Restriction> Restrictions;
     }
 }

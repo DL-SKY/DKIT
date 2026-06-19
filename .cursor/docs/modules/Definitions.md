@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-06-19 17:40:00 (+03:00)
+**Последнее обновление:** 2026-06-19 20:00:00 (+03:00)
 
 ## Назначение
 
@@ -59,13 +59,15 @@
   Класс персонажа. Поля: `Disabled`, `Tags`, `Title`, `Description`.
 
 - `AncestryDef`  
-  Происхождение персонажа. Поля: `Disabled`, `Size` (`AncestrySize`), `Speed`, `Tags`, `Title`, `Description`.
+  Происхождение персонажа. Поля: `Disabled`, `Size` (`AncestrySize`), `Speed`, `Tags`, `Title`, `Description`, `MaleNames`, `FemaleNames`.  
+  Списки имён — пул для генерации/выбора имени при создании персонажа (связь с `CharacterStateData.Gender` в [State.md](State.md#adventure-charactersstatedata-и-characterstatedata)).
 
 - `FeatDef`  
-  Черта/способность. Поля: `Disabled`, `Type` (`FeatType`), `Level`, `Tags`, `Title`, `Description`.
+  Черта/способность. Поля: `Disabled`, `Type` (`FeatType`), `Level`, `Tags`, `Title`, `Description`, `Restrictions` (`List<Restriction>`).  
+  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Restrictions` — структурированные требования/ограничения (prerequisites, class, ancestry, proficiency и т.д.); формат `Restriction` — см. [Restrictions.md](Restrictions.md). Проверка в runtime пока не реализована; часть условий временно дублируется в `Tags`.
 
 - `ItemDef`  
-  Предмет. Поля: `Disabled`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`.
+  Предмет. Поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`.
 
 - `SpellDef`  
   Заклинание. Поля: `Disabled`, `Type` (`SpellType`), `Level`, `Tags`, `Title`, `Description`.
@@ -119,10 +121,12 @@
 
 - идентификация через `Id` (имя JSON-файла);
 - метаданные (`Title`, `Description`, `Disabled`);
-- классификация (`Type`, `Level`, `Category`, `Size`, `Speed` — где применимо);
-- `Tags` — произвольные строковые метки (источник книги, роль, черновые механические подсказки).
+- классификация (`Type`, `Level`, `Category`, `Size`, `Speed`, `IsQuestItem` — где применимо);
+- `Tags` — произвольные строковые метки (источник книги, роль, черновые механические подсказки);
+- `Restrictions` на `FeatDef` — структурированные требования к черте (см. [Restrictions.md](Restrictions.md));
+- `MaleNames` / `FemaleNames` на `AncestryDef` — пулы имён для создания персонажа.
 
-`Tags` **не являются** финальным механическим слоем: это временный способ группировки и заметок до появления структурированных полей.
+`Tags` **не являются** финальным механическим слоем: это временный способ группировки и заметок до появления структурированных полей (для черт — миграция в `FeatDef.Restrictions`).
 
 ### Разделение Defs и State
 
@@ -187,7 +191,10 @@ Single-def `RuleSettings` лежит в `_ADVENTURES_/RuleSettings/RuleSettings.
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
 - `RuleSettingsDef` ссылается на `RuleDef` и `BattleRuleDef` по id; при добавлении новых правил обновляйте JSON настроек или потребляющий код, если нужно переключить активный набор.
-- Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла).
+- Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)).
+- `AncestryDef.MaleNames` / `FemaleNames` используются при создании персонажа вместе с `CharacterStateData.Gender`; id ancestry — в `CharacterStateData.Ancestry`.
+- `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.
+- `FeatDef.Restrictions` может быть пустым или отсутствовать в JSON; при добавлении ограничений JSON-ключи совпадают с полями `Restriction` (см. [Restrictions.md](Restrictions.md)).
 - Механические эффекты дефов пока не применяются автоматически; `Tags` — вспомогательные метки до появления структурированных модификаторов (см. [Adventure-дефы персонажа](#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.
 - `LoadCollection()` загружает JSON из указанной папки и всех вложенных подпапок; `Id` — только имя файла, без пути.

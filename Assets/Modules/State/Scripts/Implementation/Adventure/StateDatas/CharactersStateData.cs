@@ -12,6 +12,12 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         public List<int> ActivePartyCharacterIds;
     }
 
+    public enum CharacterGender
+    {
+        Male = 0,
+        Female = 1,
+    }
+
     public class CharacterStateData
     {
         public int Id;
@@ -21,6 +27,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         public long DeathTime;
 
         public string Name;
+        public CharacterGender Gender;
         public string Ancestry;
         public string Class;
 

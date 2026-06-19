@@ -22,7 +22,10 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries
 
         public string Title;
         public string Description;
-        
+
+        public List<string> MaleNames;
+        public List<string> FemaleNames;
+
         //public List<string> AbilityBoosts;
         //public List<string> AbilityFlaws;
     }

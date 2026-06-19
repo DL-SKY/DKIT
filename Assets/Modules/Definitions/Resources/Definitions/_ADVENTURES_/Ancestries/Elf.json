@@ -12,5 +12,13 @@
 		"sense-low-light"
 	],
 	"Title": "Эльф",
-	"Description": "Высокий долгоживущий народ с сильными традициями искусства и магии."
+	"Description": "Высокий долгоживущий народ с сильными традициями искусства и магии.",
+	"MaleNames": [
+		"Caladrel",
+		"Seldlon"
+	],
+	"FemaleNames": [
+		"Aleli",
+		"Brivit"
+	]
 }

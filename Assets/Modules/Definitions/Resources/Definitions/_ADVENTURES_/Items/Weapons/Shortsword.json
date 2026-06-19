@@ -1,5 +1,6 @@
 {
 	"Disabled": false,
+	"IsQuestItem": false,
 	"Category": "Weapon",
 	"Level": 0,
 	"Tags": [

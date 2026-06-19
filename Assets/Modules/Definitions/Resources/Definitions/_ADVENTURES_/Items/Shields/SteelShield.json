@@ -1,5 +1,6 @@
 {
 	"Disabled": false,
+	"IsQuestItem": false,
 	"Category": "Shield",
 	"Level": 0,
 	"Tags": [

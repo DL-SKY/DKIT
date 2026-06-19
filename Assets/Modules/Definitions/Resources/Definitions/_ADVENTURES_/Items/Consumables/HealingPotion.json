@@ -1,5 +1,6 @@
 {
 	"Disabled": false,
+	"IsQuestItem": false,
 	"Category": "Consumable",
 	"Level": 1,
 	"Tags": [

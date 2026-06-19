@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-06-18 23:45:00 (+03:00)
+**Последнее обновление:** 2026-06-19 20:00:00 (+03:00)
 
 ## Назначение
 
@@ -59,7 +59,7 @@ Implementation/Adventure/
     AdventureStateDataFactory.cs  ← создание нового профиля
   StateDatas/
     ProfileStateData.cs
-    CharactersStateData.cs        ← CharactersStateData + CharacterStateData + EquippedItemStateData
+    CharactersStateData.cs        ← CharactersStateData + CharacterGender + CharacterStateData + EquippedItemStateData
     InventoryStateData.cs
     AdventuresStateData.cs        ← AdventuresStateData + WorldStateData + AdventureStateData + AdventureStateParamsData
 Implementation/Wallet/
@@ -126,6 +126,13 @@ Implementation/Wallet/
 | `Characters` | `Dictionary<int, CharacterStateData>` | Все персонажи профиля (живые и погибшие) |
 | `ActivePartyCharacterIds` | `List<int>` | Текущий отряд: упорядоченный список id персонажей |
 
+`CharacterGender` — пол персонажа (в том же файле):
+
+| Значение | Описание |
+|----------|----------|
+| `Male` | Мужской |
+| `Female` | Женский |
+
 `CharacterStateData` — данные одного персонажа (в том же файле):
 
 | Поле | Тип | Назначение |
@@ -135,6 +142,7 @@ Implementation/Wallet/
 | `IsDead` | `bool` | Признак смерти (доска славы, исключение из отряда) |
 | `DeathTime` | `long` | Время смерти, Unix ms UTC; `0` — не умер |
 | `Name` | `string` | Отображаемое имя персонажа |
+| `Gender` | `CharacterGender` | Пол персонажа; при генерации имени используется с `AncestryDef.MaleNames` / `FemaleNames` |
 | `Ancestry` | `string` | Id дефа происхождения (`AncestryDef`) |
 | `Class` | `string` | Id дефа класса (`ClassDef`) |
 | `Level` | `int` | Уровень персонажа |
