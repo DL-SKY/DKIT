@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-06-19 20:00:00 (+03:00)
+**Последнее обновление:** 2026-06-19 22:30:00 (+03:00)
 
 ## Назначение
 
@@ -73,7 +73,11 @@
   Заклинание. Поля: `Disabled`, `Type` (`SpellType`), `Level`, `Tags`, `Title`, `Description`.
 
 - `RuleDef`  
-  Общее правило приключения (вне боя). Поля: `Tags`. Стартовый контент: `GeneralRule` (`core`, `exploration`, `social`).
+  Общее правило приключения (вне боя): механика создания/прокачки персонажа и связанные настройки. Поля:
+  - `Tags` — метки набора правил (`core`, `exploration`, `social` и т.п.);
+  - `AbilityBoostPointCost` (`Dictionary<int, int>`) — пороговая таблица стоимости ability boost в очках: **ключ** — пороговое значение (номер буста / уровень шкалы), **значение** — цена в очках для этого порога. В рантайме для текущего номера буста выбирается **ближайший ключ** из словаря — по нему определяется стоимость (например, `4 → 1`, `5 → 2`: до порога 5 стоимость 1, начиная с порога 5 — 2);
+  - `SkillDependencies` (`Dictionary<string, string>`) — привязка навыка к характеристике: **ключ** — id навыка (имя skill, см. `Glossary.Characters`), **значение** — ключ ability (`STR`, `DEX`, `CON`, `INT`, `WIS`, `CHA` из `Glossary.Characters`).  
+  Стартовый контент: `GeneralRule` — `Tags`: `core`, `exploration`, `social`; `AbilityBoostPointCost`: пороги `4 → 1`, `5 → 2`; `SkillDependencies` — все 17 навыков PF2e Remaster.
 
 - `BattleRuleDef`  
   Боевое правило приключения. Поля: `Tags`. Стартовый контент: `GeneralBattleRule` (`core`, `combat`, `encounter`).
@@ -105,9 +109,11 @@
 
 | Слой | Назначение |
 |---|---|
-| `RuleDef` | Статические правила вне боя (исследование, социальное взаимодействие и т.п.) |
+| `RuleDef` | Статические правила вне боя: теги набора + механические таблицы (стоимость ability boost, skill → ability) |
 | `BattleRuleDef` | Статические боевые правила (столкновения, тактика и т.п.) |
 | `RuleSettingsDef` | Single-def, указывающий, какие правила из коллекций считаются активными по умолчанию |
+
+Активный `RuleDef` выбирается через `RuleSettingsDef.Rule` (id JSON-файла, например `GeneralRule`). Потребитель читает поля правила как конфигурацию: для ability boost — ближайший порог в `AbilityBoostPointCost`, для модификатора навыка — `SkillDependencies[skillId]`. Ключи навыков и ability согласованы с `Glossary.Characters` в `Modules.Definitions.Scripts.Implementation.Adventures.Constants`.
 
 Ссылки между дефами — строковые id (имя JSON-файла), по тому же принципу, что `RoundDef -> GameZone/Gems/Objectives`.
 
@@ -190,7 +196,7 @@ Single-def `RuleSettings` лежит в `_ADVENTURES_/RuleSettings/RuleSettings.
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
-- `RuleSettingsDef` ссылается на `RuleDef` и `BattleRuleDef` по id; при добавлении новых правил обновляйте JSON настроек или потребляющий код, если нужно переключить активный набор.
+- `RuleSettingsDef` ссылается на `RuleDef` и `BattleRuleDef` по id; при добавлении новых правил обновляйте JSON настроек или потребляющий код, если нужно переключить активный набор. Поля `RuleDef.AbilityBoostPointCost` и `RuleDef.SkillDependencies` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет) на стороне runtime.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)).
 - `AncestryDef.MaleNames` / `FemaleNames` используются при создании персонажа вместе с `CharacterStateData.Gender`; id ancestry — в `CharacterStateData.Ancestry`.
 - `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.

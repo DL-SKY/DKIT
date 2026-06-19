@@ -3,5 +3,29 @@
 		"core",
 		"exploration",
 		"social"
-	]
+	],
+	"AbilityBoostPointCost": {
+		"4": 1,
+		"5": 2
+	},
+	"SkillDependencies": {
+		"Acrobatics": "DEX",
+		"Arcana": "INT",
+		"Athletics": "STR",
+		"Crafting": "INT",
+		"Deception": "CHA",
+		"Diplomacy": "CHA",
+		"Intimidation": "CHA",
+		"Lore": "INT",
+		"Medicine": "WIS",
+		"Nature": "WIS",
+		"Occultism": "INT",
+		"Performance": "CHA",
+		"Religion": "WIS",
+		"Society": "INT",
+		"Stealth": "DEX",
+		"Survival": "WIS",
+		"Thievery": "DEX",
+		"Perception": "WIS"
+	}
 }

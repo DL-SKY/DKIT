@@ -28,6 +28,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
 
         public string Name;
         public CharacterGender Gender;
+
         public string Ancestry;
         public string Class;
 

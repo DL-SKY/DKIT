@@ -1,0 +1,46 @@
+---
+description: Именование констант в UPPER_SNAKE_CASE (HIT_POINTS)
+globs: **/*.cs
+alwaysApply: false
+---
+
+# Константы — UPPER_SNAKE_CASE
+
+Все объявления констант в C# именуются **заглавными буквами** с **подчёркиванием** между словами.
+
+## Правило
+
+- Имена `const` и `static readonly`, используемых как константы: `HIT_POINTS`, `WORLD_PREFIX`, `GENERAL_RULE`.
+- Слова в имени разделяются `_`; аббревиатуры не слипаются: `MAX_HP`, не `MAXHP`.
+- Значение (`"Barbarian"`, `12`, `"world."`) может отличаться от имени константы — имя всегда в UPPER_SNAKE_CASE.
+- То же для `private const` / `public const` / констант во вложенных `static class`.
+
+## Примеры
+
+```csharp
+// ❌ Плохо
+public const string Barbarian = "Barbarian";
+private const string worldPrefix = "world.";
+public const int HitPoints = 12;
+
+// ✅ Хорошо
+public const string BARBARIAN = "Barbarian";
+private const string WORLD_PREFIX = "world.";
+public const int HIT_POINTS = 12;
+```
+
+```csharp
+// ✅ Глоссарий / категории констант
+public static class Glossary
+{
+    public static class Classes
+    {
+        public const string BARBARIAN = "Barbarian";
+        public const string WIZARD = "Wizard";
+    }
+}
+```
+
+## Зачем
+
+Единый стиль сразу отличает константы от полей, свойств и локальных переменных; проще читать код и ревьюить глоссарии id.
