@@ -1,0 +1,29 @@
+{
+	"Tags": [
+		"location",
+		"tavern"
+	],
+	"IsRepeatable": true,
+	"Type": "Location",
+	"Title": "Таверна Марты",
+	"Description": "Уютная таверна у дороги, где хозяйка Марта знает все местные новости.",
+	"Restrictions": [],
+	"StartScenes": [
+		"entrance"
+	],
+	"Scenes": {
+		"entrance": {
+			"Id": "entrance",
+			"Tags": [],
+			"Content": [
+				{
+					"Type": "Text",
+					"Restrictions": [],
+					"Value": "Вы входите в таверну. За стойкой Марта протирает кружки и приветливо кивает."
+				}
+			],
+			"NotClearScene": false,
+			"Choices": []
+		}
+	}
+}

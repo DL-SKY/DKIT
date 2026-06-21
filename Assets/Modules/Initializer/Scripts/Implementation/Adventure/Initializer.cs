@@ -44,8 +44,9 @@ namespace Modules.Initializer.Scripts.Implementation.Adventure
                 //Core
                 //TODO: state task (load or create new state profile)
                 container.Instantiate<DefinitionsInitTask>(new object[] { 10 }),
-                container.Instantiate<AdventureStateInitTask>(new object[] { 10 }),
+                container.Instantiate<AdventureStateInitTask>(new object[] { 10 }),                
                 container.Instantiate<LocalizationInitTask>(new object[] { 10 }),
+                container.Instantiate<AdventuresManagerInitTask>(new object[] { 10 }),
 
                 new PauseTask(_updater, 1f, 1),
 
@@ -75,9 +76,7 @@ namespace Modules.Initializer.Scripts.Implementation.Adventure
         {
             UnityEngine.Debug.LogError($"OnCompletedCallback() => ");
 
-            string DEBUG_START_SCENARIO = "Tavern";   //DEBUG
             var adventureMainViewModel = _viewModelFactory.Create<AdventureMainViewModel>();
-            adventureMainViewModel.Init(DEBUG_START_SCENARIO);
             _windowsManager.OpenView<AdventureMainView, AdventureMainViewModel>(AdventureMainView.Path, adventureMainViewModel);
         }
 

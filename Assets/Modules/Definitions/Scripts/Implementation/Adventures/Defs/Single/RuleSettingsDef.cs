@@ -16,5 +16,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Single
         /// BattleRuleDef
         /// </summary>
         public string BattleRule;
+
+        public string StartAdventure;
     }
 }

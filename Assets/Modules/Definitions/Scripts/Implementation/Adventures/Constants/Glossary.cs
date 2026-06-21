@@ -1,5 +1,10 @@
 namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 {
+    //
+    //Storyforge
+    //Adventure Tavern by Martha
+    //
+
     public static class Glossary
     {
         public static class Rules

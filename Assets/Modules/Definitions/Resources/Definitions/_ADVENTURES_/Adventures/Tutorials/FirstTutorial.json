@@ -1,0 +1,28 @@
+{
+	"Tags": [
+		"tutorial"
+	],
+	"IsRepeatable": false,
+	"Type": "Adventure",
+	"Title": "Первое обучение",
+	"Description": "Вводное приключение для знакомства с основами игры.",
+	"Restrictions": [],
+	"StartScenes": [
+		"start"
+	],
+	"Scenes": {
+		"start": {
+			"Id": "start",
+			"Tags": [],
+			"Content": [
+				{
+					"Type": "Text",
+					"Restrictions": [],
+					"Value": "Добро пожаловать в приключение. Следуйте подсказкам, чтобы освоить базовые механики."
+				}
+			],
+			"NotClearScene": false,
+			"Choices": []
+		}
+	}
+}

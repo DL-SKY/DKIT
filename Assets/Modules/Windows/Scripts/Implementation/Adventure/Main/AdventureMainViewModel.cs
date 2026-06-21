@@ -7,11 +7,6 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main
     /// </summary>
     public class AdventureMainViewModel : ViewModelBase
     {
-        public void Init(string scenarioName)
-        {
-
-        }
-
         public override void Dispose()
         {
             // Отписки от внешних источников, если добавите вне Subscribe внутри VM.

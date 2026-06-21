@@ -1,5 +1,6 @@
 {
 	"Tags": ["core", "settings"],
 	"Rule": "GeneralRule",
-	"BattleRule": "GeneralBattleRule"
+	"BattleRule": "GeneralBattleRule",
+	"StartAdventure": "AdventureTavernByMartha"
 }

@@ -1,3 +1,4 @@
+using Modules.RPG.Scripts.Adventure;
 using Modules.Restrictions.Scripts.Core;
 using Modules.State.Scripts.Implementation.Adventure;
 using Modules.State.Scripts.Implementation.Adventure.Factories;
@@ -24,7 +25,8 @@ namespace Zenject.Scripts.Adventure.Installers
             //Core classes
             Container.Bind<Modules.Definitions.Scripts.Implementation.Adventures.DefinitionsManager>().AsSingle().NonLazy();
             Container.Bind<AdventureStateManager>().AsSingle().NonLazy();
-            Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();            
+            Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();
+            Container.Bind<AdventuresManager>().AsSingle().NonLazy();            
             //LOCALIZATION!!!
             //...
 
