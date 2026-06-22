@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-21 18:00:00 (+03:00)
+**Последнее обновление:** 2026-06-22 12:27:00 (+03:00)
 
 ## Назначение
 
@@ -204,9 +204,12 @@ RPG-контент (сцены, выборы, действия) описывае
 
 ### Прогресс приключений (`AdventuresStateData`)
 
+- `CurrentAdventureId` / `CurrentSceneId` — активная точка приключения для runtime (`AdventuresManager`).
 - `World.Parameters` — глобальные параметры кампании (`AdventureStateParamsData`).
 - `Adventures` — `Dictionary<string, AdventureStateData>`: прогресс по каждому adventure (`AdventureId`, `SceneId`, `Parameters`).
 - Формат `Parameters` совпадает с `ChoiceActionParamsData` (`Strings` / `Ints` / `Bools`).
+
+`World.Parameters` не является указателем текущей точки; он используется для долгоживущего прогресса мира (например, открытые локации и глобальные события).
 
 ### Создание нового профиля
 

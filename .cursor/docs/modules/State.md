@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-06-21 18:00:00 (+03:00)
+**Последнее обновление:** 2026-06-22 12:27:00 (+03:00)
 
 ## Назначение
 
@@ -208,6 +208,8 @@ Implementation/Wallet/
 
 | Поле | Тип | Назначение |
 |------|-----|------------|
+| `CurrentAdventureId` | `string` | Id активного приключения (runtime-точка входа/продолжения) |
+| `CurrentSceneId` | `string` | Id активной сцены в рамках текущего приключения |
 | `World` | `WorldStateData` | Глобальные параметры мира/кампании |
 | `Adventures` | `Dictionary<string, AdventureStateData>` | Прогресс по отдельным приключениям: adventureId → состояние |
 
@@ -238,6 +240,8 @@ Implementation/Wallet/
 **Резолвинг ключей в state-actions прогресса:**
 - `world.*` → `Adventures.World.Parameters`;
 - `adventure.*` → `Adventures[adventureId].Parameters` (нужен `adventureId` в state-action / в `Params.Strings.adventureId` у choice-action).
+
+`CurrentAdventureId` / `CurrentSceneId` не относятся к словарям прогресса `world.*` и `adventure.*`; это отдельный контракт активной runtime-точки.
 
 ### Adventure: создание нового профиля
 

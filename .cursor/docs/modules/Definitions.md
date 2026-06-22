@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-06-19 22:30:00 (+03:00)
+**Последнее обновление:** 2026-06-22 12:45:00 (+03:00)
 
 ## Назначение
 
@@ -32,7 +32,7 @@
 
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
-  - single-def: `GlobalSettings`, `RuleSettings`;
+  - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `RuleSettings` (`RuleSettingsDef`);
   - коллекции: `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`.
 
 ### Соглашение по наследованию adventure-дефов
@@ -51,9 +51,92 @@
 | `RuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Rules` |
 | `BattleRuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/BattleRules` |
 | `RuleSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/RuleSettings/RuleSettings` (single) |
+| `ProjectGlobalSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/GlobalSettings/GlobalSettings` (single) |
+
+### Справочник полей Adventure-дефов (сверка C# ↔ JSON)
+
+`Id` задаётся загрузчиком из имени JSON-файла (`[JsonIgnore]` в `AbstractDefinition`), в JSON не пишется.
+
+Перечисления в JSON сериализуются **строковыми именами** enum (`"Medium"`, `"Weapon"`, `"GeneralFeat"`, `"Location"` и т.д.). `Loader` использует `JsonConvert.DeserializeObject` без кастомных настроек.
+
+| Def | Поле (C#) | Тип | В JSON | В текущем контенте |
+|---|---|---|---|---|
+| `ProjectGlobalSettingsDef` | `SaveName` | `string` | `SaveName` | да |
+| | `SaveFolder` | `string` | `SaveFolder` | да |
+| | `FileExtension` | `string` | `FileExtension` | да |
+| | `EnabledEncryption` | `bool` | `EnabledEncryption` | да |
+| | `EncryptionKey` | `string` | `EncryptionKey` | да |
+| `RuleSettingsDef` | `Tags` | `List<string>` | `Tags` | да |
+| | `Rule` | `string` | `Rule` | да, id `RuleDef` (`"GeneralRule"`) |
+| | `BattleRule` | `string` | `BattleRule` | да, id `BattleRuleDef` (`"GeneralBattleRule"`) |
+| | `StartAdventure` | `string` | `StartAdventure` | да, id `AdventureDef` (`"AdventureTavernByMartha"`) |
+| `RuleDef` | `Tags` | `List<string>` | `Tags` | да |
+| | `AbilityBoostPointCost` | `Dictionary<int, int>` | `AbilityBoostPointCost` | да; ключи в JSON — строки (`"4"`, `"5"`) |
+| | `SkillDependencies` | `Dictionary<string, string>` | `SkillDependencies` | да, 18 навыков (включая `Perception`) |
+| `BattleRuleDef` | `Tags` | `List<string>` | `Tags` | да |
+| `ClassDef` | `Disabled` | `bool` | `Disabled` | да |
+| | `Tags` | `List<string>` | `Tags` | да |
+| | `Title` | `string` | `Title` | да |
+| | `Description` | `string` | `Description` | да |
+| `AncestryDef` | `Disabled` | `bool` | `Disabled` | да |
+| | `Size` | `AncestrySize` | `Size` | да (`Small` / `Medium` / `Large`) |
+| | `Speed` | `int` | `Speed` | да |
+| | `Tags` | `List<string>` | `Tags` | да |
+| | `Title` | `string` | `Title` | да |
+| | `Description` | `string` | `Description` | да |
+| | `MaleNames` | `List<string>` | `MaleNames` | да |
+| | `FemaleNames` | `List<string>` | `FemaleNames` | да |
+| `FeatDef` | `Disabled` | `bool` | `Disabled` | да |
+| | `Type` | `FeatType` | `Type` | да |
+| | `Level` | `int` | `Level` | да |
+| | `Tags` | `List<string>` | `Tags` | да (часто пустой) |
+| | `Title` | `string` | `Title` | да |
+| | `Description` | `string` | `Description` | да |
+| | `Restrictions` | `List<Restriction>` | `Restrictions` | да, но везде `[]` |
+| `ItemDef` | `Disabled` | `bool` | `Disabled` | да |
+| | `IsQuestItem` | `bool` | `IsQuestItem` | да, везде `false` |
+| | `Category` | `ItemCategory` | `Category` | да |
+| | `Level` | `int` | `Level` | да |
+| | `Tags` | `List<string>` | `Tags` | да |
+| | `Title` | `string` | `Title` | да |
+| | `Description` | `string` | `Description` | да |
+| | `Price` | `int` | `Price` | да |
+| `SpellDef` | `Disabled` | `bool` | `Disabled` | да |
+| | `Type` | `SpellType` | `Type` | да |
+| | `Level` | `int` | `Level` | да (`0` для cantrip) |
+| | `Tags` | `List<string>` | `Tags` | да |
+| | `Title` | `string` | `Title` | да |
+| | `Description` | `string` | `Description` | да |
+| `AdventureDef` | см. `AdventureData` | — | — | см. ниже |
+
+**Значения enum (C# = JSON):**
+
+| Enum | Значения |
+|---|---|
+| `AncestrySize` | `Small`, `Medium`, `Large` |
+| `FeatType` | `AncestryFeat`, `BackgroundSkillFeat`, `SkillFeat`, `GeneralFeat`, `ClassFeat`, `ClassFeature`, `Boost` |
+| `ItemCategory` | `Weapon`, `Armor`, `Shield`, `Consumable`, `Equipment` |
+| `SpellType` | `Cantrip`, `Spell`, `Focus`, `Ritual` |
+| `AdventureType` | `Adventure`, `Chapter`, `Location` |
 
 - `AdventureDef`  
-  Деф приключения; наследует `AdventureData` из модуля `RPG` (сцены, выборы, ограничения, метаданные). Подробнее о полях — в [RPG.md](RPG.md#модель-данных-adventure).
+  Деф приключения; наследует `AdventureData` из модуля `RPG`. Поля контракта:
+
+  | Поле | Тип | В текущем JSON |
+  |---|---|---|
+  | `Disabled` | `bool` | нет (опционально) |
+  | `Tags` | `List<string>` | да |
+  | `IgnoredTags` | `List<string>` | нет (опционально) |
+  | `IsRepeatable` | `bool` | да |
+  | `Type` | `AdventureType` | да |
+  | `AdventureLinks` | `List<string>` | нет (опционально) |
+  | `Title` | `string` | да |
+  | `Description` | `string` | да |
+  | `Restrictions` | `List<Restriction>` | да (часто `[]`) |
+  | `StartScenes` | `List<string>` | да |
+  | `Scenes` | `Dictionary<string, SceneData>` | да |
+
+  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). В текущем контенте `ForestPath` содержит `Choices` с `Actions` типа `GoToScene`.
 
 - `ClassDef`  
   Класс персонажа. Поля: `Disabled`, `Tags`, `Title`, `Description`.
@@ -64,7 +147,7 @@
 
 - `FeatDef`  
   Черта/способность. Поля: `Disabled`, `Type` (`FeatType`), `Level`, `Tags`, `Title`, `Description`, `Restrictions` (`List<Restriction>`).  
-  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Restrictions` — структурированные требования/ограничения (prerequisites, class, ancestry, proficiency и т.д.); формат `Restriction` — см. [Restrictions.md](Restrictions.md). Проверка в runtime пока не реализована; часть условий временно дублируется в `Tags`.
+  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Restrictions` — структурированные требования/ограничения (prerequisites, class, ancestry, proficiency и т.д.); формат `Restriction` — см. [Restrictions.md](Restrictions.md). Проверка в runtime пока не реализована; в стартовом контенте `Restrictions` везде пустые, часть условий временно дублируется в `Tags`.
 
 - `ItemDef`  
   Предмет. Поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`.
@@ -77,13 +160,16 @@
   - `Tags` — метки набора правил (`core`, `exploration`, `social` и т.п.);
   - `AbilityBoostPointCost` (`Dictionary<int, int>`) — пороговая таблица стоимости ability boost в очках: **ключ** — пороговое значение (номер буста / уровень шкалы), **значение** — цена в очках для этого порога. В рантайме для текущего номера буста выбирается **ближайший ключ** из словаря — по нему определяется стоимость (например, `4 → 1`, `5 → 2`: до порога 5 стоимость 1, начиная с порога 5 — 2);
   - `SkillDependencies` (`Dictionary<string, string>`) — привязка навыка к характеристике: **ключ** — id навыка (имя skill, см. `Glossary.Characters`), **значение** — ключ ability (`STR`, `DEX`, `CON`, `INT`, `WIS`, `CHA` из `Glossary.Characters`).  
-  Стартовый контент: `GeneralRule` — `Tags`: `core`, `exploration`, `social`; `AbilityBoostPointCost`: пороги `4 → 1`, `5 → 2`; `SkillDependencies` — все 17 навыков PF2e Remaster.
+  Стартовый контент: `GeneralRule` — `Tags`: `core`, `exploration`, `social`; `AbilityBoostPointCost`: пороги `4 → 1`, `5 → 2`; `SkillDependencies` — 18 навыков PF2e Remaster (включая `Perception`).
 
 - `BattleRuleDef`  
   Боевое правило приключения. Поля: `Tags`. Стартовый контент: `GeneralBattleRule` (`core`, `combat`, `encounter`).
 
 - `RuleSettingsDef`  
-  Single-def настроек правил; связывает активные правила по id. Поля: `Tags`, `Rule` (`RuleDef`), `BattleRule` (`BattleRuleDef`). Стартовое значение: `Rule = "GeneralRule"`, `BattleRule = "GeneralBattleRule"`.
+  Single-def настроек правил и стартовой точки приключения. Поля: `Tags`, `Rule` (id `RuleDef`), `BattleRule` (id `BattleRuleDef`), `StartAdventure` (id `AdventureDef`). Стартовые значения: `Rule = "GeneralRule"`, `BattleRule = "GeneralBattleRule"`, `StartAdventure = "AdventureTavernByMartha"`.
+
+- `ProjectGlobalSettingsDef`  
+  Глобальные настройки adventure-проекта (сейв профиля). Поля: `SaveName`, `SaveFolder`, `FileExtension`, `EnabledEncryption`, `EncryptionKey`. Используется `AdventureStateInitTask` для инициализации `AdventureStateManager`.
 
 - `RoundDef`  
   Деф раунда Match3; связывает `GameZone`, `Gems`, `Objectives` по id.
@@ -161,17 +247,20 @@ Runtime в будущем читает деф → вычисляет или пр
 
 Стартовый контент ориентирован на PF2e Player Core (и смежные книги — в `Tags`). Подпапки используются для удобства редактирования; `LoadCollection()` загружает их рекурсивно, `Id` — только имя файла.
 
-| Коллекция | Папка | Примеры подпапок | Ориентир по объёму |
+| Коллекция | Папка | Примеры подпапок | Фактический объём (2026-06-22) |
 |---|---|---|---|
-| `Classes` | `_ADVENTURES_/Classes` | — | ~24 класса |
-| `Ancestries` | `_ADVENTURES_/Ancestries` | — | 8 ancestries Player Core |
-| `Feats` | `_ADVENTURES_/Feats` | `General`, `Ancestry`, `Class`, `ClassFeature`, `Skill` | ~15+ черт |
-| `Spells` | `_ADVENTURES_/Spells` | `Cantrips`, `Arcane`, `Divine`, `Primal` | ~13+ заклинаний |
-| `Items` | `_ADVENTURES_/Items` | `Weapons`, `Armor`, `Shields`, `Consumables`, `Equipment` | ~18+ предметов |
-| `Rules` | `_ADVENTURES_/Rules` | — | 1+ правило (`GeneralRule`) |
-| `BattleRules` | `_ADVENTURES_/BattleRules` | — | 1+ боевое правило (`GeneralBattleRule`) |
+| `Adventures` | `_ADVENTURES_/Adventures` | `Locations`, `Tutorials`, `Debug` | 4 приключения |
+| `Classes` | `_ADVENTURES_/Classes` | — | 24 класса |
+| `Ancestries` | `_ADVENTURES_/Ancestries` | — | 8 ancestries |
+| `Feats` | `_ADVENTURES_/Feats` | `General`, `Ancestry`, `Class`, `ClassFeature`, `Skill` | 15 черт |
+| `Spells` | `_ADVENTURES_/Spells` | `Cantrips`, `Arcane`, `Divine` | 13 заклинаний |
+| `Items` | `_ADVENTURES_/Items` | `Weapons`, `Armor`, `Shields`, `Consumables`, `Equipment` | 18 предметов |
+| `Rules` | `_ADVENTURES_/Rules` | — | 1 правило (`GeneralRule`) |
+| `BattleRules` | `_ADVENTURES_/BattleRules` | — | 1 боевое правило (`GeneralBattleRule`) |
 
-Single-def `RuleSettings` лежит в `_ADVENTURES_/RuleSettings/RuleSettings.json`.
+Single-def:
+- `RuleSettings` — `_ADVENTURES_/RuleSettings/RuleSettings.json`
+- `GlobalSettings` — `_ADVENTURES_/GlobalSettings/GlobalSettings.json`
 
 ## Добавление нового def (явный чек-лист)
 
@@ -196,7 +285,7 @@ Single-def `RuleSettings` лежит в `_ADVENTURES_/RuleSettings/RuleSettings.
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
-- `RuleSettingsDef` ссылается на `RuleDef` и `BattleRuleDef` по id; при добавлении новых правил обновляйте JSON настроек или потребляющий код, если нужно переключить активный набор. Поля `RuleDef.AbilityBoostPointCost` и `RuleDef.SkillDependencies` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет) на стороне runtime.
+- `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost` и `RuleDef.SkillDependencies` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет) на стороне runtime.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)).
 - `AncestryDef.MaleNames` / `FemaleNames` используются при создании персонажа вместе с `CharacterStateData.Gender`; id ancestry — в `CharacterStateData.Ancestry`.
 - `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.
@@ -207,3 +296,5 @@ Single-def `RuleSettings` лежит в `_ADVENTURES_/RuleSettings/RuleSettings.
 - Для коллекций id должен быть уникален в рамках всего дерева папки; при совпадении имён побеждает первый загруженный деф, дубликат пишется в `LogWarning`.
 - При ссылках между дефами (`RoundDef -> GameZone/Gems/Objectives`) валидность обеспечивается только на этапе использования (`TryGetValue`), поэтому полезно держать ручную/авто-проверку ссылок.
 - JSON-ключи должны точно совпадать с именами публичных полей C#-классов (латиница; см. также [Restrictions.md](Restrictions.md#соглашения-по-именованию)).
+- Отсутствующие в JSON опциональные поля получают значения по умолчанию CLR (`false`, `0`, `null`). Для `AdventureDef` в текущем контенте не используются `Disabled`, `IgnoredTags`, `AdventureLinks`.
+- Enum-поля в JSON задаются строковыми именами членов enum, не числовыми кодами.
