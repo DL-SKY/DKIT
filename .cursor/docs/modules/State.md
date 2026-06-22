@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-06-19 20:00:00 (+03:00)
+**Последнее обновление:** 2026-06-21 18:00:00 (+03:00)
 
 ## Назначение
 
@@ -22,8 +22,9 @@
 
 1. Геймплейный код создает экшен с входными данными (например, `new ChangeWalletResourceStateAction<StateData>(type, delta)`).
 2. Вызывает `stateLogic.ProcessAction(action)` или `ProcessAction(action, forceBatch: true)`.
-3. `StateLogic` выполняет пайплайн: `Validate` → `Execute` → (опционально) `SaveState`.
-4. Сохранение на диск батчится: не после каждого экшена, а по правилам `batchSize` / `forceBatch` (см. ниже).
+3. `StateLogic` выполняет пайплайн: `Validate` → `Execute` → `StateChanged` → (опционально) `SaveState`.
+4. После успешного `Execute` подписчики получают `StateChanged` с `StateChangeSource` из экшена.
+5. Сохранение на диск батчится: не после каждого экшена, а по правилам `batchSize` / `forceBatch` (см. ниже).
 
 ## Структура папок
 
@@ -31,7 +32,7 @@
 - `Scripts/Interfaces` — `IStateData`, `IStateManager<TStateData>`.
 - `Scripts/Actions` — общие контракты и исполнитель:
   - `Interfaces/IStateAction.cs`, `IStateLogic.cs`
-  - `Models/StateActionValidationResult.cs`
+  - `Models/StateActionValidationResult.cs`, `StateChangeSource.cs`
   - `Core/StateActionBase.cs`, `StateLogic.cs`
 - `Scripts/Implementation/Match3` — Match-3 state, manager, logic, actions.
 - `Scripts/Implementation/Adventure` — Adventure state, manager, logic, actions, factories.
@@ -94,13 +95,29 @@ Implementation/Wallet/
   Регистрация в DI: `IAdventureStateDataFactory → AdventureStateDataFactory`, `AsTransient()`.
 
 - `StateLogic<TStateData>`  
-  Единая точка применения state-actions. Принимает `IStateManager`, callback сохранения и `batchSize`.
+  Единая точка применения state-actions. Принимает `IStateManager`, callback сохранения и `batchSize`.  
+  После успешного `Execute` вызывает `StateChanged` с `action.Source`.
 
 - `Match3StateLogic` / `AdventureStateLogic`  
   Наследники `StateLogic<StateData>` для конкретных веток. Зарегистрированы в DI (`ProjectInstaller`).
 
+- `IStateLogic<TStateData>`  
+  Контракт logic: `ProcessAction(...)` и событие `StateChanged`.
+
+- `StateChangeSource`  
+  Enum источника изменения состояния (контекст: какой тип экшена изменил state).  
+  Каждый state-action объявляет своё значение через `IStateAction.Source`.
+
+  | Значение | Экшен |
+  |----------|-------|
+  | `ModifyAdventureProgressInt` | `ModifyAdventureProgressIntStateAction` |
+  | `SetAdventureProgressBool` | `SetAdventureProgressBoolStateAction` |
+  | `ChangeWalletResource` | `ChangeWalletResourceStateAction<TStateData>` |
+  | `SetWalletResource` | `SetWalletResourceStateAction<TStateData>` |
+  | `SetProfileUpdateTime` | `SetProfileUpdateTimeStateAction` (Match-3 и Adventure) |
+
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
-  Контракт экшена: `Validate(state)` + `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
+  Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
 
 - `StateActionValidationResult`  
   Результат валидации (`Ok` / `Fail(message, errorCode)`).
@@ -249,10 +266,15 @@ protected override StateData CreateNewState(string profileId)
 **DI (Adventure `ProjectInstaller`):**
 
 ```csharp
+Container.Bind<AdventureStateManager>().AsSingle().NonLazy();
+Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();
+Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
 Container.Bind<IAdventureStateDataFactory>().To<AdventureStateDataFactory>().AsTransient();
 ```
 
-`AsTransient()` — при каждом `Resolve` создаётся новый экземпляр фабрики (не singleton). После выхода из `CreateNewState()` ссылок на фабрику нет; Zenject её явно не удаляет — объект собирается GC.
+`AdventuresManager` (`Modules.RPG`) — отдельный singleton, не наследник `AdventureStateLogic`. Подписывается на `AdventureStateLogic.StateChanged` в `Init()` и отписывается в `Dispose()` (см. [RPG.md](RPG.md)).
+
+`AsTransient()` для фабрики — при каждом `Resolve` создаётся новый экземпляр (не singleton). После выхода из `CreateNewState()` ссылок на фабрику нет; Zenject её явно не удаляет — объект собирается GC.
 
 ## Батчинг сохранений
 
@@ -281,6 +303,13 @@ stateLogic.ProcessAction(new ChangeWalletResourceStateAction<StateData>(resource
 
 // Принудительное сохранение после экшена
 stateLogic.ProcessAction(new SetProfileUpdateTimeStateAction(updateTime), forceBatch: true);
+
+// Подписка на изменения state (после успешного Execute)
+stateLogic.StateChanged += source =>
+{
+    if (source == StateChangeSource.ChangeWalletResource)
+        RefreshWalletUi();
+};
 ```
 
 ## Готовые state-actions
@@ -292,12 +321,14 @@ stateLogic.ProcessAction(new SetProfileUpdateTimeStateAction(updateTime), forceB
 
 ## Как добавить новый state-action
 
-1. Создать класс в `Implementation/<Mode>/Actions/` (или в `Implementation/Wallet/Actions/` для общих секций).
-2. Унаследовать от `StateActionBase<TStateData>`.
-3. Принять в конструктор только данные, нужные для изменения.
-4. Переопределить `Validate(state)` при необходимости.
-5. Реализовать `Execute(state)` — единственное место мутации соответствующей секции состояния.
-6. Вызывать через `stateLogic.ProcessAction(new YourAction(...))`.
+1. Добавить значение в `StateChangeSource` (`Actions/Models/StateChangeSource.cs`).
+2. Создать класс в `Implementation/<Mode>/Actions/` (или в `Implementation/Wallet/Actions/` для общих секций).
+3. Унаследовать от `StateActionBase<TStateData>`.
+4. Переопределить `Source` — вернуть новое значение enum.
+5. Принять в конструктор только данные, нужные для изменения.
+6. Переопределить `Validate(state)` при необходимости.
+7. Реализовать `Execute(state)` — единственное место мутации соответствующей секции состояния.
+8. Вызывать через `stateLogic.ProcessAction(new YourAction(...))`.
 
 Для общих секций (например, wallet) можно использовать marker-интерфейс вроде `IWalletStateDataOwner` и generic-экшен с ограничением `where TStateData : IWalletStateDataOwner`.
 
@@ -326,4 +357,5 @@ stateLogic.ProcessAction(new SetProfileUpdateTimeStateAction(updateTime), forceB
 - Для Adventure новый профиль создаётся через `IAdventureStateDataFactory` (`AdventureStateDataFactory`).
 - Реализованы секции Adventure state: `Characters`, `Inventory`, `Adventures` (см. выше).
 - Прямых gameplay-мутаций `State` вне state-actions сейчас нет.
-- `ProcessAction` пока не вызывается из геймплейного кода — инфраструктура готова к подключению.
+- `ProcessAction` вызывается из choice-executors (`SetFlagChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor`) и из тестового кода `AdventureStateManager`.
+- `AdventureStateLogic.StateChanged` используется `AdventuresManager` для реакции на изменения state (подписка в `Init()`, отписка в `Dispose()`).

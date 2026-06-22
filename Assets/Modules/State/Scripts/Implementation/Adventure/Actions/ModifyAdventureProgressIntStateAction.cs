@@ -5,6 +5,8 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class ModifyAdventureProgressIntStateAction : StateActionBase<StateData>
     {
+        public override StateChangeSource Source => StateChangeSource.ModifyAdventureProgressInt;
+
         private readonly string _key;
         private readonly int _delta;
         private readonly string _adventureId;

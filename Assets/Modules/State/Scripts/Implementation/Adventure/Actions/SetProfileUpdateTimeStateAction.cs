@@ -5,6 +5,8 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class SetProfileUpdateTimeStateAction : StateActionBase<StateData>
     {
+        public override StateChangeSource Source => StateChangeSource.SetProfileUpdateTime;
+
         private readonly long _updateTime;
 
         public SetProfileUpdateTimeStateAction(long updateTime)

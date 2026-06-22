@@ -26,7 +26,7 @@ namespace Zenject.Scripts.Adventure.Installers
             Container.Bind<Modules.Definitions.Scripts.Implementation.Adventures.DefinitionsManager>().AsSingle().NonLazy();
             Container.Bind<AdventureStateManager>().AsSingle().NonLazy();
             Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();
-            Container.Bind<AdventuresManager>().AsSingle().NonLazy();            
+            Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
             //LOCALIZATION!!!
             //...
 

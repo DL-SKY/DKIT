@@ -16,7 +16,7 @@ namespace Modules.Initializer.Scripts.Implementation.Tasks.Core
 
         public override void Run()
         {
-            _adventuresManager.Init(_definitionsManager.RuleSettings.StartAdventure);
+            _adventuresManager.Init();
             Complete();
         }
     }

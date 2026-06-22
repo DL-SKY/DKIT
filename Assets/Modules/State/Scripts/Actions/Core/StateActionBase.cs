@@ -7,6 +7,8 @@ namespace Modules.State.Scripts.Actions.Core
     public abstract class StateActionBase<TStateData> : IStateAction<TStateData>
         where TStateData : class, IStateData, new()
     {
+        public abstract StateChangeSource Source { get; }
+
         public virtual StateActionValidationResult Validate(TStateData state)
         {
             return StateActionValidationResult.Ok;

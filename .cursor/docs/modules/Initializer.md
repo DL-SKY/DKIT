@@ -29,8 +29,11 @@
 - `TaskBase`  
   Базовый контракт задач (`Run`, `Weight`, `Complete()`, `Fail(errorCode)`).
 
-- `DefinitionsInitTask`, `Match3StateInitTask`, `AdventureStateInitTask`, `LocalizationInitTask`  
+- `DefinitionsInitTask`, `Match3StateInitTask`, `AdventureStateInitTask`, `AdventuresManagerInitTask`, `LocalizationInitTask`  
   Ядро стартовой инициализации данных.
+
+- `AdventuresManagerInitTask`  
+  Вызывает `AdventuresManager.Init()` (без параметров). Выполняется после `DefinitionsInitTask` и `AdventureStateInitTask`. На этом этапе менеджер только подписывается на `AdventureStateLogic.StateChanged`.
 
 - `LoadSceneTask`, `PauseTask`, `CloseViewTask`  
   Технические задачи для сцены, пауз/филлеров и закрытия окон.

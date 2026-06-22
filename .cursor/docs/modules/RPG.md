@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-19 20:00:00 (+03:00)
+**Последнее обновление:** 2026-06-21 18:00:00 (+03:00)
 
 ## Назначение
 
@@ -22,7 +22,7 @@
 ## Структура модуля
 
 - `Assets/Modules/RPG/Scripts/Adventure`
-  - `AdventuresManager` — будущий оркестратор запуска/переходов по приключениям.
+  - `AdventuresManager` — оркестратор приключения (стартовая инициализация, реакция на изменения state). Реализует `IDisposable`.
   - `IAdventureFlowController` — интерфейс контроллера переходов между сценами/узлами.
   - `Data/*` — модели adventure/scene/content.
   - `Choice/*` — модели выбора и действий по выбору.
@@ -130,6 +130,33 @@
 
 Остальные значения `ChoiceActionType` объявлены в enum, но пока не подключены к фабрике.
 
+## `AdventuresManager`
+
+Файл: `Scripts/Adventure/AdventuresManager.cs`.
+
+Оркестратор adventure-runtime. **Не наследует** `AdventureStateLogic` — использует композицию: через Zenject инжектируется `AdventureStateLogic` и подписка идёт на его событие `StateChanged`.
+
+| Метод / член | Назначение |
+|---|---|
+| `Init()` | Подписывается на `AdventureStateLogic.StateChanged` через `Subscribe()` |
+| `Dispose()` | Вызывает `Unsubscribe()` (реализация `IDisposable`) |
+| `Subscribe()` / `Unsubscribe()` | Подписка / отписка на `AdventureStateLogic.StateChanged` |
+| `OnStateChangedHandler(source)` | Обработчик изменений state по `StateChangeSource` |
+| `_adventureId` | Зарезервировано для runtime-контекста текущего приключения (пока не задаётся в `Init`) |
+
+**DI (Adventure `ProjectInstaller`):**
+
+```csharp
+Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();
+Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
+```
+
+`BindInterfacesAndSelfTo` регистрирует singleton и интерфейс `IDisposable` для автоматического вызова `Dispose()` при уничтожении контейнера.
+
+**Инициализация:** `AdventuresManagerInitTask` вызывает `Init()` без параметров после загрузки definitions и state (см. [Initializer.md](Initializer.md)). Id стартового приключения (`RuleSettings.StartAdventure`) в менеджер пока не передаётся.
+
+Полная бизнес-логика оркестратора (переходы по сценам, выборы, применение actions) — в разработке; сейчас реализован каркас подписки на изменения state.
+
 ## Ключи статов и параметров (договоренность)
 
 Для персонажей, партии, квестов и мира рекомендуется хранить значения в состоянии через словари по строковым ключам:
@@ -214,7 +241,7 @@ RPG-контент (сцены, выборы, действия) описывае
 6. Для каждого `ChoiceActionData` из `Actions` фабрика создает `IChoiceActionExecutor` и вызывает `Execute()`.
 7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
-Полный runtime-поток еще не замкнут: `AdventuresManager` не реализован, `IAdventureFlowController` пока только объявлен.
+Полный runtime-поток еще не замкнут: `IAdventureFlowController` пока только объявлен; `AdventuresManager` инициализируется и слушает `StateChanged`, но не управляет сценами и выборами.
 
 ## Текущее состояние реализации
 
@@ -229,7 +256,7 @@ RPG-контент (сцены, выборы, действия) описывае
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
 - Реализованы executors: `GoToSceneChoiceActionExecutor`, `SetFlagChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor` (два последних через `AdventureStateLogic`).
 - Объявлен интерфейс `IAdventureFlowController`.
-- `AdventuresManager` содержит только заготовку и не выполняет бизнес-логику.
+- `AdventuresManager` зарегистрирован в DI (`BindInterfacesAndSelfTo`), инициализируется через `AdventuresManagerInitTask`, подписан на `AdventureStateLogic.StateChanged`.
 - Отсутствуют DI-биндинги фабрики/контроллеров в installer, валидаторы adventure-данных, сериализация и тесты модуля.
 
 ## Рекомендации по дальнейшему развитию
@@ -239,10 +266,10 @@ RPG-контент (сцены, выборы, действия) описывае
 3. Зарегистрировать в Zenject installer:
    - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`;
    - реализацию `IAdventureFlowController`.
-4. Реализовать `AdventuresManager`:
-   - запуск приключения;
-   - вычисление доступных выборов;
-   - применение списка `ChoiceActionData` через фабрику executors.
+4. Расширить `AdventuresManager`:
+   - переходы по сценам и выборы;
+   - применение списка `ChoiceActionData` через фабрику executors;
+   - реакция на `StateChanged` для обновления UI / runtime-контекста.
 5. Подключить остальные `ChoiceActionType` к state-actions в `Modules.State`.
 6. Добавить state-actions для персонажей (`char.*`) и инвентаря; сервис применения механик из дефов в `CharacterStateData`.
 7. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).

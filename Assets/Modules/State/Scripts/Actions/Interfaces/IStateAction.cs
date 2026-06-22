@@ -5,6 +5,8 @@ namespace Modules.State.Scripts.Actions.Interfaces
 {
     public interface IStateAction<TStateData> where TStateData : class, IStateData, new()
     {
+        StateChangeSource Source { get; }
+
         StateActionValidationResult Validate(TStateData state);
         void Execute(TStateData state);
     }

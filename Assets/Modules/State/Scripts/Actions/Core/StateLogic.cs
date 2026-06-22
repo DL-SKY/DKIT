@@ -8,6 +8,8 @@ namespace Modules.State.Scripts.Actions.Core
     public class StateLogic<TStateData> : IStateLogic<TStateData>
         where TStateData : class, IStateData, new()
     {
+        public event Action<StateChangeSource> StateChanged;
+
         private readonly IStateManager<TStateData> _stateManager;
         private readonly Action _saveAction;
         private readonly int _batchSize;
@@ -42,6 +44,7 @@ namespace Modules.State.Scripts.Actions.Core
                 return validationResult;
 
             action.Execute(state);
+            StateChanged?.Invoke(action.Source);
 
             _pendingActionCount++;
 
