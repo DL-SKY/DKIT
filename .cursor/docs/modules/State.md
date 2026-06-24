@@ -209,7 +209,7 @@ Implementation/Wallet/
 | Поле | Тип | Назначение |
 |------|-----|------------|
 | `CurrentAdventureId` | `string` | Id активного приключения (runtime-точка входа/продолжения) |
-| `CurrentSceneId` | `string` | Id активной сцены в рамках текущего приключения |
+| `CurrentAdventureSceneId` | `string` | Id активной сцены в рамках текущего приключения (runtime-точка для `AdventuresManager`) |
 | `World` | `WorldStateData` | Глобальные параметры мира/кампании |
 | `Adventures` | `Dictionary<string, AdventureStateData>` | Прогресс по отдельным приключениям: adventureId → состояние |
 
@@ -241,7 +241,7 @@ Implementation/Wallet/
 - `world.*` → `Adventures.World.Parameters`;
 - `adventure.*` → `Adventures[adventureId].Parameters` (нужен `adventureId` в state-action / в `Params.Strings.adventureId` у choice-action).
 
-`CurrentAdventureId` / `CurrentSceneId` не относятся к словарям прогресса `world.*` и `adventure.*`; это отдельный контракт активной runtime-точки.
+`CurrentAdventureId` / `CurrentAdventureSceneId` не относятся к словарям прогресса `world.*` и `adventure.*`; это отдельный контракт активной runtime-точки. Не путать с `AdventureStateData.SceneId` в `Adventures[adventureId]` — там хранится прогресс конкретного приключения.
 
 ### Adventure: создание нового профиля
 

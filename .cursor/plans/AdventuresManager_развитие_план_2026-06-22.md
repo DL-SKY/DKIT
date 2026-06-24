@@ -15,8 +15,9 @@
 ## 2. Текущее состояние (как есть)
 
 - `AdventuresManager` подписан на `AdventureStateLogic.StateChanged`, но пока только логирует событие.
-- В state есть `AdventuresStateData.Adventures[adventureId]` с полями `AdventureId`, `SceneId`, `Parameters`.
-- Явного централизованного указателя на активную точку (`current adventure/scene`) в state сейчас нет.
+- В `AdventuresStateData` добавлены поля активной runtime-точки: `CurrentAdventureId`, `CurrentAdventureSceneId`.
+- В state есть `AdventuresStateData.Adventures[adventureId]` с полями `AdventureId`, `SceneId`, `Parameters` (прогресс отдельного приключения; не путать с `CurrentAdventureSceneId`).
+- State-actions для установки активной точки и значения `StateChangeSource` для навигации ещё не реализованы.
 - В `RuleSettingsDef` есть `StartAdventure`, но нет отдельного `StartScene`.
 
 ## 3. Решения по контракту (утверждение перед кодом)
@@ -26,7 +27,8 @@
 Решение зафиксировано:
 - активная точка хранится в `AdventuresStateData` в полях:
   - `CurrentAdventureId`
-  - `CurrentSceneId`
+  - `CurrentAdventureSceneId`
+- `AdventureStateData.SceneId` в словаре `Adventures` — прогресс конкретного приключения; `CurrentAdventureSceneId` — активная сцена для runtime (`AdventuresManager`).
 - `World.Parameters` не используется как указатель текущей точки; это слой глобального прогресса мира (открытые локации, события и т.п.).
 
 ### 3.2 Источник стартовой сцены
@@ -41,8 +43,10 @@
 
 ## Этап 1. Контракт state для текущей точки
 
+Статус: частично выполнено (поля `CurrentAdventureId` / `CurrentAdventureSceneId` в `AdventuresStateData`).
+
 Задачи:
-- добавить хранение активной пары `AdventureId/SceneId` в state;
+- ~~добавить хранение активной пары `CurrentAdventureId` / `CurrentAdventureSceneId` в state~~;
 - добавить state-action(ы) для установки текущей точки;
 - расширить `StateChangeSource` значениями для навигационных изменений.
 
@@ -53,7 +57,7 @@
 ## Этап 2. Инициализация AdventuresManager
 
 Задачи:
-- при `Init()` читать активную точку из state;
+- при `Init()` читать `CurrentAdventureId` / `CurrentAdventureSceneId` из state;
 - валидировать adventure/scene по `DefinitionsManager`;
 - если точка невалидна или отсутствует:
   - брать `RuleSettings.StartAdventure`;
@@ -68,7 +72,7 @@
 ## Этап 3. Реакция на изменения state
 
 Задачи:
-- в обработчике `StateChanged` сравнивать текущую активную пару из state с кешем менеджера;
+- в обработчике `StateChanged` сравнивать `CurrentAdventureId` / `CurrentAdventureSceneId` из state с кешем менеджера;
 - при фактическом изменении adventure/scene обновлять внутренний runtime-контекст и публиковать событие;
 - игнорировать события, не влияющие на активную точку.
 
@@ -80,7 +84,7 @@
 
 Задачи:
 - добавить методы получения:
-  - текущего `AdventureId` и `SceneId`;
+  - текущих `CurrentAdventureId` и `CurrentAdventureSceneId`;
   - текущей `SceneData`;
   - текущего контента сцены с фильтрацией ограничений;
   - текущих доступных выборов/действий с фильтрацией ограничений;

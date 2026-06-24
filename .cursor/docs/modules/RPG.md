@@ -204,9 +204,9 @@ RPG-контент (сцены, выборы, действия) описывае
 
 ### Прогресс приключений (`AdventuresStateData`)
 
-- `CurrentAdventureId` / `CurrentSceneId` — активная точка приключения для runtime (`AdventuresManager`).
+- `CurrentAdventureId` / `CurrentAdventureSceneId` — активная точка приключения для runtime (`AdventuresManager`).
 - `World.Parameters` — глобальные параметры кампании (`AdventureStateParamsData`).
-- `Adventures` — `Dictionary<string, AdventureStateData>`: прогресс по каждому adventure (`AdventureId`, `SceneId`, `Parameters`).
+- `Adventures` — `Dictionary<string, AdventureStateData>`: прогресс по каждому adventure (`AdventureId`, `SceneId`, `Parameters`). `SceneId` здесь — прогресс конкретного приключения, не активная runtime-сцена.
 - Формат `Parameters` совпадает с `ChoiceActionParamsData` (`Strings` / `Ints` / `Bools`).
 
 `World.Parameters` не является указателем текущей точки; он используется для долгоживущего прогресса мира (например, открытые локации и глобальные события).

@@ -4,6 +4,9 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
 {
     public class AdventuresStateData
     {
+        public string CurrentAdventureId;
+        public string CurrentAdventureSceneId;
+
         public WorldStateData World;
 
         public Dictionary<string, AdventureStateData> Adventures;
