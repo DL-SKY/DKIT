@@ -134,6 +134,8 @@
 
 Файл: `Scripts/Adventure/AdventuresManager.cs`.
 
+Подробная и актуальная документация по архитектуре `AdventuresManager` и `RuntimeSceneData` вынесена в отдельный документ: [AdventuresManager.md](AdventuresManager.md).
+
 Оркестратор adventure-runtime. **Не наследует** `AdventureStateLogic` — использует композицию: через Zenject инжектируется `AdventureStateLogic` и подписка идёт на его событие `StateChanged`.
 
 | Метод / член | Назначение |
