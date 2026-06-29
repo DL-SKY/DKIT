@@ -1,5 +1,7 @@
 # Модуль Cheats
 
+**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
+
 ## Назначение
 
 `Cheats` — это редакторский модуль (Unity Editor), который добавляет окно `Tools/Cheats` для служебных действий и быстрой диагностики во время разработки.
@@ -31,6 +33,16 @@
 - `SaveCheatSection`  
   Текущая рабочая секция (Implementation). Показывает пути и параметры сохранений на основе `GlobalSettings.json`, вычисляет ожидаемый путь save-файла и дает кнопку открытия директории сохранений.
 
+- `DefinitionsCheatSection`  
+  Секция диагностики adventure-definitions. В рантайме показывает загруженные single-def/коллекции из `Adventures.DefinitionsManager`. Если игра не запущена или менеджер не найден — показывает `HelpBox`.
+
+- `LocalizationCheatSection`  
+  Секция локализации. В рантайме показывает текущий язык и кнопки переключения, которые генерируются динамически из `LocalizationSettingsDef.LanguageFolders`.  
+  По кнопке секция:
+  - вызывает `LocalizationManager.TrySetLanguage(...)`;
+  - сохраняет язык в state через `SetLocalizationLanguageStateAction` + `AdventureStateLogic.ProcessAction(..., forceBatch: true)`.  
+  Если рантайм-объекты недоступны — показывает `HelpBox`.
+
 - `GeneralCheatSection`  
   Пример/шаблон секции (Examples). Используется как образец для новых реализаций.
 
@@ -55,6 +67,13 @@
 
 5. Проверить отображение и фильтр  
    Убедиться, что секция видна по `Id`, корректно раскрывается в foldout и отрабатывает действия из `DrawContent()`.
+
+## Текущие зарегистрированные секции
+
+В `CheatSectionsProvider.RegisteredSectionTypes` сейчас подключены:
+- `SaveCheatSection`
+- `DefinitionsCheatSection`
+- `LocalizationCheatSection`
 
 ### Мини-шаблон новой секции
 

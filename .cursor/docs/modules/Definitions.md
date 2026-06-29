@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-06-22 12:45:00 (+03:00)
+**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
 
 ## Назначение
 
@@ -27,12 +27,12 @@
 
 - `DefinitionsManager` (Match3)  
   Фасад доступа к дефам Match3. Хранит:
-  - single-def: `GlobalSettings`, `Match3GlobalSettings`, `CellsMap`, `PresetsMap`;
+  - single-def: `GlobalSettings`, `LocalizationSettings`, `Match3GlobalSettings`, `CellsMap`, `PresetsMap`;
   - коллекции: `GameZones`, `Cells`, `Presets`, `Gems`, `GameZoneGems`, `Objectives`, `Rounds`.
 
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
-  - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `RuleSettings` (`RuleSettingsDef`);
+  - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`);
   - коллекции: `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`.
 
 ### Соглашение по наследованию adventure-дефов
@@ -52,6 +52,7 @@
 | `BattleRuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/BattleRules` |
 | `RuleSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/RuleSettings/RuleSettings` (single) |
 | `ProjectGlobalSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/GlobalSettings/GlobalSettings` (single) |
+| `LocalizationSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings` (single) |
 
 ### Справочник полей Adventure-дефов (сверка C# ↔ JSON)
 
@@ -66,6 +67,8 @@
 | | `FileExtension` | `string` | `FileExtension` | да |
 | | `EnabledEncryption` | `bool` | `EnabledEncryption` | да |
 | | `EncryptionKey` | `string` | `EncryptionKey` | да |
+| `LocalizationSettingsDef` | `DefaultLanguage` | `SystemLanguage` | `DefaultLanguage` | да |
+| | `LanguageFolders` | `Dictionary<SystemLanguage, string>` | `LanguageFolders` | да |
 | `RuleSettingsDef` | `Tags` | `List<string>` | `Tags` | да |
 | | `Rule` | `string` | `Rule` | да, id `RuleDef` (`"GeneralRule"`) |
 | | `BattleRule` | `string` | `BattleRule` | да, id `BattleRuleDef` (`"GeneralBattleRule"`) |
@@ -171,6 +174,10 @@
 - `ProjectGlobalSettingsDef`  
   Глобальные настройки adventure-проекта (сейв профиля). Поля: `SaveName`, `SaveFolder`, `FileExtension`, `EnabledEncryption`, `EncryptionKey`. Используется `AdventureStateInitTask` для инициализации `AdventureStateManager`.
 
+- `LocalizationSettingsDef`  
+  Single-def настроек локализации. Поля: `DefaultLanguage`, `LanguageFolders` (`SystemLanguage -> folder`).  
+  Используется `LocalizationManager` для выбора fallback-языка и сопоставления `SystemLanguage` с папкой в `Assets/Modules/Localization/Resources/Langs`.
+
 - `RoundDef`  
   Деф раунда Match3; связывает `GameZone`, `Gems`, `Objectives` по id.
 
@@ -261,6 +268,7 @@ Runtime в будущем читает деф → вычисляет или пр
 Single-def:
 - `RuleSettings` — `_ADVENTURES_/RuleSettings/RuleSettings.json`
 - `GlobalSettings` — `_ADVENTURES_/GlobalSettings/GlobalSettings.json`
+- `LocalizationSettings` — `_ADVENTURES_/LocalizationSettings/LocalizationSettings.json`
 
 ## Добавление нового def (явный чек-лист)
 
@@ -284,6 +292,7 @@ Single-def:
 ## Практические заметки
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
+- Оба менеджера сейчас загружают `LocalizationSettingsDef` (пути: `Definitions/LocalizationSettings/LocalizationSettings` и `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings`).
 - Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
 - `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost` и `RuleDef.SkillDependencies` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет) на стороне runtime.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)).

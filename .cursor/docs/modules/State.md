@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-06-22 12:27:00 (+03:00)
+**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
 
 ## Назначение
 
@@ -91,7 +91,6 @@ Implementation/Wallet/
 
 - `IAdventureStateDataFactory` / `AdventureStateDataFactory`  
   Фабрика начального состояния Adventure-профиля. Создаёт и инициализирует все секции `StateData`.  
-  Инжектируется `DefinitionsManager` — для будущего использования дефов при старте нового игрока.  
   Регистрация в DI: `IAdventureStateDataFactory → AdventureStateDataFactory`, `AsTransient()`.
 
 - `StateLogic<TStateData>`  
@@ -115,6 +114,7 @@ Implementation/Wallet/
   | `ChangeWalletResource` | `ChangeWalletResourceStateAction<TStateData>` |
   | `SetWalletResource` | `SetWalletResourceStateAction<TStateData>` |
   | `SetProfileUpdateTime` | `SetProfileUpdateTimeStateAction` (Match-3 и Adventure) |
+  | `SetLocalizationLanguage` | `SetLocalizationLanguageStateAction<TStateData>` |
 
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
@@ -125,10 +125,15 @@ Implementation/Wallet/
 - `StateData`  
   Корневые данные профиля.
   - Match-3: `Profile`, `Wallet`, `Hangar`, `Storage`.
-  - Adventure: `Profile`, `Wallet`, `Characters`, `Inventory`, `Adventures`.
+  - Adventure: `Profile`, `Wallet`, `Localization`, `Characters`, `Inventory`, `Adventures`.
 
 - `WalletStateData` / `IWalletStateDataOwner`  
   Общая структура кошелька вынесена в `Implementation/Wallet` и переиспользуется в Match-3 и Adventure. Оба `StateData` реализуют `IWalletStateDataOwner`.
+
+- `LocalizationStateData` / `ILocalizationStateDataOwner`  
+  Секция выбранного языка для Adventure-профиля.  
+  Поле: `Language` (`SystemLanguage`, по умолчанию `Unknown`).  
+  Сериализация в save выполняется строковым именем enum (`"Russian"`, `"English"`), а не числовым кодом.
 
 ### Adventure: `CharactersStateData` и `CharacterStateData`
 
@@ -263,6 +268,7 @@ protected override StateData CreateNewState(string profileId)
 |--------|----------------------|
 | `Profile` | `CreateTime`, `UpdateTime` = текущее Unix ms UTC |
 | `Wallet` | пустой `Resources` |
+| `Localization` | `Language = SystemLanguage.Unknown` |
 | `Characters` | `NextCharacterId = 1`, `HeroPoints = 0`, пустые `Characters`, `ActivePartyCharacterIds` |
 | `Inventory` | пустой `Items` |
 | `Adventures` | `World` с пустыми `Parameters`; пустой словарь `Adventures` |
@@ -320,6 +326,7 @@ stateLogic.StateChanged += source =>
 
 - `ChangeWalletResourceStateAction<TStateData>` — общий экшен кошелька (Match-3 и Adventure).
 - `SetProfileUpdateTimeStateAction` — обновление `Profile.UpdateTime` (Adventure).
+- `SetLocalizationLanguageStateAction<TStateData>` — установка `Localization.Language` (Adventure).
 - `SetAdventureProgressBoolStateAction` — установка bool-параметра в `AdventuresStateData` (`world.*` / `adventure.*`).
 - `ModifyAdventureProgressIntStateAction` — изменение int-параметра в `AdventuresStateData` (`world.*` / `adventure.*`).
 
@@ -358,6 +365,7 @@ stateLogic.StateChanged += source =>
 ## Текущий статус runtime
 
 - На старте приложения state загружается/создается через `Match3StateInitTask` / `AdventureStateInitTask`.
+- Язык локализации в Adventure хранится в `StateData.Localization` и используется `LocalizationInitTask` при выборе стартового языка.
 - Для Adventure новый профиль создаётся через `IAdventureStateDataFactory` (`AdventureStateDataFactory`).
 - Реализованы секции Adventure state: `Characters`, `Inventory`, `Adventures` (см. выше).
 - Прямых gameplay-мутаций `State` вне state-actions сейчас нет.

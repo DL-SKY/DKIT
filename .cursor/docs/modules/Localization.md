@@ -1,5 +1,7 @@
 # Модуль Localization
 
+**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
+
 ## Назначение
 
 `Localization` предоставляет рабочую реализацию локализации:
@@ -84,9 +86,25 @@
 
 `AdventureStateDataFactory` теперь создает `LocalizationStateData` по умолчанию.
 
+Поле `LocalizationStateData.Language` сериализуется в save как строковое имя enum (`"Russian"`, `"English"`), а не числовой код.
+
+## Интеграция с Cheats
+
+Добавлена секция `Localization` в окне `Tools/Cheats`:
+- путь: `Modules.Cheats.Scripts.Editor.Implementation.Localization.LocalizationCheatSection`;
+- секция всегда видна (если проходит фильтр);
+- при отсутствии runtime-менеджера показывает `HelpBox`;
+- при наличии `LocalizationManager` и `LocalizationSettingsDef` отображает:
+  - текущий язык;
+  - кнопки переключения языка (генерируются из `LocalizationSettingsDef.LanguageFolders`, по одной в строке);
+  - применение языка через `TrySetLanguage(...)`;
+  - сохранение выбранного языка в state через `SetLocalizationLanguageStateAction`.
+
 ## DI и инициализация
 
 - `LocalizationManager` зарегистрирован в DI в обоих `ProjectInstaller`.
 - Также зарегистрирована привязка `LocalizationManagerBase -> LocalizationManager`.
 - `LocalizationInitTask` выполняет фактическую инициализацию локализации на старте.
+
+Важно: `LocalizationManager` получает `LocalizationSettingsDef` из `Modules.Definitions.Scripts.Implementation.Adventures.DefinitionsManager`.
 

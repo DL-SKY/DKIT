@@ -1,5 +1,7 @@
 # Модуль Initializer
 
+**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
+
 ## Назначение
 
 `Initializer` управляет стартовой последовательностью приложения: выполняет набор задач загрузки, показывает прогресс и после успешной инициализации завершает запуск выбранной ветки (Match3 или Adventure).
@@ -31,6 +33,13 @@
 
 - `DefinitionsInitTask`, `Match3StateInitTask`, `AdventureStateInitTask`, `AdventuresManagerInitTask`, `LocalizationInitTask`  
   Ядро стартовой инициализации данных.
+
+- `LocalizationInitTask` (текущая реализация)  
+  Выполняет фактическую инициализацию локализации:
+  - читает язык из `Adventure State` (`LocalizationStateData.Language`);
+  - если язык `Unknown`, выбирает язык системы (`Application.systemLanguage`) с fallback на `LocalizationSettingsDef.DefaultLanguage`;
+  - вызывает `LocalizationManager.TrySetLanguage(...)`;
+  - сохраняет итоговый язык обратно в state через `SetLocalizationLanguageStateAction` (`forceBatch: true`).
 
 - `AdventuresManagerInitTask`  
   Вызывает `AdventuresManager.Init()` (без параметров). Выполняется после `DefinitionsInitTask` и `AdventureStateInitTask`. На этом этапе менеджер только подписывается на `AdventureStateLogic.StateChanged`.
