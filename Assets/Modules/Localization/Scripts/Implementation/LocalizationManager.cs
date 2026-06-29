@@ -102,15 +102,17 @@ namespace Modules.Localization.Scripts.Implementation
 
             if (_data == null)
             {
-                _data = new LocalizationData();
-                _data.Locals = new Dictionary<string, string>();
+                _data = new LocalizationData();                
             }
 
             _data.Version = loadedData.Version;
             _data.Description = loadedData.Description;
+            _data.Locals = new Dictionary<string, string>();
 
             if (loadedData.Locals == null)
+            {
                 return _data;
+            }
 
             foreach (var pair in loadedData.Locals)
             {
