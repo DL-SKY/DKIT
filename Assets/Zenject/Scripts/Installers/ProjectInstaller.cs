@@ -1,4 +1,6 @@
 using Modules.Definitions.Scripts.Implementation.Defs;
+using Modules.Localization.Scripts.Core;
+using Modules.Localization.Scripts.Implementation;
 using Modules.Restrictions.Scripts.Core;
 using Modules.State.Scripts.Implementation.Match3;
 using Modules.State.Scripts.Implementation.Match3.Logic;
@@ -25,7 +27,8 @@ namespace Zenject.Scripts.Installers
             Container.Bind<DefinitionsManager>().AsSingle().NonLazy();
             Container.Bind<Match3StateManager>().AsSingle().NonLazy();
             Container.Bind<Match3StateLogic>().AsSingle().NonLazy();
-            //LOCALIZATION!!!
+            Container.Bind<LocalizationManager>().AsSingle().NonLazy();
+            Container.Bind<LocalizationManagerBase>().To<LocalizationManager>().FromResolve();
             //...
 
             //Core prefabs

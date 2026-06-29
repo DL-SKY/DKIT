@@ -9,5 +9,6 @@ namespace Modules.State.Scripts.Actions.Models
         SetProfileUpdateTime = 4,
         SetCurrentAdventureId = 5,
         SetCurrentAdventureSceneId = 6,
+        SetLocalizationLanguage = 7,
     }
 }

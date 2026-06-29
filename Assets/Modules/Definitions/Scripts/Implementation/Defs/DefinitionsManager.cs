@@ -27,6 +27,7 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
 
 
         public ProjectGlobalSettingsDef GlobalSettings;
+        public LocalizationSettingsDef LocalizationSettings;
         public Match3GlobalSettingsDef Match3GlobalSettings;
         public Dictionary<string, GameZoneDef> GameZones;
         public CellsMapDef CellsMap;
@@ -58,6 +59,7 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
             var loadMethods = new List<Action>
             {
                 LoadGlobalSettings,
+                LoadLocalizationSettings,
                 LoadMatch3GlobalSettings,
                 LoadGameZones,
                 LoadCellsMap,
@@ -90,6 +92,11 @@ namespace Modules.Definitions.Scripts.Implementation.Defs
         private void LoadMatch3GlobalSettings()
         {
             Match3GlobalSettings = _loader.LoadSingle<Match3GlobalSettingsDef>("Definitions/Match3GlobalSettings/Match3GlobalSettings");
+        }
+
+        private void LoadLocalizationSettings()
+        {
+            LocalizationSettings = _loader.LoadSingle<LocalizationSettingsDef>("Definitions/LocalizationSettings/LocalizationSettings");
         }
 
         private void LoadGameZones()

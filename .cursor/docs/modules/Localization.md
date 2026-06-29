@@ -2,46 +2,91 @@
 
 ## Назначение
 
-`Localization` предоставляет базовые абстракции для смены языка и выдачи локализованных строк, а также UI-прокси для автоматического обновления текста при смене языка.
+`Localization` предоставляет рабочую реализацию локализации:
+- базовый абстрактный менеджер языков;
+- DTO данных локализации;
+- конкретный `LocalizationManager` с загрузкой из `Resources`;
+- базовый и готовый UI-прокси для `TextMeshProUGUI`.
 
-## Краткая логика работы
+## Текущее состояние реализации
 
-1. Реализация менеджера на базе `LocalizationManagerBase` инициализируется через `Init(...)`.
-2. Менеджер выбирает язык (`GetCurrentLanguage` / `TrySetLanguage`) и загружает `LocalizationData`.
-3. UI-компонент на базе `LocalizationTextProxy` хранит `key` (+ optional args), получает строку через `GetString`.
-4. При `OnChangeLanguage` прокси повторно применяет перевод к `TextMeshProUGUI`.
-5. Если ключ не найден или формат плейсхолдеров некорректен, модуль пишет warning и выводит безопасное значение.
+### Что реализовано
 
-## Основные классы
+- `LocalizationManagerBase`:
+  - хранит текущий `SystemLanguage` (`Language`);
+  - хранит загруженные данные (`LocalizationData`);
+  - публикует событие `OnChangeLanguage`;
+  - умеет `Init()` / `Init(SystemLanguage)`, вызывая `TrySetLanguage(...)`;
+  - умеет вернуть строку по ключу через `GetString(...)`.
 
-- `LocalizationManagerBase`  
-  Базовый менеджер языка: хранит активный `SystemLanguage`, загруженные данные и событие `OnChangeLanguage`.
+- `LocalizationTextProxy`:
+  - требует `TextMeshProUGUI` через `[RequireComponent]`;
+  - хранит ключ и аргументы форматирования (`SetText(key, args...)`);
+  - при смене языка повторно применяет текст;
+  - при ошибке форматирования пишет warning и использует неформатированную строку.
 
-- `LocalizationData`  
-  DTO словаря локализации (`Version`, `Description`, `Dictionary<string, string> Locals`).
+- `LocalizationText`:
+  - конкретный компонент поверх `LocalizationTextProxy`;
+  - получает `LocalizationManager` через DI и сразу готов к использованию в UI.
 
-- `LocalizationTextProxy`  
-  Базовый UI-прокси для `TextMeshProUGUI` с автоперерисовкой при смене языка и поддержкой `string.Format`.
+- `LocalizationManager`:
+  - получает single-def `LocalizationSettingsDef` из `DefinitionsManager`;
+  - поддерживает fallback: язык из state -> системный язык -> язык по умолчанию из настроек;
+  - загружает язык из `Resources/Langs/<folder>/Localization`;
+  - переносит данные словаря построчно с проверкой дубликатов ключей.
 
-## Как добавить новую локализацию (язык)
+- `LocalizationData`:
+  - содержит `Version`, `Description`, `Dictionary<string, string> Locals`.
 
-1. Создать/обновить конкретную реализацию менеджера, наследованную от `LocalizationManagerBase`.
-2. Реализовать обязательные методы:
-   - `GetCurrentLanguage()`;
-   - `CheckAvailableLanguage(SystemLanguage language)`;
-   - `LoadLanguage(SystemLanguage language)` (заполнение `LocalizationData`).
-3. Добавить словарь ключей для нового языка в источник данных (JSON/definitions/ресурс проекта).
-4. Обновить `CheckAvailableLanguage`, чтобы новый язык считался поддерживаемым.
-5. Зарегистрировать менеджер в DI (в `ProjectInstaller` сейчас отмечен TODO для localization).
-6. Проверить смену языка и корректность ключей на экранах с локализуемым UI.
+### Где лежат данные
 
-## Как добавить новый локализуемый UI-текст
+- `Assets/Modules/Definitions/Resources/Definitions/LocalizationSettings/LocalizationSettings.json`
+- `Assets/Modules/Definitions/Resources/Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings.json`
 
-1. Создать конкретный компонент, наследованный от `LocalizationTextProxy`, и в `Init()` получить ссылку на менеджер локализации.
-2. Повесить компонент на объект с `TextMeshProUGUI`.
-3. Вызывать `SetText("<KEY>", args...)` при инициализации/обновлении UI.
-4. Добавить ключ `<KEY>` во все поддерживаемые языки.
-5. Проверить:
-   - текст меняется при `TrySetLanguage(...)`;
-   - формат с аргументами не вызывает `FormatException`.
+Формат:
+  - `DefaultLanguage`;
+  - `LanguageFolders` (`SystemLanguage -> folder`), например `English -> eng`, `Russian -> rus`.
+
+- `Assets/Modules/Localization/Resources/Langs/eng/Localization.json`
+- `Assets/Modules/Localization/Resources/Langs/rus/Localization.json`
+
+Формат файла языка:
+- `Version` (int),
+- `Description` (string),
+- `Locals` (`Dictionary<string, string>`).
+
+## Фактическая логика работы базовых классов
+
+1. `LocalizationInitTask` берет язык из `Adventure State` (`LocalizationStateData.Language`).
+2. Если в state `SystemLanguage.Unknown`:
+   - берется `Application.systemLanguage`;
+   - если язык не поддержан/невалиден, берется `DefaultLanguage` из `LocalizationSettings`.
+3. `TrySetLanguage(...)`:
+   - валидирует язык через `CheckAvailableLanguage(...)`;
+   - загружает `LocalizationData` через `LoadLanguage(...)`;
+   - вызывает `OnChangeLanguage`.
+4. После успешного применения языка task сохраняет выбранный язык обратно в state через `SetLocalizationLanguageStateAction`.
+5. `GetString(key)`:
+   - возвращает строку из `_data.Locals`;
+   - при отсутствии данных/ключа пишет warning и возвращает `string.Empty`.
+6. `LocalizationTextProxy` применяет строку к `TextMeshProUGUI`:
+   - без аргументов — напрямую;
+   - с аргументами — через `string.Format(...)`;
+   - при `FormatException` — warning + fallback на исходную локализованную строку.
+
+## Интеграция со State
+
+В `Modules.State.Scripts.Implementation.Adventure` добавлены:
+- `StateDatas/LocalizationStateData` (`SystemLanguage Language`, default `Unknown`);
+- `Interfaces/ILocalizationStateDataOwner`;
+- поле `Localization` в `StateData`;
+- `Actions/SetLocalizationLanguageStateAction`.
+
+`AdventureStateDataFactory` теперь создает `LocalizationStateData` по умолчанию.
+
+## DI и инициализация
+
+- `LocalizationManager` зарегистрирован в DI в обоих `ProjectInstaller`.
+- Также зарегистрирована привязка `LocalizationManagerBase -> LocalizationManager`.
+- `LocalizationInitTask` выполняет фактическую инициализацию локализации на старте.
 

@@ -1,0 +1,10 @@
+{
+  "Version": 1,
+  "Description": "Base English localization",
+  "Locals": {
+    "common.ok": "OK",
+    "common.cancel": "Cancel",
+    "loading.title": "Loading...",
+    "adventure.main.title": "Adventure"
+  }
+}

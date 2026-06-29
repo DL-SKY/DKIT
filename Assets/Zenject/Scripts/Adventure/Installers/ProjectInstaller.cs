@@ -1,4 +1,6 @@
 using Modules.RPG.Scripts.Adventure;
+using Modules.Localization.Scripts.Core;
+using Modules.Localization.Scripts.Implementation;
 using Modules.Restrictions.Scripts.Core;
 using Modules.State.Scripts.Implementation.Adventure;
 using Modules.State.Scripts.Implementation.Adventure.Factories;
@@ -27,7 +29,8 @@ namespace Zenject.Scripts.Adventure.Installers
             Container.Bind<AdventureStateManager>().AsSingle().NonLazy();
             Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
-            //LOCALIZATION!!!
+            Container.Bind<LocalizationManager>().AsSingle().NonLazy();
+            Container.Bind<LocalizationManagerBase>().To<LocalizationManager>().FromResolve();
             //...
 
             //Core prefabs

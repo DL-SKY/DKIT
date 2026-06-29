@@ -1,4 +1,5 @@
 using Modules.Cheats.Scripts.Editor.Implementation.Definitions;
+using Modules.Cheats.Scripts.Editor.Implementation.Localization;
 using Modules.Cheats.Scripts.Editor.Implementation.Save;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Modules.Cheats.Scripts.Editor.Core
             //typeof(GeneralCheatSection),
             typeof(SaveCheatSection),
             typeof(DefinitionsCheatSection),
+            typeof(LocalizationCheatSection),
         };
 
 

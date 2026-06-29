@@ -30,6 +30,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
 
 
         public ProjectGlobalSettingsDef GlobalSettings;
+        public LocalizationSettingsDef LocalizationSettings;
         public RuleSettingsDef RuleSettings;
         public Dictionary<string, AdventureDef> Adventures;
         public Dictionary<string, ClassDef> Classes;
@@ -60,6 +61,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
             var loadMethods = new List<Action>
             {
                 LoadGlobalSettings,
+                LoadLocalizationSettings,
                 
                 LoadRules,
                 LoadBattleRules,
@@ -94,6 +96,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         private void LoadAdventures()
         {
             Adventures = _loader.LoadCollection<AdventureDef>("Definitions/_ADVENTURES_/Adventures");
+        }
+
+        private void LoadLocalizationSettings()
+        {
+            LocalizationSettings = _loader.LoadSingle<LocalizationSettingsDef>("Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings");
         }
 
         private void LoadClasses()

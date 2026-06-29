@@ -1,23 +1,21 @@
-using Modules.Definitions.Scripts.Implementation.Adventures;
 using Modules.State.Scripts.Implementation.Adventure.StateDatas;
 using Modules.State.Scripts.Implementation.Wallet.StateDatas;
 using Modules.Utils.Scripts.Extensions;
 using System;
 using System.Collections.Generic;
-using Zenject;
+using UnityEngine;
 
 namespace Modules.State.Scripts.Implementation.Adventure.Factories
 {
     public class AdventureStateDataFactory : IAdventureStateDataFactory
     {
-        [Inject] private readonly DefinitionsManager _definitionsManager;
-
         public StateData Create(string profileId)
         {
             return new StateData
             {
                 Profile = CreateNewProfileState(),
                 Wallet = CreateNewWalletState(),
+                Localization = CreateNewLocalizationState(),
                 Characters = CreateNewCharactersState(),
                 Inventory = CreateNewInventoryState(),
                 Adventures = CreateNewAdventuresState(),
@@ -39,6 +37,14 @@ namespace Modules.State.Scripts.Implementation.Adventure.Factories
             return new WalletStateData
             {
                 Resources = new Dictionary<WalletResourceType, int>(),
+            };
+        }
+
+        private LocalizationStateData CreateNewLocalizationState()
+        {
+            return new LocalizationStateData
+            {
+                Language = SystemLanguage.Unknown,
             };
         }
 

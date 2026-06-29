@@ -1,0 +1,10 @@
+{
+  "Version": 1,
+  "Description": "Base Russian localization",
+  "Locals": {
+    "common.ok": "ОК",
+    "common.cancel": "Отмена",
+    "loading.title": "Загрузка...",
+    "adventure.main.title": "Приключение"
+  }
+}
