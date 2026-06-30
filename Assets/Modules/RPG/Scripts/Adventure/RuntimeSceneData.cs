@@ -86,12 +86,6 @@ namespace Modules.RPG.Scripts.Adventure
                 case StateChangeSource.SetCurrentAdventureSceneId:
                     SyncFromStateAndNotify();
                     break;
-
-                case StateChangeSource.SetAdventureProgressBool:
-                case StateChangeSource.ModifyAdventureProgressInt:
-                    ChangedContent?.Invoke();
-                    ChangedChoices?.Invoke();
-                    break;
             }
         }
 

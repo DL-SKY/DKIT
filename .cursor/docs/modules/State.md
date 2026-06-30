@@ -109,8 +109,6 @@ Implementation/Wallet/
 
   | Значение | Экшен |
   |----------|-------|
-  | `ModifyAdventureProgressInt` | `ModifyAdventureProgressIntStateAction` |
-  | `SetAdventureProgressBool` | `SetAdventureProgressBoolStateAction` |
   | `ChangeWalletResource` | `ChangeWalletResourceStateAction<TStateData>` |
   | `SetWalletResource` | `SetWalletResourceStateAction<TStateData>` |
   | `SetProfileUpdateTime` | `SetProfileUpdateTimeStateAction` (Match-3 и Adventure) |
@@ -327,8 +325,6 @@ stateLogic.StateChanged += source =>
 - `ChangeWalletResourceStateAction<TStateData>` — общий экшен кошелька (Match-3 и Adventure).
 - `SetProfileUpdateTimeStateAction` — обновление `Profile.UpdateTime` (Adventure).
 - `SetLocalizationLanguageStateAction<TStateData>` — установка `Localization.Language` (Adventure).
-- `SetAdventureProgressBoolStateAction` — установка bool-параметра в `AdventuresStateData` (`world.*` / `adventure.*`).
-- `ModifyAdventureProgressIntStateAction` — изменение int-параметра в `AdventuresStateData` (`world.*` / `adventure.*`).
 
 ## Как добавить новый state-action
 
@@ -369,5 +365,5 @@ stateLogic.StateChanged += source =>
 - Для Adventure новый профиль создаётся через `IAdventureStateDataFactory` (`AdventureStateDataFactory`).
 - Реализованы секции Adventure state: `Characters`, `Inventory`, `Adventures` (см. выше).
 - Прямых gameplay-мутаций `State` вне state-actions сейчас нет.
-- `ProcessAction` вызывается из choice-executors (`SetFlagChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor`) и из тестового кода `AdventureStateManager`.
+- `ProcessAction` вызывается из runtime-кода `AdventureStateManager` и `RuntimeSceneData`.
 - `AdventureStateLogic.StateChanged` используется `AdventuresManager` для реакции на изменения state (подписка в `Init()`, отписка в `Dispose()`).

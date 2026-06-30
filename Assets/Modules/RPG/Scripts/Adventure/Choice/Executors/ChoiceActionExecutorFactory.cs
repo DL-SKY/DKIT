@@ -25,22 +25,6 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
                         GetRequiredString(actionData.Params.Strings, "sceneId", actionData.Type),
                     }),
 
-                ChoiceActionType.ModifyVariable => _container.Instantiate<ModifyVariableChoiceActionExecutor>(
-                    new object[]
-                    {
-                        GetRequiredString(actionData.Params.Strings, "key", actionData.Type),
-                        GetRequiredInt(actionData.Params.Ints, "delta", actionData.Type),
-                        GetOptionalString(actionData.Params.Strings, "adventureId"),
-                    }),
-
-                ChoiceActionType.SetFlag => _container.Instantiate<SetFlagChoiceActionExecutor>(
-                    new object[]
-                    {
-                        GetRequiredString(actionData.Params.Strings, "key", actionData.Type),
-                        GetRequiredBool(actionData.Params.Bools, "value", actionData.Type),
-                        GetOptionalString(actionData.Params.Strings, "adventureId"),
-                    }),
-
                 _ => throw new NotImplementedException($"ChoiceActionType '{actionData.Type}' is not supported by factory yet."),
             };
         }
@@ -56,37 +40,5 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
             return value;
         }
 
-        private static int GetRequiredInt(Dictionary<string, int> dictionary, string key, ChoiceActionType type)
-        {
-            if (dictionary == null)
-                throw new ArgumentException($"Params.Ints is null for action type '{type}'.");
-
-            if (!dictionary.TryGetValue(key, out int value))
-                throw new ArgumentException($"Required int param '{key}' is missing for action type '{type}'.");
-
-            return value;
-        }
-
-        private static bool GetRequiredBool(Dictionary<string, bool> dictionary, string key, ChoiceActionType type)
-        {
-            if (dictionary == null)
-                throw new ArgumentException($"Params.Bools is null for action type '{type}'.");
-
-            if (!dictionary.TryGetValue(key, out bool value))
-                throw new ArgumentException($"Required bool param '{key}' is missing for action type '{type}'.");
-
-            return value;
-        }
-
-        private static string GetOptionalString(Dictionary<string, string> dictionary, string key)
-        {
-            if (dictionary == null)
-                return null;
-
-            if (!dictionary.TryGetValue(key, out string value) || string.IsNullOrWhiteSpace(value))
-                return null;
-
-            return value;
-        }
     }
 }

@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
+**Последнее обновление:** 2026-06-30 10:21:00 (+03:00)
 
 ## Назначение
 
@@ -23,7 +23,7 @@
 
 - `Assets/Modules/RPG/Scripts/Adventure`
   - `AdventuresManager` — оркестратор приключения (стартовая инициализация, реакция на изменения state). Реализует `IDisposable`.
-  - `IAdventureFlowController` — интерфейс контроллера переходов между сценами/узлами.
+  - `IAdventureFlowController` — интерфейс контроллера переходов между сценами/узлами (**устаревший**, `[Obsolete]`).
   - `Data/*` — модели adventure/scene/content.
   - `Choice/*` — модели выбора и действий по выбору.
   - `Choice/Executors/*` — фабрика и обработчики `ChoiceActionData` (часть executors пишет в `Modules.State` через state-actions).
@@ -116,19 +116,29 @@
 
 - `IChoiceActionExecutor` — `void Execute();`
 - `IChoiceActionExecutorFactory` — `IChoiceActionExecutor Create(ChoiceActionData actionData);`
-- `ChoiceActionExecutorFactory` — фабрика на Zenject `DiContainer`, содержит `GetRequiredString/Int/Bool` для валидации `Params`.
+- `ChoiceActionExecutorFactory` — фабрика на Zenject `DiContainer`, содержит `GetRequiredString` для валидации `Params`.
 
 Реализованные executors (на текущий момент):
 
 | `ChoiceActionType` | Executor | `Params` | Куда пишет |
 |---|---|---|---|
-| `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.sceneId` | `IAdventureFlowController.GoToScene` |
-| `SetFlag` | `SetFlagChoiceActionExecutor` | `Strings.key`, `Bools.value`, опц. `Strings.adventureId` | `SetAdventureProgressBoolStateAction` → `AdventuresStateData` |
-| `ModifyVariable` | `ModifyVariableChoiceActionExecutor` | `Strings.key`, `Ints.delta`, опц. `Strings.adventureId` | `ModifyAdventureProgressIntStateAction` → `AdventuresStateData` |
-
-Ключи с префиксом `world.*` пишутся в `World.Parameters`; `adventure.*` — в `Adventures[adventureId].Parameters` (для них нужен `adventureId` в `Params.Strings` или из runtime-контекста позже).
+| `GoToScene` | `GoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) | `Strings.sceneId` | `IAdventureFlowController.GoToScene` (**устаревший**, `[Obsolete]`) |
 
 Остальные значения `ChoiceActionType` объявлены в enum, но пока не подключены к фабрике.
+
+## Игровой runtime-флоу (целевой цикл)
+
+Целевой цикл работы adventure-runtime:
+
+1. Игрок выбирает действие в UI (choice).
+2. `IChoiceActionExecutor` обрабатывает выбор и изменяет профиль только через state-actions (`StateActionBase<TStateData>`), а не прямой мутацией `StateData`.
+3. `AdventureStateLogic.ProcessAction(...)` выполняет `Validate -> Execute` и публикует `StateChanged` с `StateChangeSource`.
+4. `RuntimeSceneData` получает событие `AdventureStateLogic.StateChanged`, при необходимости синхронизирует/пересчитывает runtime-состояние приключения и передаёт изменения своему носителю (`AdventuresManager`).
+5. `AdventuresManager` публикует собственные события (`ChangedAdventure`, `ChangedScene`, `ChangedContent`, `ChangedChoices`) для UI-слоя.
+6. Окна и компоненты приключения перехватывают события, обновляют представление сцены и доступные органы управления (актуальные choice-actions).
+7. Игрок делает следующий выбор, цикл повторяется.
+
+Ключевой принцип: все изменения игрового прогресса проходят через state-actions и событийный контур (`StateChanged -> RuntimeSceneData -> AdventuresManager -> UI`), формируя замкнутый игровой цикл.
 
 ## `AdventuresManager`
 
@@ -217,7 +227,7 @@ RPG-контент (сцены, выборы, действия) описывае
 
 При первом запуске или отсутствии сейва `AdventureStateManager` создаёт профиль через `IAdventureStateDataFactory` (`DiContainer.Resolve`). Фабрика инициализирует все секции и может использовать дефы (`DefinitionsManager` уже инжектирован). Подробнее — [State.md](State.md).
 
-Изменения прогресса из choice-executors — через `AdventureStateLogic.ProcessAction(...)` и state-actions. Папка `RPG/Scripts/State` удалена.
+Изменения прогресса профиля применяются через `Modules.State` и state-actions runtime-слоя. Папка `RPG/Scripts/State` удалена.
 
 Лимиты переноски и модификаторы от травм/бафов задаются в дефах и учитываются в runtime-сервисе; в state хранятся источники (статы, `StatusEffects`), а не вычисленный итог.
 
@@ -246,7 +256,7 @@ RPG-контент (сцены, выборы, действия) описывае
 6. Для каждого `ChoiceActionData` из `Actions` фабрика создает `IChoiceActionExecutor` и вызывает `Execute()`.
 7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
-Полный runtime-поток еще не замкнут: `IAdventureFlowController` пока только объявлен; `AdventuresManager` инициализируется и слушает `StateChanged`, но не управляет сценами и выборами.
+Полный runtime-поток еще не замкнут: `IAdventureFlowController` и `GoToSceneChoiceActionExecutor` помечены как устаревшие (`[Obsolete]`); `AdventuresManager` инициализируется и слушает `StateChanged`, но не управляет сценами и выборами.
 
 ## Текущее состояние реализации
 
@@ -259,18 +269,17 @@ RPG-контент (сцены, выборы, действия) описывае
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
 - `ChoiceActionType` содержит базовый набор значений для переходов, проверок и боевых/ресурсных эффектов.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
-- Реализованы executors: `GoToSceneChoiceActionExecutor`, `SetFlagChoiceActionExecutor`, `ModifyVariableChoiceActionExecutor` (два последних через `AdventureStateLogic`).
-- Объявлен интерфейс `IAdventureFlowController`.
+- Реализован legacy executor: `GoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`).
+- Объявлен legacy интерфейс: `IAdventureFlowController` (**устаревший**, `[Obsolete]`).
 - `AdventuresManager` зарегистрирован в DI (`BindInterfacesAndSelfTo`), инициализируется через `AdventuresManagerInitTask`, подписан на `AdventureStateLogic.StateChanged`.
-- Отсутствуют DI-биндинги фабрики/контроллеров в installer, валидаторы adventure-данных, сериализация и тесты модуля.
+- Отсутствуют DI-биндинги фабрики в installer, валидаторы adventure-данных, сериализация и тесты модуля.
 
 ## Рекомендации по дальнейшему развитию
 
 1. Подключить runtime-фильтрацию `SceneContentData.Restrictions` при рендере сцены.
 2. Добавить executors и маппинг в фабрику для остальных `ChoiceActionType` (`SkillCheck`, `StartCombat` и т.д.).
 3. Зарегистрировать в Zenject installer:
-   - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`;
-   - реализацию `IAdventureFlowController`.
+   - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`.
 4. Расширить `AdventuresManager`:
    - переходы по сценам и выборы;
    - применение списка `ChoiceActionData` через фабрику executors;

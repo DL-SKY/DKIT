@@ -1,6 +1,6 @@
 # AdventuresManager
 
-**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
+**Последнее обновление:** 2026-06-30 10:21:00 (+03:00)
 
 ## Назначение
 
@@ -12,6 +12,18 @@
 - дает публичный доступ к текущему контенту и выборам сцены.
 
 `AdventuresManager` **не работает напрямую** с `AdventureStateLogic.StateChanged` и не содержит своей логики чтения/синхронизации прогресса — это ответственность `RuntimeSceneData`.
+
+## Игровой цикл событий
+
+1. UI вызывает `IChoiceActionExecutor` для выбранного игроком действия.
+2. Executor меняет состояние через state-action (`StateActionBase<TStateData>`) и `AdventureStateLogic.ProcessAction(...)`.
+3. После успешного `Execute` logic публикует `AdventureStateLogic.StateChanged`.
+4. `RuntimeSceneData` получает событие, обновляет runtime-контекст и поднимает события контента/сцены.
+5. `AdventuresManager` ретранслирует эти события наружу (`ChangedAdventure`, `ChangedScene`, `ChangedContent`, `ChangedChoices`).
+6. Окна и UI-компоненты приключения обновляют интерфейс и дают игроку новый набор доступных выборов.
+7. Следующий выбор снова запускает этот цикл.
+
+Так формируется замкнутый runtime-loop: `Choice -> StateAction -> StateChanged -> RuntimeSceneData -> AdventuresManager -> UI -> Choice`.
 
 ## Ключевые классы и роли
 
