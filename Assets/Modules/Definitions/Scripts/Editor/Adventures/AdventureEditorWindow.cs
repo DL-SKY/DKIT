@@ -1,4 +1,5 @@
 using Modules.Definitions.Scripts.Editor.Adventures.CreateOptions;
+using Modules.Restrictions.Scripts.Core;
 using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Choice.Actions;
 using Modules.RPG.Scripts.Adventure.Data;
@@ -17,9 +18,6 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private const string DEFAULT_NEW_ADVENTURE_FILE_NAME = "NewAdventure";
 
         private readonly AdventureEditorFileRepository _repository = new AdventureEditorFileRepository();
-        private readonly AdventureGraphBuilder _graphBuilder = new AdventureGraphBuilder();
-        private readonly AdventureValidationService _validationService = new AdventureValidationService();
-        private readonly IAdventureLocalizationKeyCollector _localizationCollector = new DefaultAdventureLocalizationKeyCollector();
         private readonly AdventureCreateOptionsRegistry _adventureCreateOptionsRegistry = new AdventureCreateOptionsRegistry();
         private readonly SceneCreateOptionsRegistry _sceneCreateOptionsRegistry = new SceneCreateOptionsRegistry();
         private readonly SceneContentCreateOptionsRegistry _sceneContentCreateOptionsRegistry = new SceneContentCreateOptionsRegistry();
@@ -42,7 +40,6 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private Vector2 _scenesScroll;
         private Vector2 _contentScroll;
         private Vector2 _choicesScroll;
-        private Vector2 _rightScroll;
         private GUIStyle _fileButtonStyle;
         private GUIStyle _fileSelectedButtonStyle;
 
@@ -70,7 +67,6 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             {
                 DrawFilesPanel();
                 DrawAdventurePanel();
-                DrawRightPanel();
             }
         }
 
@@ -106,10 +102,26 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 EditorGUILayout.SelectableLabel(
                     AdventureEditorFileRepository.ADVENTURES_DIRECTORY,
                     EditorStyles.toolbarTextField,
-                    GUILayout.Width(780f),
+                    GUILayout.MinWidth(120f),
+                    GUILayout.ExpandWidth(true),
                     GUILayout.Height(18f));
+                GUI.enabled = _adventureData != null;
+                if (GUILayout.Button("Scene Graph", EditorStyles.toolbarButton, GUILayout.Width(90f)))
+                {
+                    AdventureGraphPreviewWindow.Open(_adventureData, _selectedSceneId);
+                }
 
-                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Localization", EditorStyles.toolbarButton, GUILayout.Width(90f)))
+                {
+                }
+
+                if (GUILayout.Button("Validation", EditorStyles.toolbarButton, GUILayout.Width(90f)))
+                {
+                    AdventureValidationWindow.Open(_adventureData);
+                }
+
+                GUI.enabled = true;
+                GUILayout.Space(8f);
                 string statusText;
                 Color statusColor;
                 if (_adventureData == null)
@@ -304,10 +316,11 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             using (new EditorGUILayout.VerticalScope(GUILayout.Width(280f)))
             {
                 EditorGUILayout.LabelField("Scenes", EditorStyles.boldLabel);
-                DrawCreateOptionButtons(
+                DrawAddButtonWithPopup(
+                    "Add Scene",
+                    "Create Scene",
                     _sceneCreateOptionsRegistry.GetOptions(),
-                    AddSceneFromOption,
-                    "Add Scene");
+                    AddSceneFromOption);
                 EditorGUILayout.Space(5f);
                 EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
                 EditorGUILayout.Space(5f);
@@ -379,16 +392,25 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 DrawField(() => sceneData.Tags = ParseCsv(EditorGUILayout.TextField("Tags (csv)", JoinCsv(sceneData.Tags))));
 
                 EditorGUILayout.Space(4f);
+                const float CONTENT_CHOICES_GAP = 8f;
+                float detailsAreaWidth = Mathf.Max(460f, position.width - LEFT_PANEL_WIDTH - 280f - 48f);
+                float columnWidth = Mathf.Max(220f, (detailsAreaWidth - CONTENT_CHOICES_GAP) * 0.5f);
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    using (new EditorGUILayout.VerticalScope(GUILayout.ExpandWidth(true)))
+                    using (new EditorGUILayout.VerticalScope(
+                        GUILayout.MinWidth(columnWidth),
+                        GUILayout.MaxWidth(columnWidth),
+                        GUILayout.ExpandWidth(false)))
                     {
                         DrawContentSection(sceneData);
                     }
 
-                    GUILayout.Space(8f);
+                    GUILayout.Space(CONTENT_CHOICES_GAP);
 
-                    using (new EditorGUILayout.VerticalScope(GUILayout.ExpandWidth(true)))
+                    using (new EditorGUILayout.VerticalScope(
+                        GUILayout.MinWidth(columnWidth),
+                        GUILayout.MaxWidth(columnWidth),
+                        GUILayout.ExpandWidth(false)))
                     {
                         DrawChoicesSection(sceneData);
                     }
@@ -399,15 +421,16 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private void DrawContentSection(SceneData sceneData)
         {
             EditorGUILayout.LabelField("Content", EditorStyles.boldLabel);
-            DrawCreateOptionButtons(
+            DrawAddButtonWithPopup(
+                "Add Content",
+                "Create Content",
                 _sceneContentCreateOptionsRegistry.GetOptions(),
                 option =>
                 {
                     sceneData.Content.Add(option.Create());
                     _selectedContentIndex = sceneData.Content.Count - 1;
                     MarkDirty();
-                },
-                "Add Content");
+                });
             EditorGUILayout.Space(4f);
             EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
             EditorGUILayout.Space(4f);
@@ -447,7 +470,9 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private void DrawChoicesSection(SceneData sceneData)
         {
             EditorGUILayout.LabelField("Choices", EditorStyles.boldLabel);
-            DrawCreateOptionButtons(
+            DrawAddButtonWithPopup(
+                "Add Choice",
+                "Create Choice",
                 _choiceCreateOptionsRegistry.GetOptions(),
                 option =>
                 {
@@ -455,8 +480,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     _selectedChoiceIndex = sceneData.Choices.Count - 1;
                     _selectedActionIndex = -1;
                     MarkDirty();
-                },
-                "Add Choice");
+                });
             EditorGUILayout.Space(4f);
             EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
             EditorGUILayout.Space(4f);
@@ -519,6 +543,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             EditorGUILayout.LabelField("Selected Content", EditorStyles.boldLabel);
             DrawField(() => contentData.Type = (SceneContentType)EditorGUILayout.EnumPopup("Type", contentData.Type));
             DrawField(() => contentData.Value = EditorGUILayout.TextField("Value", contentData.Value ?? string.Empty));
+            contentData.Restrictions ??= new List<Restriction>();
+            DrawRestrictionsSection(contentData.Restrictions, "Restrictions");
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -552,9 +578,13 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             DrawField(() => choiceData.Description = EditorGUILayout.TextField("Description", choiceData.Description ?? string.Empty));
             DrawField(() => choiceData.AlwaysShow = EditorGUILayout.Toggle("Always Show", choiceData.AlwaysShow));
             DrawField(() => choiceData.Tags = ParseCsv(EditorGUILayout.TextField("Tags (csv)", JoinCsv(choiceData.Tags))));
+            choiceData.Restrictions ??= new List<Restriction>();
+            DrawRestrictionsSection(choiceData.Restrictions, "Restrictions");
 
             EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
-            DrawCreateOptionButtons(
+            DrawAddButtonWithPopup(
+                "Add Action",
+                "Create Action",
                 _choiceActionCreateOptionsRegistry.GetOptions(),
                 option =>
                 {
@@ -562,8 +592,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     choiceData.Actions.Add(option.Create());
                     _selectedActionIndex = choiceData.Actions.Count - 1;
                     MarkDirty();
-                },
-                "Add Action");
+                });
             EditorGUILayout.Space(4f);
             EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
             EditorGUILayout.Space(4f);
@@ -670,111 +699,6 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             }
         }
 
-        private void DrawRightPanel()
-        {
-            using (new EditorGUILayout.VerticalScope(GUILayout.Width(380f)))
-            {
-                using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_rightScroll))
-                {
-                    _rightScroll = scope.scrollPosition;
-
-                    DrawGraphPanel();
-                    EditorGUILayout.Space(8f);
-                    DrawLocalizationPanel();
-                    EditorGUILayout.Space(8f);
-                    DrawValidationPanel();
-                }
-            }
-        }
-
-        private void DrawGraphPanel()
-        {
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                EditorGUILayout.LabelField("Scene Graph", EditorStyles.boldLabel);
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Preview", GUILayout.Width(80f)))
-                {
-                    AdventureGraphPreviewWindow.Open(_adventureData, _selectedSceneId);
-                }
-            }
-
-            if (_adventureData == null)
-            {
-                EditorGUILayout.HelpBox("No adventure selected.", MessageType.Info);
-                return;
-            }
-
-            AdventureGraphData graphData = _graphBuilder.Build(_adventureData);
-            EditorGUILayout.LabelField($"Nodes: {graphData.Nodes.Count}");
-            EditorGUILayout.LabelField($"Edges: {graphData.Edges.Count}");
-
-            if (graphData.Edges.Count == 0)
-            {
-                EditorGUILayout.HelpBox("No scene links found yet.", MessageType.None);
-                return;
-            }
-
-            for (int i = 0; i < graphData.Edges.Count; i++)
-            {
-                AdventureGraphEdge edge = graphData.Edges[i];
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    if (GUILayout.Button(edge.FromSceneId, GUILayout.Width(110f)))
-                        SelectScene(edge.FromSceneId);
-
-                    GUILayout.Label("->", GUILayout.Width(18f));
-
-                    if (GUILayout.Button(edge.ToSceneId, GUILayout.Width(110f)))
-                        SelectScene(edge.ToSceneId);
-
-                    string edgeLabel = string.IsNullOrWhiteSpace(edge.ChoiceId) ? edge.ChoiceText : edge.ChoiceId;
-                    GUILayout.Label(string.IsNullOrWhiteSpace(edgeLabel) ? "(choice)" : edgeLabel);
-                }
-            }
-        }
-
-        private void DrawLocalizationPanel()
-        {
-            EditorGUILayout.LabelField("Localization Keys", EditorStyles.boldLabel);
-            if (_adventureData == null)
-            {
-                EditorGUILayout.HelpBox("No adventure selected.", MessageType.Info);
-                return;
-            }
-
-            List<string> keys = _localizationCollector.Collect(_adventureData);
-            EditorGUILayout.LabelField($"Found keys: {keys.Count} (prefix 'loc:')");
-            if (keys.Count == 0)
-            {
-                EditorGUILayout.HelpBox("No localization keys found by the default collector.", MessageType.None);
-                return;
-            }
-
-            for (int i = 0; i < keys.Count; i++)
-                EditorGUILayout.SelectableLabel(keys[i], GUILayout.Height(16f));
-        }
-
-        private void DrawValidationPanel()
-        {
-            EditorGUILayout.LabelField("Validation", EditorStyles.boldLabel);
-            if (_adventureData == null)
-            {
-                EditorGUILayout.HelpBox("No adventure selected.", MessageType.Info);
-                return;
-            }
-
-            List<string> errors = _validationService.Validate(_adventureData);
-            if (errors.Count == 0)
-            {
-                EditorGUILayout.HelpBox("No validation errors.", MessageType.Info);
-                return;
-            }
-
-            for (int i = 0; i < errors.Count; i++)
-                EditorGUILayout.HelpBox(errors[i], MessageType.Warning);
-        }
-
         private void DrawCreateOptionButtons<T>(
             IReadOnlyList<CreateOptionDescriptor<T>> options,
             Action<CreateOptionDescriptor<T>> onClick,
@@ -797,6 +721,27 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                 if (clicked)
                     onClick?.Invoke(option);
+            }
+        }
+
+        private void DrawAddButtonWithPopup<T>(
+            string buttonText,
+            string popupTitle,
+            IReadOnlyList<CreateOptionDescriptor<T>> options,
+            Action<CreateOptionDescriptor<T>> onSelected)
+        {
+            GUIContent plusIcon = EditorGUIUtility.IconContent("Toolbar Plus");
+            GUIContent content = new GUIContent(
+                buttonText,
+                plusIcon?.image,
+                $"Open create options for {buttonText}.");
+
+            if (GUILayout.Button(content, GUILayout.Height(24f)))
+            {
+                CreateOptionPickerWindow.Open(
+                    popupTitle,
+                    options,
+                    selected => onSelected?.Invoke(selected));
             }
         }
 
@@ -1368,6 +1313,138 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         }
 
         private static string JoinCsv(List<string> values)
+        {
+            if (values == null || values.Count == 0)
+                return string.Empty;
+
+            return string.Join(", ", values);
+        }
+
+        private void DrawRestrictionsSection(List<Restriction> restrictions, string sectionTitle)
+        {
+            restrictions ??= new List<Restriction>();
+
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField(sectionTitle, EditorStyles.boldLabel);
+
+            GUIContent addRestrictionContent = new GUIContent(
+                "Add Restriction",
+                EditorGUIUtility.IconContent("Toolbar Plus")?.image,
+                "Add new restriction.");
+
+            if (GUILayout.Button(addRestrictionContent, GUILayout.Height(22f)))
+            {
+                restrictions.Add(new Restriction
+                {
+                    Type = RestrictionType.TimeNow,
+                    CompareOptions = CompareType.Equal,
+                    StringValues = new List<string>(),
+                    IntValues = new List<int>(),
+                    LongValues = new List<long>(),
+                });
+                MarkDirty();
+            }
+
+            EditorGUILayout.Space(3f);
+            EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
+            EditorGUILayout.Space(3f);
+
+            for (int i = 0; i < restrictions.Count; i++)
+            {
+                Restriction restriction = restrictions[i];
+                if (restriction == null)
+                {
+                    restriction = new Restriction
+                    {
+                        Type = RestrictionType.TimeNow,
+                        CompareOptions = CompareType.Equal,
+                        StringValues = new List<string>(),
+                        IntValues = new List<int>(),
+                        LongValues = new List<long>(),
+                    };
+                    restrictions[i] = restriction;
+                    MarkDirty();
+                }
+
+                restriction.StringValues ??= new List<string>();
+                restriction.IntValues ??= new List<int>();
+                restriction.LongValues ??= new List<long>();
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                    {
+                        EditorGUILayout.LabelField($"Restriction {i + 1}", EditorStyles.miniBoldLabel);
+
+                        DrawField(() =>
+                            restriction.Type = (RestrictionType)EditorGUILayout.EnumPopup("Type", restriction.Type));
+
+                        DrawField(() =>
+                            restriction.CompareOptions = (CompareType)EditorGUILayout.EnumPopup("Compare", restriction.CompareOptions));
+
+                        DrawField(() =>
+                            restriction.StringValues = ParseCsv(EditorGUILayout.TextField("Strings (csv)", JoinCsv(restriction.StringValues))));
+
+                        DrawField(() =>
+                            restriction.IntValues = ParseCsvInts(EditorGUILayout.TextField("Ints (csv)", JoinCsvInts(restriction.IntValues))));
+
+                        DrawField(() =>
+                            restriction.LongValues = ParseCsvLongs(EditorGUILayout.TextField("Longs (csv)", JoinCsvLongs(restriction.LongValues))));
+                    }
+
+                    if (GUILayout.Button("X", GUILayout.Width(22f), GUILayout.Height(22f)))
+                    {
+                        restrictions.RemoveAt(i);
+                        MarkDirty();
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static List<int> ParseCsvInts(string csv)
+        {
+            List<int> result = new List<int>();
+            if (string.IsNullOrWhiteSpace(csv))
+                return result;
+
+            string[] parts = csv.Split(',');
+            for (int i = 0; i < parts.Length; i++)
+            {
+                string token = parts[i].Trim();
+                if (int.TryParse(token, out int value))
+                    result.Add(value);
+            }
+
+            return result;
+        }
+
+        private static List<long> ParseCsvLongs(string csv)
+        {
+            List<long> result = new List<long>();
+            if (string.IsNullOrWhiteSpace(csv))
+                return result;
+
+            string[] parts = csv.Split(',');
+            for (int i = 0; i < parts.Length; i++)
+            {
+                string token = parts[i].Trim();
+                if (long.TryParse(token, out long value))
+                    result.Add(value);
+            }
+
+            return result;
+        }
+
+        private static string JoinCsvInts(List<int> values)
+        {
+            if (values == null || values.Count == 0)
+                return string.Empty;
+
+            return string.Join(", ", values);
+        }
+
+        private static string JoinCsvLongs(List<long> values)
         {
             if (values == null || values.Count == 0)
                 return string.Empty;
