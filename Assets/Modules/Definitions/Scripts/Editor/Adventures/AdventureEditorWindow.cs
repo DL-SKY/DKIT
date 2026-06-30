@@ -379,107 +379,127 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 DrawField(() => sceneData.Tags = ParseCsv(EditorGUILayout.TextField("Tags (csv)", JoinCsv(sceneData.Tags))));
 
                 EditorGUILayout.Space(4f);
-                EditorGUILayout.LabelField("Content", EditorStyles.boldLabel);
-                DrawCreateOptionButtons(
-                    _sceneContentCreateOptionsRegistry.GetOptions(),
-                    option =>
-                    {
-                        sceneData.Content.Add(option.Create());
-                        _selectedContentIndex = sceneData.Content.Count - 1;
-                        MarkDirty();
-                    },
-                    "Add Content");
-                EditorGUILayout.Space(4f);
-                EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
-                EditorGUILayout.Space(4f);
-
-                using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_contentScroll, GUILayout.Height(140f)))
+                using (new EditorGUILayout.HorizontalScope())
                 {
-                    _contentScroll = scope.scrollPosition;
-                    for (int i = 0; i < sceneData.Content.Count; i++)
+                    using (new EditorGUILayout.VerticalScope(GUILayout.ExpandWidth(true)))
                     {
-                        var contentData = sceneData.Content[i];
-                        string title = $"{i}: {contentData?.Type}";
-                        bool selected = i == _selectedContentIndex;
-                        GUIStyle style = selected ? EditorStyles.helpBox : EditorStyles.miniButton;
-                        using (new EditorGUILayout.HorizontalScope())
+                        DrawContentSection(sceneData);
+                    }
+
+                    GUILayout.Space(8f);
+
+                    using (new EditorGUILayout.VerticalScope(GUILayout.ExpandWidth(true)))
+                    {
+                        DrawChoicesSection(sceneData);
+                    }
+                }
+            }
+        }
+
+        private void DrawContentSection(SceneData sceneData)
+        {
+            EditorGUILayout.LabelField("Content", EditorStyles.boldLabel);
+            DrawCreateOptionButtons(
+                _sceneContentCreateOptionsRegistry.GetOptions(),
+                option =>
+                {
+                    sceneData.Content.Add(option.Create());
+                    _selectedContentIndex = sceneData.Content.Count - 1;
+                    MarkDirty();
+                },
+                "Add Content");
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
+            EditorGUILayout.Space(4f);
+
+            using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_contentScroll, GUILayout.Height(140f)))
+            {
+                _contentScroll = scope.scrollPosition;
+                for (int i = 0; i < sceneData.Content.Count; i++)
+                {
+                    var contentData = sceneData.Content[i];
+                    string title = $"{i}: {contentData?.Type}";
+                    bool selected = i == _selectedContentIndex;
+                    GUIStyle style = selected ? EditorStyles.helpBox : EditorStyles.miniButton;
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        if (GUILayout.Button(title, style))
+                            _selectedContentIndex = i;
+
+                        if (GUILayout.Button("X", GUILayout.Width(22f)))
                         {
-                            if (GUILayout.Button(title, style))
-                                _selectedContentIndex = i;
+                            sceneData.Content.RemoveAt(i);
+                            if (_selectedContentIndex == i)
+                                _selectedContentIndex = -1;
+                            else if (_selectedContentIndex > i)
+                                _selectedContentIndex--;
 
-                            if (GUILayout.Button("X", GUILayout.Width(22f)))
-                            {
-                                sceneData.Content.RemoveAt(i);
-                                if (_selectedContentIndex == i)
-                                    _selectedContentIndex = -1;
-                                else if (_selectedContentIndex > i)
-                                    _selectedContentIndex--;
-
-                                MarkDirty();
-                                break;
-                            }
+                            MarkDirty();
+                            break;
                         }
                     }
                 }
+            }
 
-                DrawSelectedContentEditor(sceneData);
+            DrawSelectedContentEditor(sceneData);
+        }
 
-                EditorGUILayout.Space(4f);
-                EditorGUILayout.LabelField("Choices", EditorStyles.boldLabel);
-                DrawCreateOptionButtons(
-                    _choiceCreateOptionsRegistry.GetOptions(),
-                    option =>
-                    {
-                        sceneData.Choices.Add(option.Create());
-                        _selectedChoiceIndex = sceneData.Choices.Count - 1;
-                        _selectedActionIndex = -1;
-                        MarkDirty();
-                    },
-                    "Add Choice");
-                EditorGUILayout.Space(4f);
-                EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
-                EditorGUILayout.Space(4f);
-
-                using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_choicesScroll, GUILayout.Height(140f)))
+        private void DrawChoicesSection(SceneData sceneData)
+        {
+            EditorGUILayout.LabelField("Choices", EditorStyles.boldLabel);
+            DrawCreateOptionButtons(
+                _choiceCreateOptionsRegistry.GetOptions(),
+                option =>
                 {
-                    _choicesScroll = scope.scrollPosition;
-                    for (int i = 0; i < sceneData.Choices.Count; i++)
+                    sceneData.Choices.Add(option.Create());
+                    _selectedChoiceIndex = sceneData.Choices.Count - 1;
+                    _selectedActionIndex = -1;
+                    MarkDirty();
+                },
+                "Add Choice");
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
+            EditorGUILayout.Space(4f);
+
+            using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_choicesScroll, GUILayout.Height(140f)))
+            {
+                _choicesScroll = scope.scrollPosition;
+                for (int i = 0; i < sceneData.Choices.Count; i++)
+                {
+                    ChoiceData choiceData = sceneData.Choices[i];
+                    string choiceName = string.IsNullOrWhiteSpace(choiceData?.Id) ? $"choice_{i}" : choiceData.Id;
+                    bool selected = i == _selectedChoiceIndex;
+                    GUIStyle style = selected ? EditorStyles.helpBox : EditorStyles.miniButton;
+                    using (new EditorGUILayout.HorizontalScope())
                     {
-                        ChoiceData choiceData = sceneData.Choices[i];
-                        string choiceName = string.IsNullOrWhiteSpace(choiceData?.Id) ? $"choice_{i}" : choiceData.Id;
-                        bool selected = i == _selectedChoiceIndex;
-                        GUIStyle style = selected ? EditorStyles.helpBox : EditorStyles.miniButton;
-                        using (new EditorGUILayout.HorizontalScope())
+                        if (GUILayout.Button($"{i}: {choiceName}", style))
                         {
-                            if (GUILayout.Button($"{i}: {choiceName}", style))
+                            _selectedChoiceIndex = i;
+                            _selectedActionIndex = -1;
+                        }
+
+                        if (GUILayout.Button("X", GUILayout.Width(22f)))
+                        {
+                            sceneData.Choices.RemoveAt(i);
+
+                            if (_selectedChoiceIndex == i)
                             {
-                                _selectedChoiceIndex = i;
+                                _selectedChoiceIndex = -1;
                                 _selectedActionIndex = -1;
                             }
-
-                            if (GUILayout.Button("X", GUILayout.Width(22f)))
+                            else if (_selectedChoiceIndex > i)
                             {
-                                sceneData.Choices.RemoveAt(i);
-
-                                if (_selectedChoiceIndex == i)
-                                {
-                                    _selectedChoiceIndex = -1;
-                                    _selectedActionIndex = -1;
-                                }
-                                else if (_selectedChoiceIndex > i)
-                                {
-                                    _selectedChoiceIndex--;
-                                }
-
-                                MarkDirty();
-                                break;
+                                _selectedChoiceIndex--;
                             }
+
+                            MarkDirty();
+                            break;
                         }
                     }
                 }
-
-                DrawSelectedChoiceEditor(sceneData);
             }
+
+            DrawSelectedChoiceEditor(sceneData);
         }
 
         private void DrawSelectedContentEditor(SceneData sceneData)
@@ -544,6 +564,9 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     MarkDirty();
                 },
                 "Add Action");
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
+            EditorGUILayout.Space(4f);
 
             if (choiceData.Actions != null)
             {
@@ -553,8 +576,24 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     string label = $"{i}: {actionData?.Type}";
                     bool selected = i == _selectedActionIndex;
                     GUIStyle style = selected ? EditorStyles.helpBox : EditorStyles.miniButton;
-                    if (GUILayout.Button(label, style))
-                        _selectedActionIndex = i;
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        if (GUILayout.Button(label, style))
+                            _selectedActionIndex = i;
+
+                        if (GUILayout.Button("X", GUILayout.Width(22f)))
+                        {
+                            choiceData.Actions.RemoveAt(i);
+
+                            if (_selectedActionIndex == i)
+                                _selectedActionIndex = -1;
+                            else if (_selectedActionIndex > i)
+                                _selectedActionIndex--;
+
+                            MarkDirty();
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -650,7 +689,16 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
         private void DrawGraphPanel()
         {
-            EditorGUILayout.LabelField("Scene Graph", EditorStyles.boldLabel);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField("Scene Graph", EditorStyles.boldLabel);
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Preview", GUILayout.Width(80f)))
+                {
+                    AdventureGraphPreviewWindow.Open(_adventureData, _selectedSceneId);
+                }
+            }
+
             if (_adventureData == null)
             {
                 EditorGUILayout.HelpBox("No adventure selected.", MessageType.Info);

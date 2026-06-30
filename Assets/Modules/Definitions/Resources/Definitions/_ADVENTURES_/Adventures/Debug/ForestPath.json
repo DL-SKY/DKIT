@@ -1,37 +1,44 @@
 {
   "Disabled": false,
   "Tags": [
-    "tutorial",
-    "exploration"
+    "debug",
+    "test",
+    "navigation"
   ],
   "IgnoredTags": [],
   "IsRepeatable": true,
   "Type": 0,
   "AdventureLinks": [],
-  "Title": "Лесная тропа",
-  "Description": "Небольшая развилка на опушке леса.",
+  "Title": "ForestPath Test Run",
+  "Description": "Короткое тестовое приключение на 20 сцен с развилками и возвратами.",
   "Restrictions": [],
   "StartScenes": [
-    "fork"
+    "scene_01",
+    "scene_02"
   ],
   "Scenes": {
-    "fork": {
-      "Id": "fork",
-      "Tags": [],
+    "scene_01": {
+      "Id": "scene_01",
+      "Tags": [
+        "TAG_1",
+        "TAG_2",
+        "START",
+        "DEBUG"
+      ],
       "Content": [
         {
           "Type": 0,
           "Restrictions": [],
-          "Value": "Тропа раздваивается: слева слышен шум ручья, справа темнеет чаща."
+          "Value": "Вы входите на лесную тропу. Впереди развилка и старый указатель."
         }
       ],
       "NotClearScene": false,
       "Choices": [
         {
-          "Id": "to_stream",
+          "Id": "s01_to_s02",
           "Tags": [],
           "Type": 0,
-          "Text": "Идти к ручью",
+          "Text": "Пойти к указателю",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
@@ -40,7 +47,28 @@
               "Type": 100,
               "Params": {
                 "Strings": {
-                  "sceneId": "stream"
+                  "sceneId": "scene_02"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s01_to_s03",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Свернуть к ручью",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_03"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -50,38 +78,995 @@
         }
       ]
     },
-    "stream": {
-      "Id": "stream",
+    "scene_02": {
+      "Id": "scene_02",
       "Tags": [],
       "Content": [
         {
           "Type": 0,
           "Restrictions": [],
-          "Value": "У ручья вы находите следы недавнего лагеря."
+          "Value": "На указателе две надписи: «Старая поляна» и «Каменный мост»."
         }
       ],
       "NotClearScene": false,
-      "Choices": []
+      "Choices": [
+        {
+          "Id": "s02_to_s04",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Идти к старой поляне",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_04"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s02_to_s05",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Идти к каменному мосту",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_05"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
     },
-    "new_scene": {
-      "Id": "new_scene",
-      "Tags": [],
-      "Content": [],
-      "NotClearScene": false,
-      "Choices": []
-    },
-    "new_scene_1": {
-      "Id": "new_scene_1",
+    "scene_03": {
+      "Id": "scene_03",
       "Tags": [],
       "Content": [
         {
           "Type": 0,
           "Restrictions": [],
-          "Value": ""
+          "Value": "У ручья слышен скрип мельничного колеса и виден узкий проход в кустах."
         }
       ],
       "NotClearScene": false,
-      "Choices": []
+      "Choices": [
+        {
+          "Id": "s03_to_s05",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Перейти к мосту",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_05"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s03_to_s06",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Пройти через кусты",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_06"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_04": {
+      "Id": "scene_04",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "На поляне кострище и три заметные тропинки."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s04_to_s07",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Взять северную тропу",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_07"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s04_to_s08",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Пойти по следам к бревну",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_08"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s04_to_s09",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Вернуться к мосту внизу",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_09"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_05": {
+      "Id": "scene_05",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Каменный мост разделяет путь: вверх к башне или вниз к бобровой запруде."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s05_to_s09",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Подняться к башне",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_09"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s05_to_s10",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Спуститься к запруде",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_10"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_06": {
+      "Id": "scene_06",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "За кустами узкая тропа ведет к оврагу и к заброшенному лагерю."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s06_to_s10",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Пойти к оврагу",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_10"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_07": {
+      "Id": "scene_07",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Тропа приводит к старым воротам из корней."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s07_to_s12",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Пройти через ворота",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_12"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s07_to_s08",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Срезать путь к бревну",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_08"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_08": {
+      "Id": "scene_08",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "У поваленного бревна лежит знак с меткой разведчиков."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s08_to_s12",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Следовать метке",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_12"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s08_to_s13",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Идти по шуму воды",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_13"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_09": {
+      "Id": "scene_09",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Перед вами полуразрушенная башня и спуск в подвал."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s09_to_s13",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Спуститься в подвал",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_13"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s09_to_s14",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Подняться на площадку",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_14"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_10": {
+      "Id": "scene_10",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Запруда шумит, рядом видны следы тропы в низину."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s10_to_s14",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Идти в низину",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_14"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s10_to_s15",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Подняться на сухой берег",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_15"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_11": {
+      "Id": "scene_11",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "В лагере находится карта с короткой отметкой «Северный выход»."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s11_to_s15",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Следовать по карте",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_15"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s11_to_s06",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Вернуться на узкую тропу",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_06"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_12": {
+      "Id": "scene_12",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "За воротами каменная арка и две лестницы."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s12_to_s16",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Левая лестница",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_16"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s12_to_s17",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Правая лестница",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_17"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_13": {
+      "Id": "scene_13",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Подвал сырой, но через пролом видно выход к свету."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s13_to_s17",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Пройти через пролом",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_17"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s13_to_s18",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Осмотреть дальний коридор",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_18"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_14": {
+      "Id": "scene_14",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "В низине сходятся тропы от башни и запруды."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s14_to_s18",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Пойти к сухому валуну",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_18"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s14_to_s19",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Свернуть на северную тропу",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_19"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_15": {
+      "Id": "scene_15",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Тропа уводит к древнему дубу с резной меткой."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s15_to_s19",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Идти по метке",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_19"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_16": {
+      "Id": "scene_16",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Короткий финал: вы находите наблюдательный пост и отмечаете маршрут."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s16_to_s01",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Запустить путь заново",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_01"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_17": {
+      "Id": "scene_17",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Вы выходите на гребень. Отсюда видно выход из леса и обходной маршрут."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s17_to_s20",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Идти к выходу",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_20"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s17_to_s18",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Срезать по обходной тропе",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_18"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_18": {
+      "Id": "scene_18",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Короткий финал: обходная тропа замыкается у древнего камня."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s18_to_s01",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Повторить тест с начала",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_01"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_19": {
+      "Id": "scene_19",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Перед вами последний подъем и развилка к двум выходам."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s19_to_s20",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Выйти на главную дорогу",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_20"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s19_to_s16",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Свернуть к посту наблюдения",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_16"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "new_choice",
+          "Tags": [],
+          "Type": 0,
+          "Text": "",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": []
+        }
+      ]
+    },
+    "scene_20": {
+      "Id": "scene_20",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": 0,
+          "Restrictions": [],
+          "Value": "Короткий финал: вы выходите из леса. Маршрут отмечен как успешный тест."
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s20_to_s01",
+          "Tags": [],
+          "Type": 0,
+          "Text": "Пройти снова",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
+            {
+              "Type": 100,
+              "Params": {
+                "Strings": {
+                  "sceneId": "scene_01"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
     }
   }
 }
