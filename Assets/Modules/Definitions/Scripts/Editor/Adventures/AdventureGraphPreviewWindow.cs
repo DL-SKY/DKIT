@@ -12,13 +12,13 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
     public sealed class AdventureGraphPreviewWindow : EditorWindow
     {
         private const float NODE_WIDTH = 220f;
-        private const float NODE_HEIGHT = 94f;
+        private const float NODE_TOP_BLOCK_HEIGHT = 58f;
+        private const float CHOICE_ROW_HEIGHT = 18f;
         private const float LAYER_SPACING_X = 320f;
-        private const float LAYER_SPACING_Y = 130f;
+        private const float LAYER_SPACING_Y = 34f;
         private const float CANVAS_PADDING = 24f;
         private const float CONTENT_ICON_SIZE = 14f;
         private const float CONTENT_ICON_SPACING = 4f;
-        private const float ICON_ROW_GAP = 3f;
         private const float ICON_BOTTOM_MARGIN = 4f;
 
         private readonly Dictionary<string, PreviewNode> _nodes = new Dictionary<string, PreviewNode>(StringComparer.Ordinal);
@@ -42,6 +42,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
         private GUIStyle _nodeLabelStyle;
         private GUIStyle _nodeTagsStyle;
+        private GUIStyle _choiceIdStyle;
         private GUIStyle _legendStyle;
         private GUIStyle _statsStyle;
         private Rect _canvasRect;
@@ -65,6 +66,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             DrawGrid(_canvasRect, 24f, new Color(1f, 1f, 1f, 0.03f));
             DrawGrid(_canvasRect, 120f, new Color(1f, 1f, 1f, 0.06f));
 
+            RebuildNodeScreenRects();
             DrawEdges();
             DrawNodes();
             HandleInput(Event.current);
@@ -142,8 +144,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 if (!_nodes.TryGetValue(edge.ToNodeId, out PreviewNode toNode))
                     continue;
 
-                Vector2 from = ToScreenPoint(_nodePositions[fromNode.Id] + new Vector2(NODE_WIDTH, NODE_HEIGHT * 0.5f));
-                Vector2 to = ToScreenPoint(_nodePositions[toNode.Id] + new Vector2(0f, NODE_HEIGHT * 0.5f));
+                Vector2 from = GetEdgeStartPoint(fromNode, edge.FromChoiceIndex);
+                Vector2 to = GetEdgeEndPoint(toNode);
                 Vector2 tangentA = from + Vector2.right * (70f * _zoom);
                 Vector2 tangentB = to + Vector2.left * (70f * _zoom);
 
@@ -156,6 +158,30 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             }
 
             Handles.EndGUI();
+        }
+
+        private Vector2 GetEdgeStartPoint(PreviewNode fromNode, int fromChoiceIndex)
+        {
+            if (fromNode.ChoiceRowScreenRects != null &&
+                fromChoiceIndex >= 0 &&
+                fromChoiceIndex < fromNode.ChoiceRowScreenRects.Count)
+            {
+                Rect rowRect = fromNode.ChoiceRowScreenRects[fromChoiceIndex];
+                return new Vector2(rowRect.xMax, rowRect.center.y);
+            }
+
+            if (_nodeScreenRects.TryGetValue(fromNode.Id, out Rect nodeRect))
+                return new Vector2(nodeRect.xMax, nodeRect.center.y);
+
+            return _canvasRect.center;
+        }
+
+        private Vector2 GetEdgeEndPoint(PreviewNode toNode)
+        {
+            if (_nodeScreenRects.TryGetValue(toNode.Id, out Rect nodeRect))
+                return new Vector2(nodeRect.xMin, nodeRect.center.y);
+
+            return _canvasRect.center;
         }
 
         private void DrawArrowHead(Vector2 tip, Vector2 direction, Color color)
@@ -174,14 +200,11 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
         private void DrawNodes()
         {
-            _nodeScreenRects.Clear();
-
             foreach (KeyValuePair<string, PreviewNode> pair in _nodes)
             {
                 PreviewNode node = pair.Value;
-                Vector2 worldPos = _nodePositions[node.Id];
-                Rect screenRect = ToScreenRect(new Rect(worldPos.x, worldPos.y, NODE_WIDTH, NODE_HEIGHT));
-                _nodeScreenRects[node.Id] = screenRect;
+                if (!_nodeScreenRects.TryGetValue(node.Id, out Rect screenRect))
+                    continue;
 
                 Color fill = GetNodeColor(node);
                 EditorGUI.DrawRect(screenRect, fill);
@@ -202,24 +225,23 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 Rect idRect = new Rect(screenRect.x + 6f, screenRect.y + 4f, screenRect.width - 12f, 20f);
                 GUI.Label(idRect, node.Id, GetNodeLabelStyle());
 
-                float iconRowHeight = (CONTENT_ICON_SIZE * _zoom);
-                float iconAreaHeight = iconRowHeight * 2f + ICON_ROW_GAP * _zoom + ICON_BOTTOM_MARGIN * _zoom;
-                Rect tagsRect = new Rect(screenRect.x + 6f, screenRect.y + 24f, screenRect.width - 12f, screenRect.height - 28f - iconAreaHeight);
+                float topBlockBottomY = screenRect.y + NODE_TOP_BLOCK_HEIGHT * _zoom;
+                Rect tagsRect = new Rect(screenRect.x + 6f, screenRect.y + 24f, screenRect.width - 12f, (topBlockBottomY - screenRect.y) - 30f);
                 GUI.Label(tagsRect, node.TagsLabel, GetNodeTagsStyle());
 
-                DrawNodeContentIcons(screenRect, node);
-                DrawNodeChoiceIcons(screenRect, node);
+                DrawNodeContentIcons(screenRect, node, topBlockBottomY);
+                DrawChoiceRows(screenRect, node, topBlockBottomY);
             }
         }
 
-        private void DrawNodeContentIcons(Rect screenRect, PreviewNode node)
+        private void DrawNodeContentIcons(Rect screenRect, PreviewNode node, float topBlockBottomY)
         {
             if (node.ContentIcons == null || node.ContentIcons.Count == 0)
                 return;
 
             float iconSize = CONTENT_ICON_SIZE * _zoom;
             float iconSpacing = CONTENT_ICON_SPACING * _zoom;
-            float y = screenRect.yMax - iconSize - ICON_BOTTOM_MARGIN * _zoom - iconSize - ICON_ROW_GAP * _zoom;
+            float y = topBlockBottomY - iconSize - ICON_BOTTOM_MARGIN * _zoom;
             float x = screenRect.x + 6f;
             float maxX = screenRect.xMax - 6f;
 
@@ -238,29 +260,41 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             }
         }
 
-        private void DrawNodeChoiceIcons(Rect screenRect, PreviewNode node)
+        private void DrawChoiceRows(Rect screenRect, PreviewNode node, float topBlockBottomY)
         {
-            if (node.ChoiceIcons == null || node.ChoiceIcons.Count == 0)
+            if (node.ChoiceCount <= 0)
                 return;
 
-            float iconSize = CONTENT_ICON_SIZE * _zoom;
-            float iconSpacing = CONTENT_ICON_SPACING * _zoom;
-            float y = screenRect.yMax - iconSize - ICON_BOTTOM_MARGIN * _zoom;
-            float x = screenRect.x + 6f;
-            float maxX = screenRect.xMax - 6f;
-
-            for (int i = 0; i < node.ChoiceIcons.Count; i++)
+            for (int i = 0; i < node.ChoiceCount; i++)
             {
-                Texture icon = node.ChoiceIcons[i];
-                if (icon == null)
-                    continue;
-
-                if (x + iconSize > maxX)
+                if (i >= node.ChoiceRowScreenRects.Count)
                     break;
 
-                Rect iconRect = new Rect(x, y, iconSize, iconSize);
-                GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit, true);
-                x += iconSize + iconSpacing;
+                Rect rowRect = node.ChoiceRowScreenRects[i];
+                EditorGUI.DrawRect(rowRect, new Color(0f, 0f, 0f, 0.12f));
+                EditorGUI.DrawRect(new Rect(rowRect.x, rowRect.y, rowRect.width, 1f), new Color(1f, 1f, 1f, 0.15f));
+                EditorGUI.DrawRect(new Rect(rowRect.x, rowRect.yMax - 1f, rowRect.width, 1f), new Color(0f, 0f, 0f, 0.28f));
+
+                Texture icon = (node.ChoiceIcons != null && i < node.ChoiceIcons.Count) ? node.ChoiceIcons[i] : null;
+                float iconSize = CONTENT_ICON_SIZE * _zoom;
+                float iconX = rowRect.x + 6f;
+                float iconY = rowRect.center.y - iconSize * 0.5f;
+
+                float textStartX = rowRect.x + 8f;
+                if (icon != null)
+                {
+                    GUI.DrawTexture(new Rect(iconX, iconY, iconSize, iconSize), icon, ScaleMode.ScaleToFit, true);
+                    textStartX = iconX + iconSize + 6f;
+                }
+
+                string choiceId = (node.ChoiceIds != null && i < node.ChoiceIds.Count)
+                    ? node.ChoiceIds[i]
+                    : string.Empty;
+                if (!string.IsNullOrWhiteSpace(choiceId))
+                {
+                    Rect textRect = new Rect(textStartX, rowRect.y + 1f, rowRect.width - (textStartX - rowRect.x) - 6f, rowRect.height - 2f);
+                    GUI.Label(textRect, choiceId, GetChoiceIdStyle());
+                }
             }
         }
 
@@ -411,6 +445,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     TagsLabel = BuildTagsLabel(sceneData?.Tags),
                     ContentIcons = BuildContentIcons(sceneData?.Content),
                     ChoiceIcons = BuildChoiceIcons(sceneData?.Choices),
+                    ChoiceIds = BuildChoiceIds(sceneData?.Choices),
+                    ChoiceCount = sceneData?.Choices?.Count ?? 0,
                     IsExistingScene = true,
                     IsStart = startSet.Contains(id),
                     IsReachable = false,
@@ -448,6 +484,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                                 TagsLabel = "tags: -",
                                 ContentIcons = new List<Texture>(),
                                 ChoiceIcons = new List<Texture>(),
+                                ChoiceIds = new List<string>(),
+                                ChoiceCount = 0,
                                 IsExistingScene = false,
                                 IsBrokenTarget = true,
                                 IsStart = false,
@@ -459,6 +497,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         {
                             FromNodeId = fromScene,
                             ToNodeId = target,
+                            FromChoiceIndex = choiceIndex,
                         });
                     }
                 }
@@ -628,10 +667,15 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             bool hasLeftColumn = leftColumnNodes.Count > 0;
             float leftColumnX = CANVAS_PADDING;
 
+            float leftY = CANVAS_PADDING;
             for (int i = 0; i < leftColumnNodes.Count; i++)
             {
-                float y = CANVAS_PADDING + i * LAYER_SPACING_Y;
-                _nodePositions[leftColumnNodes[i]] = new Vector2(leftColumnX, y);
+                string nodeId = leftColumnNodes[i];
+                _nodePositions[nodeId] = new Vector2(leftColumnX, leftY);
+                if (_nodes.TryGetValue(leftColumnNodes[i], out PreviewNode node))
+                    leftY += node.NodeHeight + LAYER_SPACING_Y;
+                else
+                    leftY += CHOICE_ROW_HEIGHT + LAYER_SPACING_Y;
             }
 
             for (int k = 0; k < depthKeys.Count; k++)
@@ -641,10 +685,43 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                 int columnIndex = hasLeftColumn ? depthKeys[k] + 1 : depthKeys[k];
                 float x = CANVAS_PADDING + columnIndex * LAYER_SPACING_X;
+                float y = CANVAS_PADDING;
                 for (int i = 0; i < layerNodes.Count; i++)
                 {
-                    float y = CANVAS_PADDING + i * LAYER_SPACING_Y;
-                    _nodePositions[layerNodes[i]] = new Vector2(x, y);
+                    string nodeId = layerNodes[i];
+                    _nodePositions[nodeId] = new Vector2(x, y);
+                    if (_nodes.TryGetValue(nodeId, out PreviewNode node))
+                        y += node.NodeHeight + LAYER_SPACING_Y;
+                    else
+                        y += CHOICE_ROW_HEIGHT + LAYER_SPACING_Y;
+                }
+            }
+        }
+
+        private void RebuildNodeScreenRects()
+        {
+            _nodeScreenRects.Clear();
+
+            foreach (KeyValuePair<string, PreviewNode> pair in _nodes)
+            {
+                PreviewNode node = pair.Value;
+                if (!_nodePositions.TryGetValue(node.Id, out Vector2 worldPos))
+                    continue;
+
+                Rect worldRect = new Rect(worldPos.x, worldPos.y, NODE_WIDTH, node.NodeHeight);
+                Rect screenRect = ToScreenRect(worldRect);
+                _nodeScreenRects[node.Id] = screenRect;
+
+                node.ChoiceRowScreenRects.Clear();
+                if (node.ChoiceCount <= 0)
+                    continue;
+
+                float rowHeight = CHOICE_ROW_HEIGHT * _zoom;
+                float firstRowY = screenRect.y + NODE_TOP_BLOCK_HEIGHT * _zoom;
+                for (int i = 0; i < node.ChoiceCount; i++)
+                {
+                    Rect rowRect = new Rect(screenRect.x, firstRowY + i * rowHeight, screenRect.width, rowHeight);
+                    node.ChoiceRowScreenRects.Add(rowRect);
                 }
             }
         }
@@ -672,7 +749,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 _nodeTagsStyle = new GUIStyle(EditorStyles.miniLabel)
                 {
                     alignment = TextAnchor.UpperLeft,
-                    wordWrap = true,
+                    wordWrap = false,
                     clipping = TextClipping.Clip,
                     fontSize = 10,
                 };
@@ -781,10 +858,31 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             {
                 ChoiceData choiceData = choices[i];
                 if (choiceData == null)
+                {
+                    result.Add(null);
                     continue;
+                }
 
-                if (_choiceIconsByType.TryGetValue(choiceData.Type, out Texture icon))
-                    result.Add(icon);
+                _choiceIconsByType.TryGetValue(choiceData.Type, out Texture icon);
+                result.Add(icon);
+            }
+
+            return result;
+        }
+
+        private static List<string> BuildChoiceIds(List<ChoiceData> choices)
+        {
+            List<string> result = new List<string>();
+            if (choices == null)
+                return result;
+
+            for (int i = 0; i < choices.Count; i++)
+            {
+                ChoiceData choice = choices[i];
+                string id = choice?.Id;
+                if (string.IsNullOrWhiteSpace(id))
+                    id = $"choice_{i}";
+                result.Add(id);
             }
 
             return result;
@@ -802,6 +900,22 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
             _legendStyle.normal.textColor = color;
             return _legendStyle;
+        }
+
+        private GUIStyle GetChoiceIdStyle()
+        {
+            if (_choiceIdStyle == null)
+            {
+                _choiceIdStyle = new GUIStyle(EditorStyles.miniLabel)
+                {
+                    alignment = TextAnchor.MiddleLeft,
+                    clipping = TextClipping.Clip,
+                    fontSize = 10,
+                };
+                _choiceIdStyle.normal.textColor = new Color(0.93f, 0.93f, 0.93f, 0.95f);
+            }
+
+            return _choiceIdStyle;
         }
 
         private GUIStyle GetStatsStyle()
@@ -823,16 +937,22 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             public string TagsLabel;
             public List<Texture> ContentIcons;
             public List<Texture> ChoiceIcons;
+            public List<string> ChoiceIds;
+            public int ChoiceCount;
+            public List<Rect> ChoiceRowScreenRects = new List<Rect>();
             public bool IsExistingScene;
             public bool IsBrokenTarget;
             public bool IsStart;
             public bool IsReachable;
+
+            public float NodeHeight => NODE_TOP_BLOCK_HEIGHT + CHOICE_ROW_HEIGHT * Mathf.Max(0, ChoiceCount);
         }
 
         private sealed class PreviewEdge
         {
             public string FromNodeId;
             public string ToNodeId;
+            public int FromChoiceIndex;
         }
     }
 }
