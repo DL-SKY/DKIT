@@ -1,0 +1,44 @@
+---
+description: TEA — редактор приключений (Adventure Editor) и связанные Editor-окна
+alwaysApply: true
+---
+
+# TEA (Tool Edit Adventures)
+
+**TEA** — краткое имя для Unity Editor-инструмента редактирования JSON-приключений и всех связанных с ним окон/сервисов.
+
+Когда пользователь пишет «TEA», «в TEA», «редактор приключений» или «Adventure Editor» — имеется в виду этот инструмент, а не runtime-слой (`AdventuresManager`, UI adventure-окон и т.п.).
+
+## Точка входа
+
+- Меню: `Tools/Definitions/Adventures/Adventure Editor`
+- Главное окно: `AdventureEditorWindow.cs`
+
+## Код и данные
+
+- Код: `Assets/Modules/Definitions/Scripts/Editor/Adventures/`
+- Namespace: `Modules.Definitions.Scripts.Editor.Adventures`
+- JSON-данные: `Assets/Modules/Definitions/Resources/Definitions/_ADVENTURES_/Adventures`
+
+## Состав TEA
+
+| Компонент | Файл | Назначение |
+|---|---|---|
+| Главное окно | `AdventureEditorWindow.cs` | CRUD приключений, сцен, контента, выборов, actions |
+| Граф сцен | `AdventureGraphPreviewWindow.cs` | Визуальный canvas-граф переходов |
+| Валидация | `AdventureValidationWindow.cs` | Окно проверки консистентности |
+| Ввод id | `IdentifierPromptWindow.cs` | Create/rename приключений и сцен |
+| Выбор шаблона | `CreateOptionPickerWindow.cs` | Пикер create-option при нескольких шаблонах |
+| Файловый слой | `AdventureEditorFileRepository.cs` | Чтение/запись JSON |
+| Сервисы | `AdventureEditorServices.cs` | Граф, валидация, сбор localization keys |
+| Create-options | `CreateOptions/AdventureCreateOptions.cs`, `CreateOptionDescriptor.cs` | Реестры кнопок-шаблонов CRUD |
+
+## Документация
+
+Подробное описание: `Assets/Modules/Definitions/Scripts/Editor/Adventures/README.md`
+
+## Примеры запросов
+
+- «Добавь в TEA кнопку создания сцены» → `SceneCreateOptionsRegistry` в `AdventureCreateOptions.cs`
+- «Поправь граф в TEA» → `AdventureGraphPreviewWindow.cs`
+- «Валидация в редакторе приключений» → `AdventureValidationService` / `AdventureValidationWindow.cs`

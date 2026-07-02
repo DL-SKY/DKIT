@@ -196,6 +196,11 @@
 - `GameZonesEditorWindow` (Editor-only)  
   Визуальный редактор `GameZone` JSON в `Tools/Definitions/Match3/GameZonesEditor`.
 
+- **TEA** (*Tool Edit Adventures*, Editor-only)  
+  Редактор JSON-приключений (`AdventureData` и вложенные сущности). Меню: `Tools/Definitions/Adventures/Adventure Editor`.  
+  Код: `Assets/Modules/Definitions/Scripts/Editor/Adventures/`. Документация: `Assets/Modules/Definitions/Scripts/Editor/Adventures/README.md`.  
+  Состав: `AdventureEditorWindow` (главное окно), `AdventureGraphPreviewWindow`, `AdventureValidationWindow`, `IdentifierPromptWindow`, `CreateOptionPickerWindow`, `AdventureEditorFileRepository`, `AdventureEditorServices`, create-option реестры в `CreateOptions/`.
+
 ## Adventure-дефы правил: текущий контракт
 
 На текущем этапе правила приключения вынесены в отдельные типы:

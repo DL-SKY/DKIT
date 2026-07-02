@@ -1,8 +1,26 @@
-# Adventure Editor (Unity Editor Tool)
+# TEA — Tool Edit Adventures (Unity Editor Tool)
+
+## Сокращение TEA
+
+**TEA** (*Tool Edit Adventures*) — принятое в проекте краткое имя для редактора приключений и всех связанных с ним Editor-окон, сервисов и create-option реестров.
+
+В чате с агентом и в правилах Cursor можно писать просто «TEA» вместо длинного «редактор приключений / Adventure Editor / AdventureEditorWindow».
+
+| Синоним | Что имеется в виду |
+|---|---|
+| TEA | весь инструмент целиком |
+| Adventure Editor | то же, официальное имя в меню Unity |
+| `AdventureEditorWindow` | главное окно TEA |
+
+**Не путать с runtime:** `AdventuresManager`, adventure UI (`AdventureMainView`) и прочий игровой слой — это не TEA.
+
+Подробное правило для агента: `.cursor/rules/tea-tool-edit-adventures.mdc`
+
+---
 
 ## Назначение
 
-`Adventure Editor` — это редактор JSON-приключений в Unity для работы с данными:
+`Adventure Editor` (TEA) — это редактор JSON-приключений в Unity для работы с данными:
 - приключение (`AdventureData`),
 - сцены (`SceneData`),
 - контент сцены (`SceneContentData`),
@@ -14,6 +32,20 @@
 
 Основной класс окна:
 - `Assets/Modules/Definitions/Scripts/Editor/Adventures/AdventureEditorWindow.cs`
+
+Код всего инструмента:
+- `Assets/Modules/Definitions/Scripts/Editor/Adventures/`
+- namespace: `Modules.Definitions.Scripts.Editor.Adventures`
+
+### Окна TEA
+
+| Окно | Класс | Роль |
+|---|---|---|
+| Adventure Editor | `AdventureEditorWindow` | Главное окно: файлы, сцены, контент, выборы, actions, toolbar |
+| Adventure Graph | `AdventureGraphPreviewWindow` | Canvas-граф переходов между сценами (zoom/pan/drag) |
+| Adventure Validation | `AdventureValidationWindow` | Детальный список ошибок валидации |
+| Identifier Prompt | `IdentifierPromptWindow` | Модальный ввод id при create/rename |
+| Create Option Picker | `CreateOptionPickerWindow` | Выбор шаблона, когда опций больше одной |
 
 ---
 
