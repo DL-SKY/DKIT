@@ -44,6 +44,7 @@
 | Adventure Editor | `AdventureEditorWindow` | Главное окно: файлы, сцены, контент, выборы, actions, toolbar |
 | Adventure Graph | `AdventureGraphPreviewWindow` | Canvas-граф переходов между сценами (zoom/pan/drag) |
 | Adventure Validation | `AdventureValidationWindow` | Детальный список ошибок валидации |
+| TEA Localization | `AdventureLocalizationExportWindow` | Генерация ключей локализации и экспорт `.txt` для Google Sheets |
 | Identifier Prompt | `IdentifierPromptWindow` | Модальный ввод id при create/rename |
 | Create Option Picker | `CreateOptionPickerWindow` | Выбор шаблона, когда опций больше одной |
 
@@ -71,7 +72,7 @@
   - редактор Adventure/Scenes/Content/Choices/Actions,
   - граф связей сцен,
   - валидация,
-  - список localization keys.
+  - локализация (генерация ключей и экспорт).
 - Дополнительное окно ввода идентификатора:
   - `IdentifierPromptWindow.cs`
   - используется для create/rename приключений и сцен.
@@ -80,7 +81,8 @@
 - `AdventureEditorServices.cs`
   - `AdventureGraphBuilder` — строит граф переходов между сценами.
   - `AdventureValidationService` — проверяет консистентность данных.
-  - `IAdventureLocalizationKeyCollector` + `DefaultAdventureLocalizationKeyCollector` — собирает ключи локализации (по стратегии `loc:`).
+  - `IAdventureLocalizationKeyCollector` + `DefaultAdventureLocalizationKeyCollector` — собирает уже существующие ключи (по префиксу `loc:`).
+  - `AdventureLocalizationGenerationService` — генерирует ключи из текстовых полей и экспортирует tab-separated `.txt`.
 
 ### Реестры create-option (расширяемость)
 - `CreateOptionDescriptor.cs`
@@ -197,18 +199,104 @@
 
 ## Локализация в TEA
 
-- Кнопка `Localization` в toolbar открывает окно `AdventureLocalizationExportWindow`.
-- Окно позволяет выбрать папку и сгенерировать ключи в текущем выбранном adventure JSON.
-- Обрабатываются поля:
-  - `AdventureData.Title`
-  - `AdventureData.Description`
-  - `SceneContentData.Value` (только если `SceneContentType == Text`)
-  - `ChoiceData.Text`
-  - `ChoiceData.Description`
-- Если в поле уже стоит ключ, поле не изменяется.
-- Если в поле текст, он заменяется на сгенерированный ключ; для повторяющихся текстов используется один и тот же ключ.
-- Если в тексте есть placeholders (`{0}`, `{1}`, ...), к ключу добавляется суффикс `_ARG_N`, где `N` — число уникальных аргументов.
-- После генерации создается текстовый файл с парами `KEY<TAB>TEXT`, готовый для вставки в Google Sheets.
+### Точка входа
+
+- Кнопка `Localization` в toolbar главного окна (`AdventureEditorWindow`).
+- Открывает модальное окно `AdventureLocalizationExportWindow` (заголовок: `TEA Localization`).
+
+### UI окна
+
+- **Export Folder** — выбор папки, куда будет записан `.txt` файл (по умолчанию — Desktop).
+- **Generate Localization Keys** — запуск генерации ключей и экспорта.
+- **Reveal Export File** — открыть папку с последним созданным файлом.
+- Статусная строка: сколько полей обновлено, ключей сгенерировано, ключей переиспользовано, строк в экспорте.
+
+После генерации adventure помечается как `Modified` — не забудь нажать `Save` в главном окне TEA.
+
+### Какие поля обрабатываются
+
+| Поле | Условие |
+|---|---|
+| `AdventureData.Title` | всегда |
+| `AdventureData.Description` | всегда |
+| `SceneContentData.Value` | только если `Type == Text` |
+| `ChoiceData.Text` | всегда |
+| `ChoiceData.Description` | всегда |
+
+### Ключ vs текст
+
+**Ключ** — одно «слово» латиницей: `camelCase` или `snake_case` (`MY_KEY`, `myKey`, `ADV_TITLE`).  
+**Текст** — всё остальное: пробелы, знаки препинания, кириллица, placeholders `{0}` / `{1}` и т.д.
+
+Поле считается уже ключом, если значение:
+- совпадает с шаблоном ключа (`^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$`), или
+- начинается с `loc:` (префикс снимается перед проверкой).
+
+Такие поля **не изменяются**.
+
+### Алгоритм генерации
+
+1. Обход полей в порядке: adventure meta → сцены (по id) → content → choices.
+2. Если поле пустое — пропуск.
+3. Если поле уже ключ — пропуск.
+4. Если текст уже встречался — подставляется ранее сгенерированный ключ (дедупликация).
+5. Иначе генерируется новый ключ, подставляется в поле и добавляется в экспорт.
+
+### Именование ключей
+
+Префикс приключения берётся из имени JSON-файла (аббревиатура/сокращение, uppercase, до 20 символов).
+
+| Поле | Шаблон ключа |
+|---|---|
+| Title | `{ADV}_ADV_TITLE` |
+| Description | `{ADV}_ADV_DESCR` |
+| Content (Text) | `{ADV}_{SCENE}_CNT_{N}_TEXT` |
+| Choice Text | `{ADV}_{SCENE}_CH_{N}_TEXT` |
+| Choice Description | `{ADV}_{SCENE}_CH_{N}_DESCR` |
+
+- `{ADV}` — префикс приключения (например, `ADVENTURETAVERNBYMARTHA` → `ADVENTURETAVERNBYMART`).
+- `{SCENE}` — токен сцены (из id сцены).
+- `{N}` — 1-based индекс content/choice в сцене.
+
+Если в тексте есть placeholders (`{0}`, `{1}`, ...), к базовому ключу добавляется суффикс `_ARG_N`, где `N` — число **уникальных** индексов аргументов.
+
+При коллизии к имени добавляется суффикс `_2`, `_3`, ...
+
+Примеры:
+- `ADVENTURETAVERNBYMART_ADV_TITLE`
+- `ADVENTURETAVERNBYMART_TAVERN_INTRO_CNT_1_TEXT`
+- `ADVENTURETAVERNBYMART_TAVERN_INTRO_CH_2_TEXT_ARG_1`
+
+### Экспортный файл
+
+- Формат: UTF-8 без BOM, одна пара на строку: `KEY<TAB>TEXT`.
+- Имя файла: `{ADV}_localization_{yyyyMMdd_HHmmss}.txt`.
+- В экспорт попадают **только новые** ключи (переиспользованные дубликаты не дублируются в файле).
+
+Пример содержимого:
+
+```
+TEST_KEY_1	Перевод номер 1
+TEST_KEY_2	Перевод номер 2
+```
+
+### Вставка в Google Sheets
+
+Таблица локализации обычно имеет колонки `Key | rus | eng | ...`.  
+Скопируй столбцы `KEY` и `TEXT` из `.txt` и вставь в пустые строки — tab-разделитель автоматически разложит значения по ячейкам.
+
+Пример таблицы:
+
+| Key | rus | eng |
+|---|---|---|
+| TEST_KEY_1 | Перевод номер 1 | Translate N 1 |
+| TEST_KEY_2 | Перевод номер 2 | Translate N 2 |
+
+### Связанные классы
+
+- UI: `AdventureLocalizationExportWindow.cs`
+- Логика: `AdventureLocalizationGenerationService` в `AdventureEditorServices.cs`
+- Модели результата: `AdventureLocalizationGenerationResult`, `LocalizationExportEntry`
 
 ---
 

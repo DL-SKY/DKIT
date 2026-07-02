@@ -27,10 +27,11 @@ alwaysApply: true
 | Главное окно | `AdventureEditorWindow.cs` | CRUD приключений, сцен, контента, выборов, actions |
 | Граф сцен | `AdventureGraphPreviewWindow.cs` | Визуальный canvas-граф переходов |
 | Валидация | `AdventureValidationWindow.cs` | Окно проверки консистентности |
+| Локализация | `AdventureLocalizationExportWindow.cs` | Генерация ключей и экспорт `.txt` для Google Sheets |
 | Ввод id | `IdentifierPromptWindow.cs` | Create/rename приключений и сцен |
 | Выбор шаблона | `CreateOptionPickerWindow.cs` | Пикер create-option при нескольких шаблонах |
 | Файловый слой | `AdventureEditorFileRepository.cs` | Чтение/запись JSON |
-| Сервисы | `AdventureEditorServices.cs` | Граф, валидация, сбор localization keys |
+| Сервисы | `AdventureEditorServices.cs` | Граф, валидация, `AdventureLocalizationGenerationService` |
 | Create-options | `CreateOptions/AdventureCreateOptions.cs`, `CreateOptionDescriptor.cs` | Реестры кнопок-шаблонов CRUD |
 
 ## Документация
@@ -42,3 +43,4 @@ alwaysApply: true
 - «Добавь в TEA кнопку создания сцены» → `SceneCreateOptionsRegistry` в `AdventureCreateOptions.cs`
 - «Поправь граф в TEA» → `AdventureGraphPreviewWindow.cs`
 - «Валидация в редакторе приключений» → `AdventureValidationService` / `AdventureValidationWindow.cs`
+- «Локализация в TEA» / «сгенерируй ключи» → `AdventureLocalizationExportWindow` / `AdventureLocalizationGenerationService`
