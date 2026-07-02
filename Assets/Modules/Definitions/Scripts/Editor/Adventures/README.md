@@ -188,10 +188,27 @@
   - обновление `sceneId` в `GoToScene`.
 - Граф связей сцен.
 - Базовая валидация.
-- Базовый сбор localization keys.
+- Окно `Localization` для генерации ключей и экспорта в `.txt` (tab-separated) для Google Sheets.
 - Цветовая индикация состояния:
   - статус в toolbar: `Saved` (зеленый), `Modified` (желтый),
   - выбранный файл в блоке `Files` окрашивается в тот же цвет состояния.
+
+---
+
+## Локализация в TEA
+
+- Кнопка `Localization` в toolbar открывает окно `AdventureLocalizationExportWindow`.
+- Окно позволяет выбрать папку и сгенерировать ключи в текущем выбранном adventure JSON.
+- Обрабатываются поля:
+  - `AdventureData.Title`
+  - `AdventureData.Description`
+  - `SceneContentData.Value` (только если `SceneContentType == Text`)
+  - `ChoiceData.Text`
+  - `ChoiceData.Description`
+- Если в поле уже стоит ключ, поле не изменяется.
+- Если в поле текст, он заменяется на сгенерированный ключ; для повторяющихся текстов используется один и тот же ключ.
+- Если в тексте есть placeholders (`{0}`, `{1}`, ...), к ключу добавляется суффикс `_ARG_N`, где `N` — число уникальных аргументов.
+- После генерации создается текстовый файл с парами `KEY<TAB>TEXT`, готовый для вставки в Google Sheets.
 
 ---
 

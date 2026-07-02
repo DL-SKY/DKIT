@@ -2,6 +2,9 @@ using Modules.RPG.Scripts.Adventure.Choice.Actions;
 using Modules.RPG.Scripts.Adventure.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Modules.Definitions.Scripts.Editor.Adventures
 {
@@ -160,6 +163,326 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             List<string> result = new List<string>(keys);
             result.Sort(StringComparer.Ordinal);
             return result;
+        }
+    }
+
+    public sealed class LocalizationExportEntry
+    {
+        public string Key;
+        public string Text;
+    }
+
+    public sealed class AdventureLocalizationGenerationResult
+    {
+        public readonly List<LocalizationExportEntry> ExportEntries = new List<LocalizationExportEntry>();
+        public string ExportFilePath;
+        public int UpdatedFieldsCount;
+        public int GeneratedKeysCount;
+        public int ReusedKeysCount;
+    }
+
+    public sealed class AdventureLocalizationGenerationService
+    {
+        private const string LOC_PREFIX = "loc:";
+        private const int MAX_TOKEN_LENGTH = 20;
+        private static readonly Regex KEY_REGEX = new Regex(
+            "^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$",
+            RegexOptions.Compiled);
+        private static readonly Regex ARG_PLACEHOLDER_REGEX = new Regex(@"\{(\d+)\}", RegexOptions.Compiled);
+        private static readonly Regex CAMEL_CASE_SPLIT_REGEX = new Regex("([a-z0-9])([A-Z])", RegexOptions.Compiled);
+        private static readonly Regex NON_ALNUM_REGEX = new Regex("[^A-Za-z0-9]+", RegexOptions.Compiled);
+        private static readonly Regex MULTI_UNDERSCORE_REGEX = new Regex("_{2,}", RegexOptions.Compiled);
+
+        public AdventureLocalizationGenerationResult GenerateAndExport(
+            AdventureData adventureData,
+            string selectedAdventurePath,
+            string exportDirectory)
+        {
+            if (adventureData == null)
+                throw new ArgumentNullException(nameof(adventureData));
+
+            if (string.IsNullOrWhiteSpace(exportDirectory))
+                throw new ArgumentException("Export directory is empty.", nameof(exportDirectory));
+
+            if (!Directory.Exists(exportDirectory))
+                throw new DirectoryNotFoundException($"Directory not found: {exportDirectory}");
+
+            AdventureLocalizationGenerationResult result = new AdventureLocalizationGenerationResult();
+            HashSet<string> usedKeys = CollectAlreadyUsedKeys(adventureData);
+            Dictionary<string, string> textToGeneratedKey = new Dictionary<string, string>(StringComparer.Ordinal);
+            string adventurePrefix = BuildAdventurePrefix(adventureData, selectedAdventurePath);
+
+            ProcessField(
+                ref adventureData.Title,
+                $"{adventurePrefix}_ADV_TITLE",
+                textToGeneratedKey,
+                usedKeys,
+                result);
+
+            ProcessField(
+                ref adventureData.Description,
+                $"{adventurePrefix}_ADV_DESCR",
+                textToGeneratedKey,
+                usedKeys,
+                result);
+
+            if (adventureData.Scenes != null)
+            {
+                List<string> orderedSceneIds = new List<string>(adventureData.Scenes.Keys);
+                orderedSceneIds.Sort(StringComparer.Ordinal);
+                for (int sceneIndex = 0; sceneIndex < orderedSceneIds.Count; sceneIndex++)
+                {
+                    string sceneId = orderedSceneIds[sceneIndex];
+                    if (!adventureData.Scenes.TryGetValue(sceneId, out SceneData sceneData) || sceneData == null)
+                        continue;
+
+                    string sceneToken = BuildToken(sceneId, "SCENE");
+                    if (sceneData.Content != null)
+                    {
+                        for (int contentIndex = 0; contentIndex < sceneData.Content.Count; contentIndex++)
+                        {
+                            SceneContentData content = sceneData.Content[contentIndex];
+                            if (content == null || content.Type != SceneContentType.Text)
+                                continue;
+
+                            ProcessField(
+                                ref content.Value,
+                                $"{adventurePrefix}_{sceneToken}_CNT_{contentIndex + 1}_TEXT",
+                                textToGeneratedKey,
+                                usedKeys,
+                                result);
+                        }
+                    }
+
+                    if (sceneData.Choices == null)
+                        continue;
+
+                    for (int choiceIndex = 0; choiceIndex < sceneData.Choices.Count; choiceIndex++)
+                    {
+                        var choice = sceneData.Choices[choiceIndex];
+                        if (choice == null)
+                            continue;
+
+                        string choiceBase = $"{adventurePrefix}_{sceneToken}_CH_{choiceIndex + 1}";
+                        ProcessField(
+                            ref choice.Text,
+                            $"{choiceBase}_TEXT",
+                            textToGeneratedKey,
+                            usedKeys,
+                            result);
+
+                        ProcessField(
+                            ref choice.Description,
+                            $"{choiceBase}_DESCR",
+                            textToGeneratedKey,
+                            usedKeys,
+                            result);
+                    }
+                }
+            }
+
+            result.ExportFilePath = WriteExportFile(exportDirectory, adventurePrefix, result.ExportEntries);
+            return result;
+        }
+
+        private static void ProcessField(
+            ref string fieldValue,
+            string baseKey,
+            Dictionary<string, string> textToGeneratedKey,
+            HashSet<string> usedKeys,
+            AdventureLocalizationGenerationResult result)
+        {
+            if (string.IsNullOrWhiteSpace(fieldValue))
+                return;
+
+            string rawValue = fieldValue.Trim();
+            if (TryExtractKey(rawValue, out string existingKey))
+            {
+                usedKeys.Add(existingKey);
+                return;
+            }
+
+            if (textToGeneratedKey.TryGetValue(rawValue, out string reusedKey))
+            {
+                fieldValue = reusedKey;
+                result.ReusedKeysCount++;
+                result.UpdatedFieldsCount++;
+                return;
+            }
+
+            int argumentCount = CountUniqueArguments(rawValue);
+            string keyedBase = argumentCount > 0 ? $"{baseKey}_ARG_{argumentCount}" : baseKey;
+            string generatedKey = BuildUniqueKey(keyedBase, usedKeys);
+
+            fieldValue = generatedKey;
+            textToGeneratedKey[rawValue] = generatedKey;
+            usedKeys.Add(generatedKey);
+
+            result.GeneratedKeysCount++;
+            result.UpdatedFieldsCount++;
+            result.ExportEntries.Add(new LocalizationExportEntry
+            {
+                Key = generatedKey,
+                Text = NormalizeTextForTsv(rawValue),
+            });
+        }
+
+        private static HashSet<string> CollectAlreadyUsedKeys(AdventureData adventureData)
+        {
+            HashSet<string> result = new HashSet<string>(StringComparer.Ordinal);
+            CollectKey(adventureData?.Title, result);
+            CollectKey(adventureData?.Description, result);
+
+            if (adventureData?.Scenes == null)
+                return result;
+
+            foreach (KeyValuePair<string, SceneData> pair in adventureData.Scenes)
+            {
+                SceneData sceneData = pair.Value;
+                if (sceneData?.Choices == null)
+                    continue;
+
+                for (int i = 0; i < sceneData.Choices.Count; i++)
+                {
+                    var choice = sceneData.Choices[i];
+                    if (choice == null)
+                        continue;
+
+                    CollectKey(choice.Text, result);
+                    CollectKey(choice.Description, result);
+                }
+            }
+
+            return result;
+        }
+
+        private static void CollectKey(string value, HashSet<string> result)
+        {
+            if (TryExtractKey(value, out string key))
+                result.Add(key);
+        }
+
+        private static bool TryExtractKey(string value, out string key)
+        {
+            key = string.Empty;
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+
+            string trimmed = value.Trim();
+            string candidate = trimmed.StartsWith(LOC_PREFIX, StringComparison.OrdinalIgnoreCase)
+                ? trimmed.Substring(LOC_PREFIX.Length).Trim()
+                : trimmed;
+
+            if (!KEY_REGEX.IsMatch(candidate))
+                return false;
+
+            key = candidate;
+            return true;
+        }
+
+        private static int CountUniqueArguments(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return 0;
+
+            HashSet<int> indices = new HashSet<int>();
+            MatchCollection matches = ARG_PLACEHOLDER_REGEX.Matches(value);
+            for (int i = 0; i < matches.Count; i++)
+            {
+                Match match = matches[i];
+                if (match.Groups.Count < 2)
+                    continue;
+
+                if (int.TryParse(match.Groups[1].Value, out int index))
+                    indices.Add(index);
+            }
+
+            return indices.Count;
+        }
+
+        private static string BuildUniqueKey(string baseKey, HashSet<string> usedKeys)
+        {
+            string sanitizedBase = BuildKeyCandidate(baseKey);
+            if (!usedKeys.Contains(sanitizedBase))
+                return sanitizedBase;
+
+            int suffix = 2;
+            while (true)
+            {
+                string candidate = $"{sanitizedBase}_{suffix}";
+                if (!usedKeys.Contains(candidate))
+                    return candidate;
+
+                suffix++;
+            }
+        }
+
+        private static string BuildKeyCandidate(string source)
+        {
+            string prepared = CAMEL_CASE_SPLIT_REGEX.Replace(source ?? string.Empty, "$1_$2");
+            prepared = NON_ALNUM_REGEX.Replace(prepared, "_");
+            prepared = MULTI_UNDERSCORE_REGEX.Replace(prepared, "_").Trim('_');
+            if (string.IsNullOrWhiteSpace(prepared))
+                prepared = "LOC_KEY";
+
+            return prepared.ToUpperInvariant();
+        }
+
+        private static string BuildAdventurePrefix(AdventureData adventureData, string selectedAdventurePath)
+        {
+            string source = Path.GetFileNameWithoutExtension(selectedAdventurePath);
+            if (string.IsNullOrWhiteSpace(source))
+                source = adventureData?.Id;
+
+            return BuildToken(source, "ADV");
+        }
+
+        private static string BuildToken(string source, string fallback)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+                return fallback;
+
+            string prepared = CAMEL_CASE_SPLIT_REGEX.Replace(source, "$1_$2");
+            prepared = NON_ALNUM_REGEX.Replace(prepared, "_");
+            prepared = MULTI_UNDERSCORE_REGEX.Replace(prepared, "_").Trim('_');
+            if (string.IsNullOrWhiteSpace(prepared))
+                return fallback;
+
+            prepared = prepared.ToUpperInvariant();
+            if (prepared.Length > MAX_TOKEN_LENGTH)
+                prepared = prepared.Substring(0, MAX_TOKEN_LENGTH);
+
+            return prepared;
+        }
+
+        private static string NormalizeTextForTsv(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            return value
+                .Replace('\r', ' ')
+                .Replace('\n', ' ')
+                .Trim();
+        }
+
+        private static string WriteExportFile(string directory, string adventurePrefix, List<LocalizationExportEntry> entries)
+        {
+            string fileName = $"{adventurePrefix}_localization_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+            string filePath = Path.Combine(directory, fileName);
+
+            List<string> lines = new List<string>(entries.Count);
+            for (int i = 0; i < entries.Count; i++)
+            {
+                LocalizationExportEntry entry = entries[i];
+                if (entry == null || string.IsNullOrWhiteSpace(entry.Key))
+                    continue;
+
+                lines.Add($"{entry.Key}\t{entry.Text ?? string.Empty}");
+            }
+
+            File.WriteAllLines(filePath, lines, new UTF8Encoding(false));
+            return filePath;
         }
     }
 

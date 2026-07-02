@@ -113,6 +113,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                 if (GUILayout.Button("Localization", EditorStyles.toolbarButton, GUILayout.Width(90f)))
                 {
+                    AdventureLocalizationExportWindow.Open(_adventureData, _selectedFilePath, MarkDirty);
                 }
 
                 if (GUILayout.Button("Validation", EditorStyles.toolbarButton, GUILayout.Width(90f)))
