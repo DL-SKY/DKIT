@@ -20,7 +20,7 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
 
             return actionData.Type switch
             {
-                ChoiceActionType.None => _container.Instantiate<GoToSceneChoiceActionExecutor>(
+                ChoiceActionType.GoToScene => _container.Instantiate<GoToSceneChoiceActionExecutor>(
                     new object[]
                     {
                         GetRequiredString(actionData.Params.Strings, ChoiceActions.SCENE_ID, actionData.Type),

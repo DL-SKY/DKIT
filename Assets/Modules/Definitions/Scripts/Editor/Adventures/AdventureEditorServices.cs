@@ -81,8 +81,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             if (actionData == null)
                 return false;
 
-            return actionData.Type == ChoiceActionType.None
-                || actionData.Type == ChoiceActionType.GoToScene;
+            return actionData.Type == ChoiceActionType.GoToScene
+                || actionData.Type == ChoiceActionType.None;
         }
 
         public static string GetSceneId(ChoiceActionData actionData)
@@ -102,7 +102,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             if (actionData == null)
                 return;
 
-            actionData.Type = ChoiceActionType.None;
+            actionData.Type = ChoiceActionType.GoToScene;
             actionData.Params ??= new ChoiceActionParamsData();
             actionData.Params.Strings ??= new Dictionary<string, string>();
             actionData.Params.Strings[ChoiceActions.SCENE_ID] = sceneId ?? string.Empty;

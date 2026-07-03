@@ -4,10 +4,11 @@
     {
         None = 0,
 
+        GoToScene = 1,
 
 
         //TODO: rework
-        GoToScene = 100,
+        //GoToScene = 100,
         //SetFlag = 110,
         //ModifyVariable = 120,
 

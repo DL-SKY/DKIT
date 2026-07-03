@@ -543,7 +543,10 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             EditorGUILayout.Space(2f);
             EditorGUILayout.LabelField("Selected Content", EditorStyles.boldLabel);
             DrawField(() => contentData.Type = (SceneContentType)EditorGUILayout.EnumPopup("Type", contentData.Type));
-            DrawField(() => contentData.Value = EditorGUILayout.TextField("Value", contentData.Value ?? string.Empty));
+            if (contentData.Type == SceneContentType.RandomImage || contentData.Type == SceneContentType.Slideshow)
+                DrawSceneContentValuesEditor(contentData);
+            else
+                DrawField(() => contentData.Value = EditorGUILayout.TextField("Value", contentData.Value ?? string.Empty));
             contentData.Restrictions ??= new List<Restriction>();
             DrawRestrictionsSection(contentData.Restrictions, "Restrictions");
 
@@ -555,6 +558,35 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     _selectedContentIndex = -1;
                     MarkDirty();
                 }
+            }
+        }
+
+        private void DrawSceneContentValuesEditor(SceneContentData contentData)
+        {
+            contentData.Values ??= new List<string>();
+
+            EditorGUILayout.LabelField("Values", EditorStyles.miniBoldLabel);
+
+            for (int i = 0; i < contentData.Values.Count; i++)
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    int index = i;
+                    DrawField(() => contentData.Values[index] = EditorGUILayout.TextField($"Value {index + 1}", contentData.Values[index] ?? string.Empty));
+
+                    if (GUILayout.Button("X", GUILayout.Width(22f)))
+                    {
+                        contentData.Values.RemoveAt(index);
+                        MarkDirty();
+                        break;
+                    }
+                }
+            }
+
+            if (GUILayout.Button("Add Value", GUILayout.Width(110f)))
+            {
+                contentData.Values.Add(string.Empty);
+                MarkDirty();
             }
         }
 
@@ -649,7 +681,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             ChoiceActionData actionData = choiceData.Actions[_selectedActionIndex];
             if (actionData == null)
             {
-                actionData = new ChoiceActionData { Type = ChoiceActionType.None };
+                actionData = new ChoiceActionData { Type = ChoiceActionType.GoToScene };
                 choiceData.Actions[_selectedActionIndex] = actionData;
                 MarkDirty();
             }
@@ -1276,7 +1308,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                             ChoiceActionData sourceAction = sourceChoice.Actions[actionIndex];
                             choiceClone.Actions.Add(new ChoiceActionData
                             {
-                                Type = sourceAction?.Type ?? ChoiceActionType.None,
+                                Type = sourceAction?.Type ?? ChoiceActionType.GoToScene,
                                 Params = new ChoiceActionParamsData
                                 {
                                     Strings = new Dictionary<string, string>(sourceAction?.Params?.Strings ?? new Dictionary<string, string>()),

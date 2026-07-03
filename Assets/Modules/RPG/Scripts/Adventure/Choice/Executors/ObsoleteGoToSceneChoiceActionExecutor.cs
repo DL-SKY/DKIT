@@ -4,12 +4,12 @@ using System;
 namespace Modules.RPG.Scripts.Adventure.Choice.Executors
 {
     [Obsolete]
-    public class GoToSceneChoiceActionExecutor : IChoiceActionExecutor
+    public class ObsoleteGoToSceneChoiceActionExecutor : IChoiceActionExecutor
     {
         private readonly IAdventureFlowController _adventureFlowController;
         private readonly string _sceneId;
 
-        public GoToSceneChoiceActionExecutor(
+        public ObsoleteGoToSceneChoiceActionExecutor(
             IAdventureFlowController adventureFlowController,
             string sceneId)
         {

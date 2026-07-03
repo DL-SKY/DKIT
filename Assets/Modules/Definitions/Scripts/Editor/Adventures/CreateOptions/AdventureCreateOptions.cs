@@ -215,7 +215,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
         {
             return new ChoiceActionData
             {
-                Type = ChoiceActionType.None,
+                Type = ChoiceActionType.GoToScene,
                 Params = new ChoiceActionParamsData
                 {
                     Strings = new Dictionary<string, string>
@@ -245,7 +245,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     IconName = "Animation.NextKey",
                     Create = () => new ChoiceActionData
                     {
-                        Type = ChoiceActionType.None,
+                        Type = ChoiceActionType.GoToScene,
                         Params = new ChoiceActionParamsData
                         {
                             Strings = new Dictionary<string, string>

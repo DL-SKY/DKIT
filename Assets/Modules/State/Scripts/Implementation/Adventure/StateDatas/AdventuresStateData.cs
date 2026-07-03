@@ -20,7 +20,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
     public class AdventureStateData
     {
         public string AdventureId;
-        public string SceneId;
+        //public string SceneId;
 
         public AdventureStateParamsData Parameters;
     }

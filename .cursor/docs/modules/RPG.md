@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-03 20:19:00 (+03:00)
+**Последнее обновление:** 2026-07-03 22:47:00 (+03:00)
 
 ## Назначение
 
@@ -26,7 +26,7 @@
   - `IAdventureFlowController` — интерфейс контроллера переходов между сценами/узлами (**устаревший**, `[Obsolete]`).
   - `Data/*` — модели adventure/scene/content.
   - `Choice/*` — модели выбора и действий по выбору.
-  - `Choice/Executors/*` — фабрика и обработчики `ChoiceActionData` (часть executors пишет в `Modules.State` через state-actions).
+  - `Choice/Executors/*` — фабрика и обработчики `ChoiceActionData` (executors пишут в `Modules.State` через state-actions).
 
 ## Модель данных Adventure
 
@@ -106,15 +106,15 @@
 
 | Значение | Код | Статус |
 |---|---|---|
-| `None` | `0` | Единственный тип, подключённый к `ChoiceActionExecutorFactory` (переход на сцену) |
-| `GoToScene` | `100` | Оставлен в enum с пометкой `//TODO: rework`; в фабрике не используется |
-| `SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat`, `ApplyDamage`, `Heal`, `GrantItem` | `110`–`500` | Временно закомментированы в enum |
+| `None` | `0` | Зарезервирован; в фабрике не используется |
+| `GoToScene` | `1` | Подключён к `ChoiceActionExecutorFactory` (переход на сцену) |
+| `SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat`, `ApplyDamage`, `Heal`, `GrantItem` | `110`–`500` | Временно закомментированы в enum (старый черновик enum) |
 
 Именованные ключи `Params.Strings` для choice-actions задаются в `Glossary.ChoiceActions` (`Modules.Definitions.Scripts.Implementation.Adventures.Constants`):
 
 | Константа | Значение | Назначение |
 |---|---|---|
-| `Glossary.ChoiceActions.SCENE_ID` | `"SceneId"` | Id целевой сцены для перехода (`ChoiceActionType.None`) |
+| `Glossary.ChoiceActions.SCENE_ID` | `"SceneId"` | Id целевой сцены для перехода (`ChoiceActionType.GoToScene`) |
 
 Формат с `Params` сохраняет гибкость, но убирает "позиционные" ошибки (`StringValues[0]`, `IntValues[1]`) и делает JSON-контент более читаемым.
 
@@ -139,9 +139,15 @@
 
 | `ChoiceActionType` | Executor | `Params` | Куда пишет |
 |---|---|---|---|
-| `None` | `GoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) | `Strings.SceneId` (`Glossary.ChoiceActions.SCENE_ID`) | `IAdventureFlowController.GoToScene` (**устаревший**, `[Obsolete]`) |
+| `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.SceneId` (`Glossary.ChoiceActions.SCENE_ID`) | `AdventureStateLogic.ProcessAction(SetCurrentAdventureSceneIdStateAction)` → `AdventuresStateData.CurrentAdventureSceneId` |
 
-Остальные значения `ChoiceActionType` (включая `GoToScene = 100`) пока не подключены к фабрике.
+Legacy (не используется фабрикой):
+
+| Executor | `Params` | Куда писал |
+|---|---|---|
+| `ObsoleteGoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) | `Strings.SceneId` | `IAdventureFlowController.GoToScene` (**устаревший**, `[Obsolete]`) |
+
+Остальные значения `ChoiceActionType` пока не подключены к фабрике.
 
 ## Игровой runtime-флоу (целевой цикл)
 
@@ -273,7 +279,7 @@ RPG-контент (сцены, выборы, действия) описывае
 6. Для каждого `ChoiceActionData` из `Actions` фабрика создает `IChoiceActionExecutor` и вызывает `Execute()`.
 7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
-Полный runtime-поток еще не замкнут: `IAdventureFlowController` и `GoToSceneChoiceActionExecutor` помечены как устаревшие (`[Obsolete]`); `AdventuresManager` инициализируется и слушает `StateChanged`, но не управляет сценами и выборами.
+Полный runtime-поток еще не замкнут: `AdventuresManager` инициализируется и слушает `StateChanged`, но оркестрация выборов и вызов фабрики executors из UI пока не реализованы. Переход по сцене через `GoToSceneChoiceActionExecutor` уже идёт через state-action (`SetCurrentAdventureSceneIdStateAction`); legacy-путь (`ObsoleteGoToSceneChoiceActionExecutor` + `IAdventureFlowController`) помечен `[Obsolete]` и не используется фабрикой.
 
 ## Текущее состояние реализации
 
@@ -284,10 +290,11 @@ RPG-контент (сцены, выборы, действия) описывае
 - Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
-- `ChoiceActionType`: к фабрике подключён только `None` (переход на сцену); `GoToScene` и остальные значения в процессе переработки.
+- `ChoiceActionType`: к фабрике подключён `GoToScene` (код `1`); остальные значения enum в процессе переработки.
 - Ключ `Params.Strings` для id сцены: `Glossary.ChoiceActions.SCENE_ID` (`"SceneId"`).
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
-- Реализован legacy executor: `GoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`).
+- Реализован executor перехода: `GoToSceneChoiceActionExecutor` → `SetCurrentAdventureSceneIdStateAction`.
+- Legacy executor: `ObsoleteGoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) — старый путь через `IAdventureFlowController`.
 - Объявлен legacy интерфейс: `IAdventureFlowController` (**устаревший**, `[Obsolete]`).
 - `AdventuresManager` зарегистрирован в DI (`BindInterfacesAndSelfTo`), инициализируется через `AdventuresManagerInitTask`, подписан на `AdventureStateLogic.StateChanged`.
 - Отсутствуют DI-биндинги фабрики в installer, валидаторы adventure-данных, сериализация и тесты модуля.

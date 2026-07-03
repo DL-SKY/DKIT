@@ -25,7 +25,7 @@
 - сцены (`SceneData`),
 - контент сцены (`SceneContentData`),
 - выборы (`ChoiceData`),
-- action-ы выборов (`ChoiceActionData`, `ChoiceActionType.None` + `Params.Strings["SceneId"]`, см. `.cursor/docs/modules/RPG.md`).
+- action-ы выборов (`ChoiceActionData`, `ChoiceActionType.GoToScene` + `Params.Strings["SceneId"]`, см. `.cursor/docs/modules/RPG.md`).
 
 Инструмент доступен через меню:
 - `Tools/Definitions/Adventures/Adventure Editor`
@@ -171,7 +171,7 @@
 Класс:
 - `ChoiceActionCreateOptionsRegistry`
 
-Сейчас в реестре базово добавлен шаблон «Go To Scene» (`Type = None`, `Params.Strings["SceneId"]` — константа `Glossary.ChoiceActions.SCENE_ID`). При загрузке JSON legacy-формат (`GoToScene` / `sceneId`) автоматически мигрируется в `NormalizeAdventureData`.
+Сейчас в реестре базово добавлен шаблон «Go To Scene» (`Type = GoToScene`, `Params.Strings["SceneId"]` — константа `Glossary.ChoiceActions.SCENE_ID`). При загрузке JSON legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) автоматически мигрируется в `NormalizeAdventureData`.
 
 ---
 
@@ -194,7 +194,7 @@
 
 - CRUD приключений через JSON-файлы.
 - CRUD сцен, контента, выборов.
-- CRUD actions выбора (`ChoiceActionType.None` + `SceneId`).
+- CRUD actions выбора (`ChoiceActionType.GoToScene` + `SceneId`).
 - Быстрое управление списками через маленькие кнопки в строках:
   - `R` — rename (для файлов приключений и сцен),
   - `X` — delete (для файлов, сцен, контента, выборов).

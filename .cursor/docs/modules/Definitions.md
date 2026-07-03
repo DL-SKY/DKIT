@@ -38,7 +38,7 @@
 ### Соглашение по наследованию adventure-дефов
 
 - **По умолчанию** класс дефа наследуется напрямую от `AbstractDefinition` и содержит все сериализуемые поля (пример: `GemDef`, `GameZoneDef`, `ClassDef`, `ItemDef`).
-- **Исключение — `AdventureDef`:** наследует `AdventureData` из модуля `RPG`, потому что большой контракт приключения (сцены, выборы, ограничения) живёт в `RPG` и используется в runtime-слое (`AdventuresManager`, `RuntimeSceneData`). `IAdventureFlowController` в текущем коде помечен как устаревший (`[Obsolete]`). Промежуточные `*Data`-прослойки для остальных типов не используются.
+- **Исключение — `AdventureDef`:** наследует `AdventureData` из модуля `RPG`, потому что большой контракт приключения (сцены, выборы, ограничения) живёт в `RPG` и используется в runtime-слое (`AdventuresManager`, `RuntimeSceneData`). Legacy `IAdventureFlowController` и `ObsoleteGoToSceneChoiceActionExecutor` помечены `[Obsolete]`; актуальный переход по сцене — `GoToSceneChoiceActionExecutor` через state-actions. Промежуточные `*Data`-прослойки для остальных типов не используются.
 
 | Def | Базовый класс | JSON-папка |
 |---|---|---|
@@ -139,7 +139,7 @@
   | `StartScenes` | `List<string>` | да |
   | `Scenes` | `Dictionary<string, SceneData>` | да |
 
-  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). Choice-actions: `ChoiceActionType.None` + `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`); TEA при загрузке мигрирует legacy `GoToScene` / `sceneId`.
+  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). Choice-actions в runtime: `ChoiceActionType.GoToScene` + `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`); executor — `GoToSceneChoiceActionExecutor` (state-action `SetCurrentAdventureSceneIdStateAction`).
 
 - `ClassDef`  
   Класс персонажа. Поля: `Disabled`, `Tags`, `Title`, `Description`.
