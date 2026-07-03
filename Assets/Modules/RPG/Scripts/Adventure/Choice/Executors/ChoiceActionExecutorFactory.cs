@@ -2,6 +2,7 @@ using Modules.RPG.Scripts.Adventure.Choice.Actions;
 using System;
 using System.Collections.Generic;
 using Zenject;
+using static Modules.Definitions.Scripts.Implementation.Adventures.Constants.Glossary;
 
 namespace Modules.RPG.Scripts.Adventure.Choice.Executors
 {
@@ -19,10 +20,10 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
 
             return actionData.Type switch
             {
-                ChoiceActionType.GoToScene => _container.Instantiate<GoToSceneChoiceActionExecutor>(
+                ChoiceActionType.None => _container.Instantiate<GoToSceneChoiceActionExecutor>(
                     new object[]
                     {
-                        GetRequiredString(actionData.Params.Strings, "sceneId", actionData.Type),
+                        GetRequiredString(actionData.Params.Strings, ChoiceActions.SCENE_ID, actionData.Type),
                     }),
 
                 _ => throw new NotImplementedException($"ChoiceActionType '{actionData.Type}' is not supported by factory yet."),

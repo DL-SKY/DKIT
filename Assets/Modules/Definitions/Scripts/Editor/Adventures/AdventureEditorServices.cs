@@ -1,3 +1,4 @@
+using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Choice.Actions;
 using Modules.RPG.Scripts.Adventure.Data;
 using System;
@@ -5,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using static Modules.Definitions.Scripts.Implementation.Adventures.Constants.Glossary;
 
 namespace Modules.Definitions.Scripts.Editor.Adventures
 {
@@ -50,7 +52,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     for (int actionIndex = 0; actionIndex < choice.Actions.Count; actionIndex++)
                     {
                         var action = choice.Actions[actionIndex];
-                        if (action == null || action.Type != ChoiceActionType.GoToScene)
+                        if (action == null || !IsSceneTransitionAction(action))
                             continue;
 
                         string targetSceneId = GetSceneId(action);
@@ -72,12 +74,47 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             return graphData;
         }
 
-        public static string GetSceneId(Modules.RPG.Scripts.Adventure.Choice.ChoiceActionData actionData)
+        private const string LEGACY_SCENE_ID_KEY = "sceneId";
+
+        public static bool IsSceneTransitionAction(ChoiceActionData actionData)
+        {
+            if (actionData == null)
+                return false;
+
+            return actionData.Type == ChoiceActionType.None
+                || actionData.Type == ChoiceActionType.GoToScene;
+        }
+
+        public static string GetSceneId(ChoiceActionData actionData)
         {
             if (actionData?.Params?.Strings == null)
                 return string.Empty;
 
-            return actionData.Params.Strings.TryGetValue("sceneId", out string value) ? value : string.Empty;
+            if (actionData.Params.Strings.TryGetValue(ChoiceActions.SCENE_ID, out string value)
+                && !string.IsNullOrWhiteSpace(value))
+                return value;
+
+            return actionData.Params.Strings.TryGetValue(LEGACY_SCENE_ID_KEY, out value) ? value : string.Empty;
+        }
+
+        public static void SetSceneId(ChoiceActionData actionData, string sceneId)
+        {
+            if (actionData == null)
+                return;
+
+            actionData.Type = ChoiceActionType.None;
+            actionData.Params ??= new ChoiceActionParamsData();
+            actionData.Params.Strings ??= new Dictionary<string, string>();
+            actionData.Params.Strings[ChoiceActions.SCENE_ID] = sceneId ?? string.Empty;
+            actionData.Params.Strings.Remove(LEGACY_SCENE_ID_KEY);
+        }
+
+        public static void NormalizeSceneTransitionAction(ChoiceActionData actionData)
+        {
+            if (!IsSceneTransitionAction(actionData))
+                return;
+
+            SetSceneId(actionData, GetSceneId(actionData));
         }
     }
 
@@ -566,13 +603,13 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                                 continue;
                             }
 
-                            if (action.Type != ChoiceActionType.GoToScene)
+                            if (!AdventureGraphBuilder.IsSceneTransitionAction(action))
                                 continue;
 
                             string targetSceneId = AdventureGraphBuilder.GetSceneId(action);
                             if (string.IsNullOrWhiteSpace(targetSceneId))
                             {
-                                errors.Add($"Choice '{choice.Id}' in scene '{sceneId}' has GoToScene action with empty sceneId.");
+                                errors.Add($"Choice '{choice.Id}' in scene '{sceneId}' has scene transition action with empty SceneId.");
                                 continue;
                             }
 

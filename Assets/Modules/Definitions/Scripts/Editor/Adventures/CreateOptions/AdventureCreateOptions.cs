@@ -2,6 +2,7 @@ using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Choice.Actions;
 using Modules.RPG.Scripts.Adventure.Data;
 using System.Collections.Generic;
+using static Modules.Definitions.Scripts.Implementation.Adventures.Constants.Glossary;
 
 namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
 {
@@ -185,7 +186,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                 {
                     Id = "choice.default",
                     ButtonText = "Choice",
-                    Tooltip = "Add a default choice with one GoToScene action.",
+                    Tooltip = "Add a default choice with one scene transition action.",
                     IconName = "d_FilterByLabel",
                     Create = () => new ChoiceData
                     {
@@ -198,7 +199,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         Restrictions = new List<Modules.Restrictions.Scripts.Core.Restriction>(),
                         Actions = new List<ChoiceActionData>
                         {
-                            BuildGoToSceneAction("start"),
+                            BuildSceneTransitionAction("start"),
                         },
                     },
                 },
@@ -210,16 +211,16 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
             return _options;
         }
 
-        private static ChoiceActionData BuildGoToSceneAction(string sceneId)
+        private static ChoiceActionData BuildSceneTransitionAction(string sceneId)
         {
             return new ChoiceActionData
             {
-                Type = ChoiceActionType.GoToScene,
+                Type = ChoiceActionType.None,
                 Params = new ChoiceActionParamsData
                 {
                     Strings = new Dictionary<string, string>
                     {
-                        { "sceneId", sceneId },
+                        { ChoiceActions.SCENE_ID, sceneId },
                     },
                     Ints = new Dictionary<string, int>(),
                     Bools = new Dictionary<string, bool>(),
@@ -239,17 +240,17 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                 new CreateOptionDescriptor<ChoiceActionData>
                 {
                     Id = "action.goto_scene",
-                    ButtonText = "GoToScene",
+                    ButtonText = "Go To Scene",
                     Tooltip = "Add action that moves player to another scene.",
                     IconName = "Animation.NextKey",
                     Create = () => new ChoiceActionData
                     {
-                        Type = ChoiceActionType.GoToScene,
+                        Type = ChoiceActionType.None,
                         Params = new ChoiceActionParamsData
                         {
                             Strings = new Dictionary<string, string>
                             {
-                                { "sceneId", "start" },
+                                { ChoiceActions.SCENE_ID, "start" },
                             },
                             Ints = new Dictionary<string, int>(),
                             Bools = new Dictionary<string, bool>(),

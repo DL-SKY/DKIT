@@ -649,7 +649,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             ChoiceActionData actionData = choiceData.Actions[_selectedActionIndex];
             if (actionData == null)
             {
-                actionData = new ChoiceActionData { Type = ChoiceActionType.GoToScene };
+                actionData = new ChoiceActionData { Type = ChoiceActionType.None };
                 choiceData.Actions[_selectedActionIndex] = actionData;
                 MarkDirty();
             }
@@ -663,7 +663,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             EditorGUILayout.LabelField("Selected Action", EditorStyles.boldLabel);
             EditorGUILayout.LabelField($"Type: {actionData.Type}");
 
-            if (actionData.Type == ChoiceActionType.GoToScene)
+            if (AdventureGraphBuilder.IsSceneTransitionAction(actionData))
             {
                 string currentTarget = AdventureGraphBuilder.GetSceneId(actionData);
                 List<string> sceneIds = GetSortedSceneIds();
@@ -675,7 +675,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     string selectedSceneId = sceneIds[nextIndex];
                     if (!string.Equals(currentTarget, selectedSceneId, StringComparison.Ordinal))
                     {
-                        actionData.Params.Strings["sceneId"] = selectedSceneId;
+                        AdventureGraphBuilder.SetSceneId(actionData, selectedSceneId);
                         MarkDirty();
                     }
                 }
@@ -684,7 +684,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     DrawField(() =>
                     {
                         string nextValue = EditorGUILayout.TextField("Target Scene", currentTarget ?? string.Empty);
-                        actionData.Params.Strings["sceneId"] = nextValue;
+                        AdventureGraphBuilder.SetSceneId(actionData, nextValue);
                     });
                 }
             }
@@ -949,7 +949,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     for (int actionIndex = choice.Actions.Count - 1; actionIndex >= 0; actionIndex--)
                     {
                         ChoiceActionData action = choice.Actions[actionIndex];
-                        if (action?.Type != ChoiceActionType.GoToScene)
+                        if (!AdventureGraphBuilder.IsSceneTransitionAction(action))
                             continue;
 
                         string targetScene = AdventureGraphBuilder.GetSceneId(action);
@@ -1032,14 +1032,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     for (int actionIndex = 0; actionIndex < choice.Actions.Count; actionIndex++)
                     {
                         ChoiceActionData action = choice.Actions[actionIndex];
-                        if (action?.Type != ChoiceActionType.GoToScene)
+                        if (!AdventureGraphBuilder.IsSceneTransitionAction(action))
                             continue;
 
                         string targetScene = AdventureGraphBuilder.GetSceneId(action);
                         if (string.Equals(targetScene, oldSceneId, StringComparison.Ordinal))
-                        {
-                            action.Params.Strings["sceneId"] = newSceneId;
-                        }
+                            AdventureGraphBuilder.SetSceneId(action, newSceneId);
                     }
                 }
             }

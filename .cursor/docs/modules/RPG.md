@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-06-30 10:21:00 (+03:00)
+**Последнее обновление:** 2026-07-03 20:19:00 (+03:00)
 
 ## Назначение
 
@@ -62,16 +62,19 @@
 
 - `SceneContentData.Type` — тип контентного элемента (`SceneContentType`).
 - `SceneContentData.Restrictions` — список ограничений видимости элемента (тип `Restriction` из модуля `Restrictions`).
-- `SceneContentData.Value` — payload в строковом виде (текст, id ресурса и т.д.).
+- `SceneContentData.Value` — одиночный payload (текст, путь или URL изображения, id ресурса и т.д.).
+- `SceneContentData.Values` — список строк для типов с несколькими значениями (`RandomImage`, `Slideshow`).
 
 `SceneContentType`:
 
-| Значение | Код | Назначение |
-|---|---|---|
-| `Text` | `0` | Текстовый блок |
-| `Image` | `10` | Изображение |
-| `Splitter` | `20` | Разделитель / визуальный отступ |
-| `Item` | `30` | Элемент предмета / иконки |
+| Значение | Код | Поле данных | Назначение |
+|---|---|---|---|
+| `Text` | `0` | `Value` | Текстовый блок |
+| `Image` | `10` | `Value` | Одно изображение (путь или URL) |
+| `RandomImage` | `11` | `Values` | Случайное изображение из списка путей/URL |
+| `Slideshow` | `12` | `Values` | Слайдшоу из списка путей/URL |
+| `Splitter` | `20` | — | Разделитель / визуальный отступ |
+| `Item` | `30` | `Value` | Элемент предмета / иконки |
 
 Проверка `Restrictions` для контента сцены пока не подключена в runtime; контракт данных готов для UI/оркестратора.
 
@@ -97,7 +100,21 @@
   - `Params.Strings: Dictionary<string, string>`
   - `Params.Ints: Dictionary<string, int>`
   - `Params.Bools: Dictionary<string, bool>`
-- `ChoiceActionType` — базовый enum действий (может расширяться по мере роста механик).
+- `ChoiceActionType` — enum действий (в процессе переработки, см. ниже).
+
+Текущее состояние `ChoiceActionType`:
+
+| Значение | Код | Статус |
+|---|---|---|
+| `None` | `0` | Единственный тип, подключённый к `ChoiceActionExecutorFactory` (переход на сцену) |
+| `GoToScene` | `100` | Оставлен в enum с пометкой `//TODO: rework`; в фабрике не используется |
+| `SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat`, `ApplyDamage`, `Heal`, `GrantItem` | `110`–`500` | Временно закомментированы в enum |
+
+Именованные ключи `Params.Strings` для choice-actions задаются в `Glossary.ChoiceActions` (`Modules.Definitions.Scripts.Implementation.Adventures.Constants`):
+
+| Константа | Значение | Назначение |
+|---|---|---|
+| `Glossary.ChoiceActions.SCENE_ID` | `"SceneId"` | Id целевой сцены для перехода (`ChoiceActionType.None`) |
 
 Формат с `Params` сохраняет гибкость, но убирает "позиционные" ошибки (`StringValues[0]`, `IntValues[1]`) и делает JSON-контент более читаемым.
 
@@ -122,9 +139,9 @@
 
 | `ChoiceActionType` | Executor | `Params` | Куда пишет |
 |---|---|---|---|
-| `GoToScene` | `GoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) | `Strings.sceneId` | `IAdventureFlowController.GoToScene` (**устаревший**, `[Obsolete]`) |
+| `None` | `GoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) | `Strings.SceneId` (`Glossary.ChoiceActions.SCENE_ID`) | `IAdventureFlowController.GoToScene` (**устаревший**, `[Obsolete]`) |
 
-Остальные значения `ChoiceActionType` объявлены в enum, но пока не подключены к фабрике.
+Остальные значения `ChoiceActionType` (включая `GoToScene = 100`) пока не подключены к фабрике.
 
 ## Игровой runtime-флоу (целевой цикл)
 
@@ -263,11 +280,12 @@ RPG-контент (сцены, выборы, действия) описывае
 - Реализованы доменные DTO/POCO-модели для adventure-данных (`AdventureData`, `SceneData`, `ChoiceData` и связанные типы).
 - В `Modules.Definitions` добавлены adventure-дефы персонажа и контента: `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef` (наследуют `AbstractDefinition`); `AdventureDef` наследует `AdventureData`. Загружен стартовый PF2e-ориентированный набор JSON (классы, ancestries, черты, заклинания, предметы).
 - Runtime применения механик дефов к персонажу (`CharacterStateData.Parameters` и др.) пока не реализован.
-- `SceneContentType` заполнен базовыми значениями (`Text`, `Image`, `Splitter`, `Item`); `SceneContentData` поддерживает `Restrictions`.
+- `SceneContentType`: `Text`, `Image`, `RandomImage`, `Slideshow`, `Splitter`, `Item`; `SceneContentData` поддерживает `Value`, `Values` и `Restrictions`.
 - Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
-- `ChoiceActionType` содержит базовый набор значений для переходов, проверок и боевых/ресурсных эффектов.
+- `ChoiceActionType`: к фабрике подключён только `None` (переход на сцену); `GoToScene` и остальные значения в процессе переработки.
+- Ключ `Params.Strings` для id сцены: `Glossary.ChoiceActions.SCENE_ID` (`"SceneId"`).
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
 - Реализован legacy executor: `GoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`).
 - Объявлен legacy интерфейс: `IAdventureFlowController` (**устаревший**, `[Obsolete]`).
@@ -277,7 +295,7 @@ RPG-контент (сцены, выборы, действия) описывае
 ## Рекомендации по дальнейшему развитию
 
 1. Подключить runtime-фильтрацию `SceneContentData.Restrictions` при рендере сцены.
-2. Добавить executors и маппинг в фабрику для остальных `ChoiceActionType` (`SkillCheck`, `StartCombat` и т.д.).
+2. Завершить переработку `ChoiceActionType` и добавить executors для новых типов (`SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat` и т.д.).
 3. Зарегистрировать в Zenject installer:
    - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`.
 4. Расширить `AdventuresManager`:

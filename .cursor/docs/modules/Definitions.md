@@ -139,7 +139,7 @@
   | `StartScenes` | `List<string>` | да |
   | `Scenes` | `Dictionary<string, SceneData>` | да |
 
-  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). В текущем контенте `ForestPath` содержит `Choices` с `Actions` типа `GoToScene`.
+  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). Choice-actions: `ChoiceActionType.None` + `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`); TEA при загрузке мигрирует legacy `GoToScene` / `sceneId`.
 
 - `ClassDef`  
   Класс персонажа. Поля: `Disabled`, `Tags`, `Title`, `Description`.
@@ -212,7 +212,7 @@
 | `BattleRuleDef` | Статические боевые правила (столкновения, тактика и т.п.) |
 | `RuleSettingsDef` | Single-def, указывающий, какие правила из коллекций считаются активными по умолчанию |
 
-Активный `RuleDef` выбирается через `RuleSettingsDef.Rule` (id JSON-файла, например `GeneralRule`). Потребитель читает поля правила как конфигурацию: для ability boost — ближайший порог в `AbilityBoostPointCost`, для модификатора навыка — `SkillDependencies[skillId]`. Ключи навыков и ability согласованы с `Glossary.Characters` в `Modules.Definitions.Scripts.Implementation.Adventures.Constants`.
+Активный `RuleDef` выбирается через `RuleSettingsDef.Rule` (id JSON-файла, например `GeneralRule`). Потребитель читает поля правила как конфигурацию: для ability boost — ближайший порог в `AbilityBoostPointCost`, для модификатора навыка — `SkillDependencies[skillId]`. Ключи навыков и ability согласованы с `Glossary.Characters`; ключи параметров choice-actions — с `Glossary.ChoiceActions` (например, `SCENE_ID` = `"SceneId"`) в `Modules.Definitions.Scripts.Implementation.Adventures.Constants`.
 
 Ссылки между дефами — строковые id (имя JSON-файла), по тому же принципу, что `RoundDef -> GameZone/Gems/Objectives`.
 

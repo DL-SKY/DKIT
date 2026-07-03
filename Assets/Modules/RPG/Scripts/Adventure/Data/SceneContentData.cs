@@ -7,7 +7,9 @@ namespace Modules.RPG.Scripts.Adventure.Data
     {
         Text = 0,
 
-        Image = 10,
+        Image = 10,         // Value - path or URL image
+        RandomImage = 11,   // Values - any path or url images
+        Slideshow = 12,     // Values - path or url images
 
         Splitter = 20,
 
@@ -22,5 +24,6 @@ namespace Modules.RPG.Scripts.Adventure.Data
         public List<Restriction> Restrictions;
 
         public string Value;
+        public List<string> Values;
     }
 }

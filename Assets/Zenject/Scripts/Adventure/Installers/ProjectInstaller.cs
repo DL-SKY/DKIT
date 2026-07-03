@@ -30,7 +30,7 @@ namespace Zenject.Scripts.Adventure.Installers
             Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
             Container.Bind<LocalizationManager>().AsSingle().NonLazy();
-            Container.Bind<LocalizationManagerBase>().To<LocalizationManager>().FromResolve();
+            //Container.Bind<LocalizationManagerBase>().To<LocalizationManager>().FromResolve();
             //...
 
             //Core prefabs

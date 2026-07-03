@@ -25,7 +25,7 @@
 - сцены (`SceneData`),
 - контент сцены (`SceneContentData`),
 - выборы (`ChoiceData`),
-- action-ы выборов (`ChoiceActionData`, сейчас только `GoToScene` в UI как основной поддерживаемый сценарий).
+- action-ы выборов (`ChoiceActionData`, `ChoiceActionType.None` + `Params.Strings["SceneId"]`, см. `.cursor/docs/modules/RPG.md`).
 
 Инструмент доступен через меню:
 - `Tools/Definitions/Adventures/Adventure Editor`
@@ -153,12 +153,25 @@
 
 Добавить descriptor с нужным `SceneContentType`, подписью и фабрикой.
 
+Доступные значения `SceneContentType` в модели данных:
+
+| Тип | Поле | Назначение |
+|---|---|---|
+| `Text` | `Value` | Текстовый блок |
+| `Image` | `Value` | Путь или URL одного изображения |
+| `RandomImage` | `Values` | Список путей/URL; runtime выбирает случайное |
+| `Slideshow` | `Values` | Список путей/URL для слайдшоу |
+| `Splitter` | — | Визуальный разделитель |
+| `Item` | `Value` | Элемент предмета / иконки |
+
+В реестре `SceneContentCreateOptionsRegistry` пока есть кнопки только для `Text`, `Image`, `Splitter`, `Item`. Для `RandomImage` и `Slideshow` нужно добавить новые descriptor-ы.
+
 ### 3) Новая опция для action в choice
 
 Класс:
 - `ChoiceActionCreateOptionsRegistry`
 
-Сейчас в реестре базово добавлен `GoToScene`. При расширении можно добавить дополнительные шаблоны, не меняя саму структуру окна.
+Сейчас в реестре базово добавлен шаблон «Go To Scene» (`Type = None`, `Params.Strings["SceneId"]` — константа `Glossary.ChoiceActions.SCENE_ID`). При загрузке JSON legacy-формат (`GoToScene` / `sceneId`) автоматически мигрируется в `NormalizeAdventureData`.
 
 ---
 
@@ -181,13 +194,13 @@
 
 - CRUD приключений через JSON-файлы.
 - CRUD сцен, контента, выборов.
-- CRUD actions выбора с фокусом на `GoToScene`.
+- CRUD actions выбора (`ChoiceActionType.None` + `SceneId`).
 - Быстрое управление списками через маленькие кнопки в строках:
   - `R` — rename (для файлов приключений и сцен),
   - `X` — delete (для файлов, сцен, контента, выборов).
 - Обновление ссылок при переименовании сцены:
   - обновление `StartScenes`,
-  - обновление `sceneId` в `GoToScene`.
+  - обновление `SceneId` в scene transition actions.
 - Граф связей сцен.
 - Базовая валидация.
 - Окно `Localization` для генерации ключей и экспорта в `.txt` (tab-separated) для Google Sheets.
@@ -313,7 +326,7 @@ TEST_KEY_2	Перевод номер 2
   - Переименовывается сам файл (это и есть id приключения в текущем пайплайне).
 - **Переименование сцены**
   - Кнопка `R` в списке `Scenes` открывает окно с текущим id.
-  - Переименование обновляет `StartScenes` и все `GoToScene.sceneId` ссылки.
+  - Переименование обновляет `StartScenes` и все `SceneId` ссылки в choice actions.
 
 ---
 

@@ -135,5 +135,10 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
             // --- Parameters ---
         }
+
+        public static class ChoiceActions
+        {
+            public const string SCENE_ID = "SceneId";
+        }
     }
 }

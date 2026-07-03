@@ -469,7 +469,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     for (int actionIndex = 0; actionIndex < choice.Actions.Count; actionIndex++)
                     {
                         var action = choice.Actions[actionIndex];
-                        if (action == null || action.Type != ChoiceActionType.GoToScene)
+                        if (action == null || !AdventureGraphBuilder.IsSceneTransitionAction(action))
                             continue;
 
                         string target = AdventureGraphBuilder.GetSceneId(action);
