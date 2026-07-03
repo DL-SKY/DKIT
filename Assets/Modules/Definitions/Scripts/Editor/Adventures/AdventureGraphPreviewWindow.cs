@@ -17,6 +17,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private const float LAYER_SPACING_X = 320f;
         private const float LAYER_SPACING_Y = 34f;
         private const float CANVAS_PADDING = 24f;
+        private const float EDGE_WIDTH = 2f;
+        private const int EDGE_SEGMENTS = 32;
         private const float CONTENT_ICON_SIZE = 14f;
         private const float CONTENT_ICON_SPACING = 4f;
         private const float ICON_BOTTOM_MARGIN = 4f;
@@ -68,7 +70,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
             RebuildNodeScreenRects();
             DrawEdges();
-            DrawNodes();
+            DrawNodeBackgrounds();
+            DrawNodeContent();
             HandleInput(Event.current);
 
             if (GUI.changed)
@@ -146,18 +149,50 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                 Vector2 from = GetEdgeStartPoint(fromNode, edge.FromChoiceIndex);
                 Vector2 to = GetEdgeEndPoint(toNode);
-                Vector2 tangentA = from + Vector2.right * (70f * _zoom);
-                Vector2 tangentB = to + Vector2.left * (70f * _zoom);
+                float tangentDistance = GetEdgeTangentDistance(from, to);
+                Vector2 tangentA = from + Vector2.right * tangentDistance;
+                Vector2 tangentB = to + Vector2.left * tangentDistance;
 
                 Color edgeColor = toNode.IsBrokenTarget
                     ? new Color(0.9f, 0.3f, 0.3f, 0.95f)
-                    : new Color(0.82f, 0.82f, 0.82f, 0.85f);
+                    : new Color(0.9f, 0.9f, 0.9f, 1f);
 
-                Handles.DrawBezier(from, to, tangentA, tangentB, edgeColor, null, 2f);
+                DrawEdgeCurve(from, to, tangentA, tangentB, edgeColor);
                 DrawArrowHead(to, (to - tangentB).normalized, edgeColor);
             }
 
             Handles.EndGUI();
+        }
+
+        private void DrawEdgeCurve(Vector2 from, Vector2 to, Vector2 tangentA, Vector2 tangentB, Color color)
+        {
+            Vector3[] points = new Vector3[EDGE_SEGMENTS + 1];
+            for (int i = 0; i <= EDGE_SEGMENTS; i++)
+            {
+                float t = i / (float)EDGE_SEGMENTS;
+                points[i] = GetBezierPoint(from, tangentA, tangentB, to, t);
+            }
+
+            Handles.color = color;
+            Handles.DrawAAPolyLine(EDGE_WIDTH, points);
+        }
+
+        private static Vector2 GetBezierPoint(Vector2 start, Vector2 controlA, Vector2 controlB, Vector2 end, float t)
+        {
+            float inverseT = 1f - t;
+            return inverseT * inverseT * inverseT * start
+                + 3f * inverseT * inverseT * t * controlA
+                + 3f * inverseT * t * t * controlB
+                + t * t * t * end;
+        }
+
+        private float GetEdgeTangentDistance(Vector2 from, Vector2 to)
+        {
+            float horizontalGap = Mathf.Abs(to.x - from.x);
+            if (horizontalGap <= 0.001f)
+                return 24f * _zoom;
+
+            return Mathf.Clamp(horizontalGap * 0.45f, 24f * _zoom, 70f * _zoom);
         }
 
         private Vector2 GetEdgeStartPoint(PreviewNode fromNode, int fromChoiceIndex)
@@ -198,7 +233,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             Handles.DrawAAConvexPolygon(p1, p2, p3);
         }
 
-        private void DrawNodes()
+        private void DrawNodeBackgrounds()
         {
             foreach (KeyValuePair<string, PreviewNode> pair in _nodes)
             {
@@ -221,6 +256,16 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     EditorGUI.DrawRect(new Rect(screenRect.x - outline, screenRect.y, outline, screenRect.height), new Color(1f, 1f, 1f, 0.9f));
                     EditorGUI.DrawRect(new Rect(screenRect.xMax, screenRect.y, outline, screenRect.height), new Color(1f, 1f, 1f, 0.9f));
                 }
+            }
+        }
+
+        private void DrawNodeContent()
+        {
+            foreach (KeyValuePair<string, PreviewNode> pair in _nodes)
+            {
+                PreviewNode node = pair.Value;
+                if (!_nodeScreenRects.TryGetValue(node.Id, out Rect screenRect))
+                    continue;
 
                 Rect idRect = new Rect(screenRect.x + 6f, screenRect.y + 4f, screenRect.width - 12f, 20f);
                 GUI.Label(idRect, node.Id, GetNodeLabelStyle());

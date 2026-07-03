@@ -26,6 +26,9 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
     public sealed class AdventureGraphBuilder
     {
+        private const int LEGACY_GO_TO_SCENE_TYPE_CODE = 100;
+        private const string LEGACY_SCENE_ID_KEY = "sceneId";
+
         public AdventureGraphData Build(AdventureData adventureData)
         {
             AdventureGraphData graphData = new AdventureGraphData();
@@ -74,15 +77,15 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             return graphData;
         }
 
-        private const string LEGACY_SCENE_ID_KEY = "sceneId";
-
         public static bool IsSceneTransitionAction(ChoiceActionData actionData)
         {
             if (actionData == null)
                 return false;
 
+            int typeCode = (int)actionData.Type;
             return actionData.Type == ChoiceActionType.GoToScene
-                || actionData.Type == ChoiceActionType.None;
+                || actionData.Type == ChoiceActionType.None
+                || typeCode == LEGACY_GO_TO_SCENE_TYPE_CODE;
         }
 
         public static string GetSceneId(ChoiceActionData actionData)
@@ -94,7 +97,11 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 && !string.IsNullOrWhiteSpace(value))
                 return value;
 
-            return actionData.Params.Strings.TryGetValue(LEGACY_SCENE_ID_KEY, out value) ? value : string.Empty;
+            if (actionData.Params.Strings.TryGetValue(LEGACY_SCENE_ID_KEY, out value)
+                && !string.IsNullOrWhiteSpace(value))
+                return value;
+
+            return string.Empty;
         }
 
         public static void SetSceneId(ChoiceActionData actionData, string sceneId)
@@ -523,22 +530,83 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         }
     }
 
+    public sealed class AdventureValidationIssue
+    {
+        private readonly Action _fixAction;
+
+        public string Message { get; }
+        public bool CanFix => _fixAction != null;
+
+        public AdventureValidationIssue(string message, Action fixAction = null)
+        {
+            Message = message ?? string.Empty;
+            _fixAction = fixAction;
+        }
+
+        public bool ApplyFix()
+        {
+            if (_fixAction == null)
+                return false;
+
+            _fixAction.Invoke();
+            return true;
+        }
+    }
+
     public sealed class AdventureValidationService
     {
+        private sealed class ChoiceActionValidationContract
+        {
+            public readonly ChoiceActionType Type;
+            public readonly List<string> RequiredStringKeys;
+            public readonly List<string> RequiredIntKeys;
+            public readonly List<string> RequiredBoolKeys;
+            public readonly Dictionary<string, string> LegacyStringAliases;
+
+            public ChoiceActionValidationContract(
+                ChoiceActionType type,
+                List<string> requiredStringKeys,
+                List<string> requiredIntKeys,
+                List<string> requiredBoolKeys,
+                Dictionary<string, string> legacyStringAliases = null)
+            {
+                Type = type;
+                RequiredStringKeys = requiredStringKeys ?? new List<string>();
+                RequiredIntKeys = requiredIntKeys ?? new List<string>();
+                RequiredBoolKeys = requiredBoolKeys ?? new List<string>();
+                LegacyStringAliases = legacyStringAliases ?? new Dictionary<string, string>(StringComparer.Ordinal);
+            }
+
+            public bool IsSingleStringKeyContract =>
+                RequiredStringKeys.Count == 1
+                && RequiredIntKeys.Count == 0
+                && RequiredBoolKeys.Count == 0;
+        }
+
         public List<string> Validate(AdventureData adventureData)
         {
-            List<string> errors = new List<string>();
+            List<AdventureValidationIssue> issues = ValidateDetailed(adventureData);
+            List<string> messages = new List<string>(issues.Count);
+            for (int i = 0; i < issues.Count; i++)
+                messages.Add(issues[i].Message);
+
+            return messages;
+        }
+
+        public List<AdventureValidationIssue> ValidateDetailed(AdventureData adventureData)
+        {
+            List<AdventureValidationIssue> issues = new List<AdventureValidationIssue>();
             if (adventureData == null)
             {
-                errors.Add("Adventure is null.");
-                return errors;
+                issues.Add(new AdventureValidationIssue("Adventure is null."));
+                return issues;
             }
 
             if (adventureData.Scenes == null || adventureData.Scenes.Count == 0)
-                errors.Add("Adventure must contain at least one scene.");
+                issues.Add(new AdventureValidationIssue("Adventure must contain at least one scene."));
 
             if (adventureData.StartScenes == null || adventureData.StartScenes.Count == 0)
-                errors.Add("Adventure must contain at least one start scene.");
+                issues.Add(new AdventureValidationIssue("Adventure must contain at least one start scene."));
 
             if (adventureData.StartScenes != null && adventureData.Scenes != null)
             {
@@ -547,12 +615,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     string startSceneId = adventureData.StartScenes[i];
                     if (string.IsNullOrWhiteSpace(startSceneId))
                     {
-                        errors.Add("Start scene id cannot be empty.");
+                        issues.Add(new AdventureValidationIssue("Start scene id cannot be empty."));
                         continue;
                     }
 
                     if (!adventureData.Scenes.ContainsKey(startSceneId))
-                        errors.Add($"Start scene '{startSceneId}' does not exist in Scenes.");
+                        issues.Add(new AdventureValidationIssue($"Start scene '{startSceneId}' does not exist in Scenes."));
                 }
             }
 
@@ -564,16 +632,16 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     SceneData sceneData = pair.Value;
 
                     if (string.IsNullOrWhiteSpace(sceneId))
-                        errors.Add("Scene dictionary contains empty scene id.");
+                        issues.Add(new AdventureValidationIssue("Scene dictionary contains empty scene id."));
 
                     if (sceneData == null)
                     {
-                        errors.Add($"Scene '{sceneId}' is null.");
+                        issues.Add(new AdventureValidationIssue($"Scene '{sceneId}' is null."));
                         continue;
                     }
 
                     if (!string.Equals(sceneData.Id, sceneId, StringComparison.Ordinal))
-                        errors.Add($"Scene key '{sceneId}' does not match SceneData.Id '{sceneData.Id}'.");
+                        issues.Add(new AdventureValidationIssue($"Scene key '{sceneId}' does not match SceneData.Id '{sceneData.Id}'."));
 
                     if (sceneData.Choices == null)
                         continue;
@@ -581,27 +649,31 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     HashSet<string> choiceIds = new HashSet<string>(StringComparer.Ordinal);
                     for (int choiceIndex = 0; choiceIndex < sceneData.Choices.Count; choiceIndex++)
                     {
-                        var choice = sceneData.Choices[choiceIndex];
+                        ChoiceData choice = sceneData.Choices[choiceIndex];
                         if (choice == null)
                         {
-                            errors.Add($"Scene '{sceneId}' contains null choice.");
+                            issues.Add(new AdventureValidationIssue($"Scene '{sceneId}' contains null choice."));
                             continue;
                         }
 
+                        string choiceId = string.IsNullOrWhiteSpace(choice.Id) ? $"choice_{choiceIndex}" : choice.Id;
+
                         if (!string.IsNullOrWhiteSpace(choice.Id) && !choiceIds.Add(choice.Id))
-                            errors.Add($"Scene '{sceneId}' contains duplicated choice id '{choice.Id}'.");
+                            issues.Add(new AdventureValidationIssue($"Scene '{sceneId}' contains duplicated choice id '{choice.Id}'."));
 
                         if (choice.Actions == null)
                             continue;
 
                         for (int actionIndex = 0; actionIndex < choice.Actions.Count; actionIndex++)
                         {
-                            var action = choice.Actions[actionIndex];
+                            ChoiceActionData action = choice.Actions[actionIndex];
                             if (action == null)
                             {
-                                errors.Add($"Scene '{sceneId}' contains null action in choice '{choice.Id}'.");
+                                issues.Add(new AdventureValidationIssue($"Scene '{sceneId}' contains null action in choice '{choiceId}'."));
                                 continue;
                             }
+
+                            ValidateActionParamsContract(issues, action, sceneId, choiceId, actionIndex);
 
                             if (!AdventureGraphBuilder.IsSceneTransitionAction(action))
                                 continue;
@@ -609,18 +681,198 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                             string targetSceneId = AdventureGraphBuilder.GetSceneId(action);
                             if (string.IsNullOrWhiteSpace(targetSceneId))
                             {
-                                errors.Add($"Choice '{choice.Id}' in scene '{sceneId}' has scene transition action with empty SceneId.");
+                                issues.Add(new AdventureValidationIssue(
+                                    $"Choice '{choiceId}' in scene '{sceneId}' has scene transition action with empty SceneId."));
                                 continue;
                             }
 
-                            if (adventureData.Scenes != null && !adventureData.Scenes.ContainsKey(targetSceneId))
-                                errors.Add($"Choice '{choice.Id}' in scene '{sceneId}' points to missing scene '{targetSceneId}'.");
+                            if (!adventureData.Scenes.ContainsKey(targetSceneId))
+                                issues.Add(new AdventureValidationIssue(
+                                    $"Choice '{choiceId}' in scene '{sceneId}' points to missing scene '{targetSceneId}'."));
                         }
                     }
                 }
             }
 
-            return errors;
+            return issues;
+        }
+
+        private static void ValidateActionParamsContract(
+            List<AdventureValidationIssue> issues,
+            ChoiceActionData action,
+            string sceneId,
+            string choiceId,
+            int actionIndex)
+        {
+            ChoiceActionValidationContract contract = GetChoiceActionContract(action.Type);
+            if (contract == null)
+            {
+                issues.Add(new AdventureValidationIssue(
+                    $"Choice '{choiceId}' in scene '{sceneId}' action #{actionIndex} has type '{action.Type}' without TEA validation contract. " +
+                    "Add contract validation for this ChoiceActionType and Glossary keys."));
+                return;
+            }
+
+            action.Params ??= new ChoiceActionParamsData();
+            action.Params.Strings ??= new Dictionary<string, string>();
+            action.Params.Ints ??= new Dictionary<string, int>();
+            action.Params.Bools ??= new Dictionary<string, bool>();
+
+            ValidateStringKeys(issues, action, contract, sceneId, choiceId, actionIndex);
+            ValidateUnexpectedKeys(
+                issues,
+                action.Params.Ints,
+                contract.RequiredIntKeys,
+                "Ints",
+                sceneId,
+                choiceId,
+                actionIndex);
+            ValidateUnexpectedKeys(
+                issues,
+                action.Params.Bools,
+                contract.RequiredBoolKeys,
+                "Bools",
+                sceneId,
+                choiceId,
+                actionIndex);
+        }
+
+        private static void ValidateStringKeys(
+            List<AdventureValidationIssue> issues,
+            ChoiceActionData action,
+            ChoiceActionValidationContract contract,
+            string sceneId,
+            string choiceId,
+            int actionIndex)
+        {
+            Dictionary<string, string> strings = action.Params.Strings;
+            HashSet<string> expected = new HashSet<string>(contract.RequiredStringKeys, StringComparer.Ordinal);
+
+            for (int i = 0; i < contract.RequiredStringKeys.Count; i++)
+            {
+                string key = contract.RequiredStringKeys[i];
+                if (strings.TryGetValue(key, out string value) && !string.IsNullOrWhiteSpace(value))
+                    continue;
+
+                if (!contract.IsSingleStringKeyContract)
+                {
+                    issues.Add(new AdventureValidationIssue(
+                        $"Choice '{choiceId}' in scene '{sceneId}' action #{actionIndex} is missing required Strings key '{key}' for type '{action.Type}'."));
+                    continue;
+                }
+
+                string candidateKey = FindFixCandidateKey(strings, contract, key);
+                if (string.IsNullOrWhiteSpace(candidateKey))
+                {
+                    issues.Add(new AdventureValidationIssue(
+                        $"Choice '{choiceId}' in scene '{sceneId}' action #{actionIndex} is missing required Strings key '{key}' for type '{action.Type}'."));
+                    continue;
+                }
+
+                string issueMessage =
+                    $"Choice '{choiceId}' in scene '{sceneId}' action #{actionIndex} uses wrong Strings key '{candidateKey}'. Expected '{key}' for type '{action.Type}'.";
+                issues.Add(new AdventureValidationIssue(issueMessage, () =>
+                {
+                    if (!strings.TryGetValue(candidateKey, out string candidateValue))
+                        return;
+
+                    strings[key] = candidateValue;
+                    if (!string.Equals(candidateKey, key, StringComparison.Ordinal))
+                        strings.Remove(candidateKey);
+                }));
+            }
+
+            List<string> unexpected = new List<string>();
+            foreach (KeyValuePair<string, string> pair in strings)
+            {
+                if (!expected.Contains(pair.Key))
+                    unexpected.Add(pair.Key);
+            }
+
+            for (int i = 0; i < unexpected.Count; i++)
+            {
+                string key = unexpected[i];
+                if (contract.IsSingleStringKeyContract && contract.RequiredStringKeys.Count == 1)
+                {
+                    string expectedKey = contract.RequiredStringKeys[0];
+                    issues.Add(new AdventureValidationIssue(
+                        $"Choice '{choiceId}' in scene '{sceneId}' action #{actionIndex} contains unexpected Strings key '{key}' for type '{action.Type}'.",
+                        () =>
+                        {
+                            if (!strings.ContainsKey(key))
+                                return;
+
+                            if (!strings.ContainsKey(expectedKey))
+                                strings[expectedKey] = strings[key];
+
+                            strings.Remove(key);
+                        }));
+                    continue;
+                }
+
+                issues.Add(new AdventureValidationIssue(
+                    $"Choice '{choiceId}' in scene '{sceneId}' action #{actionIndex} contains unexpected Strings key '{key}' for type '{action.Type}'."));
+            }
+        }
+
+        private static void ValidateUnexpectedKeys<TValue>(
+            List<AdventureValidationIssue> issues,
+            Dictionary<string, TValue> dictionary,
+            List<string> expectedKeys,
+            string groupName,
+            string sceneId,
+            string choiceId,
+            int actionIndex)
+        {
+            if (dictionary == null)
+                return;
+
+            HashSet<string> expected = new HashSet<string>(expectedKeys ?? new List<string>(), StringComparer.Ordinal);
+            foreach (KeyValuePair<string, TValue> pair in dictionary)
+            {
+                if (expected.Contains(pair.Key))
+                    continue;
+
+                issues.Add(new AdventureValidationIssue(
+                    $"Choice '{choiceId}' in scene '{sceneId}' action #{actionIndex} contains unexpected {groupName} key '{pair.Key}'."));
+            }
+        }
+
+        private static string FindFixCandidateKey(
+            Dictionary<string, string> strings,
+            ChoiceActionValidationContract contract,
+            string expectedKey)
+        {
+            foreach (KeyValuePair<string, string> alias in contract.LegacyStringAliases)
+            {
+                if (string.Equals(alias.Value, expectedKey, StringComparison.Ordinal)
+                    && strings.ContainsKey(alias.Key))
+                    return alias.Key;
+            }
+
+            if (strings.Count == 1)
+            {
+                foreach (string key in strings.Keys)
+                    return key;
+            }
+
+            return string.Empty;
+        }
+
+        private static ChoiceActionValidationContract GetChoiceActionContract(ChoiceActionType type)
+        {
+            switch (type)
+            {
+                case ChoiceActionType.GoToScene:
+                    return new ChoiceActionValidationContract(
+                        type,
+                        new List<string> { ChoiceActions.SCENE_ID },
+                        new List<string>(),
+                        new List<string>());
+
+                default:
+                    return null;
+            }
         }
     }
 }

@@ -118,7 +118,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                 if (GUILayout.Button("Validation", EditorStyles.toolbarButton, GUILayout.Width(90f)))
                 {
-                    AdventureValidationWindow.Open(_adventureData);
+                    AdventureValidationWindow.Open(_adventureData, MarkDirty);
                 }
 
                 GUI.enabled = true;

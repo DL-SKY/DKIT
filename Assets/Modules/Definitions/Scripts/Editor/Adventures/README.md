@@ -200,7 +200,7 @@
 Класс:
 - `ChoiceActionCreateOptionsRegistry`
 
-Сейчас в реестре базово добавлен шаблон «Go To Scene» (`Type = GoToScene`, `Params.Strings["SceneId"]` — константа `Glossary.ChoiceActions.SCENE_ID`). При загрузке JSON legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) автоматически мигрируется в `NormalizeAdventureData`.
+Сейчас в реестре базово добавлен шаблон «Go To Scene» (`Type = GoToScene`, `Params.Strings["SceneId"]` — константа `Glossary.ChoiceActions.SCENE_ID`). Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не мигрируется автоматически при загрузке: он ловится в `Validation` и исправляется через кнопку `Fix`.
 
 ---
 
@@ -234,6 +234,8 @@
   - обновление `SceneId` в scene transition actions.
 - Граф связей сцен.
 - Базовая валидация.
+- Валидация `ChoiceActionData` по контрактам `ChoiceActionType` и ключам из `Glossary.ChoiceActions`.
+- В `Validation` для исправляемых кейсов доступна кнопка `Fix` (например, `sceneId` → `SceneId`).
 - Окно `Localization` для генерации ключей и экспорта в `.txt` (tab-separated) для Google Sheets.
 - Цветовая индикация состояния:
   - статус в toolbar: `Saved` (зеленый), `Modified` (желтый),

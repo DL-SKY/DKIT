@@ -1,5 +1,4 @@
 using Modules.RPG.Scripts.Adventure.Choice;
-using Modules.RPG.Scripts.Adventure.Choice.Actions;
 using Modules.RPG.Scripts.Adventure.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -216,9 +215,6 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         actionData.Params.Strings ??= new Dictionary<string, string>();
                         actionData.Params.Ints ??= new Dictionary<string, int>();
                         actionData.Params.Bools ??= new Dictionary<string, bool>();
-                        if (actionData.Type == ChoiceActionType.None
-                            || actionData.Type == ChoiceActionType.GoToScene)
-                            AdventureGraphBuilder.NormalizeSceneTransitionAction(actionData);
                         choiceData.Actions[actionIndex] = actionData;
                     }
 
