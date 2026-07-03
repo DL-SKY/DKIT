@@ -696,7 +696,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             EditorGUILayout.LabelField("Selected Action", EditorStyles.boldLabel);
             EditorGUILayout.LabelField($"Type: {actionData.Type}");
 
-            if (AdventureGraphBuilder.IsSceneTransitionAction(actionData))
+            if (actionData.Type == ChoiceActionType.SetWorldParams
+                || actionData.Type == ChoiceActionType.SetAdventureParams)
+            {
+                DrawChoiceActionParamsEditor(actionData.Params);
+            }
+            else if (AdventureGraphBuilder.IsSceneTransitionAction(actionData))
             {
                 string currentTarget = AdventureGraphBuilder.GetSceneId(actionData);
                 List<string> sceneIds = GetSortedSceneIds();
@@ -730,6 +735,197 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     _selectedActionIndex = -1;
                     MarkDirty();
                 }
+            }
+        }
+
+        private void DrawChoiceActionParamsEditor(ChoiceActionParamsData actionParams)
+        {
+            actionParams ??= new ChoiceActionParamsData();
+            actionParams.Strings ??= new Dictionary<string, string>();
+            actionParams.Ints ??= new Dictionary<string, int>();
+            actionParams.Bools ??= new Dictionary<string, bool>();
+
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField("Params", EditorStyles.miniBoldLabel);
+
+            DrawStringDictionaryEditor(actionParams.Strings, "Strings");
+            DrawIntDictionaryEditor(actionParams.Ints, "Ints");
+            DrawBoolDictionaryEditor(actionParams.Bools, "Bools");
+        }
+
+        private void DrawStringDictionaryEditor(Dictionary<string, string> dictionary, string sectionTitle)
+        {
+            if (dictionary == null)
+                return;
+
+            EditorGUILayout.LabelField(sectionTitle, EditorStyles.miniBoldLabel);
+            if (GUILayout.Button($"Add {sectionTitle} Param", GUILayout.Height(20f)))
+            {
+                string newKey = BuildUniqueDictionaryKey(dictionary, "key");
+                dictionary[newKey] = string.Empty;
+                MarkDirty();
+            }
+
+            List<string> keys = new List<string>(dictionary.Keys);
+            for (int i = 0; i < keys.Count; i++)
+            {
+                string key = keys[i];
+                if (!dictionary.TryGetValue(key, out string value))
+                    continue;
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    string nextKey = EditorGUILayout.TextField(key, GUILayout.Width(160f));
+                    string nextValue = EditorGUILayout.TextField(value ?? string.Empty);
+
+                    if (GUILayout.Button("X", GUILayout.Width(22f)))
+                    {
+                        dictionary.Remove(key);
+                        MarkDirty();
+                        continue;
+                    }
+
+                    if (!string.Equals(nextKey, key, StringComparison.Ordinal))
+                    {
+                        string uniqueKey = BuildUniqueDictionaryKey(dictionary, nextKey, key);
+                        dictionary.Remove(key);
+                        dictionary[uniqueKey] = nextValue;
+                        MarkDirty();
+                        continue;
+                    }
+
+                    if (!string.Equals(nextValue, value, StringComparison.Ordinal))
+                    {
+                        dictionary[key] = nextValue;
+                        MarkDirty();
+                    }
+                }
+            }
+        }
+
+        private void DrawIntDictionaryEditor(Dictionary<string, int> dictionary, string sectionTitle)
+        {
+            if (dictionary == null)
+                return;
+
+            EditorGUILayout.LabelField(sectionTitle, EditorStyles.miniBoldLabel);
+            if (GUILayout.Button($"Add {sectionTitle} Param", GUILayout.Height(20f)))
+            {
+                string newKey = BuildUniqueDictionaryKey(dictionary, "key");
+                dictionary[newKey] = 0;
+                MarkDirty();
+            }
+
+            List<string> keys = new List<string>(dictionary.Keys);
+            for (int i = 0; i < keys.Count; i++)
+            {
+                string key = keys[i];
+                if (!dictionary.TryGetValue(key, out int value))
+                    continue;
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    string nextKey = EditorGUILayout.TextField(key, GUILayout.Width(160f));
+                    int nextValue = EditorGUILayout.IntField(value);
+
+                    if (GUILayout.Button("X", GUILayout.Width(22f)))
+                    {
+                        dictionary.Remove(key);
+                        MarkDirty();
+                        continue;
+                    }
+
+                    if (!string.Equals(nextKey, key, StringComparison.Ordinal))
+                    {
+                        string uniqueKey = BuildUniqueDictionaryKey(dictionary, nextKey, key);
+                        dictionary.Remove(key);
+                        dictionary[uniqueKey] = nextValue;
+                        MarkDirty();
+                        continue;
+                    }
+
+                    if (nextValue != value)
+                    {
+                        dictionary[key] = nextValue;
+                        MarkDirty();
+                    }
+                }
+            }
+        }
+
+        private void DrawBoolDictionaryEditor(Dictionary<string, bool> dictionary, string sectionTitle)
+        {
+            if (dictionary == null)
+                return;
+
+            EditorGUILayout.LabelField(sectionTitle, EditorStyles.miniBoldLabel);
+            if (GUILayout.Button($"Add {sectionTitle} Param", GUILayout.Height(20f)))
+            {
+                string newKey = BuildUniqueDictionaryKey(dictionary, "key");
+                dictionary[newKey] = false;
+                MarkDirty();
+            }
+
+            List<string> keys = new List<string>(dictionary.Keys);
+            for (int i = 0; i < keys.Count; i++)
+            {
+                string key = keys[i];
+                if (!dictionary.TryGetValue(key, out bool value))
+                    continue;
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    string nextKey = EditorGUILayout.TextField(key, GUILayout.Width(160f));
+                    bool nextValue = EditorGUILayout.Toggle(value);
+
+                    if (GUILayout.Button("X", GUILayout.Width(22f)))
+                    {
+                        dictionary.Remove(key);
+                        MarkDirty();
+                        continue;
+                    }
+
+                    if (!string.Equals(nextKey, key, StringComparison.Ordinal))
+                    {
+                        string uniqueKey = BuildUniqueDictionaryKey(dictionary, nextKey, key);
+                        dictionary.Remove(key);
+                        dictionary[uniqueKey] = nextValue;
+                        MarkDirty();
+                        continue;
+                    }
+
+                    if (nextValue != value)
+                    {
+                        dictionary[key] = nextValue;
+                        MarkDirty();
+                    }
+                }
+            }
+        }
+
+        private static string BuildUniqueDictionaryKey<TValue>(
+            Dictionary<string, TValue> dictionary,
+            string requestedKey,
+            string ignoredExistingKey = null)
+        {
+            string keyBase = string.IsNullOrWhiteSpace(requestedKey) ? "key" : requestedKey.Trim();
+            if (!dictionary.ContainsKey(keyBase)
+                || string.Equals(keyBase, ignoredExistingKey, StringComparison.Ordinal))
+            {
+                return keyBase;
+            }
+
+            int suffix = 1;
+            while (true)
+            {
+                string candidate = $"{keyBase}_{suffix}";
+                if (!dictionary.ContainsKey(candidate)
+                    || string.Equals(candidate, ignoredExistingKey, StringComparison.Ordinal))
+                {
+                    return candidate;
+                }
+
+                suffix++;
             }
         }
 
@@ -1373,6 +1569,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     StringValues = new List<string>(),
                     IntValues = new List<int>(),
                     LongValues = new List<long>(),
+                    BoolValues = new List<bool>(),
                 });
                 MarkDirty();
             }
@@ -1393,6 +1590,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         StringValues = new List<string>(),
                         IntValues = new List<int>(),
                         LongValues = new List<long>(),
+                        BoolValues = new List<bool>(),
                     };
                     restrictions[i] = restriction;
                     MarkDirty();
@@ -1401,6 +1599,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 restriction.StringValues ??= new List<string>();
                 restriction.IntValues ??= new List<int>();
                 restriction.LongValues ??= new List<long>();
+                restriction.BoolValues ??= new List<bool>();
 
                 using (new EditorGUILayout.HorizontalScope())
                 {
@@ -1422,6 +1621,9 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                         DrawField(() =>
                             restriction.LongValues = ParseCsvLongs(EditorGUILayout.TextField("Longs (csv)", JoinCsvLongs(restriction.LongValues))));
+
+                        DrawField(() =>
+                            restriction.BoolValues = ParseCsvBools(EditorGUILayout.TextField("Bools (csv)", JoinCsvBools(restriction.BoolValues))));
                     }
 
                     if (GUILayout.Button("X", GUILayout.Width(22f), GUILayout.Height(22f)))
@@ -1477,6 +1679,31 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         }
 
         private static string JoinCsvLongs(List<long> values)
+        {
+            if (values == null || values.Count == 0)
+                return string.Empty;
+
+            return string.Join(", ", values);
+        }
+
+        private static List<bool> ParseCsvBools(string csv)
+        {
+            List<bool> result = new List<bool>();
+            if (string.IsNullOrWhiteSpace(csv))
+                return result;
+
+            string[] parts = csv.Split(',');
+            for (int i = 0; i < parts.Length; i++)
+            {
+                string token = parts[i].Trim();
+                if (bool.TryParse(token, out bool value))
+                    result.Add(value);
+            }
+
+            return result;
+        }
+
+        private static string JoinCsvBools(List<bool> values)
         {
             if (values == null || values.Count == 0)
                 return string.Empty;

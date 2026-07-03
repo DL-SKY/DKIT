@@ -25,7 +25,7 @@
 - сцены (`SceneData`),
 - контент сцены (`SceneContentData`),
 - выборы (`ChoiceData`),
-- action-ы выборов (`ChoiceActionData`, `ChoiceActionType.GoToScene` + `Params.Strings["SceneId"]`, см. `.cursor/docs/modules/RPG.md`).
+- action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams` (см. `.cursor/docs/modules/RPG.md`).
 
 Инструмент доступен через меню:
 - `Tools/Definitions/Adventures/Adventure Editor`
@@ -200,7 +200,12 @@
 Класс:
 - `ChoiceActionCreateOptionsRegistry`
 
-Сейчас в реестре базово добавлен шаблон «Go To Scene» (`Type = GoToScene`, `Params.Strings["SceneId"]` — константа `Glossary.ChoiceActions.SCENE_ID`). Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не мигрируется автоматически при загрузке: он ловится в `Validation` и исправляется через кнопку `Fix`.
+Сейчас в реестре добавлены шаблоны:
+- `Go To Scene` (`Type = GoToScene`, `Params.Strings["SceneId"]` — константа `Glossary.ChoiceActions.SCENE_ID`);
+- `Set World Params` (`Type = SetWorldParams`, редактируемые `Params.Strings/Ints/Bools`);
+- `Set Adventure Params` (`Type = SetAdventureParams`, редактируемые `Params.Strings/Ints/Bools`).
+
+Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не мигрируется автоматически при загрузке: он ловится в `Validation` и исправляется через кнопку `Fix`.
 
 ---
 
@@ -223,7 +228,10 @@
 
 - CRUD приключений через JSON-файлы.
 - CRUD сцен, контента, выборов.
-- CRUD actions выбора (`ChoiceActionType.GoToScene` + `SceneId`).
+- CRUD actions выбора:
+  - `ChoiceActionType.GoToScene` + `SceneId`;
+  - `ChoiceActionType.SetWorldParams` + словари `Params.Strings/Ints/Bools`;
+  - `ChoiceActionType.SetAdventureParams` + словари `Params.Strings/Ints/Bools`.
 - Редактор `Selected Content`: `Value` или список `Values` (для `RandomImage` / `Slideshow`).
 - Адаптивная раскладка главного окна: секции `Scenes` / `Content` / `Choices` подстраиваются под высоту окна, с прокруткой при переполнении; кнопки `Delete Scene` / `Duplicate Scene` закреплены внизу колонки `Scenes`.
 - Быстрое управление списками через маленькие кнопки в строках:
@@ -234,7 +242,10 @@
   - обновление `SceneId` в scene transition actions.
 - Граф связей сцен.
 - Базовая валидация.
-- Валидация `ChoiceActionData` по контрактам `ChoiceActionType` и ключам из `Glossary.ChoiceActions`.
+- Валидация `ChoiceActionData` по контрактам `ChoiceActionType`:
+  - `GoToScene` — обязательный `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`);
+  - `SetWorldParams` / `SetAdventureParams` — хотя бы один ключ в `Params.Strings/Ints/Bools`.
+- Редактор `Selected Action` для `SetWorldParams` / `SetAdventureParams`: inline-редактирование словарей `Params.Strings`, `Params.Ints`, `Params.Bools`.
 - В `Validation` для исправляемых кейсов доступна кнопка `Fix` (например, `sceneId` → `SceneId`).
 - Окно `Localization` для генерации ключей и экспорта в `.txt` (tab-separated) для Google Sheets.
 - Цветовая индикация состояния:
@@ -363,10 +374,34 @@ TEST_KEY_2	Перевод номер 2
 
 ---
 
+## Restrictions в TEA
+
+В adventure JSON (`AdventureData`, `SceneContentData`, `ChoiceData`) поле `Restrictions` редактируется через `DrawRestrictionsSection` в `AdventureEditorWindow`.
+
+Поддерживаемые `RestrictionType` в runtime (см. `.cursor/docs/modules/Restrictions.md`):
+
+| Type | Назначение |
+|---|---|
+| `TimeNow` | Сравнение текущего UTC-времени с `LongValues[0]` |
+| `WorldParams` | Проверка `AdventuresStateData.World.Parameters` |
+| `AdventureParams` | Проверка `AdventuresStateData.Adventures[currentAdventureId].Parameters` |
+
+Формат `WorldParams` / `AdventureParams`:
+
+- `StringValues[0]` — ключ параметра;
+- `IntValues[0]` — сравнение с `Parameters.Ints[key]`;
+- `LongValues[0]` — сравнение long/int (например, `TimeNow`);
+- `BoolValues[0]` — сравнение с `Parameters.Bools[key]`;
+- иначе `StringValues[1]` — сравнение с `Parameters.Strings[key]`.
+
+TEA пока использует универсальный CSV-редактор для `StringValues` / `IntValues` / `LongValues` / `BoolValues`; подсказки по формату — в документации модуля `Restrictions`.
+
+---
+
 ## Куда расширять дальше
 
 - Добавить новые create-option реестры/опции без изменения общей архитектуры.
 - Расширить стратегию `IAdventureLocalizationKeyCollector` (например, поддержку альтернативных форматов ключей).
 - Добавить визуальный canvas-граф (zoom/pan/drag) поверх текущего списка связей.
-- Добавить более детальный editor для `Restrictions`.
+- Добавить более детальный editor для `Restrictions` (подсказки/шаблоны по `RestrictionType`, в т.ч. `WorldParams` / `AdventureParams`).
 

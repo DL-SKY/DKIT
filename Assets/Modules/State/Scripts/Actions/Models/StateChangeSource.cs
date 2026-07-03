@@ -11,5 +11,8 @@ namespace Modules.State.Scripts.Actions.Models
         SetCurrentAdventureSceneId = 6,
 
         SetLocalizationLanguage = 7,
+
+        SetWorldParams = 8,
+        SetAdventureParams = 9,
     }
 }

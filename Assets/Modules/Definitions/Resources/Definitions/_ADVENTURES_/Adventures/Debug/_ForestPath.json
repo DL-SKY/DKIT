@@ -53,6 +53,26 @@
                 "Ints": {},
                 "Bools": {}
               }
+            },
+            {
+              "Type": "SetWorldParams",
+              "Params": {
+                "Strings": {
+                  "world.sample": "value"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            },
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {
+                  "adventure.sample": 1
+                },
+                "Bools": {}
+              }
             }
           ]
         },

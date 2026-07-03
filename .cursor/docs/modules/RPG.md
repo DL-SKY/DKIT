@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-03 22:47:00 (+03:00)
+**Последнее обновление:** 2026-07-04 00:45:00 (+03:00)
 
 ## Назначение
 
@@ -11,7 +11,7 @@
 - структуру сцены и ее контента (`SceneData`, `SceneContentData`);
 - структуру выбора игрока и набора действий (`ChoiceData`, `ChoiceActionData`).
 
-На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`). Оркестраторы приключения пока в заготовочном состоянии.
+На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`) для переходов по сценам и записи параметров `World/Adventure` в `State`.
 
 > **Связь с `Modules.Definitions`:** JSON-дефы adventure-проекта загружаются через `DefinitionsManager` (Adventures). `AdventureDef` — единственный деф, который наследует RPG-модель (`AdventureData`); классы, происхождения, черты, предметы и заклинания описаны как `ClassDef` / `AncestryDef` / `FeatDef` / `ItemDef` / `SpellDef` и наследуют `AbstractDefinition` напрямую. Контракт дефов расширяется (`AncestryDef.MaleNames`/`FemaleNames`, `ItemDef.IsQuestItem`, `FeatDef.Restrictions` и др.); применение механик в state — в планах. Подробности — в [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция).
 >
@@ -110,6 +110,8 @@
 |---|---|---|
 | `None` | `0` | Зарезервирован; в фабрике не используется |
 | `GoToScene` | `1` | Подключён к `ChoiceActionExecutorFactory` (переход на сцену) |
+| `SetWorldParams` | `2` | Подключён к `ChoiceActionExecutorFactory` (запись `Params` в `AdventuresStateData.World.Parameters`) |
+| `SetAdventureParams` | `3` | Подключён к `ChoiceActionExecutorFactory` (запись `Params` в `AdventuresStateData.Adventures[currentAdventureId].Parameters`) |
 | `SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat`, `ApplyDamage`, `Heal`, `GrantItem` | `110`–`500` | Временно закомментированы в enum (старый черновик enum) |
 
 Именованные ключи `Params.Strings` для choice-actions задаются в `Glossary.ChoiceActions` (`Modules.Definitions.Scripts.Implementation.Adventures.Constants`):
@@ -117,6 +119,32 @@
 | Константа | Значение | Назначение |
 |---|---|---|
 | `Glossary.ChoiceActions.SCENE_ID` | `"SceneId"` | Id целевой сцены для перехода (`ChoiceActionType.GoToScene`) |
+
+Для `SetWorldParams` / `SetAdventureParams` ключи `Params` произвольные (рекомендуется префикс `world.*` / `adventure.*`). TEA валидирует только наличие хотя бы одного param; конкретные ключи не фиксируются в `Glossary`.
+
+Примеры JSON для choice-actions:
+
+```json
+{
+  "Type": "SetWorldParams",
+  "Params": {
+    "Strings": { "world.last_location": "tavern" },
+    "Ints": {},
+    "Bools": { "world.tavern_unlocked": true }
+  }
+}
+```
+
+```json
+{
+  "Type": "SetAdventureParams",
+  "Params": {
+    "Strings": {},
+    "Ints": { "adventure.quest_stage": 2 },
+    "Bools": { "adventure.met_innkeeper": true }
+  }
+}
+```
 
 Формат с `Params` сохраняет гибкость, но убирает "позиционные" ошибки (`StringValues[0]`, `IntValues[1]`) и делает JSON-контент более читаемым.
 
@@ -142,6 +170,8 @@
 | `ChoiceActionType` | Executor | `Params` | Куда пишет |
 |---|---|---|---|
 | `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.SceneId` (`Glossary.ChoiceActions.SCENE_ID`) | `AdventureStateLogic.ProcessAction(SetCurrentAdventureSceneIdStateAction)` → `AdventuresStateData.CurrentAdventureSceneId` |
+| `SetWorldParams` | `SetWorldParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetWorldParamsStateAction)` → merge в `AdventuresStateData.World.Parameters` |
+| `SetAdventureParams` | `SetAdventureParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetAdventureParamsStateAction)` → merge в `AdventuresStateData.Adventures[currentAdventureId].Parameters` |
 
 Legacy (не используется фабрикой):
 
@@ -206,9 +236,9 @@ Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
 - `CharacterStateData.Parameters`, `SavingThrows`, `Spells`, `StatusEffects` — `Dictionary<string, int>`;
 - прогресс мира и приключений — `AdventureStateParamsData` (`Strings` / `Ints` / `Bools`) в `AdventuresStateData`.
 
-Рекомендация по неймингу ключей для `SetFlag` / `ModifyVariable`:
-- `world.*` — глобальные флаги/счётчики мира (`World.Parameters`);
-- `adventure.*` — локальные флаги/счётчики приключения (`Adventures[adventureId].Parameters`);
+Рекомендация по неймингу ключей параметров:
+- `world.*` — глобальные флаги/счётчики мира (`World.Parameters`); запись через `ChoiceActionType.SetWorldParams`, проверка через `RestrictionType.WorldParams`;
+- `adventure.*` — локальные флаги/счётчики текущего приключения (`Adventures[currentAdventureId].Parameters`); запись через `ChoiceActionType.SetAdventureParams`, проверка через `RestrictionType.AdventureParams`;
 - `char.*` — параметры персонажа (будущие state-actions для `CharacterStateData`);
 - `party.*` — параметры группы (будущие state-actions).
 
@@ -259,7 +289,7 @@ RPG-контент (сцены, выборы, действия) описывае
 ## Интеграции с другими модулями
 
 - `Definitions`: adventure-контент загружается как JSON-дефы (`AdventureDef`, `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef`). Доменная модель приключения (`AdventureData`, `SceneData`, `ChoiceData`) остаётся в `RPG`; `AdventureDef` — тонкая обёртка для загрузчика. Дефы персонажа пока описывают контентный минимум; применение бонусов/эффектов в `CharacterStateData` — следующий этап (см. [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
-- `Restrictions`: `AdventureData` и `ChoiceData` используют `Restriction` для описания условий доступа.
+- `Restrictions`: `AdventureData`, `ChoiceData` и `SceneContentData` используют `Restriction` для описания условий доступа. Для параметров прогресса доступны `RestrictionType.WorldParams` и `RestrictionType.AdventureParams` (см. [Restrictions.md](Restrictions.md)).
 - `State`: персистентный прогресс профиля и ссылки персонажа на id дефов (см. выше).
 - Остальные интеграции (UI, события, полный оркестратор приключения) пока явно не реализованы в коде модуля.
 
@@ -292,10 +322,13 @@ RPG-контент (сцены, выборы, действия) описывае
 - Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
-- `ChoiceActionType`: к фабрике подключён `GoToScene` (код `1`); остальные значения enum в процессе переработки.
+- `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`).
 - Ключ `Params.Strings` для id сцены: `Glossary.ChoiceActions.SCENE_ID` (`"SceneId"`).
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
-- Реализован executor перехода: `GoToSceneChoiceActionExecutor` → `SetCurrentAdventureSceneIdStateAction`.
+- Реализованы executors:
+  - `GoToSceneChoiceActionExecutor` → `SetCurrentAdventureSceneIdStateAction`;
+  - `SetWorldParamsChoiceActionExecutor` → `SetWorldParamsStateAction`;
+  - `SetAdventureParamsChoiceActionExecutor` → `SetAdventureParamsStateAction`.
 - Legacy executor: `ObsoleteGoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) — старый путь через `IAdventureFlowController`.
 - Объявлен legacy интерфейс: `IAdventureFlowController` (**устаревший**, `[Obsolete]`).
 - `AdventuresManager` зарегистрирован в DI (`BindInterfacesAndSelfTo`), инициализируется через `AdventuresManagerInitTask`, подписан на `AdventureStateLogic.StateChanged`.
@@ -304,13 +337,13 @@ RPG-контент (сцены, выборы, действия) описывае
 ## Рекомендации по дальнейшему развитию
 
 1. Подключить runtime-фильтрацию `SceneContentData.Restrictions` при рендере сцены.
-2. Завершить переработку `ChoiceActionType` и добавить executors для новых типов (`SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat` и т.д.).
+2. Завершить переработку `ChoiceActionType` и добавить executors для оставшихся типов (`SkillCheck`, `StartCombat`, `GrantItem` и т.д.).
 3. Зарегистрировать в Zenject installer:
    - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`.
 4. Расширить `AdventuresManager`:
    - переходы по сценам и выборы;
    - применение списка `ChoiceActionData` через фабрику executors;
-   - реакция на `StateChanged` для обновления UI / runtime-контекста.
+   - реакция на `StateChanged` (в т.ч. `SetWorldParams` / `SetAdventureParams`) для обновления UI / runtime-контекста.
 5. Подключить остальные `ChoiceActionType` к state-actions в `Modules.State`.
 6. Добавить state-actions для персонажей (`char.*`) и инвентаря; сервис применения механик из дефов в `CharacterStateData`.
 7. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).

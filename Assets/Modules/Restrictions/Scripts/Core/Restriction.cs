@@ -29,6 +29,11 @@ namespace Modules.Restrictions.Scripts.Core
         public List<long> LongValues;
 
         /// <summary>
+        /// Boolean values for comparison
+        /// </summary>
+        public List<bool> BoolValues;
+
+        /// <summary>
         /// Тип операции сравнения
         /// </summary>
         public CompareType CompareOptions;

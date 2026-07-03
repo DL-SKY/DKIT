@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
+**Последнее обновление:** 2026-07-04 00:45:00 (+03:00)
 
 ## Назначение
 
@@ -112,7 +112,11 @@ Implementation/Wallet/
   | `ChangeWalletResource` | `ChangeWalletResourceStateAction<TStateData>` |
   | `SetWalletResource` | `SetWalletResourceStateAction<TStateData>` |
   | `SetProfileUpdateTime` | `SetProfileUpdateTimeStateAction` (Match-3 и Adventure) |
+  | `SetCurrentAdventureId` | `SetCurrentAdventureIdStateAction` (Adventure) |
+  | `SetCurrentAdventureSceneId` | `SetCurrentAdventureSceneIdStateAction` (Adventure) |
   | `SetLocalizationLanguage` | `SetLocalizationLanguageStateAction<TStateData>` |
+  | `SetWorldParams` | `SetWorldParamsStateAction` (Adventure) |
+  | `SetAdventureParams` | `SetAdventureParamsStateAction` (Adventure) |
 
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
@@ -241,8 +245,10 @@ Implementation/Wallet/
 Формат `AdventureStateParamsData` согласован с `ChoiceActionParamsData` в модуле RPG (`Strings` / `Ints` / `Bools`).
 
 **Резолвинг ключей в state-actions прогресса:**
-- `world.*` → `Adventures.World.Parameters`;
-- `adventure.*` → `Adventures[adventureId].Parameters` (нужен `adventureId` в state-action / в `Params.Strings.adventureId` у choice-action).
+- `world.*` → `Adventures.World.Parameters` (`SetWorldParamsStateAction`);
+- `adventure.*` → `Adventures[currentAdventureId].Parameters` (`SetAdventureParamsStateAction`; `currentAdventureId` берётся из `AdventuresStateData.CurrentAdventureId`, отдельный ключ в `Params` не нужен).
+
+`SetWorldParamsStateAction` и `SetAdventureParamsStateAction` принимают `ChoiceActionParamsData` и **merge**-ят значения в целевой `AdventureStateParamsData` (перезаписывают ключи из `Strings` / `Ints` / `Bools`, остальные ключи не трогают). Если записи приключения ещё нет, `SetAdventureParamsStateAction` создаёт `AdventureStateData` с `AdventureId = CurrentAdventureId`.
 
 `CurrentAdventureId` / `CurrentAdventureSceneId` не относятся к словарям прогресса `world.*` и `adventure.*`; это отдельный контракт активной runtime-точки. Не путать с `AdventureStateData.SceneId` в `Adventures[adventureId]` — там хранится прогресс конкретного приключения.
 
@@ -323,8 +329,13 @@ stateLogic.StateChanged += source =>
 ## Готовые state-actions
 
 - `ChangeWalletResourceStateAction<TStateData>` — общий экшен кошелька (Match-3 и Adventure).
-- `SetProfileUpdateTimeStateAction` — обновление `Profile.UpdateTime` (Adventure).
+- `SetWalletResourceStateAction<TStateData>` — установка ресурса кошелька (Match-3 и Adventure).
+- `SetProfileUpdateTimeStateAction` — обновление `Profile.UpdateTime` (Match-3 и Adventure).
+- `SetCurrentAdventureIdStateAction` — установка `Adventures.CurrentAdventureId` (Adventure).
+- `SetCurrentAdventureSceneIdStateAction` — установка `Adventures.CurrentAdventureSceneId` (Adventure).
 - `SetLocalizationLanguageStateAction<TStateData>` — установка `Localization.Language` (Adventure).
+- `SetWorldParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.World.Parameters` (Adventure).
+- `SetAdventureParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.Adventures[CurrentAdventureId].Parameters` (Adventure).
 
 ## Как добавить новый state-action
 

@@ -1,5 +1,5 @@
 using System;
-using UnityEditor;
+using Modules.Definitions.Scripts.Editor.Adventures;
 using UnityEngine;
 
 namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
@@ -10,15 +10,17 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
         public string ButtonText;
         public string Tooltip;
         public string IconName;
+        public string IconAssetName;
         public Func<T> Create;
+
+        public Texture ResolveIcon()
+        {
+            return AdventureEditorButtonIcons.Resolve(IconName, IconAssetName);
+        }
 
         public GUIContent ToGuiContent()
         {
-            Texture icon = string.IsNullOrWhiteSpace(IconName)
-                ? null
-                : EditorGUIUtility.IconContent(IconName)?.image;
-
-            return new GUIContent(ButtonText, icon, Tooltip);
+            return new GUIContent(ButtonText, ResolveIcon(), Tooltip);
         }
     }
 }

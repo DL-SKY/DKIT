@@ -18,7 +18,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private const float LAYER_SPACING_Y = 34f;
         private const float CANVAS_PADDING = 24f;
         private const float EDGE_WIDTH = 2f;
-        private const int EDGE_SEGMENTS = 32;
+        private const int EDGE_SEGMENTS = 16;//32;
         private const float CONTENT_ICON_SIZE = 14f;
         private const float CONTENT_ICON_SPACING = 4f;
         private const float ICON_BOTTOM_MARGIN = 4f;
@@ -29,6 +29,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private readonly Dictionary<string, Rect> _nodeScreenRects = new Dictionary<string, Rect>(StringComparer.Ordinal);
         private readonly Dictionary<SceneContentType, Texture> _contentIconsByType = new Dictionary<SceneContentType, Texture>();
         private readonly Dictionary<ChoiceType, Texture> _choiceIconsByType = new Dictionary<ChoiceType, Texture>();
+        private readonly Dictionary<ChoiceActionType, Texture> _choiceActionIconsByType = new Dictionary<ChoiceActionType, Texture>();
 
         private Vector2 _pan = new Vector2(40f, 40f);
         private float _zoom = 1f;
@@ -322,24 +323,72 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                 Texture icon = (node.ChoiceIcons != null && i < node.ChoiceIcons.Count) ? node.ChoiceIcons[i] : null;
                 float iconSize = CONTENT_ICON_SIZE * _zoom;
-                float iconX = rowRect.x + 6f;
+                float iconSpacing = CONTENT_ICON_SPACING * _zoom;
+                float margin = 6f;
+                float iconX = rowRect.x + margin;
                 float iconY = rowRect.center.y - iconSize * 0.5f;
 
-                float textStartX = rowRect.x + 8f;
+                float textStartX = rowRect.x + margin;
                 if (icon != null)
                 {
                     GUI.DrawTexture(new Rect(iconX, iconY, iconSize, iconSize), icon, ScaleMode.ScaleToFit, true);
-                    textStartX = iconX + iconSize + 6f;
+                    textStartX = iconX + iconSize + margin;
                 }
+
+                List<Texture> actionIcons = (node.ChoiceActionIconsPerRow != null && i < node.ChoiceActionIconsPerRow.Count)
+                    ? node.ChoiceActionIconsPerRow[i]
+                    : null;
+                float actionIconsWidth = GetActionIconsRowWidth(actionIcons, iconSize, iconSpacing, margin);
 
                 string choiceId = (node.ChoiceIds != null && i < node.ChoiceIds.Count)
                     ? node.ChoiceIds[i]
                     : string.Empty;
                 if (!string.IsNullOrWhiteSpace(choiceId))
                 {
-                    Rect textRect = new Rect(textStartX, rowRect.y + 1f, rowRect.width - (textStartX - rowRect.x) - 6f, rowRect.height - 2f);
+                    float textWidth = rowRect.xMax - textStartX - actionIconsWidth - margin;
+                    Rect textRect = new Rect(textStartX, rowRect.y + 1f, Mathf.Max(0f, textWidth), rowRect.height - 2f);
                     GUI.Label(textRect, choiceId, GetChoiceIdStyle());
                 }
+
+                DrawChoiceActionIcons(rowRect, actionIcons, iconSize, iconSpacing, margin);
+            }
+        }
+
+        private static float GetActionIconsRowWidth(List<Texture> actionIcons, float iconSize, float iconSpacing, float margin)
+        {
+            if (actionIcons == null || actionIcons.Count == 0)
+                return 0f;
+
+            int visibleCount = 0;
+            for (int i = 0; i < actionIcons.Count; i++)
+            {
+                if (actionIcons[i] != null)
+                    visibleCount++;
+            }
+
+            if (visibleCount == 0)
+                return 0f;
+
+            return visibleCount * iconSize + (visibleCount - 1) * iconSpacing + margin;
+        }
+
+        private static void DrawChoiceActionIcons(Rect rowRect, List<Texture> actionIcons, float iconSize, float iconSpacing, float margin)
+        {
+            if (actionIcons == null || actionIcons.Count == 0)
+                return;
+
+            float x = rowRect.xMax - margin;
+            float iconY = rowRect.center.y - iconSize * 0.5f;
+
+            for (int i = actionIcons.Count - 1; i >= 0; i--)
+            {
+                Texture actionIcon = actionIcons[i];
+                if (actionIcon == null)
+                    continue;
+
+                x -= iconSize;
+                GUI.DrawTexture(new Rect(x, iconY, iconSize, iconSize), actionIcon, ScaleMode.ScaleToFit, true);
+                x -= iconSpacing;
             }
         }
 
@@ -466,6 +515,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             _nodePositions.Clear();
             EnsureContentIconsMap();
             EnsureChoiceIconsMap();
+            EnsureChoiceActionIconsMap();
 
             if (adventureData?.Scenes == null)
             {
@@ -490,6 +540,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     TagsLabel = BuildTagsLabel(sceneData?.Tags),
                     ContentIcons = BuildContentIcons(sceneData?.Content),
                     ChoiceIcons = BuildChoiceIcons(sceneData?.Choices),
+                    ChoiceActionIconsPerRow = BuildChoiceActionIcons(sceneData?.Choices),
                     ChoiceIds = BuildChoiceIds(sceneData?.Choices),
                     ChoiceCount = sceneData?.Choices?.Count ?? 0,
                     IsExistingScene = true,
@@ -529,6 +580,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                                 TagsLabel = "tags: -",
                                 ContentIcons = new List<Texture>(),
                                 ChoiceIcons = new List<Texture>(),
+                                ChoiceActionIconsPerRow = new List<List<Texture>>(),
                                 ChoiceIds = new List<string>(),
                                 ChoiceCount = 0,
                                 IsExistingScene = false,
@@ -839,9 +891,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 if (prototype == null)
                     continue;
 
-                Texture icon = string.IsNullOrWhiteSpace(option.IconName)
-                    ? null
-                    : EditorGUIUtility.IconContent(option.IconName)?.image;
+                Texture icon = option.ResolveIcon();
 
                 if (icon != null)
                     _contentIconsByType[prototype.Type] = icon;
@@ -884,9 +934,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 if (prototype == null)
                     continue;
 
-                Texture icon = string.IsNullOrWhiteSpace(option.IconName)
-                    ? null
-                    : EditorGUIUtility.IconContent(option.IconName)?.image;
+                Texture icon = option.ResolveIcon();
 
                 if (icon != null)
                     _choiceIconsByType[prototype.Type] = icon;
@@ -910,6 +958,61 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                 _choiceIconsByType.TryGetValue(choiceData.Type, out Texture icon);
                 result.Add(icon);
+            }
+
+            return result;
+        }
+
+        private void EnsureChoiceActionIconsMap()
+        {
+            if (_choiceActionIconsByType.Count > 0)
+                return;
+
+            ChoiceActionCreateOptionsRegistry registry = new ChoiceActionCreateOptionsRegistry();
+            IReadOnlyList<CreateOptionDescriptor<ChoiceActionData>> options = registry.GetOptions();
+            for (int i = 0; i < options.Count; i++)
+            {
+                CreateOptionDescriptor<ChoiceActionData> option = options[i];
+                if (option == null)
+                    continue;
+
+                ChoiceActionData prototype = option.Create?.Invoke();
+                if (prototype == null)
+                    continue;
+
+                Texture icon = option.ResolveIcon();
+                if (icon != null)
+                    _choiceActionIconsByType[prototype.Type] = icon;
+            }
+        }
+
+        private List<List<Texture>> BuildChoiceActionIcons(List<ChoiceData> choices)
+        {
+            List<List<Texture>> result = new List<List<Texture>>();
+            if (choices == null)
+                return result;
+
+            for (int i = 0; i < choices.Count; i++)
+            {
+                ChoiceData choiceData = choices[i];
+                List<Texture> rowIcons = new List<Texture>();
+                if (choiceData?.Actions != null)
+                {
+                    for (int j = 0; j < choiceData.Actions.Count; j++)
+                    {
+                        ChoiceActionData action = choiceData.Actions[j];
+                        if (action == null)
+                        {
+                            rowIcons.Add(null);
+                            continue;
+                        }
+
+                        _choiceActionIconsByType.TryGetValue(action.Type, out Texture icon);
+                        rowIcons.Add(icon);
+                    }
+                }
+
+                result.Add(rowIcons);
             }
 
             return result;
@@ -982,6 +1085,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             public string TagsLabel;
             public List<Texture> ContentIcons;
             public List<Texture> ChoiceIcons;
+            public List<List<Texture>> ChoiceActionIconsPerRow;
             public List<string> ChoiceIds;
             public int ChoiceCount;
             public List<Rect> ChoiceRowScreenRects = new List<Rect>();

@@ -37,6 +37,8 @@ namespace Modules.Restrictions.Scripts.Core
             return type switch
             {
                 RestrictionType.TimeNow => _restrictionFactory.Create<TimeNowRestrictionChecker>(),
+                RestrictionType.WorldParams => _restrictionFactory.Create<WorldParamsRestrictionChecker>(),
+                RestrictionType.AdventureParams => _restrictionFactory.Create<AdventureParamsRestrictionChecker>(),
 
                 _ => throw new NotImplementedException()
             };

@@ -1,3 +1,4 @@
+using Modules.State.Scripts.Implementation.Adventure;
 using Modules.State.Scripts.Implementation.Adventure.StateDatas;
 using Modules.State.Scripts.Implementation.Wallet.StateDatas;
 using Modules.Utils.Scripts.Extensions;
@@ -72,20 +73,11 @@ namespace Modules.State.Scripts.Implementation.Adventure.Factories
             {
                 World = new WorldStateData
                 {
-                    Parameters = CreateEmptyAdventureStateParamsData(),
+                    Parameters = AdventureStateParamsOperator.CreateEmpty(),
                 },
                 Adventures = new Dictionary<string, AdventureStateData>(),
             };
         }
 
-        private static AdventureStateParamsData CreateEmptyAdventureStateParamsData()
-        {
-            return new AdventureStateParamsData
-            {
-                Strings = new Dictionary<string, string>(),
-                Ints = new Dictionary<string, int>(),
-                Bools = new Dictionary<string, bool>(),
-            };
-        }
     }
 }

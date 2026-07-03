@@ -3,6 +3,8 @@
     public enum RestrictionType
     {
         TimeNow = 0,
+        WorldParams = 1,
+        AdventureParams = 2,
 
 
         // = 1000,

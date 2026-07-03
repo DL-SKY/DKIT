@@ -562,19 +562,31 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             public readonly List<string> RequiredIntKeys;
             public readonly List<string> RequiredBoolKeys;
             public readonly Dictionary<string, string> LegacyStringAliases;
+            public readonly bool AllowAnyStringKeys;
+            public readonly bool AllowAnyIntKeys;
+            public readonly bool AllowAnyBoolKeys;
+            public readonly bool RequireAnyParam;
 
             public ChoiceActionValidationContract(
                 ChoiceActionType type,
                 List<string> requiredStringKeys,
                 List<string> requiredIntKeys,
                 List<string> requiredBoolKeys,
-                Dictionary<string, string> legacyStringAliases = null)
+                Dictionary<string, string> legacyStringAliases = null,
+                bool allowAnyStringKeys = false,
+                bool allowAnyIntKeys = false,
+                bool allowAnyBoolKeys = false,
+                bool requireAnyParam = false)
             {
                 Type = type;
                 RequiredStringKeys = requiredStringKeys ?? new List<string>();
                 RequiredIntKeys = requiredIntKeys ?? new List<string>();
                 RequiredBoolKeys = requiredBoolKeys ?? new List<string>();
                 LegacyStringAliases = legacyStringAliases ?? new Dictionary<string, string>(StringComparer.Ordinal);
+                AllowAnyStringKeys = allowAnyStringKeys;
+                AllowAnyIntKeys = allowAnyIntKeys;
+                AllowAnyBoolKeys = allowAnyBoolKeys;
+                RequireAnyParam = requireAnyParam;
             }
 
             public bool IsSingleStringKeyContract =>
@@ -718,11 +730,21 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             action.Params.Ints ??= new Dictionary<string, int>();
             action.Params.Bools ??= new Dictionary<string, bool>();
 
+            if (contract.RequireAnyParam
+                && action.Params.Strings.Count == 0
+                && action.Params.Ints.Count == 0
+                && action.Params.Bools.Count == 0)
+            {
+                issues.Add(new AdventureValidationIssue(
+                    $"Choice '{choiceId}' in scene '{sceneId}' action #{actionIndex} of type '{action.Type}' must contain at least one param."));
+            }
+
             ValidateStringKeys(issues, action, contract, sceneId, choiceId, actionIndex);
             ValidateUnexpectedKeys(
                 issues,
                 action.Params.Ints,
                 contract.RequiredIntKeys,
+                contract.AllowAnyIntKeys,
                 "Ints",
                 sceneId,
                 choiceId,
@@ -731,6 +753,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 issues,
                 action.Params.Bools,
                 contract.RequiredBoolKeys,
+                contract.AllowAnyBoolKeys,
                 "Bools",
                 sceneId,
                 choiceId,
@@ -746,6 +769,10 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             int actionIndex)
         {
             Dictionary<string, string> strings = action.Params.Strings;
+
+            if (contract.AllowAnyStringKeys)
+                return;
+
             HashSet<string> expected = new HashSet<string>(contract.RequiredStringKeys, StringComparer.Ordinal);
 
             for (int i = 0; i < contract.RequiredStringKeys.Count; i++)
@@ -819,12 +846,16 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             List<AdventureValidationIssue> issues,
             Dictionary<string, TValue> dictionary,
             List<string> expectedKeys,
+            bool allowAnyKeys,
             string groupName,
             string sceneId,
             string choiceId,
             int actionIndex)
         {
             if (dictionary == null)
+                return;
+
+            if (allowAnyKeys)
                 return;
 
             HashSet<string> expected = new HashSet<string>(expectedKeys ?? new List<string>(), StringComparer.Ordinal);
@@ -869,6 +900,17 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         new List<string> { ChoiceActions.SCENE_ID },
                         new List<string>(),
                         new List<string>());
+                case ChoiceActionType.SetWorldParams:
+                case ChoiceActionType.SetAdventureParams:
+                    return new ChoiceActionValidationContract(
+                        type,
+                        new List<string>(),
+                        new List<string>(),
+                        new List<string>(),
+                        allowAnyStringKeys: true,
+                        allowAnyIntKeys: true,
+                        allowAnyBoolKeys: true,
+                        requireAnyParam: true);
 
                 default:
                     return null;

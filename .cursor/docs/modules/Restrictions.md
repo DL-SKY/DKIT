@@ -1,6 +1,6 @@
 # Модуль Restrictions
 
-**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
+**Последнее обновление:** 2026-07-04 00:45:00 (+03:00)
 
 ## Назначение
 
@@ -20,16 +20,22 @@
   Главный фасад проверки списка ограничений и маршрутизации к нужным checker-ам.
 
 - `Restriction`  
-  Модель ограничения: `Type`, `StringValues`, `IntValues`, `LongValues`, `CompareOptions`.
+  Модель ограничения: `Type`, `StringValues`, `IntValues`, `LongValues`, `BoolValues`, `CompareOptions`.
 
 - `RestrictionType`  
-  Перечень типов ограничений (сейчас реализован `TimeNow`).
+  Перечень типов ограничений: `TimeNow`, `WorldParams`, `AdventureParams`.
 
 - `IChecker`  
   Контракт конкретной проверки: `bool Check(Restriction restriction)`.
 
 - `TimeNowRestrictionChecker`  
   Проверка текущего времени (`UTC ms`) относительно порога из `LongValues[0]`.
+
+- `WorldParamsRestrictionChecker`  
+  Проверка параметров `AdventuresStateData.World.Parameters`.
+
+- `AdventureParamsRestrictionChecker`  
+  Проверка параметров `AdventuresStateData.Adventures[currentAdventureId].Parameters`.
 
 - `CompareRestrictionStaticChecker` + `CompareType`  
   Универсальный слой сравнения типов `string/int/long` с операциями `Equal`, `More`, `Less` и т.д.
@@ -46,6 +52,57 @@
 6. Проверить:
    - положительный и отрицательный кейс;
    - отсутствие падений при пустых/некорректных данных в `Restriction`.
+
+### Формат `Restriction` для `WorldParams` / `AdventureParams`
+
+Общая логика в `AdventureStateParamsRestrictionCheckHelper`; checker-ы отличаются только источником данных:
+
+| `RestrictionType` | Источник state |
+|---|---|
+| `WorldParams` | `AdventuresStateData.World.Parameters` |
+| `AdventureParams` | `AdventuresStateData.Adventures[CurrentAdventureId].Parameters` |
+
+Поля `Restriction`:
+
+- `StringValues[0]` — ключ параметра в `AdventureStateParamsData`.
+- Если задан `IntValues[0]` — сравнивается `Parameters.Ints[key]` (поддерживаются все `CompareType` для `int`).
+- Иначе если задан `BoolValues[0]` — сравнивается `Parameters.Bools[key]` (поддерживаются `Equal` / `NotEqual`).
+- Иначе строковый режим: `StringValues[1]` сравнивается с `Parameters.Strings[key]` (поддерживаются `Equal` / `NotEqual`).
+
+Примеры JSON:
+
+```json
+{
+  "Type": "WorldParams",
+  "CompareOptions": "Equal",
+  "StringValues": ["world.tavern_unlocked"],
+  "IntValues": [],
+  "LongValues": [],
+  "BoolValues": [true]
+}
+```
+
+```json
+{
+  "Type": "AdventureParams",
+  "CompareOptions": "MoreEqual",
+  "StringValues": ["adventure.quest_stage"],
+  "IntValues": [2],
+  "LongValues": [],
+  "BoolValues": []
+}
+```
+
+```json
+{
+  "Type": "WorldParams",
+  "CompareOptions": "Equal",
+  "StringValues": ["world.last_location", "tavern"],
+  "IntValues": [],
+  "LongValues": [],
+  "BoolValues": []
+}
+```
 
 ## Где используется `Restriction` в проекте
 

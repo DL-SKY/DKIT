@@ -146,6 +146,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
             {
                 BuildOption(SceneContentType.Text, "Text", "TextAsset Icon"),
                 BuildOption(SceneContentType.Image, "Image", "d_Image Icon"),
+                BuildOption(SceneContentType.RandomImage, "Random Image", "d_Refresh"),
+                BuildOption(SceneContentType.Slideshow, "Slideshow", "Animation Icon"),
                 BuildOption(SceneContentType.Splitter, "Splitter", "Toolbar Minus"),
                 BuildOption(SceneContentType.Item, "Item", "PrefabVariant Icon"),
             };
@@ -156,7 +158,11 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
             return _options;
         }
 
-        private static CreateOptionDescriptor<SceneContentData> BuildOption(SceneContentType type, string label, string iconName)
+        private static CreateOptionDescriptor<SceneContentData> BuildOption(
+            SceneContentType type,
+            string label,
+            string iconName,
+            string iconAssetName = null)
         {
             return new CreateOptionDescriptor<SceneContentData>
             {
@@ -164,13 +170,25 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                 ButtonText = label,
                 Tooltip = $"Add '{type}' content block.",
                 IconName = iconName,
-                Create = () => new SceneContentData
-                {
-                    Type = type,
-                    Restrictions = new List<Modules.Restrictions.Scripts.Core.Restriction>(),
-                    Value = string.Empty,
-                },
+                IconAssetName = iconAssetName,
+                Create = () => CreateSceneContentTemplate(type),
             };
+        }
+
+        private static SceneContentData CreateSceneContentTemplate(SceneContentType type)
+        {
+            SceneContentData contentData = new SceneContentData
+            {
+                Type = type,
+                Restrictions = new List<Modules.Restrictions.Scripts.Core.Restriction>(),
+            };
+
+            if (type == SceneContentType.RandomImage || type == SceneContentType.Slideshow)
+                contentData.Values = new List<string>();
+            else
+                contentData.Value = string.Empty;
+
+            return contentData;
         }
     }
 
@@ -243,6 +261,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     ButtonText = "Go To Scene",
                     Tooltip = "Add action that moves player to another scene.",
                     IconName = "Animation.NextKey",
+                    IconAssetName = "GoToScene",
                     Create = () => new ChoiceActionData
                     {
                         Type = ChoiceActionType.GoToScene,
@@ -253,6 +272,48 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                                 { ChoiceActions.SCENE_ID, "start" },
                             },
                             Ints = new Dictionary<string, int>(),
+                            Bools = new Dictionary<string, bool>(),
+                        },
+                    },
+                },
+                new CreateOptionDescriptor<ChoiceActionData>
+                {
+                    Id = "action.set_world_params",
+                    ButtonText = "Set World Params",
+                    Tooltip = "Set world-level adventure params from action Params.",
+                    IconName = "d_winbtn_mac_max_h",
+                    IconAssetName = "SetWorldParams",
+                    Create = () => new ChoiceActionData
+                    {
+                        Type = ChoiceActionType.SetWorldParams,
+                        Params = new ChoiceActionParamsData
+                        {
+                            Strings = new Dictionary<string, string>
+                            {
+                                { "world.sample", "value" },
+                            },
+                            Ints = new Dictionary<string, int>(),
+                            Bools = new Dictionary<string, bool>(),
+                        },
+                    },
+                },
+                new CreateOptionDescriptor<ChoiceActionData>
+                {
+                    Id = "action.set_adventure_params",
+                    ButtonText = "Set Adventure Params",
+                    Tooltip = "Set current adventure params from action Params.",
+                    IconName = "d_winbtn_mac_max",
+                    IconAssetName = "SetAdventureParams",
+                    Create = () => new ChoiceActionData
+                    {
+                        Type = ChoiceActionType.SetAdventureParams,
+                        Params = new ChoiceActionParamsData
+                        {
+                            Strings = new Dictionary<string, string>(),
+                            Ints = new Dictionary<string, int>
+                            {
+                                { "adventure.sample", 1 },
+                            },
                             Bools = new Dictionary<string, bool>(),
                         },
                     },

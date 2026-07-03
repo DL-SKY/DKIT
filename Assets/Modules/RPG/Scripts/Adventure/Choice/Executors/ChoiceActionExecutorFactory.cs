@@ -15,19 +15,35 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
             if (actionData == null)
                 throw new ArgumentNullException(nameof(actionData));
 
-            if (actionData.Params == null)
-                throw new ArgumentException("ChoiceActionData.Params is null.", nameof(actionData));
-
             return actionData.Type switch
             {
                 ChoiceActionType.GoToScene => _container.Instantiate<GoToSceneChoiceActionExecutor>(
                     new object[]
                     {
-                        GetRequiredString(actionData.Params.Strings, ChoiceActions.SCENE_ID, actionData.Type),
+                        GetRequiredString(actionData.Params?.Strings, ChoiceActions.SCENE_ID, actionData.Type),
+                    }),
+                ChoiceActionType.SetWorldParams => _container.Instantiate<SetWorldParamsChoiceActionExecutor>(
+                    new object[]
+                    {
+                        EnsureParams(actionData),
+                    }),
+                ChoiceActionType.SetAdventureParams => _container.Instantiate<SetAdventureParamsChoiceActionExecutor>(
+                    new object[]
+                    {
+                        EnsureParams(actionData),
                     }),
 
                 _ => throw new NotImplementedException($"ChoiceActionType '{actionData.Type}' is not supported by factory yet."),
             };
+        }
+
+        private static ChoiceActionParamsData EnsureParams(ChoiceActionData actionData)
+        {
+            actionData.Params ??= new ChoiceActionParamsData();
+            actionData.Params.Strings ??= new Dictionary<string, string>();
+            actionData.Params.Ints ??= new Dictionary<string, int>();
+            actionData.Params.Bools ??= new Dictionary<string, bool>();
+            return actionData.Params;
         }
 
         private static string GetRequiredString(Dictionary<string, string> dictionary, string key, ChoiceActionType type)

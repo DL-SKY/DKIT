@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-06-30 10:12:00 (+03:00)
+**Последнее обновление:** 2026-07-04 00:45:00 (+03:00)
 
 ## Назначение
 
@@ -139,7 +139,7 @@
   | `StartScenes` | `List<string>` | да |
   | `Scenes` | `Dictionary<string, SceneData>` | да |
 
-  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). Choice-actions в runtime: `ChoiceActionType.GoToScene` + `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`); executor — `GoToSceneChoiceActionExecutor` (state-action `SetCurrentAdventureSceneIdStateAction`).
+  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). Choice-actions в runtime: `ChoiceActionType.GoToScene` + `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`; executors пишут в `State` через `SetCurrentAdventureSceneIdStateAction`, `SetWorldParamsStateAction`, `SetAdventureParamsStateAction`.
 
 - `ClassDef`  
   Класс персонажа. Поля: `Disabled`, `Tags`, `Title`, `Description`.
