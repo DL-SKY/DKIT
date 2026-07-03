@@ -238,7 +238,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                 DrawAdventureMeta();
                 EditorGUILayout.Space(8f);
-                using (new EditorGUILayout.HorizontalScope())
+                using (new EditorGUILayout.HorizontalScope(GUILayout.ExpandHeight(true)))
                 {
                     DrawScenesPanel();
                     EditorGUILayout.Space(8f);
@@ -314,7 +314,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
         private void DrawScenesPanel()
         {
-            using (new EditorGUILayout.VerticalScope(GUILayout.Width(280f)))
+            using (new EditorGUILayout.VerticalScope(GUILayout.Width(280f), GUILayout.ExpandHeight(true)))
             {
                 EditorGUILayout.LabelField("Scenes", EditorStyles.boldLabel);
                 DrawAddButtonWithPopup(
@@ -326,7 +326,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
                 EditorGUILayout.Space(5f);
 
-                using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_scenesScroll, GUILayout.Height(340f)))
+                using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_scenesScroll, GUILayout.ExpandHeight(true)))
                 {
                     _scenesScroll = scope.scrollPosition;
                     List<string> sceneIds = GetSortedSceneIds();
@@ -356,6 +356,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     }
                 }
 
+                GUILayout.FlexibleSpace();
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     GUI.enabled = !string.IsNullOrWhiteSpace(_selectedSceneId);
@@ -372,7 +373,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
         private void DrawSceneDetailsPanel()
         {
-            using (new EditorGUILayout.VerticalScope())
+            using (new EditorGUILayout.VerticalScope(GUILayout.ExpandHeight(true)))
             {
                 if (string.IsNullOrWhiteSpace(_selectedSceneId) || !_adventureData.Scenes.TryGetValue(_selectedSceneId, out SceneData sceneData))
                 {
@@ -396,12 +397,13 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 const float CONTENT_CHOICES_GAP = 8f;
                 float detailsAreaWidth = Mathf.Max(460f, position.width - LEFT_PANEL_WIDTH - 280f - 48f);
                 float columnWidth = Mathf.Max(220f, (detailsAreaWidth - CONTENT_CHOICES_GAP) * 0.5f);
-                using (new EditorGUILayout.HorizontalScope())
+                using (new EditorGUILayout.HorizontalScope(GUILayout.ExpandHeight(true)))
                 {
                     using (new EditorGUILayout.VerticalScope(
                         GUILayout.MinWidth(columnWidth),
                         GUILayout.MaxWidth(columnWidth),
-                        GUILayout.ExpandWidth(false)))
+                        GUILayout.ExpandWidth(false),
+                        GUILayout.ExpandHeight(true)))
                     {
                         DrawContentSection(sceneData);
                     }
@@ -411,7 +413,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     using (new EditorGUILayout.VerticalScope(
                         GUILayout.MinWidth(columnWidth),
                         GUILayout.MaxWidth(columnWidth),
-                        GUILayout.ExpandWidth(false)))
+                        GUILayout.ExpandWidth(false),
+                        GUILayout.ExpandHeight(true)))
                     {
                         DrawChoicesSection(sceneData);
                     }
@@ -436,7 +439,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
             EditorGUILayout.Space(4f);
 
-            using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_contentScroll, GUILayout.Height(140f)))
+            using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_contentScroll, GUILayout.ExpandHeight(true)))
             {
                 _contentScroll = scope.scrollPosition;
                 for (int i = 0; i < sceneData.Content.Count; i++)
@@ -463,9 +466,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         }
                     }
                 }
+                DrawSelectedContentEditor(sceneData);
             }
-
-            DrawSelectedContentEditor(sceneData);
         }
 
         private void DrawChoicesSection(SceneData sceneData)
@@ -486,7 +488,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
             EditorGUILayout.Space(4f);
 
-            using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_choicesScroll, GUILayout.Height(140f)))
+            using (EditorGUILayout.ScrollViewScope scope = new EditorGUILayout.ScrollViewScope(_choicesScroll, GUILayout.ExpandHeight(true)))
             {
                 _choicesScroll = scope.scrollPosition;
                 for (int i = 0; i < sceneData.Choices.Count; i++)
@@ -522,9 +524,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         }
                     }
                 }
+                DrawSelectedChoiceEditor(sceneData);
             }
-
-            DrawSelectedChoiceEditor(sceneData);
         }
 
         private void DrawSelectedContentEditor(SceneData sceneData)
