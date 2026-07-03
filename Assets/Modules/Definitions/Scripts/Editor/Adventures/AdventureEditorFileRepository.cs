@@ -2,6 +2,7 @@ using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Choice.Actions;
 using Modules.RPG.Scripts.Adventure.Data;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,17 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
     {
         public const string ADVENTURES_DIRECTORY = "Assets/Modules/Definitions/Resources/Definitions/_ADVENTURES_/Adventures";
         private const string JSON_EXTENSION = ".json";
+        private static readonly JsonSerializerSettings JSON_SETTINGS = new JsonSerializerSettings
+        {
+            Converters = new List<JsonConverter>
+            {
+                new StringEnumConverter
+                {
+                    // Keep backward compatibility with numeric enum values in old JSON files.
+                    AllowIntegerValues = true,
+                },
+            },
+        };
 
         public List<string> GetAdventureFiles()
         {
@@ -47,7 +59,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 }
 
                 string content = File.ReadAllText(absolutePath);
-                adventureData = JsonConvert.DeserializeObject<AdventureData>(content);
+                adventureData = JsonConvert.DeserializeObject<AdventureData>(content, JSON_SETTINGS);
                 if (adventureData == null)
                 {
                     error = "Failed to deserialize AdventureData.";
@@ -75,7 +87,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             string directoryPath = Path.GetDirectoryName(absolutePath);
             EnsureDirectoryExists(directoryPath);
 
-            string json = JsonConvert.SerializeObject(adventureData, Formatting.Indented);
+            string json = JsonConvert.SerializeObject(adventureData, Formatting.Indented, JSON_SETTINGS);
             File.WriteAllText(absolutePath, json);
             AssetDatabase.Refresh();
         }

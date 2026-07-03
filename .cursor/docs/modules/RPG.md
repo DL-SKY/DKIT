@@ -102,6 +102,8 @@
   - `Params.Bools: Dictionary<string, bool>`
 - `ChoiceActionType` — enum действий (в процессе переработки, см. ниже).
 
+> В TEA (`AdventureEditorFileRepository`) enum-поля adventure JSON сохраняются строками и читаются в mixed-режиме (строки + legacy-числа).
+
 Текущее состояние `ChoiceActionType`:
 
 | Значение | Код | Статус |

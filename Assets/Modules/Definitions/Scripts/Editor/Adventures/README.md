@@ -60,6 +60,14 @@
 
 Важно:
 - Id приключения в runtime определяется именем файла (как и в существующем loader-пайплайне проекта).
+- При сохранении через TEA enum-поля adventure JSON сериализуются строками (например, `Type: "Adventure"`), при загрузке поддерживаются и старые числовые значения.
+- Это распространяется в том числе на:
+  - `AdventureData.Type`,
+  - `SceneContentData.Type`,
+  - `ChoiceData.Type`,
+  - `ChoiceActionData.Type`,
+  - `Restriction.Type` (`RestrictionType`),
+  - `Restriction.CompareOptions` (`CompareType`).
 
 ---
 
@@ -76,6 +84,27 @@
 - Дополнительное окно ввода идентификатора:
   - `IdentifierPromptWindow.cs`
   - используется для create/rename приключений и сцен.
+
+### UI главного окна (`AdventureEditorWindow`)
+
+Нижняя часть окна (после блока `Adventure` meta) растягивается по доступной высоте окна (`GUILayout.ExpandHeight`).
+
+| Колонка | Метод | Поведение |
+|---|---|---|
+| `Scenes` | `DrawScenesPanel` | Список сцен в scroll-view; кнопки `Delete Scene` / `Duplicate Scene` закреплены внизу колонки |
+| `Content` | `DrawContentSection` | Scroll-view на весь раздел: список content-блоков + `Selected Content` |
+| `Choices` | `DrawChoicesSection` | Scroll-view на весь раздел: список choices + `Selected Choice` + `Selected Action` |
+
+Принципы раскладки:
+- фиксированные высоты scroll-view (`340f`, `140f`) убраны — высота секций подстраивается под размер окна;
+- в колонке `Scenes` между списком и action-кнопками стоит `GUILayout.FlexibleSpace()`, чтобы `Delete` / `Duplicate` всегда были внизу;
+- если содержимое секции не помещается (длинный список сцен, выбранный choice с actions и restrictions), появляется вертикальная прокрутка **внутри соответствующей колонки**.
+
+Редактор выбранного content (`DrawSelectedContentEditor`):
+- для `Text`, `Image`, `Splitter`, `Item` — поле `Value`;
+- для `RandomImage`, `Slideshow` — редактируемый список `Values` (строки + `Add Value` / `X`).
+
+Ключевые методы отрисовки: `DrawScenesPanel`, `DrawSceneDetailsPanel`, `DrawContentSection`, `DrawChoicesSection`, `DrawSelectedContentEditor`, `DrawSceneContentValuesEditor`.
 
 ### Сервисы
 - `AdventureEditorServices.cs`
@@ -195,6 +224,8 @@
 - CRUD приключений через JSON-файлы.
 - CRUD сцен, контента, выборов.
 - CRUD actions выбора (`ChoiceActionType.GoToScene` + `SceneId`).
+- Редактор `Selected Content`: `Value` или список `Values` (для `RandomImage` / `Slideshow`).
+- Адаптивная раскладка главного окна: секции `Scenes` / `Content` / `Choices` подстраиваются под высоту окна, с прокруткой при переполнении; кнопки `Delete Scene` / `Duplicate Scene` закреплены внизу колонки `Scenes`.
 - Быстрое управление списками через маленькие кнопки в строках:
   - `R` — rename (для файлов приключений и сцен),
   - `X` — delete (для файлов, сцен, контента, выборов).

@@ -7,7 +7,7 @@
   ],
   "IgnoredTags": [],
   "IsRepeatable": true,
-  "Type": 0,
+  "Type": "Adventure",
   "AdventureLinks": [],
   "Title": "ForestPath Test Run",
   "Description": "Короткое тестовое приключение на 20 сцен с развилками и возвратами.",
@@ -27,7 +27,7 @@
       ],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Вы входите на лесную тропу. Впереди развилка и старый указатель."
         }
@@ -37,14 +37,14 @@
         {
           "Id": "s01_to_s02",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Пойти к указателю",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
                   "sceneId": "scene_02"
@@ -58,14 +58,14 @@
         {
           "Id": "s01_to_s03",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Свернуть к ручью",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
                   "sceneId": "scene_03"
@@ -83,7 +83,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "На указателе две надписи: «Старая поляна» и «Каменный мост»."
         }
@@ -93,17 +93,17 @@
         {
           "Id": "s02_to_s04",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Идти к старой поляне",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_04"
+                  "SceneId": "scene_04"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -114,17 +114,17 @@
         {
           "Id": "s02_to_s05",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Идти к каменному мосту",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_05"
+                  "SceneId": "scene_05"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -139,7 +139,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "У ручья слышен скрип мельничного колеса и виден узкий проход в кустах."
         }
@@ -149,17 +149,17 @@
         {
           "Id": "s03_to_s05",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Перейти к мосту",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_05"
+                  "SceneId": "scene_05"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -170,17 +170,17 @@
         {
           "Id": "s03_to_s06",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Пройти через кусты",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_06"
+                  "SceneId": "scene_06"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -195,7 +195,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "На поляне кострище и три заметные тропинки."
         }
@@ -205,17 +205,17 @@
         {
           "Id": "s04_to_s07",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Взять северную тропу",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_07"
+                  "SceneId": "scene_07"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -226,17 +226,17 @@
         {
           "Id": "s04_to_s08",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Пойти по следам к бревну",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_08"
+                  "SceneId": "scene_08"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -247,17 +247,17 @@
         {
           "Id": "s04_to_s09",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Вернуться к мосту внизу",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_09"
+                  "SceneId": "scene_09"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -272,7 +272,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Каменный мост разделяет путь: вверх к башне или вниз к бобровой запруде."
         }
@@ -282,17 +282,17 @@
         {
           "Id": "s05_to_s09",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Подняться к башне",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_09"
+                  "SceneId": "scene_09"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -303,17 +303,17 @@
         {
           "Id": "s05_to_s10",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Спуститься к запруде",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_10"
+                  "SceneId": "scene_10"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -328,7 +328,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "За кустами узкая тропа ведет к оврагу и к заброшенному лагерю."
         }
@@ -338,17 +338,17 @@
         {
           "Id": "s06_to_s10",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Пойти к оврагу",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_10"
+                  "SceneId": "scene_10"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -363,7 +363,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Тропа приводит к старым воротам из корней."
         }
@@ -373,17 +373,17 @@
         {
           "Id": "s07_to_s12",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Пройти через ворота",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_12"
+                  "SceneId": "scene_12"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -394,17 +394,17 @@
         {
           "Id": "s07_to_s08",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Срезать путь к бревну",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_08"
+                  "SceneId": "scene_08"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -419,7 +419,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "У поваленного бревна лежит знак с меткой разведчиков."
         }
@@ -429,17 +429,17 @@
         {
           "Id": "s08_to_s12",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Следовать метке",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_12"
+                  "SceneId": "scene_12"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -450,17 +450,17 @@
         {
           "Id": "s08_to_s13",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Идти по шуму воды",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_13"
+                  "SceneId": "scene_13"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -475,7 +475,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Перед вами полуразрушенная башня и спуск в подвал."
         }
@@ -485,17 +485,17 @@
         {
           "Id": "s09_to_s13",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Спуститься в подвал",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_13"
+                  "SceneId": "scene_13"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -506,17 +506,17 @@
         {
           "Id": "s09_to_s14",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Подняться на площадку",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_14"
+                  "SceneId": "scene_14"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -531,7 +531,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Запруда шумит, рядом видны следы тропы в низину."
         }
@@ -541,17 +541,17 @@
         {
           "Id": "s10_to_s14",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Идти в низину",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_14"
+                  "SceneId": "scene_14"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -562,17 +562,17 @@
         {
           "Id": "s10_to_s15",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Подняться на сухой берег",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_15"
+                  "SceneId": "scene_15"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -587,7 +587,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "В лагере находится карта с короткой отметкой «Северный выход»."
         }
@@ -597,17 +597,17 @@
         {
           "Id": "s11_to_s15",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Следовать по карте",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_15"
+                  "SceneId": "scene_15"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -618,17 +618,17 @@
         {
           "Id": "s11_to_s06",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Вернуться на узкую тропу",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_06"
+                  "SceneId": "scene_06"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -643,7 +643,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "За воротами каменная арка и две лестницы."
         }
@@ -653,17 +653,17 @@
         {
           "Id": "s12_to_s16",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Левая лестница",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_16"
+                  "SceneId": "scene_16"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -674,17 +674,17 @@
         {
           "Id": "s12_to_s17",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Правая лестница",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_17"
+                  "SceneId": "scene_17"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -699,7 +699,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Подвал сырой, но через пролом видно выход к свету."
         }
@@ -709,17 +709,17 @@
         {
           "Id": "s13_to_s17",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Пройти через пролом",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_17"
+                  "SceneId": "scene_17"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -730,17 +730,17 @@
         {
           "Id": "s13_to_s18",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Осмотреть дальний коридор",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_18"
+                  "SceneId": "scene_18"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -755,7 +755,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "В низине сходятся тропы от башни и запруды."
         }
@@ -765,17 +765,17 @@
         {
           "Id": "s14_to_s18",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Пойти к сухому валуну",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_18"
+                  "SceneId": "scene_18"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -786,17 +786,17 @@
         {
           "Id": "s14_to_s19",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Свернуть на северную тропу",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_19"
+                  "SceneId": "scene_19"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -811,7 +811,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Тропа уводит к древнему дубу с резной меткой."
         }
@@ -821,17 +821,17 @@
         {
           "Id": "s15_to_s19",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Идти по метке",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_19"
+                  "SceneId": "scene_19"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -846,7 +846,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Короткий финал: вы находите наблюдательный пост и отмечаете маршрут."
         }
@@ -856,17 +856,17 @@
         {
           "Id": "s16_to_s01",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Запустить путь заново",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_01"
+                  "SceneId": "scene_01"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -881,7 +881,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Вы выходите на гребень. Отсюда видно выход из леса и обходной маршрут."
         }
@@ -891,17 +891,17 @@
         {
           "Id": "s17_to_s20",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Идти к выходу",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_20"
+                  "SceneId": "scene_20"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -912,17 +912,17 @@
         {
           "Id": "s17_to_s18",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Срезать по обходной тропе",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_18"
+                  "SceneId": "scene_18"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -937,7 +937,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Короткий финал: обходная тропа замыкается у древнего камня."
         }
@@ -947,17 +947,17 @@
         {
           "Id": "s18_to_s01",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Повторить тест с начала",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_01"
+                  "SceneId": "scene_01"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -972,7 +972,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Перед вами последний подъем и развилка к двум выходам."
         }
@@ -982,17 +982,17 @@
         {
           "Id": "s19_to_s20",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Выйти на главную дорогу",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_20"
+                  "SceneId": "scene_20"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -1003,17 +1003,17 @@
         {
           "Id": "s19_to_s16",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Свернуть к посту наблюдения",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_16"
+                  "SceneId": "scene_16"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -1024,7 +1024,7 @@
         {
           "Id": "new_choice",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "",
           "Description": "",
           "AlwaysShow": true,
@@ -1038,7 +1038,7 @@
       "Tags": [],
       "Content": [
         {
-          "Type": 0,
+          "Type": "Text",
           "Restrictions": [],
           "Value": "Короткий финал: вы выходите из леса. Маршрут отмечен как успешный тест.\\nКонец!"
         }
@@ -1048,17 +1048,17 @@
         {
           "Id": "s20_to_s01",
           "Tags": [],
-          "Type": 0,
+          "Type": "Dafault",
           "Text": "Пройти снова в {0}",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
           "Actions": [
             {
-              "Type": 100,
+              "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "sceneId": "scene_01"
+                  "SceneId": "scene_01"
                 },
                 "Ints": {},
                 "Bools": {}

@@ -6,7 +6,7 @@
   ],
   "IgnoredTags": [],
   "IsRepeatable": true,
-  "Type": 10,
+  "Type": "Location",
   "AdventureLinks": [],
   "Title": "Таверна Марты",
   "Description": "Уютная таверна у дороги, где хозяйка Марта знает все местные новости.",
