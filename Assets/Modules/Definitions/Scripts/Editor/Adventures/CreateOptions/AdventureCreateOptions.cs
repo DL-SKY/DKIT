@@ -206,7 +206,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                 {
                     Id = "choice.default",
                     ButtonText = "Choice",
-                    Tooltip = "Add a default choice with one scene transition action.",
+                    Tooltip = "Add a default choice with no actions.",
                     IconName = "d_FilterByLabel",
                     IconAssetName = "click",
                     Create = () => new ChoiceData
@@ -218,10 +218,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         Description = string.Empty,
                         AlwaysShow = true,
                         Restrictions = new List<Modules.Restrictions.Scripts.Core.Restriction>(),
-                        Actions = new List<ChoiceActionData>
-                        {
-                            BuildSceneTransitionAction("start"),
-                        },
+                        Actions = new List<ChoiceActionData>(),
                     },
                 },
             };
@@ -230,23 +227,6 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
         public IReadOnlyList<CreateOptionDescriptor<ChoiceData>> GetOptions()
         {
             return _options;
-        }
-
-        private static ChoiceActionData BuildSceneTransitionAction(string sceneId)
-        {
-            return new ChoiceActionData
-            {
-                Type = ChoiceActionType.GoToScene,
-                Params = new ChoiceActionParamsData
-                {
-                    Strings = new Dictionary<string, string>
-                    {
-                        { ChoiceActions.SCENE_ID, sceneId },
-                    },
-                    Ints = new Dictionary<string, int>(),
-                    Bools = new Dictionary<string, bool>(),
-                },
-            };
         }
     }
 
