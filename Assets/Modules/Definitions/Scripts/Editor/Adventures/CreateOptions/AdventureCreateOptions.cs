@@ -25,6 +25,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     ButtonText = "Adventure",
                     Tooltip = "Create a standard adventure template with one start scene.",
                     IconName = "SceneAsset Icon",
+                    IconAssetName = "path-distance",
                     Create = () => BuildAdventureTemplate(AdventureType.Adventure),
                 },
                 new CreateOptionDescriptor<AdventureData>
@@ -33,6 +34,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     ButtonText = "Location",
                     Tooltip = "Create a location template with one start scene.",
                     IconName = "Prefab Icon",
+                    IconAssetName = "wireframe-globe",
                     Create = () => BuildAdventureTemplate(AdventureType.Location),
                 },
             };
@@ -146,7 +148,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
             {
                 BuildOption(SceneContentType.Text, "Text", "TextAsset Icon"),
                 BuildOption(SceneContentType.Image, "Image", "d_Image Icon"),
-                BuildOption(SceneContentType.RandomImage, "Random Image", "d_Refresh"),
+                BuildOption(SceneContentType.RandomImage, "Random Image", "d_Refresh", "perspective-dice-six-faces-random"),
                 BuildOption(SceneContentType.Slideshow, "Slideshow", "Animation Icon"),
                 BuildOption(SceneContentType.Splitter, "Splitter", "Toolbar Minus"),
                 BuildOption(SceneContentType.Item, "Item", "PrefabVariant Icon"),
@@ -206,6 +208,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     ButtonText = "Choice",
                     Tooltip = "Add a default choice with one scene transition action.",
                     IconName = "d_FilterByLabel",
+                    IconAssetName = "click",
                     Create = () => new ChoiceData
                     {
                         Id = "new_choice",
@@ -261,7 +264,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     ButtonText = "Go To Scene",
                     Tooltip = "Add action that moves player to another scene.",
                     IconName = "Animation.NextKey",
-                    IconAssetName = "GoToScene",
+                    IconAssetName = "play-button",
                     Create = () => new ChoiceActionData
                     {
                         Type = ChoiceActionType.GoToScene,
@@ -282,7 +285,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     ButtonText = "Set World Params",
                     Tooltip = "Set world-level adventure params from action Params.",
                     IconName = "d_winbtn_mac_max_h",
-                    IconAssetName = "SetWorldParams",
+                    IconAssetName = "load(1)",
                     Create = () => new ChoiceActionData
                     {
                         Type = ChoiceActionType.SetWorldParams,
@@ -303,7 +306,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     ButtonText = "Set Adventure Params",
                     Tooltip = "Set current adventure params from action Params.",
                     IconName = "d_winbtn_mac_max",
-                    IconAssetName = "SetAdventureParams",
+                    IconAssetName = "load",
                     Create = () => new ChoiceActionData
                     {
                         Type = ChoiceActionType.SetAdventureParams,
