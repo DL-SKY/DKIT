@@ -213,7 +213,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     {
                         Id = "new_choice",
                         Tags = new List<string>(),
-                        Type = ChoiceType.Dafault,
+                        Type = ChoiceType.Default,
                         Text = string.Empty,
                         Description = string.Empty,
                         AlwaysShow = true,

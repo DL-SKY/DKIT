@@ -1,4 +1,5 @@
 using Modules.Definitions.Scripts.Editor.Adventures.CreateOptions;
+using Modules.Definitions.Scripts.Editor.Adventures.Restrictions;
 using Modules.Restrictions.Scripts.Core;
 using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Choice.Actions;
@@ -23,6 +24,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private readonly SceneContentCreateOptionsRegistry _sceneContentCreateOptionsRegistry = new SceneContentCreateOptionsRegistry();
         private readonly ChoiceCreateOptionsRegistry _choiceCreateOptionsRegistry = new ChoiceCreateOptionsRegistry();
         private readonly ChoiceActionCreateOptionsRegistry _choiceActionCreateOptionsRegistry = new ChoiceActionCreateOptionsRegistry();
+        private readonly RestrictionEditorFieldProfilesRegistry _restrictionEditorFieldProfilesRegistry = new RestrictionEditorFieldProfilesRegistry();
 
         private List<string> _filePaths = new List<string>();
         private AdventureData _adventureData;
@@ -453,6 +455,42 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         if (GUILayout.Button(title, style))
                             _selectedContentIndex = i;
 
+                        if (GUILayout.Button("↑", GUILayout.Width(22f)))
+                        {
+                            if (i > 0)
+                            {
+                                int newIndex = i - 1;
+                                (sceneData.Content[i], sceneData.Content[newIndex]) = (sceneData.Content[newIndex], sceneData.Content[i]);
+
+                                if (_selectedContentIndex == i)
+                                    _selectedContentIndex = newIndex;
+                                else if (_selectedContentIndex == newIndex)
+                                    _selectedContentIndex = i;
+
+                                MarkDirty();
+                            }
+
+                            break;
+                        }
+
+                        if (GUILayout.Button("↓", GUILayout.Width(22f)))
+                        {
+                            if (i < sceneData.Content.Count - 1)
+                            {
+                                int newIndex = i + 1;
+                                (sceneData.Content[i], sceneData.Content[newIndex]) = (sceneData.Content[newIndex], sceneData.Content[i]);
+
+                                if (_selectedContentIndex == i)
+                                    _selectedContentIndex = newIndex;
+                                else if (_selectedContentIndex == newIndex)
+                                    _selectedContentIndex = i;
+
+                                MarkDirty();
+                            }
+
+                            break;
+                        }
+
                         if (GUILayout.Button("X", GUILayout.Width(22f)))
                         {
                             sceneData.Content.RemoveAt(i);
@@ -503,6 +541,42 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         {
                             _selectedChoiceIndex = i;
                             _selectedActionIndex = -1;
+                        }
+
+                        if (GUILayout.Button("↑", GUILayout.Width(22f)))
+                        {
+                            if (i > 0)
+                            {
+                                int newIndex = i - 1;
+                                (sceneData.Choices[i], sceneData.Choices[newIndex]) = (sceneData.Choices[newIndex], sceneData.Choices[i]);
+
+                                if (_selectedChoiceIndex == i)
+                                    _selectedChoiceIndex = newIndex;
+                                else if (_selectedChoiceIndex == newIndex)
+                                    _selectedChoiceIndex = i;
+
+                                MarkDirty();
+                            }
+
+                            break;
+                        }
+
+                        if (GUILayout.Button("↓", GUILayout.Width(22f)))
+                        {
+                            if (i < sceneData.Choices.Count - 1)
+                            {
+                                int newIndex = i + 1;
+                                (sceneData.Choices[i], sceneData.Choices[newIndex]) = (sceneData.Choices[newIndex], sceneData.Choices[i]);
+
+                                if (_selectedChoiceIndex == i)
+                                    _selectedChoiceIndex = newIndex;
+                                else if (_selectedChoiceIndex == newIndex)
+                                    _selectedChoiceIndex = i;
+
+                                MarkDirty();
+                            }
+
+                            break;
                         }
 
                         if (GUILayout.Button("X", GUILayout.Width(22f)))
@@ -643,6 +717,42 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     {
                         if (GUILayout.Button(label, style))
                             _selectedActionIndex = i;
+
+                        if (GUILayout.Button("↑", GUILayout.Width(22f)))
+                        {
+                            if (i > 0)
+                            {
+                                int newIndex = i - 1;
+                                (choiceData.Actions[i], choiceData.Actions[newIndex]) = (choiceData.Actions[newIndex], choiceData.Actions[i]);
+
+                                if (_selectedActionIndex == i)
+                                    _selectedActionIndex = newIndex;
+                                else if (_selectedActionIndex == newIndex)
+                                    _selectedActionIndex = i;
+
+                                MarkDirty();
+                            }
+
+                            break;
+                        }
+
+                        if (GUILayout.Button("↓", GUILayout.Width(22f)))
+                        {
+                            if (i < choiceData.Actions.Count - 1)
+                            {
+                                int newIndex = i + 1;
+                                (choiceData.Actions[i], choiceData.Actions[newIndex]) = (choiceData.Actions[newIndex], choiceData.Actions[i]);
+
+                                if (_selectedActionIndex == i)
+                                    _selectedActionIndex = newIndex;
+                                else if (_selectedActionIndex == newIndex)
+                                    _selectedActionIndex = i;
+
+                                MarkDirty();
+                            }
+
+                            break;
+                        }
 
                         if (GUILayout.Button("X", GUILayout.Width(22f)))
                         {
@@ -1490,7 +1600,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     {
                         Id = sourceChoice?.Id ?? string.Empty,
                         Tags = new List<string>(sourceChoice?.Tags ?? new List<string>()),
-                        Type = sourceChoice?.Type ?? ChoiceType.Dafault,
+                        Type = sourceChoice?.Type ?? ChoiceType.Default,
                         Text = sourceChoice?.Text ?? string.Empty,
                         Description = sourceChoice?.Description ?? string.Empty,
                         AlwaysShow = sourceChoice?.AlwaysShow ?? false,
@@ -1562,15 +1672,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
             if (GUILayout.Button(addRestrictionContent, GUILayout.Height(22f)))
             {
-                restrictions.Add(new Restriction
-                {
-                    Type = RestrictionType.TimeNow,
-                    CompareOptions = CompareType.Equal,
-                    StringValues = new List<string>(),
-                    IntValues = new List<int>(),
-                    LongValues = new List<long>(),
-                    BoolValues = new List<bool>(),
-                });
+                restrictions.Add(CreateDefaultRestriction());
                 MarkDirty();
             }
 
@@ -1583,23 +1685,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 Restriction restriction = restrictions[i];
                 if (restriction == null)
                 {
-                    restriction = new Restriction
-                    {
-                        Type = RestrictionType.TimeNow,
-                        CompareOptions = CompareType.Equal,
-                        StringValues = new List<string>(),
-                        IntValues = new List<int>(),
-                        LongValues = new List<long>(),
-                        BoolValues = new List<bool>(),
-                    };
+                    restriction = CreateDefaultRestriction();
                     restrictions[i] = restriction;
                     MarkDirty();
                 }
 
-                restriction.StringValues ??= new List<string>();
-                restriction.IntValues ??= new List<int>();
-                restriction.LongValues ??= new List<long>();
-                restriction.BoolValues ??= new List<bool>();
+                EnsureRestrictionLists(restriction);
 
                 using (new EditorGUILayout.HorizontalScope())
                 {
@@ -1610,20 +1701,37 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         DrawField(() =>
                             restriction.Type = (RestrictionType)EditorGUILayout.EnumPopup("Type", restriction.Type));
 
-                        DrawField(() =>
-                            restriction.CompareOptions = (CompareType)EditorGUILayout.EnumPopup("Compare", restriction.CompareOptions));
+                        RestrictionEditorField visibleFields = _restrictionEditorFieldProfilesRegistry.GetVisibleFields(restriction.Type);
 
-                        DrawField(() =>
-                            restriction.StringValues = ParseCsv(EditorGUILayout.TextField("Strings (csv)", JoinCsv(restriction.StringValues))));
+                        if (HasRestrictionEditorField(visibleFields, RestrictionEditorField.CompareOptions))
+                        {
+                            DrawField(() =>
+                                restriction.CompareOptions = (CompareType)EditorGUILayout.EnumPopup("Compare", restriction.CompareOptions));
+                        }
 
-                        DrawField(() =>
-                            restriction.IntValues = ParseCsvInts(EditorGUILayout.TextField("Ints (csv)", JoinCsvInts(restriction.IntValues))));
+                        if (HasRestrictionEditorField(visibleFields, RestrictionEditorField.StringValues))
+                        {
+                            DrawField(() =>
+                                restriction.StringValues = ParseCsv(EditorGUILayout.TextField("Strings (csv)", JoinCsv(restriction.StringValues))));
+                        }
 
-                        DrawField(() =>
-                            restriction.LongValues = ParseCsvLongs(EditorGUILayout.TextField("Longs (csv)", JoinCsvLongs(restriction.LongValues))));
+                        if (HasRestrictionEditorField(visibleFields, RestrictionEditorField.IntValues))
+                        {
+                            DrawField(() =>
+                                restriction.IntValues = ParseCsvInts(EditorGUILayout.TextField("Ints (csv)", JoinCsvInts(restriction.IntValues))));
+                        }
 
-                        DrawField(() =>
-                            restriction.BoolValues = ParseCsvBools(EditorGUILayout.TextField("Bools (csv)", JoinCsvBools(restriction.BoolValues))));
+                        if (HasRestrictionEditorField(visibleFields, RestrictionEditorField.LongValues))
+                        {
+                            DrawField(() =>
+                                restriction.LongValues = ParseCsvLongs(EditorGUILayout.TextField("Longs (csv)", JoinCsvLongs(restriction.LongValues))));
+                        }
+
+                        if (HasRestrictionEditorField(visibleFields, RestrictionEditorField.BoolValues))
+                        {
+                            DrawField(() =>
+                                restriction.BoolValues = ParseCsvBools(EditorGUILayout.TextField("Bools (csv)", JoinCsvBools(restriction.BoolValues))));
+                        }
                     }
 
                     if (GUILayout.Button("X", GUILayout.Width(22f), GUILayout.Height(22f)))
@@ -1634,6 +1742,32 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     }
                 }
             }
+        }
+
+        private static Restriction CreateDefaultRestriction()
+        {
+            return new Restriction
+            {
+                Type = RestrictionType.TimeNow,
+                CompareOptions = CompareType.Equal,
+                StringValues = new List<string>(),
+                IntValues = new List<int>(),
+                LongValues = new List<long>(),
+                BoolValues = new List<bool>(),
+            };
+        }
+
+        private static void EnsureRestrictionLists(Restriction restriction)
+        {
+            restriction.StringValues ??= new List<string>();
+            restriction.IntValues ??= new List<int>();
+            restriction.LongValues ??= new List<long>();
+            restriction.BoolValues ??= new List<bool>();
+        }
+
+        private static bool HasRestrictionEditorField(RestrictionEditorField visibleFields, RestrictionEditorField field)
+        {
+            return (visibleFields & field) == field;
         }
 
         private static List<int> ParseCsvInts(string csv)

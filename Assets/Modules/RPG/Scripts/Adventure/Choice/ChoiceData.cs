@@ -5,7 +5,7 @@ namespace Modules.RPG.Scripts.Adventure.Choice
 {
     public enum ChoiceType
     {
-        Dafault = 0,
+        Default = 0,
     }
 
 

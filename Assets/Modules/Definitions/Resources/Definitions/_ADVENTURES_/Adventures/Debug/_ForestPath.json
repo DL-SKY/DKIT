@@ -27,19 +27,37 @@
       ],
       "Content": [
         {
+          "Type": "Splitter",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
           "Type": "Text",
           "Restrictions": [],
           "Value": "Вы входите на лесную тропу. Впереди развилка и старый указатель.",
+          "Values": null
+        },
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Splitter",
+          "Restrictions": [],
+          "Value": "",
           "Values": null
         }
       ],
       "NotClearScene": false,
       "Choices": [
         {
-          "Id": "new_choice_5",
+          "Id": "new_choice_3",
           "Tags": [],
-          "Type": "Dafault",
-          "Text": "\"///\"",
+          "Type": "Default",
+          "Text": "",
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
@@ -48,12 +66,23 @@
               "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "SceneId": "scene_05"
+                  "SceneId": "scene_03"
                 },
                 "Ints": {},
                 "Bools": {}
               }
-            },
+            }
+          ]
+        },
+        {
+          "Id": "new_choice_5",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "\"///\"",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "Actions": [
             {
               "Type": "SetWorldParams",
               "Params": {
@@ -73,23 +102,12 @@
                 },
                 "Bools": {}
               }
-            }
-          ]
-        },
-        {
-          "Id": "new_choice_3",
-          "Tags": [],
-          "Type": "Dafault",
-          "Text": "",
-          "Description": "",
-          "AlwaysShow": true,
-          "Restrictions": [],
-          "Actions": [
+            },
             {
               "Type": "GoToScene",
               "Params": {
                 "Strings": {
-                  "SceneId": "scene_03"
+                  "SceneId": "scene_05"
                 },
                 "Ints": {},
                 "Bools": {}
@@ -115,7 +133,7 @@
         {
           "Id": "s02_to_s04",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Идти к старой поляне",
           "Description": "",
           "AlwaysShow": true,
@@ -136,7 +154,7 @@
         {
           "Id": "s02_to_s05",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Идти к каменному мосту",
           "Description": "",
           "AlwaysShow": true,
@@ -157,7 +175,7 @@
         {
           "Id": "new_choice",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "",
           "Description": "",
           "AlwaysShow": true,
@@ -193,7 +211,7 @@
         {
           "Id": "s03_to_s05",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Перейти к мосту",
           "Description": "",
           "AlwaysShow": true,
@@ -214,7 +232,7 @@
         {
           "Id": "s03_to_s06",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Пройти через кусты",
           "Description": "",
           "AlwaysShow": true,
@@ -250,7 +268,7 @@
         {
           "Id": "s04_to_s07",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Взять северную тропу",
           "Description": "",
           "AlwaysShow": true,
@@ -271,7 +289,7 @@
         {
           "Id": "s04_to_s08",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Пойти по следам к бревну",
           "Description": "",
           "AlwaysShow": true,
@@ -292,7 +310,7 @@
         {
           "Id": "s04_to_s09",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Вернуться к мосту внизу",
           "Description": "",
           "AlwaysShow": true,
@@ -328,7 +346,7 @@
         {
           "Id": "s05_to_s09",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Подняться к башне",
           "Description": "",
           "AlwaysShow": true,
@@ -349,7 +367,7 @@
         {
           "Id": "s05_to_s10",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Спуститься к запруде",
           "Description": "",
           "AlwaysShow": true,
@@ -385,7 +403,7 @@
         {
           "Id": "s06_to_s10",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Пойти к оврагу",
           "Description": "",
           "AlwaysShow": true,
@@ -421,7 +439,7 @@
         {
           "Id": "s07_to_s12",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Пройти через ворота",
           "Description": "",
           "AlwaysShow": true,
@@ -442,7 +460,7 @@
         {
           "Id": "s07_to_s08",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Срезать путь к бревну",
           "Description": "",
           "AlwaysShow": true,
@@ -478,7 +496,7 @@
         {
           "Id": "s08_to_s12",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Следовать метке",
           "Description": "",
           "AlwaysShow": true,
@@ -499,7 +517,7 @@
         {
           "Id": "s08_to_s13",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Идти по шуму воды",
           "Description": "",
           "AlwaysShow": true,
@@ -535,7 +553,7 @@
         {
           "Id": "s09_to_s13",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Спуститься в подвал",
           "Description": "",
           "AlwaysShow": true,
@@ -556,7 +574,7 @@
         {
           "Id": "s09_to_s14",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Подняться на площадку",
           "Description": "",
           "AlwaysShow": true,
@@ -592,7 +610,7 @@
         {
           "Id": "s10_to_s14",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Идти в низину",
           "Description": "",
           "AlwaysShow": true,
@@ -613,7 +631,7 @@
         {
           "Id": "s10_to_s15",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Подняться на сухой берег",
           "Description": "",
           "AlwaysShow": true,
@@ -649,7 +667,7 @@
         {
           "Id": "s11_to_s15",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Следовать по карте",
           "Description": "",
           "AlwaysShow": true,
@@ -670,7 +688,7 @@
         {
           "Id": "s11_to_s06",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Вернуться на узкую тропу",
           "Description": "",
           "AlwaysShow": true,
@@ -706,7 +724,7 @@
         {
           "Id": "s12_to_s16",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Левая лестница",
           "Description": "",
           "AlwaysShow": true,
@@ -727,7 +745,7 @@
         {
           "Id": "s12_to_s17",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Правая лестница",
           "Description": "",
           "AlwaysShow": true,
@@ -763,7 +781,7 @@
         {
           "Id": "s13_to_s17",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Пройти через пролом",
           "Description": "",
           "AlwaysShow": true,
@@ -784,7 +802,7 @@
         {
           "Id": "s13_to_s18",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Осмотреть дальний коридор",
           "Description": "",
           "AlwaysShow": true,
@@ -820,7 +838,7 @@
         {
           "Id": "s14_to_s18",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Пойти к сухому валуну",
           "Description": "",
           "AlwaysShow": true,
@@ -841,7 +859,7 @@
         {
           "Id": "s14_to_s19",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Свернуть на северную тропу",
           "Description": "",
           "AlwaysShow": true,
@@ -877,7 +895,7 @@
         {
           "Id": "s15_to_s19",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Идти по метке",
           "Description": "",
           "AlwaysShow": true,
@@ -913,7 +931,7 @@
         {
           "Id": "s16_to_s01",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Запустить путь заново",
           "Description": "",
           "AlwaysShow": true,
@@ -949,7 +967,7 @@
         {
           "Id": "s17_to_s20",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Идти к выходу",
           "Description": "",
           "AlwaysShow": true,
@@ -970,7 +988,7 @@
         {
           "Id": "s17_to_s18",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Срезать по обходной тропе",
           "Description": "",
           "AlwaysShow": true,
@@ -1006,7 +1024,7 @@
         {
           "Id": "s18_to_s01",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Повторить тест с начала",
           "Description": "",
           "AlwaysShow": true,
@@ -1042,7 +1060,7 @@
         {
           "Id": "s19_to_s20",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Выйти на главную дорогу",
           "Description": "",
           "AlwaysShow": true,
@@ -1063,7 +1081,7 @@
         {
           "Id": "s19_to_s16",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Свернуть к посту наблюдения",
           "Description": "",
           "AlwaysShow": true,
@@ -1084,7 +1102,7 @@
         {
           "Id": "new_choice",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "",
           "Description": "",
           "AlwaysShow": true,
@@ -1109,7 +1127,7 @@
         {
           "Id": "s20_to_s01",
           "Tags": [],
-          "Type": "Dafault",
+          "Type": "Default",
           "Text": "Пройти снова в {0}",
           "Description": "",
           "AlwaysShow": true,

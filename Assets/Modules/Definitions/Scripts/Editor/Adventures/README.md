@@ -193,9 +193,24 @@
 | `Splitter` | — | Визуальный разделитель |
 | `Item` | `Value` | Элемент предмета / иконки |
 
-В реестре `SceneContentCreateOptionsRegistry` пока есть кнопки только для `Text`, `Image`, `Splitter`, `Item`. Для `RandomImage` и `Slideshow` нужно добавить новые descriptor-ы.
+В реестре `SceneContentCreateOptionsRegistry` есть кнопки для всех значений `SceneContentType`: `Text`, `Image`, `RandomImage`, `Slideshow`, `Splitter`, `Item`.
 
-### 3) Новая опция для action в choice
+### 3) Новая опция создания choice
+
+Класс:
+- `ChoiceCreateOptionsRegistry`
+
+Доступные значения `ChoiceType` в модели данных:
+
+| Тип | Назначение |
+|---|---|
+| `Default` | Стандартный выбор (единственное значение на текущем этапе) |
+
+> Ранее в enum была опечатка `Dafault`; в JSON сериализуется как `"Default"`.
+
+Шаблон `choice.default` создаёт choice с пустым списком `Actions` (без автоматического `GoToScene`).
+
+### 4) Новая опция для action в choice
 
 Класс:
 - `ChoiceActionCreateOptionsRegistry`
@@ -236,7 +251,8 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
 - Адаптивная раскладка главного окна: секции `Scenes` / `Content` / `Choices` подстраиваются под высоту окна, с прокруткой при переполнении; кнопки `Delete Scene` / `Duplicate Scene` закреплены внизу колонки `Scenes`.
 - Быстрое управление списками через маленькие кнопки в строках:
   - `R` — rename (для файлов приключений и сцен),
-  - `X` — delete (для файлов, сцен, контента, выборов).
+  - `↑` / `↓` — смена порядка элемента в списке (для content, choices, actions),
+  - `X` — delete (для файлов, сцен, контента, выборов, actions).
 - Обновление ссылок при переименовании сцены:
   - обновление `StartScenes`,
   - обновление `SceneId` в scene transition actions.
@@ -394,7 +410,23 @@ TEST_KEY_2	Перевод номер 2
 - `BoolValues[0]` — сравнение с `Parameters.Bools[key]`;
 - иначе `StringValues[1]` — сравнение с `Parameters.Strings[key]`.
 
-TEA пока использует универсальный CSV-редактор для `StringValues` / `IntValues` / `LongValues` / `BoolValues`; подсказки по формату — в документации модуля `Restrictions`.
+### Профили полей редактора
+
+По аналогии с `Selected Content` (`Value` vs `Values`) TEA показывает не все поля `Restriction` для каждого типа, а только нужные.
+
+Реестр профилей:
+- `Assets/Modules/Definitions/Scripts/Editor/Adventures/Restrictions/RestrictionEditorFieldProfiles.cs`
+- `RestrictionEditorFieldProfilesRegistry` — словарь `RestrictionType` → набор видимых полей (`RestrictionEditorField` flags).
+
+Правило по умолчанию: если тип не указан в реестре, показываются все поля (`Compare` + `Strings` / `Ints` / `Longs` / `Bools` CSV).
+
+| `RestrictionType` | Видимые поля в TEA |
+|---|---|
+| `TimeNow` | `Compare`, `Longs (csv)` |
+| `WorldParams` | все поля (default) |
+| `AdventureParams` | все поля (default) |
+
+Чтобы добавить узкий профиль для нового типа — добавь запись в `_profilesByType` в `RestrictionEditorFieldProfilesRegistry`. Поле `Type` отображается всегда; скрытые поля не удаляются из JSON и сохраняются при save.
 
 ---
 
@@ -403,5 +435,5 @@ TEA пока использует универсальный CSV-редакто�
 - Добавить новые create-option реестры/опции без изменения общей архитектуры.
 - Расширить стратегию `IAdventureLocalizationKeyCollector` (например, поддержку альтернативных форматов ключей).
 - Добавить визуальный canvas-граф (zoom/pan/drag) поверх текущего списка связей.
-- Добавить более детальный editor для `Restrictions` (подсказки/шаблоны по `RestrictionType`, в т.ч. `WorldParams` / `AdventureParams`).
+- Расширить `RestrictionEditorFieldProfilesRegistry` подсказками/шаблонами для `WorldParams` / `AdventureParams`.
 

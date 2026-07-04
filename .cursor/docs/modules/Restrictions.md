@@ -53,6 +53,13 @@
    - положительный и отрицательный кейс;
    - отсутствие падений при пустых/некорректных данных в `Restriction`.
 
+### Формат `Restriction` для `TimeNow`
+
+- `CompareOptions` — операция сравнения с текущим UTC-временем.
+- `LongValues[0]` — Unix timestamp в миллисекундах.
+
+В TEA для `TimeNow` отображаются только `Compare` и `Longs (csv)`; см. `RestrictionEditorFieldProfilesRegistry` в Adventure Editor.
+
 ### Формат `Restriction` для `WorldParams` / `AdventureParams`
 
 Общая логика в `AdventureStateParamsRestrictionCheckHelper`; checker-ы отличаются только источником данных:
