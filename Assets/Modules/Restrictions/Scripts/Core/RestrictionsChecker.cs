@@ -39,6 +39,7 @@ namespace Modules.Restrictions.Scripts.Core
                 RestrictionType.TimeNow => _restrictionFactory.Create<TimeNowRestrictionChecker>(),
                 RestrictionType.WorldParams => _restrictionFactory.Create<WorldParamsRestrictionChecker>(),
                 RestrictionType.AdventureParams => _restrictionFactory.Create<AdventureParamsRestrictionChecker>(),
+                RestrictionType.GlobalParams => _restrictionFactory.Create<GlobalParamsRestrictionChecker>(),
 
                 _ => throw new NotImplementedException()
             };

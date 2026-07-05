@@ -139,7 +139,7 @@
   | `StartScenes` | `List<string>` | да |
   | `Scenes` | `Dictionary<string, SceneData>` | да |
 
-  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). Choice-actions в runtime: `ChoiceActionType.GoToScene` + `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`; executors пишут в `State` через `SetCurrentAdventureSceneIdStateAction`, `SetWorldParamsStateAction`, `SetAdventureParamsStateAction`.
+  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). Choice-actions в runtime: `ChoiceActionType.GoToScene` + `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams`; executors пишут в `State` через `SetCurrentAdventureSceneIdStateAction`, `SetWorldParamsStateAction`, `SetAdventureParamsStateAction`, `SetGlobalParamsStateAction`.
 
 - `ClassDef`  
   Класс персонажа. Поля: `Disabled`, `Tags`, `Title`, `Description`.

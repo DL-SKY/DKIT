@@ -1,6 +1,6 @@
 # Модуль Restrictions
 
-**Последнее обновление:** 2026-07-04 00:45:00 (+03:00)
+**Последнее обновление:** 2026-07-05 22:05:00 (+03:00)
 
 ## Назначение
 
@@ -23,7 +23,7 @@
   Модель ограничения: `Type`, `StringValues`, `IntValues`, `LongValues`, `BoolValues`, `CompareOptions`.
 
 - `RestrictionType`  
-  Перечень типов ограничений: `TimeNow`, `WorldParams`, `AdventureParams`.
+  Перечень типов ограничений: `TimeNow`, `WorldParams`, `AdventureParams`, `GlobalParams`.
 
 - `IChecker`  
   Контракт конкретной проверки: `bool Check(Restriction restriction)`.
@@ -36,6 +36,9 @@
 
 - `AdventureParamsRestrictionChecker`  
   Проверка параметров `AdventuresStateData.Adventures[currentAdventureId].Parameters`.
+
+- `GlobalParamsRestrictionChecker`  
+  Проверка параметров `AdventuresStateData.Global.Parameters` (данные игрока, не сбрасываются при перезапуске приключений).
 
 - `CompareRestrictionStaticChecker` + `CompareType`  
   Универсальный слой сравнения типов `string/int/long` с операциями `Equal`, `More`, `Less` и т.д.
@@ -60,7 +63,7 @@
 
 В TEA для `TimeNow` отображаются только `Compare` и `Longs (csv)`; см. `RestrictionEditorFieldProfilesRegistry` в Adventure Editor.
 
-### Формат `Restriction` для `WorldParams` / `AdventureParams`
+### Формат `Restriction` для `WorldParams` / `AdventureParams` / `GlobalParams`
 
 Общая логика в `AdventureStateParamsRestrictionCheckHelper`; checker-ы отличаются только источником данных:
 
@@ -68,6 +71,7 @@
 |---|---|
 | `WorldParams` | `AdventuresStateData.World.Parameters` |
 | `AdventureParams` | `AdventuresStateData.Adventures[CurrentAdventureId].Parameters` |
+| `GlobalParams` | `AdventuresStateData.Global.Parameters` |
 
 Поля `Restriction`:
 
@@ -106,6 +110,17 @@
   "CompareOptions": "Equal",
   "StringValues": ["world.last_location", "tavern"],
   "IntValues": [],
+  "LongValues": [],
+  "BoolValues": []
+}
+```
+
+```json
+{
+  "Type": "GlobalParams",
+  "CompareOptions": "MoreEqual",
+  "StringValues": ["global.tavern_visits"],
+  "IntValues": [3],
   "LongValues": [],
   "BoolValues": []
 }

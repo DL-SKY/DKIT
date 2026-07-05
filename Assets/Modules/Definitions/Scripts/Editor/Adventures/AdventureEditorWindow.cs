@@ -807,7 +807,8 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             EditorGUILayout.LabelField($"Type: {actionData.Type}");
 
             if (actionData.Type == ChoiceActionType.SetWorldParams
-                || actionData.Type == ChoiceActionType.SetAdventureParams)
+                || actionData.Type == ChoiceActionType.SetAdventureParams
+                || actionData.Type == ChoiceActionType.SetGlobalParams)
             {
                 DrawChoiceActionParamsEditor(actionData.Params);
             }

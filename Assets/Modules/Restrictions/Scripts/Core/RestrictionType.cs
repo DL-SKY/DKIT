@@ -5,6 +5,7 @@
         TimeNow = 0,
         WorldParams = 1,
         AdventureParams = 2,
+        GlobalParams = 3,
 
 
         // = 1000,

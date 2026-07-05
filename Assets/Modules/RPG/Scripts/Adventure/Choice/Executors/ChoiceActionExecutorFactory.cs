@@ -32,6 +32,11 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
                     {
                         EnsureParams(actionData),
                     }),
+                ChoiceActionType.SetGlobalParams => _container.Instantiate<SetGlobalParamsChoiceActionExecutor>(
+                    new object[]
+                    {
+                        EnsureParams(actionData),
+                    }),
 
                 _ => throw new NotImplementedException($"ChoiceActionType '{actionData.Type}' is not supported by factory yet."),
             };

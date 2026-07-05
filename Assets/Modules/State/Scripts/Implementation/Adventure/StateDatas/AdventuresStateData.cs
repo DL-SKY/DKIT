@@ -7,12 +7,18 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         public string CurrentAdventureId;
         public string CurrentAdventureSceneId;
 
-        public WorldStateData World;
+        public GlobalStateData Global;
+        public WorldStateData World;        
 
         public Dictionary<string, AdventureStateData> Adventures;
     }
 
     public class WorldStateData
+    {
+        public AdventureStateParamsData Parameters;
+    }
+
+    public class GlobalStateData
     {
         public AdventureStateParamsData Parameters;
     }

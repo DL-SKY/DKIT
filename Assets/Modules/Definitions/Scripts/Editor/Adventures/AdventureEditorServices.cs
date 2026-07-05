@@ -902,6 +902,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         new List<string>());
                 case ChoiceActionType.SetWorldParams:
                 case ChoiceActionType.SetAdventureParams:
+                case ChoiceActionType.SetGlobalParams:
                     return new ChoiceActionValidationContract(
                         type,
                         new List<string>(),

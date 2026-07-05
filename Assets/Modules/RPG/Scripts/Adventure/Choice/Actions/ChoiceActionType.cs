@@ -7,6 +7,7 @@
         GoToScene = 1,
         SetWorldParams = 2,
         SetAdventureParams = 3,
+        SetGlobalParams = 4,
 
 
         //TODO: rework

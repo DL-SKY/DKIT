@@ -121,6 +121,7 @@
 | `GoToScene` | `1` | Подключён к `ChoiceActionExecutorFactory` (переход на сцену) |
 | `SetWorldParams` | `2` | Подключён к `ChoiceActionExecutorFactory` (запись `Params` в `AdventuresStateData.World.Parameters`) |
 | `SetAdventureParams` | `3` | Подключён к `ChoiceActionExecutorFactory` (запись `Params` в `AdventuresStateData.Adventures[currentAdventureId].Parameters`) |
+| `SetGlobalParams` | `4` | Подключён к `ChoiceActionExecutorFactory` (запись `Params` в `AdventuresStateData.Global.Parameters`) |
 | `SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat`, `ApplyDamage`, `Heal`, `GrantItem` | `110`–`500` | Временно закомментированы в enum (старый черновик enum) |
 
 Именованные ключи `Params.Strings` для choice-actions задаются в `Glossary.ChoiceActions` (`Modules.Definitions.Scripts.Implementation.Adventures.Constants`):
@@ -129,7 +130,7 @@
 |---|---|---|
 | `Glossary.ChoiceActions.SCENE_ID` | `"SceneId"` | Id целевой сцены для перехода (`ChoiceActionType.GoToScene`) |
 
-Для `SetWorldParams` / `SetAdventureParams` ключи `Params` произвольные (рекомендуется префикс `world.*` / `adventure.*`). TEA валидирует только наличие хотя бы одного param; конкретные ключи не фиксируются в `Glossary`.
+Для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` ключи `Params` произвольные (рекомендуется префикс `world.*` / `adventure.*` / `global.*`). TEA валидирует только наличие хотя бы одного param; конкретные ключи не фиксируются в `Glossary`.
 
 Примеры JSON для choice-actions:
 
@@ -151,6 +152,17 @@
     "Strings": {},
     "Ints": { "adventure.quest_stage": 2 },
     "Bools": { "adventure.met_innkeeper": true }
+  }
+}
+```
+
+```json
+{
+  "Type": "SetGlobalParams",
+  "Params": {
+    "Strings": {},
+    "Ints": { "global.tavern_visits": 1, "global.game_launches": 5 },
+    "Bools": {}
   }
 }
 ```
@@ -181,6 +193,7 @@
 | `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.SceneId` (`Glossary.ChoiceActions.SCENE_ID`) | `AdventureStateLogic.ProcessAction(SetCurrentAdventureSceneIdStateAction)` → `AdventuresStateData.CurrentAdventureSceneId` |
 | `SetWorldParams` | `SetWorldParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetWorldParamsStateAction)` → merge в `AdventuresStateData.World.Parameters` |
 | `SetAdventureParams` | `SetAdventureParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetAdventureParamsStateAction)` → merge в `AdventuresStateData.Adventures[currentAdventureId].Parameters` |
+| `SetGlobalParams` | `SetGlobalParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetGlobalParamsStateAction)` → merge в `AdventuresStateData.Global.Parameters` |
 
 Legacy (не используется фабрикой):
 
@@ -246,8 +259,9 @@ Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
 - прогресс мира и приключений — `AdventureStateParamsData` (`Strings` / `Ints` / `Bools`) в `AdventuresStateData`.
 
 Рекомендация по неймингу ключей параметров:
-- `world.*` — глобальные флаги/счётчики мира (`World.Parameters`); запись через `ChoiceActionType.SetWorldParams`, проверка через `RestrictionType.WorldParams`;
+- `world.*` — флаги/счётчики мира в рамках кампании (`World.Parameters`); запись через `ChoiceActionType.SetWorldParams`, проверка через `RestrictionType.WorldParams`;
 - `adventure.*` — локальные флаги/счётчики текущего приключения (`Adventures[currentAdventureId].Parameters`); запись через `ChoiceActionType.SetAdventureParams`, проверка через `RestrictionType.AdventureParams`;
+- `global.*` — долгоживущие метрики игрока (`Global.Parameters`), не сбрасываются при перезапуске приключений; запись через `ChoiceActionType.SetGlobalParams`, проверка через `RestrictionType.GlobalParams`;
 - `char.*` — параметры персонажа (будущие state-actions для `CharacterStateData`);
 - `party.*` — параметры группы (будущие state-actions).
 
@@ -281,11 +295,12 @@ RPG-контент (сцены, выборы, действия) описывае
 ### Прогресс приключений (`AdventuresStateData`)
 
 - `CurrentAdventureId` / `CurrentAdventureSceneId` — активная точка приключения для runtime (`AdventuresManager`).
-- `World.Parameters` — глобальные параметры кампании (`AdventureStateParamsData`).
+- `World.Parameters` — параметры мира/кампании (`AdventureStateParamsData`).
+- `Global.Parameters` — долгоживущие параметры игрока (`AdventureStateParamsData`), не зависят от перезапуска приключений.
 - `Adventures` — `Dictionary<string, AdventureStateData>`: прогресс по каждому adventure (`AdventureId`, `SceneId`, `Parameters`). `SceneId` здесь — прогресс конкретного приключения, не активная runtime-сцена.
 - Формат `Parameters` совпадает с `ChoiceActionParamsData` (`Strings` / `Ints` / `Bools`).
 
-`World.Parameters` не является указателем текущей точки; он используется для долгоживущего прогресса мира (например, открытые локации и глобальные события).
+`World.Parameters` не является указателем текущей точки; он используется для прогресса мира в контексте кампании (например, открытые локации и глобальные события). `Global.Parameters` — отдельное хранилище для метрик игрока (например, число посещений таверны или запусков игры).
 
 ### Создание нового профиля
 
@@ -298,7 +313,7 @@ RPG-контент (сцены, выборы, действия) описывае
 ## Интеграции с другими модулями
 
 - `Definitions`: adventure-контент загружается как JSON-дефы (`AdventureDef`, `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef`). Доменная модель приключения (`AdventureData`, `SceneData`, `ChoiceData`) остаётся в `RPG`; `AdventureDef` — тонкая обёртка для загрузчика. Дефы персонажа пока описывают контентный минимум; применение бонусов/эффектов в `CharacterStateData` — следующий этап (см. [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
-- `Restrictions`: `AdventureData`, `ChoiceData` и `SceneContentData` используют `Restriction` для описания условий доступа. Для параметров прогресса доступны `RestrictionType.WorldParams` и `RestrictionType.AdventureParams` (см. [Restrictions.md](Restrictions.md)).
+- `Restrictions`: `AdventureData`, `ChoiceData` и `SceneContentData` используют `Restriction` для описания условий доступа. Для параметров прогресса доступны `RestrictionType.WorldParams`, `RestrictionType.AdventureParams` и `RestrictionType.GlobalParams` (см. [Restrictions.md](Restrictions.md)).
 - `State`: персистентный прогресс профиля и ссылки персонажа на id дефов (см. выше).
 - Остальные интеграции (UI, события, полный оркестратор приключения) пока явно не реализованы в коде модуля.
 
@@ -331,13 +346,14 @@ RPG-контент (сцены, выборы, действия) описывае
 - Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
-- `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`).
+- `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`), `SetGlobalParams` (`4`).
 - Ключ `Params.Strings` для id сцены: `Glossary.ChoiceActions.SCENE_ID` (`"SceneId"`).
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
 - Реализованы executors:
   - `GoToSceneChoiceActionExecutor` → `SetCurrentAdventureSceneIdStateAction`;
   - `SetWorldParamsChoiceActionExecutor` → `SetWorldParamsStateAction`;
-  - `SetAdventureParamsChoiceActionExecutor` → `SetAdventureParamsStateAction`.
+  - `SetAdventureParamsChoiceActionExecutor` → `SetAdventureParamsStateAction`;
+  - `SetGlobalParamsChoiceActionExecutor` → `SetGlobalParamsStateAction`.
 - Legacy executor: `ObsoleteGoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) — старый путь через `IAdventureFlowController`.
 - Объявлен legacy интерфейс: `IAdventureFlowController` (**устаревший**, `[Obsolete]`).
 - `AdventuresManager` зарегистрирован в DI (`BindInterfacesAndSelfTo`), инициализируется через `AdventuresManagerInitTask`, подписан на `AdventureStateLogic.StateChanged`.
@@ -352,7 +368,7 @@ RPG-контент (сцены, выборы, действия) описывае
 4. Расширить `AdventuresManager`:
    - переходы по сценам и выборы;
    - применение списка `ChoiceActionData` через фабрику executors;
-   - реакция на `StateChanged` (в т.ч. `SetWorldParams` / `SetAdventureParams`) для обновления UI / runtime-контекста.
+   - реакция на `StateChanged` (в т.ч. `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`) для обновления UI / runtime-контекста.
 5. Подключить остальные `ChoiceActionType` к state-actions в `Modules.State`.
 6. Добавить state-actions для персонажей (`char.*`) и инвентаря; сервис применения механик из дефов в `CharacterStateData`.
 7. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).

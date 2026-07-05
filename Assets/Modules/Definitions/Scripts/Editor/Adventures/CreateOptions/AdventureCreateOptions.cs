@@ -301,6 +301,27 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         },
                     },
                 },
+                new CreateOptionDescriptor<ChoiceActionData>
+                {
+                    Id = "action.set_global_params",
+                    ButtonText = "Set Global Params",
+                    Tooltip = "Set global params from action Params (persisted independently from adventure restarts).",
+                    IconName = "d_winbtn_mac_min_h",
+                    IconAssetName = "save.png",
+                    Create = () => new ChoiceActionData
+                    {
+                        Type = ChoiceActionType.SetGlobalParams,
+                        Params = new ChoiceActionParamsData
+                        {
+                            Strings = new Dictionary<string, string>(),
+                            Ints = new Dictionary<string, int>
+                            {
+                                { "global.sample", 1 },
+                            },
+                            Bools = new Dictionary<string, bool>(),
+                        },
+                    },
+                },
             };
         }
 

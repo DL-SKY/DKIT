@@ -14,5 +14,6 @@ namespace Modules.State.Scripts.Actions.Models
 
         SetWorldParams = 8,
         SetAdventureParams = 9,
+        SetGlobalParams = 10,
     }
 }

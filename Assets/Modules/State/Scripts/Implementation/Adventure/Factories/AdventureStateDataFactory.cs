@@ -75,6 +75,10 @@ namespace Modules.State.Scripts.Implementation.Adventure.Factories
                 {
                     Parameters = AdventureStateParamsOperator.CreateEmpty(),
                 },
+                Global = new GlobalStateData
+                {
+                    Parameters = AdventureStateParamsOperator.CreateEmpty(),
+                },
                 Adventures = new Dictionary<string, AdventureStateData>(),
             };
         }

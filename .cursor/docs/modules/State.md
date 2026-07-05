@@ -117,6 +117,7 @@ Implementation/Wallet/
   | `SetLocalizationLanguage` | `SetLocalizationLanguageStateAction<TStateData>` |
   | `SetWorldParams` | `SetWorldParamsStateAction` (Adventure) |
   | `SetAdventureParams` | `SetAdventureParamsStateAction` (Adventure) |
+  | `SetGlobalParams` | `SetGlobalParamsStateAction` (Adventure) |
 
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
@@ -217,7 +218,8 @@ Implementation/Wallet/
 |------|-----|------------|
 | `CurrentAdventureId` | `string` | Id активного приключения (runtime-точка входа/продолжения) |
 | `CurrentAdventureSceneId` | `string` | Id активной сцены в рамках текущего приключения (runtime-точка для `AdventuresManager`) |
-| `World` | `WorldStateData` | Глобальные параметры мира/кампании |
+| `World` | `WorldStateData` | Параметры мира/кампании в рамках текущего прогресса |
+| `Global` | `GlobalStateData` | Параметры игрока, не сбрасываемые при перезапуске приключений |
 | `Adventures` | `Dictionary<string, AdventureStateData>` | Прогресс по отдельным приключениям: adventureId → состояние |
 
 `WorldStateData` (в том же файле):
@@ -225,6 +227,12 @@ Implementation/Wallet/
 | Поле | Тип | Назначение |
 |------|-----|------------|
 | `Parameters` | `AdventureStateParamsData` | Параметры мира (`world.*` и др.) |
+
+`GlobalStateData` (в том же файле; **не наследует** `WorldStateData`):
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `Parameters` | `AdventureStateParamsData` | Долгоживущие параметры игрока (`global.*` и др.): число посещений таверны, число запусков игры и т.п. |
 
 `AdventureStateData` (в том же файле) — **прогресс одного приключения в сейве** (не путать с контентным `Modules.RPG.Scripts.Adventure.Data.AdventureData`):
 
@@ -246,9 +254,12 @@ Implementation/Wallet/
 
 **Резолвинг ключей в state-actions прогресса:**
 - `world.*` → `Adventures.World.Parameters` (`SetWorldParamsStateAction`);
-- `adventure.*` → `Adventures[currentAdventureId].Parameters` (`SetAdventureParamsStateAction`; `currentAdventureId` берётся из `AdventuresStateData.CurrentAdventureId`, отдельный ключ в `Params` не нужен).
+- `adventure.*` → `Adventures[currentAdventureId].Parameters` (`SetAdventureParamsStateAction`; `currentAdventureId` берётся из `AdventuresStateData.CurrentAdventureId`, отдельный ключ в `Params` не нужен);
+- `global.*` → `Adventures.Global.Parameters` (`SetGlobalParamsStateAction`).
 
-`SetWorldParamsStateAction` и `SetAdventureParamsStateAction` принимают `ChoiceActionParamsData` и **merge**-ят значения в целевой `AdventureStateParamsData` (перезаписывают ключи из `Strings` / `Ints` / `Bools`, остальные ключи не трогают). Если записи приключения ещё нет, `SetAdventureParamsStateAction` создаёт `AdventureStateData` с `AdventureId = CurrentAdventureId`.
+`SetWorldParamsStateAction`, `SetAdventureParamsStateAction` и `SetGlobalParamsStateAction` принимают `ChoiceActionParamsData` и **merge**-ят значения в целевой `AdventureStateParamsData` (перезаписывают ключи из `Strings` / `Ints` / `Bools`, остальные ключи не трогают). Если записи приключения ещё нет, `SetAdventureParamsStateAction` создаёт `AdventureStateData` с `AdventureId = CurrentAdventureId`.
+
+**Разделение `World` и `Global`:** `World.Parameters` хранит прогресс мира/кампании в контексте текущего игрового цикла; `Global.Parameters` — метрики и флаги на уровне игрока, которые сохраняются независимо от перезапуска или смены приключения.
 
 `CurrentAdventureId` / `CurrentAdventureSceneId` не относятся к словарям прогресса `world.*` и `adventure.*`; это отдельный контракт активной runtime-точки. Не путать с `AdventureStateData.SceneId` в `Adventures[adventureId]` — там хранится прогресс конкретного приключения.
 
@@ -275,7 +286,7 @@ protected override StateData CreateNewState(string profileId)
 | `Localization` | `Language = SystemLanguage.Unknown` |
 | `Characters` | `NextCharacterId = 1`, `HeroPoints = 0`, пустые `Characters`, `ActivePartyCharacterIds` |
 | `Inventory` | пустой `Items` |
-| `Adventures` | `World` с пустыми `Parameters`; пустой словарь `Adventures` |
+| `Adventures` | `World` и `Global` с пустыми `Parameters`; пустой словарь `Adventures` |
 
 **DI (Adventure `ProjectInstaller`):**
 
@@ -336,6 +347,7 @@ stateLogic.StateChanged += source =>
 - `SetLocalizationLanguageStateAction<TStateData>` — установка `Localization.Language` (Adventure).
 - `SetWorldParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.World.Parameters` (Adventure).
 - `SetAdventureParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.Adventures[CurrentAdventureId].Parameters` (Adventure).
+- `SetGlobalParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.Global.Parameters` (Adventure).
 
 ## Как добавить новый state-action
 
