@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-04 00:45:00 (+03:00)
+**Последнее обновление:** 2026-07-06 15:10:00 (+03:00)
 
 ## Назначение
 
@@ -130,7 +130,7 @@
   | `Disabled` | `bool` | нет (опционально) |
   | `Tags` | `List<string>` | да |
   | `IgnoredTags` | `List<string>` | нет (опционально) |
-  | `IsRepeatable` | `bool` | да |
+  | `IsRepeatable` | `bool` | да (`true` только для `Location` в типовых шаблонах TEA) |
   | `Type` | `AdventureType` | да |
   | `AdventureLinks` | `List<string>` | нет (опционально) |
   | `Title` | `string` | да |
@@ -139,7 +139,7 @@
   | `StartScenes` | `List<string>` | да |
   | `Scenes` | `Dictionary<string, SceneData>` | да |
 
-  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). Choice-actions в runtime: `ChoiceActionType.GoToScene` + `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams`; executors пишут в `State` через `SetCurrentAdventureSceneIdStateAction`, `SetWorldParamsStateAction`, `SetAdventureParamsStateAction`, `SetGlobalParamsStateAction`.
+  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`, `ChoiceDiceCheckData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). В `ChoiceType` доступны `Default` и `DiceCheck`; для `DiceCheck` используется блок `ChoiceData.DiceCheck` с полями броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam` — ключ атрибута/скилла) и outcome action-списками (`OnCriticalSuccess`, `OnSuccess`, `OnFailure`, `OnCriticalFailure`); для `Default` блок `DiceCheck` должен отсутствовать, а `Actions` — использоваться вместо outcome-списков (TEA-валидация с `Fix`). Choice-actions в runtime: `ChoiceActionType.GoToScene` + `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams`; executors пишут в `State` через `SetCurrentAdventureSceneIdStateAction`, `SetWorldParamsStateAction`, `SetAdventureParamsStateAction`, `SetGlobalParamsStateAction`.
 
 - `ClassDef`  
   Класс персонажа. Поля: `Disabled`, `Tags`, `Title`, `Description`.

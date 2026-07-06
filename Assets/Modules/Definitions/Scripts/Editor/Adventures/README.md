@@ -24,8 +24,9 @@
 - приключение (`AdventureData`),
 - сцены (`SceneData`),
 - контент сцены (`SceneContentData`),
-- выборы (`ChoiceData`),
-- action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams` (см. `.cursor/docs/modules/RPG.md`).
+- выборы (`ChoiceData`): `ChoiceType.Default` и `ChoiceType.DiceCheck`,
+- action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams` (см. `.cursor/docs/modules/RPG.md`),
+- для `ChoiceType.DiceCheck` — блок `ChoiceData.DiceCheck` с параметрами броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`) и action-списками исходов (`OnCriticalSuccess`, `OnSuccess`, `OnFailure`, `OnCriticalFailure`).
 
 Инструмент доступен через меню:
 - `Tools/Definitions/Adventures/Adventure Editor`
@@ -160,6 +161,23 @@
 
 ## Примеры: как добавить новую кнопку-шаблон
 
+### 0) Опции создания adventure
+
+Класс:
+- `AdventureCreateOptionsRegistry`
+
+Доступные шаблоны в блоке `Create Adventure`:
+
+| Id | Кнопка | `AdventureType` | Иконка | `IsRepeatable` |
+|---|---|---|---|---|
+| `adventure.default` | Adventure | `Adventure` | `path-distance` | `false` |
+| `adventure.chapter` | Chapter | `Chapter` | `TextAsset Icon` (как у Text Scene) | `false` |
+| `adventure.location` | Location | `Location` | `wireframe-globe` | `true` |
+
+Все три шаблона создают приключение со стартовой сценой `start` и одним текстовым блоком контента. После нажатия кнопки открывается `IdentifierPromptWindow` для ввода id файла.
+
+Добавить новый шаблон — новый `CreateOptionDescriptor<AdventureData>` в `_options` и при необходимости расширить `BuildAdventureTemplate(AdventureType type)`.
+
 ### 1) Новая опция создания сцены
 
 Файл:
@@ -204,11 +222,63 @@
 
 | Тип | Назначение |
 |---|---|
-| `Default` | Стандартный выбор (единственное значение на текущем этапе) |
+| `Default` | Стандартный выбор |
+| `DiceCheck` | Выбор-проверка кубика с блоком `DiceCheck` |
 
 > Ранее в enum была опечатка `Dafault`; в JSON сериализуется как `"Default"`.
+>
+> Для `ChoiceType.DiceCheck` в `ChoiceData` используется опциональный блок:
+> - `DiceCheck.DifficultyClass` — СЛ;
+> - `DiceCheck.DiceType` — тип кубика (`DiceType`, обычно `D20`);
+> - `DiceCheck.DiceOptions` — флаги броска (`DiceOptions`).
+> - `DiceCheck.DiceCheckParam` — строковый ключ проверяемого атрибута/скилла.
+> - `DiceCheck.OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure` — списки `ChoiceActionData` для исходов броска.
 
 Шаблон `choice.default` создаёт choice с пустым списком `Actions` (без автоматического `GoToScene`).
+Шаблон `choice.dice_check` создаёт choice типа `DiceCheck` с иконкой `dice-twenty-faces-twenty` и предзаполненным блоком `DiceCheck` (включая пустые outcome action-списки).
+
+Пример JSON для `ChoiceType.DiceCheck`:
+
+```json
+{
+  "Id": "pick_lock",
+  "Type": "DiceCheck",
+  "Text": "Взломать замок",
+  "AlwaysShow": true,
+  "Restrictions": [],
+  "DiceCheck": {
+    "DifficultyClass": 18,
+    "DiceType": "D20",
+    "DiceOptions": "None",
+    "DiceCheckParam": "Thievery",
+    "OnCriticalSuccess": [
+      {
+        "Type": "GoToScene",
+        "Params": { "Strings": { "SceneId": "lock_open_fast" } }
+      }
+    ],
+    "OnSuccess": [
+      {
+        "Type": "GoToScene",
+        "Params": { "Strings": { "SceneId": "lock_open" } }
+      }
+    ],
+    "OnFailure": [
+      {
+        "Type": "SetAdventureParams",
+        "Params": { "Ints": { "adventure.lock_attempts": 1 } }
+      }
+    ],
+    "OnCriticalFailure": [
+      {
+        "Type": "GoToScene",
+        "Params": { "Strings": { "SceneId": "trap_triggered" } }
+      }
+    ]
+  },
+  "Actions": []
+}
+```
 
 ### 4) Новая опция для action в choice
 
@@ -222,6 +292,29 @@
 - `Set Global Params` (`Type = SetGlobalParams`, редактируемые `Params.Strings/Ints/Bools`, иконка `save.png` из `ButtonIcons/`).
 
 Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не мигрируется автоматически при загрузке: он ловится в `Validation` и исправляется через кнопку `Fix`.
+
+### Отображение в `Selected Choice`
+
+- Для `ChoiceType.Default`:
+  - показывается блок `Actions` (список, add/remove/reorder, `Selected Action`).
+- Для `ChoiceType.DiceCheck`:
+  - показывается блок `Dice Check` с полями `Difficulty Class`, `Dice Type`, `Dice Options`, `Dice Check Param`;
+  - общий блок `Actions` не отображается;
+  - доступны отдельные редакторы action-списков для исходов (add/remove/reorder + `Selected Action`):
+    - `On Critical Success Actions`,
+    - `On Success Actions`,
+    - `On Failure Actions`,
+    - `On Critical Failure Actions`.
+  - UI action-списков реализован через общий helper `DrawChoiceActionListEditor(...)` в `AdventureEditorWindow`.
+
+### Ограничения `DiceCheck` в TEA (текущая версия)
+
+- `Scene Graph` пока строит рёбра только из `choice.Actions`, переходы внутри `DiceCheck.*` outcome-списков на графе не отображаются.
+- При rename сцены обновляются `SceneId` только в `choice.Actions`; ссылки в `DiceCheck.OnCriticalSuccess/OnSuccess/OnFailure/OnCriticalFailure` пока не переписываются автоматически.
+- `Validation` проверяет взаимную исключительность блоков по `ChoiceType`:
+  - для `Default` — `DiceCheck` должен быть `null` (с `Fix`: очистка блока);
+  - для `DiceCheck` — обязательный блок `DiceCheck`, `DifficultyClass >= 0`, пустой (или `null`) `Actions` (с `Fix`: создание блока / сброс DC / очистка `Actions`).
+- Контракты `ChoiceActionData` в outcome-списках `DiceCheck` пока не валидируются (в отличие от `choice.Actions` у `Default`).
 
 ---
 
@@ -243,12 +336,16 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
 ## Что поддерживается сейчас
 
 - CRUD приключений через JSON-файлы.
+- Шаблоны `Create Adventure`: `Adventure`, `Chapter`, `Location` (`AdventureCreateOptionsRegistry`).
 - CRUD сцен, контента, выборов.
 - CRUD actions выбора:
   - `ChoiceActionType.GoToScene` + `SceneId`;
   - `ChoiceActionType.SetWorldParams` + словари `Params.Strings/Ints/Bools`;
   - `ChoiceActionType.SetAdventureParams` + словари `Params.Strings/Ints/Bools`;
   - `ChoiceActionType.SetGlobalParams` + словари `Params.Strings/Ints/Bools`.
+- Редактор `Selected Choice`:
+  - для `ChoiceType.Default` — блок `Actions`;
+  - для `ChoiceType.DiceCheck` — блок `Dice Check` + action-редакторы исходов (`OnCriticalSuccess/OnSuccess/OnFailure/OnCriticalFailure`) без общего блока `Actions`.
 - Редактор `Selected Content`: `Value` или список `Values` (для `RandomImage` / `Slideshow`).
 - Адаптивная раскладка главного окна: секции `Scenes` / `Content` / `Choices` подстраиваются под высоту окна, с прокруткой при переполнении; кнопки `Delete Scene` / `Duplicate Scene` закреплены внизу колонки `Scenes`.
 - Быстрое управление списками через маленькие кнопки в строках:
@@ -260,6 +357,12 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
   - обновление `SceneId` в scene transition actions.
 - Граф связей сцен.
 - Базовая валидация.
+- Валидация `ChoiceType.DiceCheck`:
+  - обязательный блок `DiceCheck` (с `Fix`: создаёт шаблон с `DC=15`, `D20`, пустым `DiceCheckParam` и пустыми outcome-списками);
+  - `DifficultyClass >= 0` (с `Fix` для отрицательных значений);
+  - `Actions` должен быть `null` или пустым (`Count == 0`) — для `DiceCheck` action-ы должны жить в outcome-списках (с `Fix`: `Actions.Clear()`).
+- Валидация `ChoiceType.Default`:
+  - `DiceCheck` должен быть `null` (с `Fix`: `DiceCheck = null`).
 - Валидация `ChoiceActionData` по контрактам `ChoiceActionType`:
   - `GoToScene` — обязательный `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`);
   - `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` — хотя бы один ключ в `Params.Strings/Ints/Bools`.

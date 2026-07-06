@@ -24,7 +24,7 @@ alwaysApply: true
 
 | Компонент | Файл | Назначение |
 |---|---|---|
-| Главное окно | `AdventureEditorWindow.cs` | CRUD приключений, сцен, контента, выборов, actions |
+| Главное окно | `AdventureEditorWindow.cs` | CRUD приключений, сцен, контента, выборов, actions; для `ChoiceType.DiceCheck` — редактор `DiceCheck` (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`) и outcome action-списков |
 | Граф сцен | `AdventureGraphPreviewWindow.cs` | Визуальный canvas-граф переходов |
 | Валидация | `AdventureValidationWindow.cs` | Окно проверки консистентности |
 | Локализация | `AdventureLocalizationExportWindow.cs` | Генерация ключей и экспорт `.txt` для Google Sheets |
@@ -41,6 +41,9 @@ alwaysApply: true
 ## Примеры запросов
 
 - «Добавь в TEA кнопку создания сцены» → `SceneCreateOptionsRegistry` в `AdventureCreateOptions.cs`
+- «Добавь кнопку Chapter / Adventure / Location» → `AdventureCreateOptionsRegistry` в `AdventureCreateOptions.cs`
+- «Добавь DiceCheck choice» → `ChoiceCreateOptionsRegistry` (`choice.dice_check`, иконка `dice-twenty-faces-twenty`) + блок `ChoiceData.DiceCheck` в `ChoiceData.cs`
+- «Валидация DiceCheck / Default choice» → `AdventureValidationService` в `AdventureEditorServices.cs` (`DiceCheck` null для `Default`; пустой `Actions` для `DiceCheck`)
 - «Поправь граф в TEA» → `AdventureGraphPreviewWindow.cs`
 - «Валидация в редакторе приключений» → `AdventureValidationService` / `AdventureValidationWindow.cs`
 - «Локализация в TEA» / «сгенерируй ключи» → `AdventureLocalizationExportWindow` / `AdventureLocalizationGenerationService`

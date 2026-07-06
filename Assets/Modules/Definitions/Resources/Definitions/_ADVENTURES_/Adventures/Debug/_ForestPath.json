@@ -61,6 +61,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -82,6 +83,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "SetWorldParams",
@@ -114,6 +116,26 @@
               }
             }
           ]
+        },
+        {
+          "Id": "new_choice",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "",
+            "OnCriticalSuccess": [],
+            "OnSuccess": [],
+            "OnFailure": [],
+            "OnCriticalFailure": []
+          },
+          "Actions": []
         }
       ]
     },
@@ -138,6 +160,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -159,6 +182,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -180,6 +204,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -216,6 +241,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -237,6 +263,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -273,6 +300,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -294,6 +322,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -315,6 +344,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -351,6 +381,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -372,6 +403,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -408,6 +440,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -444,6 +477,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -465,6 +499,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -501,6 +536,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -522,6 +558,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -558,6 +595,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -579,6 +617,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -615,6 +654,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -636,6 +676,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -672,6 +713,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -693,6 +735,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -729,6 +772,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -750,6 +794,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -786,6 +831,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -807,6 +853,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -843,6 +890,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -864,6 +912,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -900,6 +949,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -936,6 +986,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -972,6 +1023,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -993,6 +1045,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -1029,6 +1082,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -1065,6 +1119,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -1086,6 +1141,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",
@@ -1107,6 +1163,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": []
         }
       ]
@@ -1132,6 +1189,7 @@
           "Description": "",
           "AlwaysShow": true,
           "Restrictions": [],
+          "DiceCheck": null,
           "Actions": [
             {
               "Type": "GoToScene",

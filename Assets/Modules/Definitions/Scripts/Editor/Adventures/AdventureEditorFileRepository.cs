@@ -206,6 +206,25 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     ChoiceData choiceData = sceneData.Choices[i] ?? new ChoiceData();
                     choiceData.Tags ??= new List<string>();
                     choiceData.Restrictions ??= new List<Modules.Restrictions.Scripts.Core.Restriction>();
+                    if (choiceData.Type == ChoiceType.DiceCheck)
+                    {
+                        choiceData.DiceCheck ??= new ChoiceDiceCheckData
+                        {
+                            DifficultyClass = 15,
+                            DiceType = Modules.Dices.Scripts.DiceType.D20,
+                            DiceOptions = Modules.Dices.Scripts.DiceOptions.None,
+                            DiceCheckParam = string.Empty,
+                            OnCriticalSuccess = new List<ChoiceActionData>(),
+                            OnSuccess = new List<ChoiceActionData>(),
+                            OnFailure = new List<ChoiceActionData>(),
+                            OnCriticalFailure = new List<ChoiceActionData>(),
+                        };
+                        choiceData.DiceCheck.DiceCheckParam ??= string.Empty;
+                        choiceData.DiceCheck.OnCriticalSuccess ??= new List<ChoiceActionData>();
+                        choiceData.DiceCheck.OnSuccess ??= new List<ChoiceActionData>();
+                        choiceData.DiceCheck.OnFailure ??= new List<ChoiceActionData>();
+                        choiceData.DiceCheck.OnCriticalFailure ??= new List<ChoiceActionData>();
+                    }
                     choiceData.Actions ??= new List<ChoiceActionData>();
 
                     for (int actionIndex = 0; actionIndex < choiceData.Actions.Count; actionIndex++)

@@ -30,6 +30,14 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                 },
                 new CreateOptionDescriptor<AdventureData>
                 {
+                    Id = "adventure.chapter",
+                    ButtonText = "Chapter",
+                    Tooltip = "Create a chapter template with one start scene.",
+                    IconName = "TextAsset Icon",
+                    Create = () => BuildAdventureTemplate(AdventureType.Chapter),
+                },
+                new CreateOptionDescriptor<AdventureData>
+                {
                     Id = "adventure.location",
                     ButtonText = "Location",
                     Tooltip = "Create a location template with one start scene.",
@@ -218,6 +226,36 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         Description = string.Empty,
                         AlwaysShow = true,
                         Restrictions = new List<Modules.Restrictions.Scripts.Core.Restriction>(),
+                        Actions = new List<ChoiceActionData>(),
+                    },
+                },
+                new CreateOptionDescriptor<ChoiceData>
+                {
+                    Id = "choice.dice_check",
+                    ButtonText = "Dice Check",
+                    Tooltip = "Add a dice check choice with dice settings.",
+                    IconName = "d_FilterByLabel",
+                    IconAssetName = "dice-twenty-faces-twenty",
+                    Create = () => new ChoiceData
+                    {
+                        Id = "new_choice",
+                        Tags = new List<string>(),
+                        Type = ChoiceType.DiceCheck,
+                        Text = string.Empty,
+                        Description = string.Empty,
+                        AlwaysShow = true,
+                        Restrictions = new List<Modules.Restrictions.Scripts.Core.Restriction>(),
+                        DiceCheck = new ChoiceDiceCheckData
+                        {
+                            DifficultyClass = 15,
+                            DiceType = Modules.Dices.Scripts.DiceType.D20,
+                            DiceOptions = Modules.Dices.Scripts.DiceOptions.None,
+                            DiceCheckParam = string.Empty,
+                            OnCriticalSuccess = new List<ChoiceActionData>(),
+                            OnSuccess = new List<ChoiceActionData>(),
+                            OnFailure = new List<ChoiceActionData>(),
+                            OnCriticalFailure = new List<ChoiceActionData>(),
+                        },
                         Actions = new List<ChoiceActionData>(),
                     },
                 },

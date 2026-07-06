@@ -673,6 +673,60 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         if (!string.IsNullOrWhiteSpace(choice.Id) && !choiceIds.Add(choice.Id))
                             issues.Add(new AdventureValidationIssue($"Scene '{sceneId}' contains duplicated choice id '{choice.Id}'."));
 
+                        if (choice.Type == ChoiceType.Default)
+                        {
+                            if (choice.DiceCheck != null)
+                            {
+                                issues.Add(new AdventureValidationIssue(
+                                    $"Choice '{choiceId}' in scene '{sceneId}' has type '{ChoiceType.Default}' but DiceCheck block is set. DiceCheck must be null for Default.",
+                                    () => choice.DiceCheck = null));
+                            }
+                        }
+                        else if (choice.Type == ChoiceType.DiceCheck)
+                        {
+                            if (choice.DiceCheck == null)
+                            {
+                                issues.Add(new AdventureValidationIssue(
+                                    $"Choice '{choiceId}' in scene '{sceneId}' has type '{ChoiceType.DiceCheck}' but DiceCheck block is missing.",
+                                    () =>
+                                    {
+                                        choice.DiceCheck = new ChoiceDiceCheckData
+                                        {
+                                            DifficultyClass = 15,
+                                            DiceType = Modules.Dices.Scripts.DiceType.D20,
+                                            DiceOptions = Modules.Dices.Scripts.DiceOptions.None,
+                                            DiceCheckParam = string.Empty,
+                                            OnCriticalSuccess = new List<ChoiceActionData>(),
+                                            OnSuccess = new List<ChoiceActionData>(),
+                                            OnFailure = new List<ChoiceActionData>(),
+                                            OnCriticalFailure = new List<ChoiceActionData>(),
+                                        };
+                                    }));
+                            }
+                            else if (choice.DiceCheck.DifficultyClass < 0)
+                            {
+                                issues.Add(new AdventureValidationIssue(
+                                    $"Choice '{choiceId}' in scene '{sceneId}' has negative DiceCheck.DifficultyClass.",
+                                    () => choice.DiceCheck.DifficultyClass = 0));
+                            }
+
+                            choice.DiceCheck.DiceCheckParam ??= string.Empty;
+                            choice.DiceCheck.OnCriticalSuccess ??= new List<ChoiceActionData>();
+                            choice.DiceCheck.OnSuccess ??= new List<ChoiceActionData>();
+                            choice.DiceCheck.OnFailure ??= new List<ChoiceActionData>();
+                            choice.DiceCheck.OnCriticalFailure ??= new List<ChoiceActionData>();
+
+                            if (choice.Actions != null && choice.Actions.Count > 0)
+                            {
+                                issues.Add(new AdventureValidationIssue(
+                                    $"Choice '{choiceId}' in scene '{sceneId}' has type '{ChoiceType.DiceCheck}' but contains {choice.Actions.Count} item(s) in Actions. For DiceCheck, Actions must be null or empty.",
+                                    () => choice.Actions.Clear()));
+                            }
+                        }
+
+                        if (choice.Type != ChoiceType.Default)
+                            continue;
+
                         if (choice.Actions == null)
                             continue;
 

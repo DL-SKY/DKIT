@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-04 00:45:00 (+03:00)
+**Последнее обновление:** 2026-07-06 15:10:00 (+03:00)
 
 ## Назначение
 
@@ -37,6 +37,7 @@
 - `Id` — уникальный идентификатор adventure.
 - `Tags` — набор тегов для фильтрации/поиска/категоризации.
 - `Type` — тип узла (`AdventureType`: `Adventure`, `Chapter`, `Location`).
+- `IsRepeatable` — можно ли повторно проходить узел; для `Location` — `true`, для `Adventure` и `Chapter` — `false`.
 - `AdventureLinks` — связи с другими adventure-узлами (для карты/иерархии).
 - `Title`, `Description` — метаданные и текстовое описание.
 - `IgnoredTags` — теги, игнорируемые в контексте этого adventure.
@@ -45,6 +46,16 @@
 - `Scenes` — словарь `sceneId -> SceneData` со всем графом сцен.
 
 > Не путать с `Modules.State...AdventureStateData` — это **прогресс** конкретного приключения в сейве (`AdventureId`, `SceneId`, `Parameters`).
+
+### `AdventureType`
+
+| Значение | Код | `IsRepeatable` (шаблон TEA) | Назначение |
+|---|---|---|---|
+| `Adventure` | `0` | `false` | Корневое приключение |
+| `Chapter` | `1` | `false` | Глава внутри приключения |
+| `Location` | `10` | `true` | Повторяемая локация на карте |
+
+В TEA (`AdventureCreateOptionsRegistry`) для каждого типа есть кнопка в блоке `Create Adventure`: `adventure.default`, `adventure.chapter`, `adventure.location` (см. `Assets/Modules/Definitions/Scripts/Editor/Adventures/README.md`).
 
 ### `SceneData`
 
@@ -86,11 +97,12 @@
 
 - `Id` — идентификатор выбора.
 - `Tags` — теги для аналитики/фильтрации/UI.
-- `Type` — тип выбора (`ChoiceType`); сейчас единственное значение — `Default` (`0`).
+- `Type` — тип выбора (`ChoiceType`): `Default` (`0`) или `DiceCheck` (`1`).
 - `Text`, `Description` — основной и дополнительный тексты выбора.
 - `AlwaysShow` — всегда показывать выбор, даже если ограничения не прошли (ожидаемая интерпретация по названию поля).
 - `Restrictions` — список ограничений доступности выбора.
-- `Actions` — список действий (`ChoiceActionData`), выполняемых при выборе.
+- `DiceCheck` — опциональный блок параметров броска и outcome actions (используется при `Type == DiceCheck`).
+- `Actions` — список действий (`ChoiceActionData`), выполняемых при выборе (используется при `Type == Default`).
 
 В классе также есть комментарии-заготовки про `ViewOptions`, `Icon`; это маркеры планируемого расширения визуальной модели choice.
 
@@ -98,9 +110,48 @@
 
 | Значение | Код | Назначение |
 |---|---|---|
-| `Default` | `0` | Стандартный выбор (единственное значение на текущем этапе) |
+| `Default` | `0` | Стандартный выбор |
+| `DiceCheck` | `1` | Выбор-проверка кубика с опциональным блоком `ChoiceData.DiceCheck` |
 
 > Ранее в enum была опечатка `Dafault`; в JSON и коде используется `Default`.
+
+Блок `ChoiceData.DiceCheck` (`ChoiceDiceCheckData`, опциональный) содержит:
+- `DifficultyClass` — СЛ проверки;
+- `DiceType` (`Modules.Dices.Scripts.DiceType`) — тип кубика;
+- `DiceOptions` (`Modules.Dices.Scripts.DiceOptions`) — флаги броска;
+- `DiceCheckParam` — строковый ключ проверяемого атрибута/скилла (например, `"Thievery"`); runtime будет использовать его для выбора модификатора персонажа;
+- `OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure` — списки `ChoiceActionData` для соответствующих исходов проверки.
+
+Правила TEA-валидации для `ChoiceType`:
+
+| `ChoiceType` | Требование | `Fix` |
+|---|---|---|
+| `Default` | `DiceCheck == null` | обнулить блок `DiceCheck` |
+| `DiceCheck` | `DiceCheck != null`, `DifficultyClass >= 0` | создать шаблон / сбросить отрицательный DC |
+| `DiceCheck` | `Actions == null` или пустой | очистить `Actions` |
+
+Пример JSON:
+
+```json
+{
+  "Id": "pick_lock",
+  "Type": "DiceCheck",
+  "Text": "Взломать замок",
+  "DiceCheck": {
+    "DifficultyClass": 18,
+    "DiceType": "D20",
+    "DiceOptions": "None",
+    "DiceCheckParam": "Thievery",
+    "OnCriticalSuccess": [ { "Type": "GoToScene", "Params": { "Strings": { "SceneId": "lock_open_fast" } } } ],
+    "OnSuccess":         [ { "Type": "GoToScene", "Params": { "Strings": { "SceneId": "lock_open" } } } ],
+    "OnFailure":         [ { "Type": "SetAdventureParams", "Params": { "Ints": { "adventure.lock_attempts": 1 } } } ],
+    "OnCriticalFailure": [ { "Type": "GoToScene", "Params": { "Strings": { "SceneId": "trap_triggered" } } } ]
+  },
+  "Actions": []
+}
+```
+
+> Runtime-обработка `ChoiceType.DiceCheck` (окно броска, расчёт исхода по СЛ, выполнение outcome actions) пока не реализована; контракт данных и TEA-редактор готовы.
 
 ### `ChoiceActionData` и `ChoiceActionType`
 
@@ -313,6 +364,7 @@ RPG-контент (сцены, выборы, действия) описывае
 ## Интеграции с другими модулями
 
 - `Definitions`: adventure-контент загружается как JSON-дефы (`AdventureDef`, `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef`). Доменная модель приключения (`AdventureData`, `SceneData`, `ChoiceData`) остаётся в `RPG`; `AdventureDef` — тонкая обёртка для загрузчика. Дефы персонажа пока описывают контентный минимум; применение бонусов/эффектов в `CharacterStateData` — следующий этап (см. [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
+- `Dices`: `ChoiceDiceCheckData` ссылается на `DiceType` и `DiceOptions` из `Modules.Dices.Scripts`; runtime-интеграция с adventure-flow в разработке.
 - `Restrictions`: `AdventureData`, `ChoiceData` и `SceneContentData` используют `Restriction` для описания условий доступа. Для параметров прогресса доступны `RestrictionType.WorldParams`, `RestrictionType.AdventureParams` и `RestrictionType.GlobalParams` (см. [Restrictions.md](Restrictions.md)).
 - `State`: персистентный прогресс профиля и ссылки персонажа на id дефов (см. выше).
 - Остальные интеграции (UI, события, полный оркестратор приключения) пока явно не реализованы в коде модуля.
@@ -332,7 +384,9 @@ RPG-контент (сцены, выборы, действия) описывае
 5. Формирование списка `Choices`:
    - либо по `AlwaysShow`;
    - либо по результату проверки `ChoiceData.Restrictions`.
-6. Для каждого `ChoiceActionData` из `Actions` фабрика создает `IChoiceActionExecutor` и вызывает `Execute()`.
+6. Обработка выбранного `ChoiceData` по типу:
+   - `Default` — для каждого `ChoiceActionData` из `Actions` фабрика создаёт `IChoiceActionExecutor` и вызывает `Execute()`;
+   - `DiceCheck` — открыть окно броска, взять модификатор по `DiceCheck.DiceCheckParam`, рассчитать исход по `DiceCheck.DifficultyClass`, выполнить actions из соответствующего outcome-списка (`OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure`).
 7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
 Полный runtime-поток еще не замкнут: `AdventuresManager` инициализируется и слушает `StateChanged`, но оркестрация выборов и вызов фабрики executors из UI пока не реализованы. Переход по сцене через `GoToSceneChoiceActionExecutor` уже идёт через state-action (`SetCurrentAdventureSceneIdStateAction`); legacy-путь (`ObsoleteGoToSceneChoiceActionExecutor` + `IAdventureFlowController`) помечен `[Obsolete]` и не используется фабрикой.
@@ -340,6 +394,8 @@ RPG-контент (сцены, выборы, действия) описывае
 ## Текущее состояние реализации
 
 - Реализованы доменные DTO/POCO-модели для adventure-данных (`AdventureData`, `SceneData`, `ChoiceData` и связанные типы).
+- `ChoiceType` расширен значением `DiceCheck`; в `ChoiceData` добавлен опциональный блок `DiceCheck` (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`, outcome action-списки).
+- В TEA (`AdventureEditorWindow`) для `ChoiceType.DiceCheck` доступен редактор полей `DiceCheck` (включая `DiceCheckParam`) и outcome action-списков; для `Default` — редактор `Actions`. Валидация TEA обеспечивает взаимную исключительность `DiceCheck` и `Actions` по типу choice (см. `Assets/Modules/Definitions/Scripts/Editor/Adventures/README.md`).
 - В `Modules.Definitions` добавлены adventure-дефы персонажа и контента: `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef` (наследуют `AbstractDefinition`); `AdventureDef` наследует `AdventureData`. Загружен стартовый PF2e-ориентированный набор JSON (классы, ancestries, черты, заклинания, предметы).
 - Runtime применения механик дефов к персонажу (`CharacterStateData.Parameters` и др.) пока не реализован.
 - `SceneContentType`: `Text`, `Image`, `RandomImage`, `Slideshow`, `Splitter`, `Item`; `SceneContentData` поддерживает `Value`, `Values` и `Restrictions`.
@@ -363,16 +419,17 @@ RPG-контент (сцены, выборы, действия) описывае
 
 1. Подключить runtime-фильтрацию `SceneContentData.Restrictions` при рендере сцены.
 2. Завершить переработку `ChoiceActionType` и добавить executors для оставшихся типов (`SkillCheck`, `StartCombat`, `GrantItem` и т.д.).
-3. Зарегистрировать в Zenject installer:
+3. Реализовать runtime-flow для `ChoiceType.DiceCheck` (окно броска, расчёт исхода, выполнение outcome actions через существующую фабрику executors).
+4. Зарегистрировать в Zenject installer:
    - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`.
-4. Расширить `AdventuresManager`:
+5. Расширить `AdventuresManager`:
    - переходы по сценам и выборы;
    - применение списка `ChoiceActionData` через фабрику executors;
    - реакция на `StateChanged` (в т.ч. `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`) для обновления UI / runtime-контекста.
-5. Подключить остальные `ChoiceActionType` к state-actions в `Modules.State`.
-6. Добавить state-actions для персонажей (`char.*`) и инвентаря; сервис применения механик из дефов в `CharacterStateData`.
-7. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions`).
-8. Добавить unit-тесты на:
+6. Подключить остальные `ChoiceActionType` к state-actions в `Modules.State`.
+7. Добавить state-actions для персонажей (`char.*`) и инвентаря; сервис применения механик из дефов в `CharacterStateData`.
+8. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions` и `DiceCheck` outcome actions).
+9. Добавить unit-тесты на:
    - фабрику executors и валидацию `Params`;
    - проверку ограничений;
    - вычисление доступных choices;

@@ -37,6 +37,10 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private int _selectedContentIndex = -1;
         private int _selectedChoiceIndex = -1;
         private int _selectedActionIndex = -1;
+        private int _selectedDiceCriticalSuccessActionIndex = -1;
+        private int _selectedDiceSuccessActionIndex = -1;
+        private int _selectedDiceFailureActionIndex = -1;
+        private int _selectedDiceCriticalFailureActionIndex = -1;
 
         private Vector2 _filesScroll;
         private Vector2 _scenesScroll;
@@ -688,89 +692,15 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             DrawField(() => choiceData.Tags = ParseCsv(EditorGUILayout.TextField("Tags (csv)", JoinCsv(choiceData.Tags))));
             choiceData.Restrictions ??= new List<Restriction>();
             DrawRestrictionsSection(choiceData.Restrictions, "Restrictions");
-
-            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
-            DrawAddButtonWithPopup(
-                "Add Action",
-                "Create Action",
-                _choiceActionCreateOptionsRegistry.GetOptions(),
-                option =>
-                {
-                    choiceData.Actions ??= new List<ChoiceActionData>();
-                    choiceData.Actions.Add(option.Create());
-                    _selectedActionIndex = choiceData.Actions.Count - 1;
-                    MarkDirty();
-                });
-            EditorGUILayout.Space(4f);
-            EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
-            EditorGUILayout.Space(4f);
-
-            if (choiceData.Actions != null)
+            if (choiceData.Type == ChoiceType.DiceCheck)
             {
-                for (int i = 0; i < choiceData.Actions.Count; i++)
-                {
-                    ChoiceActionData actionData = choiceData.Actions[i];
-                    string label = $"{i}: {actionData?.Type}";
-                    bool selected = i == _selectedActionIndex;
-                    GUIStyle style = selected ? EditorStyles.helpBox : EditorStyles.miniButton;
-                    using (new EditorGUILayout.HorizontalScope())
-                    {
-                        if (GUILayout.Button(label, style))
-                            _selectedActionIndex = i;
-
-                        if (GUILayout.Button("↑", GUILayout.Width(22f)))
-                        {
-                            if (i > 0)
-                            {
-                                int newIndex = i - 1;
-                                (choiceData.Actions[i], choiceData.Actions[newIndex]) = (choiceData.Actions[newIndex], choiceData.Actions[i]);
-
-                                if (_selectedActionIndex == i)
-                                    _selectedActionIndex = newIndex;
-                                else if (_selectedActionIndex == newIndex)
-                                    _selectedActionIndex = i;
-
-                                MarkDirty();
-                            }
-
-                            break;
-                        }
-
-                        if (GUILayout.Button("↓", GUILayout.Width(22f)))
-                        {
-                            if (i < choiceData.Actions.Count - 1)
-                            {
-                                int newIndex = i + 1;
-                                (choiceData.Actions[i], choiceData.Actions[newIndex]) = (choiceData.Actions[newIndex], choiceData.Actions[i]);
-
-                                if (_selectedActionIndex == i)
-                                    _selectedActionIndex = newIndex;
-                                else if (_selectedActionIndex == newIndex)
-                                    _selectedActionIndex = i;
-
-                                MarkDirty();
-                            }
-
-                            break;
-                        }
-
-                        if (GUILayout.Button("X", GUILayout.Width(22f)))
-                        {
-                            choiceData.Actions.RemoveAt(i);
-
-                            if (_selectedActionIndex == i)
-                                _selectedActionIndex = -1;
-                            else if (_selectedActionIndex > i)
-                                _selectedActionIndex--;
-
-                            MarkDirty();
-                            break;
-                        }
-                    }
-                }
+                DrawDiceCheckEditor(choiceData);
             }
-
-            DrawSelectedActionEditor(sceneData, choiceData);
+            else
+            {
+                choiceData.Actions ??= new List<ChoiceActionData>();
+                DrawChoiceActionListEditor("Actions", choiceData.Actions, ref _selectedActionIndex);
+            }
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -784,16 +714,103 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             }
         }
 
-        private void DrawSelectedActionEditor(SceneData sceneData, ChoiceData choiceData)
+        private void DrawChoiceActionListEditor(string sectionTitle, List<ChoiceActionData> actions, ref int selectedActionIndex)
         {
-            if (choiceData.Actions == null || _selectedActionIndex < 0 || _selectedActionIndex >= choiceData.Actions.Count)
+            actions ??= new List<ChoiceActionData>();
+
+            EditorGUILayout.LabelField(sectionTitle, EditorStyles.boldLabel);
+            int pendingSelectedActionIndex = -1;
+            DrawAddButtonWithPopup(
+                "Add Action",
+                "Create Action",
+                _choiceActionCreateOptionsRegistry.GetOptions(),
+                option =>
+                {
+                    actions.Add(option.Create());
+                    pendingSelectedActionIndex = actions.Count - 1;
+                    MarkDirty();
+                });
+            if (pendingSelectedActionIndex >= 0)
+                selectedActionIndex = pendingSelectedActionIndex;
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
+            EditorGUILayout.Space(4f);
+
+            for (int i = 0; i < actions.Count; i++)
+            {
+                ChoiceActionData actionData = actions[i];
+                string label = $"{i}: {actionData?.Type}";
+                bool selected = i == selectedActionIndex;
+                GUIStyle style = selected ? EditorStyles.helpBox : EditorStyles.miniButton;
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button(label, style))
+                        selectedActionIndex = i;
+
+                    if (GUILayout.Button("↑", GUILayout.Width(22f)))
+                    {
+                        if (i > 0)
+                        {
+                            int newIndex = i - 1;
+                            (actions[i], actions[newIndex]) = (actions[newIndex], actions[i]);
+
+                            if (selectedActionIndex == i)
+                                selectedActionIndex = newIndex;
+                            else if (selectedActionIndex == newIndex)
+                                selectedActionIndex = i;
+
+                            MarkDirty();
+                        }
+
+                        break;
+                    }
+
+                    if (GUILayout.Button("↓", GUILayout.Width(22f)))
+                    {
+                        if (i < actions.Count - 1)
+                        {
+                            int newIndex = i + 1;
+                            (actions[i], actions[newIndex]) = (actions[newIndex], actions[i]);
+
+                            if (selectedActionIndex == i)
+                                selectedActionIndex = newIndex;
+                            else if (selectedActionIndex == newIndex)
+                                selectedActionIndex = i;
+
+                            MarkDirty();
+                        }
+
+                        break;
+                    }
+
+                    if (GUILayout.Button("X", GUILayout.Width(22f)))
+                    {
+                        actions.RemoveAt(i);
+
+                        if (selectedActionIndex == i)
+                            selectedActionIndex = -1;
+                        else if (selectedActionIndex > i)
+                            selectedActionIndex--;
+
+                        MarkDirty();
+                        break;
+                    }
+                }
+            }
+
+            DrawSelectedActionFromListEditor(actions, ref selectedActionIndex);
+        }
+
+        private void DrawSelectedActionFromListEditor(List<ChoiceActionData> actions, ref int selectedActionIndex)
+        {
+            if (actions == null || selectedActionIndex < 0 || selectedActionIndex >= actions.Count)
                 return;
 
-            ChoiceActionData actionData = choiceData.Actions[_selectedActionIndex];
+            ChoiceActionData actionData = actions[selectedActionIndex];
             if (actionData == null)
             {
                 actionData = new ChoiceActionData { Type = ChoiceActionType.GoToScene };
-                choiceData.Actions[_selectedActionIndex] = actionData;
+                actions[selectedActionIndex] = actionData;
                 MarkDirty();
             }
 
@@ -842,11 +859,47 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             {
                 if (GUILayout.Button("Remove Selected Action", GUILayout.Width(180f)))
                 {
-                    choiceData.Actions.RemoveAt(_selectedActionIndex);
-                    _selectedActionIndex = -1;
+                    actions.RemoveAt(selectedActionIndex);
+                    selectedActionIndex = -1;
                     MarkDirty();
                 }
             }
+        }
+
+        private void DrawDiceCheckEditor(ChoiceData choiceData)
+        {
+            choiceData.DiceCheck ??= new ChoiceDiceCheckData
+            {
+                DifficultyClass = 15,
+                DiceType = Modules.Dices.Scripts.DiceType.D20,
+                DiceOptions = Modules.Dices.Scripts.DiceOptions.None,
+                DiceCheckParam = string.Empty,
+                OnCriticalSuccess = new List<ChoiceActionData>(),
+                OnSuccess = new List<ChoiceActionData>(),
+                OnFailure = new List<ChoiceActionData>(),
+                OnCriticalFailure = new List<ChoiceActionData>(),
+            };
+            choiceData.DiceCheck.DiceCheckParam ??= string.Empty;
+            choiceData.DiceCheck.OnCriticalSuccess ??= new List<ChoiceActionData>();
+            choiceData.DiceCheck.OnSuccess ??= new List<ChoiceActionData>();
+            choiceData.DiceCheck.OnFailure ??= new List<ChoiceActionData>();
+            choiceData.DiceCheck.OnCriticalFailure ??= new List<ChoiceActionData>();
+
+            EditorGUILayout.Space(2f);
+            EditorGUILayout.LabelField("Dice Check", EditorStyles.boldLabel);
+            DrawField(() => choiceData.DiceCheck.DifficultyClass = EditorGUILayout.IntField("Difficulty Class", choiceData.DiceCheck.DifficultyClass));
+            DrawField(() => choiceData.DiceCheck.DiceType = (Modules.Dices.Scripts.DiceType)EditorGUILayout.EnumPopup("Dice Type", choiceData.DiceCheck.DiceType));
+            DrawField(() => choiceData.DiceCheck.DiceOptions = (Modules.Dices.Scripts.DiceOptions)EditorGUILayout.EnumFlagsField("Dice Options", choiceData.DiceCheck.DiceOptions));
+            DrawField(() => choiceData.DiceCheck.DiceCheckParam = EditorGUILayout.TextField("Dice Check Param", choiceData.DiceCheck.DiceCheckParam ?? string.Empty));
+
+            EditorGUILayout.Space(6f);
+            DrawChoiceActionListEditor("On Critical Success Actions", choiceData.DiceCheck.OnCriticalSuccess, ref _selectedDiceCriticalSuccessActionIndex);
+            EditorGUILayout.Space(6f);
+            DrawChoiceActionListEditor("On Success Actions", choiceData.DiceCheck.OnSuccess, ref _selectedDiceSuccessActionIndex);
+            EditorGUILayout.Space(6f);
+            DrawChoiceActionListEditor("On Failure Actions", choiceData.DiceCheck.OnFailure, ref _selectedDiceFailureActionIndex);
+            EditorGUILayout.Space(6f);
+            DrawChoiceActionListEditor("On Critical Failure Actions", choiceData.DiceCheck.OnCriticalFailure, ref _selectedDiceCriticalFailureActionIndex);
         }
 
         private void DrawChoiceActionParamsEditor(ChoiceActionParamsData actionParams)
@@ -1493,6 +1546,25 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     scene.Choices[choiceIndex] ??= new ChoiceData();
                     scene.Choices[choiceIndex].Tags ??= new List<string>();
                     scene.Choices[choiceIndex].Restrictions ??= new List<Modules.Restrictions.Scripts.Core.Restriction>();
+                    if (scene.Choices[choiceIndex].Type == ChoiceType.DiceCheck)
+                    {
+                        scene.Choices[choiceIndex].DiceCheck ??= new ChoiceDiceCheckData
+                        {
+                            DifficultyClass = 15,
+                            DiceType = Modules.Dices.Scripts.DiceType.D20,
+                            DiceOptions = Modules.Dices.Scripts.DiceOptions.None,
+                            DiceCheckParam = string.Empty,
+                            OnCriticalSuccess = new List<ChoiceActionData>(),
+                            OnSuccess = new List<ChoiceActionData>(),
+                            OnFailure = new List<ChoiceActionData>(),
+                            OnCriticalFailure = new List<ChoiceActionData>(),
+                        };
+                        scene.Choices[choiceIndex].DiceCheck.DiceCheckParam ??= string.Empty;
+                        scene.Choices[choiceIndex].DiceCheck.OnCriticalSuccess ??= new List<ChoiceActionData>();
+                        scene.Choices[choiceIndex].DiceCheck.OnSuccess ??= new List<ChoiceActionData>();
+                        scene.Choices[choiceIndex].DiceCheck.OnFailure ??= new List<ChoiceActionData>();
+                        scene.Choices[choiceIndex].DiceCheck.OnCriticalFailure ??= new List<ChoiceActionData>();
+                    }
                     scene.Choices[choiceIndex].Actions ??= new List<ChoiceActionData>();
 
                     for (int actionIndex = 0; actionIndex < scene.Choices[choiceIndex].Actions.Count; actionIndex++)
@@ -1606,6 +1678,19 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         Description = sourceChoice?.Description ?? string.Empty,
                         AlwaysShow = sourceChoice?.AlwaysShow ?? false,
                         Restrictions = new List<Modules.Restrictions.Scripts.Core.Restriction>(sourceChoice?.Restrictions ?? new List<Modules.Restrictions.Scripts.Core.Restriction>()),
+                        DiceCheck = sourceChoice?.DiceCheck == null
+                            ? null
+                            : new ChoiceDiceCheckData
+                            {
+                                DifficultyClass = sourceChoice.DiceCheck.DifficultyClass,
+                                DiceType = sourceChoice.DiceCheck.DiceType,
+                                DiceOptions = sourceChoice.DiceCheck.DiceOptions,
+                                DiceCheckParam = sourceChoice.DiceCheck.DiceCheckParam,
+                                OnCriticalSuccess = CloneChoiceActionList(sourceChoice.DiceCheck.OnCriticalSuccess),
+                                OnSuccess = CloneChoiceActionList(sourceChoice.DiceCheck.OnSuccess),
+                                OnFailure = CloneChoiceActionList(sourceChoice.DiceCheck.OnFailure),
+                                OnCriticalFailure = CloneChoiceActionList(sourceChoice.DiceCheck.OnCriticalFailure),
+                            },
                         Actions = new List<ChoiceActionData>(),
                     };
 
@@ -1646,6 +1731,30 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 string value = parts[i].Trim();
                 if (!string.IsNullOrWhiteSpace(value))
                     result.Add(value);
+            }
+
+            return result;
+        }
+
+        private static List<ChoiceActionData> CloneChoiceActionList(List<ChoiceActionData> sourceActions)
+        {
+            List<ChoiceActionData> result = new List<ChoiceActionData>();
+            if (sourceActions == null)
+                return result;
+
+            for (int actionIndex = 0; actionIndex < sourceActions.Count; actionIndex++)
+            {
+                ChoiceActionData sourceAction = sourceActions[actionIndex];
+                result.Add(new ChoiceActionData
+                {
+                    Type = sourceAction?.Type ?? ChoiceActionType.GoToScene,
+                    Params = new ChoiceActionParamsData
+                    {
+                        Strings = new Dictionary<string, string>(sourceAction?.Params?.Strings ?? new Dictionary<string, string>()),
+                        Ints = new Dictionary<string, int>(sourceAction?.Params?.Ints ?? new Dictionary<string, int>()),
+                        Bools = new Dictionary<string, bool>(sourceAction?.Params?.Bools ?? new Dictionary<string, bool>()),
+                    },
+                });
             }
 
             return result;
