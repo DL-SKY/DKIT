@@ -12,8 +12,5 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ima
             InitImage(data, data?.Value);
         }
 
-        public override void Dispose()
-        {
-        }
     }
 }

@@ -4,21 +4,19 @@ using UnityEngine;
 namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items
 {
     /// <summary>
-    /// Base MonoBehaviour view for a single adventure content item (not <see cref="Base.ViewBase{T}"/>).
+    /// Non-generic base for adventure content item views (prefab references, sequencer).
+    /// VM lifetime is owned by <see cref="AdventureScrollViewModel"/> — this view only unsubscribes on destroy.
     /// Expects an <see cref="IContentAnimator"/> on the same GameObject.
     /// </summary>
-    public abstract class AdventureContentViewBase<TViewModel> : MonoBehaviour
-        where TViewModel : AdventureContentViewModelBase
+    public abstract class AdventureContentViewBase : MonoBehaviour
     {
-        protected TViewModel _viewModel;
-
         public IContentAnimator Animator { get; private set; }
 
-        public TViewModel ViewModel => _viewModel;
+        public AdventureContentViewModelBase ContentViewModel { get; private set; }
 
-        public void Init(TViewModel viewModel)
+        public void Init(AdventureContentViewModelBase viewModel)
         {
-            _viewModel = viewModel ?? throw new System.ArgumentNullException(nameof(viewModel));
+            ContentViewModel = viewModel ?? throw new System.ArgumentNullException(nameof(viewModel));
             Animator = GetComponent<IContentAnimator>();
 
             if (Animator == null)
@@ -28,6 +26,34 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items
                     this);
             }
 
+            OnInit(viewModel);
+        }
+
+        protected abstract void OnInit(AdventureContentViewModelBase viewModel);
+
+        private void OnDestroy()
+        {
+            OnViewDestroy();
+            ContentViewModel = null;
+            Animator = null;
+        }
+
+        protected abstract void OnViewDestroy();
+    }
+
+    /// <summary>
+    /// Typed content item view. Pair with a matching <typeparamref name="TViewModel"/>.
+    /// </summary>
+    public abstract class AdventureContentViewBase<TViewModel> : AdventureContentViewBase
+        where TViewModel : AdventureContentViewModelBase
+    {
+        protected TViewModel _viewModel;
+
+        public TViewModel ViewModel => _viewModel;
+
+        protected sealed override void OnInit(AdventureContentViewModelBase viewModel)
+        {
+            _viewModel = (TViewModel)viewModel;
             Subscribe();
             InitImplementation();
         }
@@ -38,10 +64,9 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items
 
         protected abstract void Unsubscribe();
 
-        private void OnDestroy()
+        protected sealed override void OnViewDestroy()
         {
             Unsubscribe();
-            _viewModel?.Dispose();
             _viewModel = null;
         }
     }

@@ -14,10 +14,6 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ima
             InitImage(data, PickRandomPath(data));
         }
 
-        public override void Dispose()
-        {
-        }
-
         private static string PickRandomPath(SceneContentData data)
         {
             if (data?.Values == null || data.Values.Count == 0)

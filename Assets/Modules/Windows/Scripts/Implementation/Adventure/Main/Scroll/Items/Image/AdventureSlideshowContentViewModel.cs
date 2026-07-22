@@ -29,7 +29,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ima
             Subscribe();
         }
 
-        public override void Dispose()
+        protected override void DisposeImplementation()
         {
             Unsubscribe();
         }

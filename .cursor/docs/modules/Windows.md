@@ -1,6 +1,6 @@
 # Модуль Windows
 
-**Последнее обновление:** 2026-07-22 17:33:35 (+03:00)
+**Последнее обновление:** 2026-07-22 17:47:15 (+03:00)
 
 ## Назначение
 
@@ -50,18 +50,30 @@ Prefab главного окна: `Resources/Prefabs/Views/Adventure/AdventureMa
 
 | Слой | Тип | Назначение |
 |---|---|---|
-| `AdventureMainView` / `AdventureMainViewModel` | `ViewBase` / `ViewModelBase` | Главный экран приключения (заготовки; wiring со Scroll ещё не завершён) |
-| `AdventureScrollView` / `AdventureScrollViewModel` | MonoBehaviour sub-view | Скролл контента сцены (заготовки) |
+| `AdventureMainView` / `AdventureMainViewModel` | `ViewBase` / `ViewModelBase` | Главный экран; `Init()` создаёт и инициализирует Scroll VM |
+| `AdventureScrollView` / `AdventureScrollViewModel` | MonoBehaviour sub-view | Скролл контента сцены: подписка на `AdventuresManager`, factory VM, spawn prefab’ов, sequencer |
 | Content items | MonoBehaviour + VM | Элементы `SceneContentType` в скролле |
 
-Content item View **не** наследуют `ViewBase`: паттерн как у `AdventureScrollView` — `Init(vm)`, `Subscribe`/`Unsubscribe`, `OnDestroy` → `Dispose` VM.
+Content item View **не** наследуют `ViewBase`: паттерн как у `AdventureScrollView` — `Init(vm)`, `Subscribe`/`Unsubscribe`. Lifetime VM владеет `AdventureScrollViewModel` (`Dispose` идемпотентен).
 
 База:
 
-- `AdventureContentViewModelBase` — `Init(SceneContentData)`, `Data`, `IsContentReady` / `ContentReady`
-- `AdventureContentViewBase<TViewModel>` — `Init`, `Animator` (`GetComponent<IContentAnimator>`)
+- `AdventureContentViewModelBase` — `Init(SceneContentData)`, `Data`, `IsContentReady` / `ContentReady`, `Dispose` / `DisposeImplementation`
+- `AdventureContentViewBase` (non-generic) — prefab refs, `Animator`, `Init(AdventureContentViewModelBase)`
+- `AdventureContentViewBase<TViewModel>` — typed `_viewModel`, `Subscribe` / `InitImplementation`
 
 VM создаются через DiContainer (`Instantiate` + `Init(data)`), зависимости — `[Inject]`.
+
+### Scroll ↔ AdventuresManager
+
+1. `AdventureMainViewModel.Init()` → `ViewModelFactory.Create<AdventureScrollViewModel>()` → `Scroll.Init()`.
+2. `AdventureScrollViewModel` подписан на `AdventuresManager.ChangedContent`, читает `GetCurrentContent()`.
+3. На изменение: `ON_CLEAR_CONTENT` (View чистит children) → dispose старых content VM → factory новых по `SceneContentType` → `ON_CHANGE_CONTENT`.
+4. `AdventureScrollView` держит prefab’ы Text / Image / Item (`AdventureContentViewBase`), `_contentRoot`; по `ON_CHANGE_CONTENT` запускает sequencer.
+5. Sequencer: spawn → ждать `IsContentReady` → `Animator.Play` → `Completed` → следующий.
+6. `SkipAllShowAnimation()` (на VM или View): `Skip` текущего аниматора + остальные item’ы сразу с `Skip` (без ожидания анимации). Подписка на tap/клик — снаружи.
+
+`Initializer` после загрузки вызывает `adventureMainViewModel.Init()` перед `OpenView`.
 
 ### Content items (View + VM)
 
@@ -87,7 +99,7 @@ Image-группа:
 Контракт:
 
 - `Play()` / `Skip()` / `IsPlaying` / `event Completed` (один раз — естественный конец или Skip).
-- Оркестрация последовательности item’ов и global skip (tap) — снаружи (будущий sequencer в Scroll).
+- Оркестрация последовательности и global skip — в `AdventureScrollView` (`SkipAllShowAnimation`).
 
 Реализации:
 

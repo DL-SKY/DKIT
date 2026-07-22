@@ -77,6 +77,7 @@ namespace Modules.Initializer.Scripts.Implementation.Adventure
             UnityEngine.Debug.LogError($"OnCompletedCallback() => ");
 
             var adventureMainViewModel = _viewModelFactory.Create<AdventureMainViewModel>();
+            adventureMainViewModel.Init();
             _windowsManager.OpenView<AdventureMainView, AdventureMainViewModel>(AdventureMainView.Path, adventureMainViewModel);
         }
 

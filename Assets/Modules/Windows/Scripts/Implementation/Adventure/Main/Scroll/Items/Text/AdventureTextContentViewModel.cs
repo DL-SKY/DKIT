@@ -16,8 +16,5 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Tex
             Text = data.Value ?? string.Empty;
         }
 
-        public override void Dispose()
-        {
-        }
     }
 }

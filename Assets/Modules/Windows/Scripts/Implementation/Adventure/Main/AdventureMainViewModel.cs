@@ -1,15 +1,32 @@
 using Modules.Windows.Scripts.Base;
+using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll;
+using Zenject;
+using Zenject.Scripts.Factories;
 
 namespace Modules.Windows.Scripts.Implementation.Adventure.Main
 {
     /// <summary>
-    /// Заготовка VM для главного экрана Adventure: сюда — состояние, подписки на сервисы, команды для View.
+    /// ViewModel for the main Adventure screen. Owns <see cref="AdventureScrollViewModel"/>.
     /// </summary>
     public class AdventureMainViewModel : ViewModelBase
     {
+        [Inject] private readonly ViewModelFactory _viewModelFactory;
+
+        public AdventureScrollViewModel Scroll { get; private set; }
+
+        public void Init()
+        {
+            if (Scroll != null)
+                return;
+
+            Scroll = _viewModelFactory.Create<AdventureScrollViewModel>();
+            Scroll.Init();
+        }
+
         public override void Dispose()
         {
-            // Отписки от внешних источников, если добавите вне Subscribe внутри VM.
+            Scroll?.Dispose();
+            Scroll = null;
         }
     }
 }

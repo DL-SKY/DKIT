@@ -40,8 +40,5 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ite
             }
         }
 
-        public override void Dispose()
-        {
-        }
     }
 }
