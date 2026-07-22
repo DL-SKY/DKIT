@@ -175,15 +175,19 @@
 | `SetGlobalParams` | `4` | Подключён к `ChoiceActionExecutorFactory` (запись `Params` в `AdventuresStateData.Global.Parameters`) |
 | `GoToAdventure` | `5` | Подключён: `SetCurrentAdventureIdStateAction` (с очисткой `CurrentAdventureSceneId`); стартовую сцену выбирает `RuntimeSceneData` |
 | `OpenWindow` | `6` | Stub executor: логирует `WindowId`; открытие окон UI ещё не подключено |
+| `GoToRandomAdventure` | `7` | Подключён: фильтр кандидатов (без `HUB`, не текущее, не `Disabled`; TODO: completed/level) → случайный id → `SetCurrentAdventureIdStateAction` |
+| `GoToRandomScene` | `8` | Подключён: `Params.Strings[SceneId]` — список id через `;` → случайная сцена → `SetCurrentAdventureSceneIdStateAction` |
 | `SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat`, `ApplyDamage`, `Heal`, `GrantItem` | `110`–`500` | Временно закомментированы в enum (старый черновик enum) |
 
 Именованные ключи `Params.Strings` для choice-actions задаются в `Glossary.ChoiceActions` (`Modules.Definitions.Scripts.Implementation.Adventures.Constants`):
 
 | Константа | Значение | Назначение |
 |---|---|---|
-| `Glossary.ChoiceActions.SCENE_ID` | `"SceneId"` | Id целевой сцены для перехода (`ChoiceActionType.GoToScene`) |
+| `Glossary.ChoiceActions.SCENE_ID` | `"SceneId"` | Id целевой сцены для перехода (`ChoiceActionType.GoToScene`); для `GoToRandomScene` — список id через `SCENE_IDS_SEPARATOR` (`;`) |
 | `Glossary.ChoiceActions.ADVENTURE_ID` | `"AdventureId"` | Id целевого приключения (`ChoiceActionType.GoToAdventure`) |
 | `Glossary.ChoiceActions.WINDOW_ID` | `"WindowId"` | Id окна UI (`ChoiceActionType.OpenWindow`); константы в `Glossary.Windows` |
+| `Glossary.ChoiceActions.SCENE_IDS_SEPARATOR` | `";"` | Разделитель id сцен в `Params.Strings[SceneId]` для `GoToRandomScene` |
+| `Glossary.Adventures.HUB` | `"HUB"` | Тег хаба; исключается из кандидатов `GoToRandomAdventure` |
 
 Для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` ключи `Params` произвольные (рекомендуется префикс `world.*` / `adventure.*` / `global.*`). TEA валидирует только наличие хотя бы одного param; конкретные ключи не фиксируются в `Glossary`.
 
@@ -247,6 +251,8 @@
 |---|---|---|---|
 | `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.SceneId` (`Glossary.ChoiceActions.SCENE_ID`) | `AdventureStateLogic.ProcessAction(SetCurrentAdventureSceneIdStateAction)` → `AdventuresStateData.CurrentAdventureSceneId` |
 | `GoToAdventure` | `GoToAdventureChoiceActionExecutor` | `Strings.AdventureId` (`Glossary.ChoiceActions.ADVENTURE_ID`) | `SetCurrentAdventureIdStateAction` → `CurrentAdventureId` + `CurrentAdventureSceneId = null`; затем `RuntimeSceneData` резолвит `StartScenes` и дописывает scene id |
+| `GoToRandomAdventure` | `GoToRandomAdventureChoiceActionExecutor` | нет обязательных params | Кандидаты из `DefinitionsManager.Adventures` (без `HUB`, не текущее, не `Disabled`; TODO: completed/level) → `SetCurrentAdventureIdStateAction` |
+| `GoToRandomScene` | `GoToRandomSceneChoiceActionExecutor` | `Strings.SceneId` — id через `;` | Парсинг списка → случайный id → `SetCurrentAdventureSceneIdStateAction` |
 | `OpenWindow` | `OpenWindowChoiceActionExecutor` | `Strings.WindowId` (`Glossary.ChoiceActions.WINDOW_ID`) | Пока stub (warning log); целевой sink — UI/`WindowsManager` |
 | `SetWorldParams` | `SetWorldParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetWorldParamsStateAction)` → merge в `AdventuresStateData.World.Parameters` |
 | `SetAdventureParams` | `SetAdventureParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetAdventureParamsStateAction)` → merge в `AdventuresStateData.Adventures[currentAdventureId].Parameters` |
@@ -407,12 +413,14 @@ RPG-контент (сцены, выборы, действия) описывае
 - Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
-- `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`), `SetGlobalParams` (`4`), `GoToAdventure` (`5`), `OpenWindow` (`6`, stub).
+- `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`), `SetGlobalParams` (`4`), `GoToAdventure` (`5`), `OpenWindow` (`6`, stub), `GoToRandomAdventure` (`7`), `GoToRandomScene` (`8`).
 - Ключи `Params.Strings`: `Glossary.ChoiceActions.SCENE_ID` / `ADVENTURE_ID` / `WINDOW_ID`; ids окон хаба — `Glossary.Windows.*`.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
 - Реализованы executors:
   - `GoToSceneChoiceActionExecutor` → `SetCurrentAdventureSceneIdStateAction`;
   - `GoToAdventureChoiceActionExecutor` → `SetCurrentAdventureIdStateAction` (очищает `CurrentAdventureSceneId`);
+  - `GoToRandomAdventureChoiceActionExecutor` → фильтр кандидатов + `SetCurrentAdventureIdStateAction`;
+  - `GoToRandomSceneChoiceActionExecutor` → парсинг `SceneId` через `;` + `SetCurrentAdventureSceneIdStateAction`;
   - `OpenWindowChoiceActionExecutor` → stub (warning);
   - `SetWorldParamsChoiceActionExecutor` → `SetWorldParamsStateAction`;
   - `SetAdventureParamsChoiceActionExecutor` → `SetAdventureParamsStateAction`;

@@ -10,6 +10,8 @@
         SetGlobalParams = 4,
         GoToAdventure = 5,
         OpenWindow = 6,
+        GoToRandomAdventure = 7,
+        GoToRandomScene = 8,
 
 
         //TODO: rework

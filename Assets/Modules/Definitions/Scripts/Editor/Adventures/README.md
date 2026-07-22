@@ -25,7 +25,7 @@
 - сцены (`SceneData`),
 - контент сцены (`SceneContentData`),
 - выборы (`ChoiceData`): `ChoiceType.Default` и `ChoiceType.DiceCheck`,
-- action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.GoToAdventure` (`Params.Strings["AdventureId"]`), `ChoiceActionType.OpenWindow` (`Params.Strings["WindowId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams` (см. `.cursor/docs/modules/RPG.md`),
+- action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.GoToAdventure` (`Params.Strings["AdventureId"]`), `ChoiceActionType.GoToRandomAdventure`, `ChoiceActionType.GoToRandomScene` (`Params.Strings["SceneId"]` через `;`), `ChoiceActionType.OpenWindow` (`Params.Strings["WindowId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams` (см. `.cursor/docs/modules/RPG.md`),
 - для `ChoiceType.DiceCheck` — блок `ChoiceData.DiceCheck` с параметрами броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`) и action-списками исходов (`OnCriticalSuccess`, `OnSuccess`, `OnFailure`, `OnCriticalFailure`).
 
 Инструмент доступен через меню:
@@ -372,7 +372,7 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
   - `GoToAdventure` — обязательный `Params.Strings["AdventureId"]` (`Glossary.ChoiceActions.ADVENTURE_ID`);
   - `OpenWindow` — обязательный `Params.Strings["WindowId"]` (`Glossary.ChoiceActions.WINDOW_ID`);
   - `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` — хотя бы один ключ в `Params.Strings/Ints/Bools`.
-- Редактор `Selected Action` для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`: inline-редактирование словарей `Params.Strings`, `Params.Ints`, `Params.Bools`; для `GoToAdventure` — поле Target Adventure; для `OpenWindow` — popup `Window Id` по `Glossary.Windows` (кастомный id тоже сохраняется в списке).
+- Редактор `Selected Action` для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`: inline-редактирование словарей `Params.Strings`, `Params.Ints`, `Params.Bools`; для `GoToAdventure` — поле Target Adventure; для `GoToRandomAdventure` — без params; для `GoToRandomScene` — поле списка Scene Ids через `;`; для `OpenWindow` — popup `Window Id` по `Glossary.Windows` (кастомный id тоже сохраняется в списке).
 - В `Validation` для исправляемых кейсов доступна кнопка `Fix` (например, `sceneId` → `SceneId`).
 - Окно `Localization` для генерации ключей и экспорта в `.txt` (tab-separated) для Google Sheets.
 - Цветовая индикация состояния:

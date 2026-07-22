@@ -1,5 +1,6 @@
 using Modules.Definitions.Scripts.Editor.Adventures.CreateOptions;
 using Modules.Definitions.Scripts.Editor.Adventures.Restrictions;
+using Modules.Definitions.Scripts.Implementation.Adventures.Constants;
 using Modules.Restrictions.Scripts.Core;
 using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Choice.Actions;
@@ -839,6 +840,23 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     actionData.Params.Strings[ChoiceActions.ADVENTURE_ID] = nextValue ?? string.Empty;
                 });
             }
+            else if (actionData.Type == ChoiceActionType.GoToRandomAdventure)
+            {
+                EditorGUILayout.HelpBox(
+                    "No params. Runtime picks a random eligible adventure (excludes HUB tag; more filters TBD).",
+                    MessageType.Info);
+            }
+            else if (actionData.Type == ChoiceActionType.GoToRandomScene)
+            {
+                DrawField(() =>
+                {
+                    actionData.Params.Strings.TryGetValue(ChoiceActions.SCENE_ID, out string currentSceneIds);
+                    string nextValue = EditorGUILayout.TextField(
+                        $"Scene Ids ('{ChoiceActions.SCENE_IDS_SEPARATOR}')",
+                        currentSceneIds ?? string.Empty);
+                    actionData.Params.Strings[ChoiceActions.SCENE_ID] = nextValue ?? string.Empty;
+                });
+            }
             else if (actionData.Type == ChoiceActionType.OpenWindow)
             {
                 DrawOpenWindowActionEditor(actionData);
@@ -884,11 +902,11 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         {
             string[] knownWindowIds =
             {
-                Windows.CREATE_CHARACTER,
-                Windows.SELECT_CHARACTER,
-                Windows.TRADE,
-                Windows.PARTY,
-                Windows.ADVENTURE_LIST,
+                Glossary.Windows.CREATE_CHARACTER,
+                Glossary.Windows.SELECT_CHARACTER,
+                Glossary.Windows.TRADE,
+                Glossary.Windows.PARTY,
+                Glossary.Windows.ADVENTURE_LIST,
             };
 
             DrawField(() =>

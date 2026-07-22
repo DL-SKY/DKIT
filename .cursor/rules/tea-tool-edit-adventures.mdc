@@ -45,6 +45,8 @@ alwaysApply: true
 - «Добавь DiceCheck choice» → `ChoiceCreateOptionsRegistry` (`choice.dice_check`, иконка `dice-twenty-faces-twenty`) + блок `ChoiceData.DiceCheck` в `ChoiceData.cs`
 - «Валидация DiceCheck / Default choice» → `AdventureValidationService` в `AdventureEditorServices.cs` (`DiceCheck` null для `Default`; пустой `Actions` для `DiceCheck`)
 - «Добавь GoToAdventure action» → `ChoiceActionCreateOptionsRegistry` (`action.goto_adventure`) + `ChoiceActionType.GoToAdventure`
+- «Добавь GoToRandomAdventure action» → `ChoiceActionCreateOptionsRegistry` (`action.goto_random_adventure`) + `ChoiceActionType.GoToRandomAdventure`
+- «Добавь GoToRandomScene action» → `ChoiceActionCreateOptionsRegistry` (`action.goto_random_scene`) + `ChoiceActionType.GoToRandomScene` (`Params.Strings[SceneId]` через `;`)
 - «Добавь OpenWindow action» → `ChoiceActionCreateOptionsRegistry` (`action.open_window`) + `Glossary.Windows.*`
 - «Валидация ActivePartyCount» → `RestrictionType.ActivePartyCount` + профиль в `RestrictionEditorFieldProfilesRegistry`
 - «Поправь граф в TEA» → `AdventureGraphPreviewWindow.cs`

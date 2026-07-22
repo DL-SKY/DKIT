@@ -27,6 +27,12 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
                     {
                         GetRequiredString(actionData.Params?.Strings, ChoiceActions.SCENE_ID, actionData.Type),
                     }),
+                ChoiceActionType.GoToRandomAdventure => _container.Instantiate<GoToRandomAdventureChoiceActionExecutor>(),
+                ChoiceActionType.GoToRandomScene => _container.Instantiate<GoToRandomSceneChoiceActionExecutor>(
+                    new object[]
+                    {
+                        GetRequiredString(actionData.Params?.Strings, ChoiceActions.SCENE_ID, actionData.Type),
+                    }),
 
                 ChoiceActionType.OpenWindow => _container.Instantiate<OpenWindowChoiceActionExecutor>(
                 new object[]

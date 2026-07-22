@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Adventures.Constants;
 using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Choice.Actions;
 using Modules.RPG.Scripts.Adventure.Data;
@@ -320,6 +321,45 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                 },
                 new CreateOptionDescriptor<ChoiceActionData>
                 {
+                    Id = "action.goto_random_adventure",
+                    ButtonText = "Go To Random Adventure",
+                    Tooltip = "Pick a random eligible adventure (no HUB tag, etc.) and switch to it.",
+                    IconName = "Animation.NextKey",
+                    IconAssetName = "play-button",
+                    Create = () => new ChoiceActionData
+                    {
+                        Type = ChoiceActionType.GoToRandomAdventure,
+                        Params = new ChoiceActionParamsData
+                        {
+                            Strings = new Dictionary<string, string>(),
+                            Ints = new Dictionary<string, int>(),
+                            Bools = new Dictionary<string, bool>(),
+                        },
+                    },
+                },
+                new CreateOptionDescriptor<ChoiceActionData>
+                {
+                    Id = "action.goto_random_scene",
+                    ButtonText = "Go To Random Scene",
+                    Tooltip = "Pick a random scene from SceneId list (ids separated by ';') and go there.",
+                    IconName = "Animation.NextKey",
+                    IconAssetName = "play-button",
+                    Create = () => new ChoiceActionData
+                    {
+                        Type = ChoiceActionType.GoToRandomScene,
+                        Params = new ChoiceActionParamsData
+                        {
+                            Strings = new Dictionary<string, string>
+                            {
+                                { ChoiceActions.SCENE_ID, "scene_a;scene_b" },
+                            },
+                            Ints = new Dictionary<string, int>(),
+                            Bools = new Dictionary<string, bool>(),
+                        },
+                    },
+                },
+                new CreateOptionDescriptor<ChoiceActionData>
+                {
                     Id = "action.open_window",
                     ButtonText = "Open Window",
                     Tooltip = "Open a hub UI window by WindowId (create/select character, trade, party, adventure list).",
@@ -332,7 +372,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         {
                             Strings = new Dictionary<string, string>
                             {
-                                { ChoiceActions.WINDOW_ID, Windows.CREATE_CHARACTER },
+                                { ChoiceActions.WINDOW_ID, Glossary.Windows.CREATE_CHARACTER },
                             },
                             Ints = new Dictionary<string, int>(),
                             Bools = new Dictionary<string, bool>(),

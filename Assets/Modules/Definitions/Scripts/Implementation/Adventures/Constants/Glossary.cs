@@ -24,6 +24,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
         public static class Adventures
         {
             // --- Tags ---
+            public const string HUB = "HUB";
 
             // --- Parameters ---
         }
@@ -34,37 +35,37 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
             // --- Parameters ---
 
-            public const string STR = "STR";
-            public const string DEX = "DEX";
-            public const string CON = "CON";
-            public const string INT = "INT";
-            public const string WIS = "WIS";
-            public const string CHA = "CHA";
+            public const string STR = "STR";    // Сила
+            public const string DEX = "DEX";    // Лвкость
+            public const string CON = "CON";    // Телосложение
+            public const string INT = "INT";    // Интеллект
+            public const string WIS = "WIS";    // Мудрость
+            public const string CHA = "CHA";    // Харизма
 
-            public const string ARMOR_CLASS = "AC";
+            public const string ARMOR_CLASS = "AC"; // Класс Брони
 
             public const string MAX_HIT_POINTS = "MaxHitPoints";
             public const string HIT_POINTS = "HitPoints";
 
-            public const string PERCEPTION = "Perception";
+            public const string PERCEPTION = "Perception";  // Восприятие
 
-            public const string ACROBATICS = "Acrobatics";
-            public const string ARCANA = "Arcana";
-            public const string ATHLETICS = "Athletics";
-            public const string CRAFTING = "Crafting";
-            public const string DECEPTION = "Deception";
-            public const string DIPLOMACY = "Diplomacy";
-            public const string INTIMIDATION = "Intimidation";
-            public const string LORE = "Lore";
-            public const string MEDICINE = "Medicine";
-            public const string NATURE = "Nature";
-            public const string OCCULTISM = "Occultism";
-            public const string PERFORMANCE = "Performance";
-            public const string RELIGION = "Religion";
-            public const string SOCIETY = "Society";
-            public const string STEALTH = "Stealth";
-            public const string SURVIVAL = "Survival";
-            public const string THIEVERY = "Thievery";
+            public const string ACROBATICS = "Acrobatics";  // Акробатика
+            public const string ARCANA = "Arcana";  // Мистицизм
+            public const string ATHLETICS = "Athletics";  // Атлетика
+            public const string CRAFTING = "Crafting";  // Ремесло
+            public const string DECEPTION = "Deception";  // Обман
+            public const string DIPLOMACY = "Diplomacy";  // Дипломатия
+            public const string INTIMIDATION = "Intimidation";  // Запугивание
+            public const string LORE = "Lore";  // Знания
+            public const string MEDICINE = "Medicine";  // Медицина
+            public const string NATURE = "Nature";  // Природа
+            public const string OCCULTISM = "Occultism";  // Оккультизм
+            public const string PERFORMANCE = "Performance";  // Выступление
+            public const string RELIGION = "Religion";  // Религия
+            public const string SOCIETY = "Society";  // Общество
+            public const string STEALTH = "Stealth";  // Скрытность
+            public const string SURVIVAL = "Survival";  // Выживание
+            public const string THIEVERY = "Thievery";  // Воровство
         }
 
         public static class Classes
@@ -141,6 +142,13 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             public const string SCENE_ID = "SceneId";
             public const string ADVENTURE_ID = "AdventureId";
             public const string WINDOW_ID = "WindowId";
+
+            /// <summary>
+            /// Separator for multiple scene ids in
+            /// <see cref="Modules.RPG.Scripts.Adventure.Choice.Actions.ChoiceActionType.GoToRandomScene"/>
+            /// (<c>Params.Strings[SceneId]</c>).
+            /// </summary>
+            public const string SCENE_IDS_SEPARATOR = ";";
         }
 
         /// <summary>
