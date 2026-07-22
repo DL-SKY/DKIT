@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-06 15:10:00 (+03:00)
+**Последнее обновление:** 2026-07-22 11:48:00 (+03:00)
 
 ## Назначение
 
@@ -87,7 +87,7 @@
 | `Splitter` | `20` | — | Разделитель / визуальный отступ |
 | `Item` | `30` | `Value` | Элемент предмета / иконки |
 
-Проверка `Restrictions` для контента сцены пока не подключена в runtime; контракт данных готов для UI/оркестратора.
+Проверка `Restrictions` для контента сцены подключена в runtime: `RuntimeSceneData.GetCurrentContent()` возвращает только элементы, прошедшие `RestrictionsChecker` (пустой/`null` список restrictions считается пройденным). Подробнее — [AdventuresManager.md](AdventuresManager.md#фильтрация-content-и-choices).
 
 ## Модель данных Choice
 
@@ -99,8 +99,8 @@
 - `Tags` — теги для аналитики/фильтрации/UI.
 - `Type` — тип выбора (`ChoiceType`): `Default` (`0`) или `DiceCheck` (`1`).
 - `Text`, `Description` — основной и дополнительный тексты выбора.
-- `AlwaysShow` — всегда показывать выбор, даже если ограничения не прошли (ожидаемая интерпретация по названию поля).
-- `Restrictions` — список ограничений доступности выбора.
+- `AlwaysShow` — всегда включать выбор в `GetCurrentChoices()`, даже если `Restrictions` не прошли.
+- `Restrictions` — список ограничений доступности выбора; проверяются в `RuntimeSceneData.GetCurrentChoices()` через `RestrictionsChecker`.
 - `DiceCheck` — опциональный блок параметров броска и outcome actions (используется при `Type == DiceCheck`).
 - `Actions` — список действий (`ChoiceActionData`), выполняемых при выборе (используется при `Type == Default`).
 
@@ -173,6 +173,8 @@
 | `SetWorldParams` | `2` | Подключён к `ChoiceActionExecutorFactory` (запись `Params` в `AdventuresStateData.World.Parameters`) |
 | `SetAdventureParams` | `3` | Подключён к `ChoiceActionExecutorFactory` (запись `Params` в `AdventuresStateData.Adventures[currentAdventureId].Parameters`) |
 | `SetGlobalParams` | `4` | Подключён к `ChoiceActionExecutorFactory` (запись `Params` в `AdventuresStateData.Global.Parameters`) |
+| `GoToAdventure` | `5` | Подключён: `SetCurrentAdventureIdStateAction` (с очисткой `CurrentAdventureSceneId`); стартовую сцену выбирает `RuntimeSceneData` |
+| `OpenWindow` | `6` | Stub executor: логирует `WindowId`; открытие окон UI ещё не подключено |
 | `SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat`, `ApplyDamage`, `Heal`, `GrantItem` | `110`–`500` | Временно закомментированы в enum (старый черновик enum) |
 
 Именованные ключи `Params.Strings` для choice-actions задаются в `Glossary.ChoiceActions` (`Modules.Definitions.Scripts.Implementation.Adventures.Constants`):
@@ -180,6 +182,8 @@
 | Константа | Значение | Назначение |
 |---|---|---|
 | `Glossary.ChoiceActions.SCENE_ID` | `"SceneId"` | Id целевой сцены для перехода (`ChoiceActionType.GoToScene`) |
+| `Glossary.ChoiceActions.ADVENTURE_ID` | `"AdventureId"` | Id целевого приключения (`ChoiceActionType.GoToAdventure`) |
+| `Glossary.ChoiceActions.WINDOW_ID` | `"WindowId"` | Id окна UI (`ChoiceActionType.OpenWindow`); константы в `Glossary.Windows` |
 
 Для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` ключи `Params` произвольные (рекомендуется префикс `world.*` / `adventure.*` / `global.*`). TEA валидирует только наличие хотя бы одного param; конкретные ключи не фиксируются в `Glossary`.
 
@@ -242,6 +246,8 @@
 | `ChoiceActionType` | Executor | `Params` | Куда пишет |
 |---|---|---|---|
 | `GoToScene` | `GoToSceneChoiceActionExecutor` | `Strings.SceneId` (`Glossary.ChoiceActions.SCENE_ID`) | `AdventureStateLogic.ProcessAction(SetCurrentAdventureSceneIdStateAction)` → `AdventuresStateData.CurrentAdventureSceneId` |
+| `GoToAdventure` | `GoToAdventureChoiceActionExecutor` | `Strings.AdventureId` (`Glossary.ChoiceActions.ADVENTURE_ID`) | `SetCurrentAdventureIdStateAction` → `CurrentAdventureId` + `CurrentAdventureSceneId = null`; затем `RuntimeSceneData` резолвит `StartScenes` и дописывает scene id |
+| `OpenWindow` | `OpenWindowChoiceActionExecutor` | `Strings.WindowId` (`Glossary.ChoiceActions.WINDOW_ID`) | Пока stub (warning log); целевой sink — UI/`WindowsManager` |
 | `SetWorldParams` | `SetWorldParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetWorldParamsStateAction)` → merge в `AdventuresStateData.World.Parameters` |
 | `SetAdventureParams` | `SetAdventureParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetAdventureParamsStateAction)` → merge в `AdventuresStateData.Adventures[currentAdventureId].Parameters` |
 | `SetGlobalParams` | `SetGlobalParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetGlobalParamsStateAction)` → merge в `AdventuresStateData.Global.Parameters` |
@@ -261,8 +267,8 @@ Legacy (не используется фабрикой):
 1. Игрок выбирает действие в UI (choice).
 2. `IChoiceActionExecutor` обрабатывает выбор и изменяет профиль только через state-actions (`StateActionBase<TStateData>`), а не прямой мутацией `StateData`.
 3. `AdventureStateLogic.ProcessAction(...)` выполняет `Validate -> Execute` и публикует `StateChanged` с `StateChangeSource`.
-4. `RuntimeSceneData` получает событие `AdventureStateLogic.StateChanged`, при необходимости синхронизирует/пересчитывает runtime-состояние приключения и передаёт изменения своему носителю (`AdventuresManager`).
-5. `AdventuresManager` публикует собственные события (`ChangedAdventure`, `ChangedScene`, `ChangedContent`, `ChangedChoices`) для UI-слоя.
+4. `RuntimeSceneData` помечает dirty по `StateChanged`, на следующем кадре (`Updater.OnUpdate`) вызывает `SyncFromStateAndNotify` и уведомляет `AdventuresManager`.
+5. `AdventuresManager` публикует собственные события (`ChangedAdventure`, `ChangedScene`, `ChangedContent`, `ChangedChoices`) для UI-слоя; UI читает уже отфильтрованные content/choices.
 6. Окна и компоненты приключения перехватывают события, обновляют представление сцены и доступные органы управления (актуальные choice-actions).
 7. Игрок делает следующий выбор, цикл повторяется.
 
@@ -274,15 +280,14 @@ Legacy (не используется фабрикой):
 
 Подробная и актуальная документация по архитектуре `AdventuresManager` и `RuntimeSceneData` вынесена в отдельный документ: [AdventuresManager.md](AdventuresManager.md).
 
-Оркестратор adventure-runtime. **Не наследует** `AdventureStateLogic` — использует композицию: через Zenject инжектируется `AdventureStateLogic` и подписка идёт на его событие `StateChanged`.
+Оркестратор adventure-runtime. Подписка на `AdventureStateLogic.StateChanged` и sync runtime-контекста живут в `RuntimeSceneData`; `AdventuresManager` владеет им и ретранслирует события наружу.
 
 | Метод / член | Назначение |
 |---|---|
-| `Init()` | Подписывается на `AdventureStateLogic.StateChanged` через `Subscribe()` |
-| `Dispose()` | Вызывает `Unsubscribe()` (реализация `IDisposable`) |
-| `Subscribe()` / `Unsubscribe()` | Подписка / отписка на `AdventureStateLogic.StateChanged` |
-| `OnStateChangedHandler(source)` | Обработчик изменений state по `StateChangeSource` |
-| `_adventureId` | Зарезервировано для runtime-контекста текущего приключения (пока не задаётся в `Init`) |
+| `Init()` | Создаёт `RuntimeSceneData` через `DiContainer` и вызывает его `Init()` |
+| `Dispose()` | `Dispose()` у `RuntimeSceneData` (реализация `IDisposable`) |
+| `GetCurrentContent()` / `GetCurrentChoices()` | Делегируют в `RuntimeSceneData` (с фильтрацией restrictions) |
+| `ChangedAdventure` / `ChangedScene` / `ChangedContent` / `ChangedChoices` | Ретрансляция событий `RuntimeSceneData` |
 
 **DI (Adventure `ProjectInstaller`):**
 
@@ -380,16 +385,16 @@ RPG-контент (сцены, выборы, действия) описывае
 1. Загрузка/получение `AdventureDef` (контракт `AdventureData`) из `DefinitionsManager`.
 2. Проверка `AdventureData.Restrictions` через `RestrictionsChecker`.
 3. Выбор стартовой сцены из `StartScenes`.
-4. Рендер `SceneData.Content` с фильтрацией элементов по `SceneContentData.Restrictions` (когда будет подключён runtime).
-5. Формирование списка `Choices`:
-   - либо по `AlwaysShow`;
-   - либо по результату проверки `ChoiceData.Restrictions`.
+4. Рендер `SceneData.Content`: UI берёт список из `RuntimeSceneData.GetCurrentContent()` (уже отфильтрован по `SceneContentData.Restrictions`).
+5. Формирование списка `Choices` в `RuntimeSceneData.GetCurrentChoices()`:
+   - `AlwaysShow == true` → choice всегда в списке;
+   - иначе — только при успешном `RestrictionsChecker.Check(ChoiceData.Restrictions)` (пустой/`null` список проходит).
 6. Обработка выбранного `ChoiceData` по типу:
    - `Default` — для каждого `ChoiceActionData` из `Actions` фабрика создаёт `IChoiceActionExecutor` и вызывает `Execute()`;
    - `DiceCheck` — открыть окно броска, взять модификатор по `DiceCheck.DiceCheckParam`, рассчитать исход по `DiceCheck.DifficultyClass`, выполнить actions из соответствующего outcome-списка (`OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure`).
 7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
-Полный runtime-поток еще не замкнут: `AdventuresManager` инициализируется и слушает `StateChanged`, но оркестрация выборов и вызов фабрики executors из UI пока не реализованы. Переход по сцене через `GoToSceneChoiceActionExecutor` уже идёт через state-action (`SetCurrentAdventureSceneIdStateAction`); legacy-путь (`ObsoleteGoToSceneChoiceActionExecutor` + `IAdventureFlowController`) помечен `[Obsolete]` и не используется фабрикой.
+Полный runtime-поток еще не замкнут: `AdventuresManager`/`RuntimeSceneData` синхронизируют сцену, фильтруют content/choices и шлют события UI, но оркестрация «клик choice → фабрика executors» из UI пока может быть не подключена. Переход по сцене через `GoToSceneChoiceActionExecutor` уже идёт через state-action (`SetCurrentAdventureSceneIdStateAction`); legacy-путь (`ObsoleteGoToSceneChoiceActionExecutor` + `IAdventureFlowController`) помечен `[Obsolete]` и не используется фабрикой.
 
 ## Текущее состояние реализации
 
@@ -402,35 +407,37 @@ RPG-контент (сцены, выборы, действия) описывае
 - Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
-- `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`), `SetGlobalParams` (`4`).
-- Ключ `Params.Strings` для id сцены: `Glossary.ChoiceActions.SCENE_ID` (`"SceneId"`).
+- `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`), `SetGlobalParams` (`4`), `GoToAdventure` (`5`), `OpenWindow` (`6`, stub).
+- Ключи `Params.Strings`: `Glossary.ChoiceActions.SCENE_ID` / `ADVENTURE_ID` / `WINDOW_ID`; ids окон хаба — `Glossary.Windows.*`.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
 - Реализованы executors:
   - `GoToSceneChoiceActionExecutor` → `SetCurrentAdventureSceneIdStateAction`;
+  - `GoToAdventureChoiceActionExecutor` → `SetCurrentAdventureIdStateAction` (очищает `CurrentAdventureSceneId`);
+  - `OpenWindowChoiceActionExecutor` → stub (warning);
   - `SetWorldParamsChoiceActionExecutor` → `SetWorldParamsStateAction`;
   - `SetAdventureParamsChoiceActionExecutor` → `SetAdventureParamsStateAction`;
   - `SetGlobalParamsChoiceActionExecutor` → `SetGlobalParamsStateAction`.
+- `RestrictionType.ActivePartyCount` + `ActivePartyCountRestrictionChecker`: сравнение `ActivePartyCharacterIds.Count` с `IntValues[0]` через `CompareOptions`.
 - Legacy executor: `ObsoleteGoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) — старый путь через `IAdventureFlowController`.
 - Объявлен legacy интерфейс: `IAdventureFlowController` (**устаревший**, `[Obsolete]`).
-- `AdventuresManager` зарегистрирован в DI (`BindInterfacesAndSelfTo`), инициализируется через `AdventuresManagerInitTask`, подписан на `AdventureStateLogic.StateChanged`.
-- Отсутствуют DI-биндинги фабрики в installer, валидаторы adventure-данных, сериализация и тесты модуля.
+- `AdventuresManager` зарегистрирован в DI (`BindInterfacesAndSelfTo`), инициализируется через `AdventuresManagerInitTask`; владеет `RuntimeSceneData`.
+- `RuntimeSceneData`: dirty-coalescing `StateChanged` через `Updater.OnUpdate`; `GetCurrentContent`/`GetCurrentChoices` фильтруют элементы через `RestrictionsChecker` (`AlwaysShow` для choices).
+- Отсутствуют DI-биндинги фабрики executors в installer, валидаторы adventure-данных, сериализация и тесты модуля.
 
 ## Рекомендации по дальнейшему развитию
 
-1. Подключить runtime-фильтрацию `SceneContentData.Restrictions` при рендере сцены.
-2. Завершить переработку `ChoiceActionType` и добавить executors для оставшихся типов (`SkillCheck`, `StartCombat`, `GrantItem` и т.д.).
+1. Расширить dirty-whitelist в `RuntimeSceneData` на `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` (и позже — изменения партии/персонажей), чтобы UI обновлял content/choices без смены сцены.
+2. Довести `OpenWindow` до реального открытия окон через `WindowsManager` / adventure presenter; при закрытии окон — refresh choices (`ChangedChoices`).
 3. Реализовать runtime-flow для `ChoiceType.DiceCheck` (окно броска, расчёт исхода, выполнение outcome actions через существующую фабрику executors).
 4. Зарегистрировать в Zenject installer:
    - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`.
-5. Расширить `AdventuresManager`:
-   - переходы по сценам и выборы;
-   - применение списка `ChoiceActionData` через фабрику executors;
-   - реакция на `StateChanged` (в т.ч. `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`) для обновления UI / runtime-контекста.
-6. Подключить остальные `ChoiceActionType` к state-actions в `Modules.State`.
+5. Замкнуть оркестрацию выбора в UI: клик → прогон `Actions` через фабрику executors.
+6. Подключить остальные `ChoiceActionType` к state-actions в `Modules.State` (`StartCombat`, `GrantItem` и т.д.).
 7. Добавить state-actions для персонажей (`char.*`) и инвентаря; сервис применения механик из дефов в `CharacterStateData`.
 8. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions` и `DiceCheck` outcome actions).
 9. Добавить unit-тесты на:
    - фабрику executors и валидацию `Params`;
-   - проверку ограничений;
-   - вычисление доступных choices;
+   - проверку ограничений и фильтрацию content/choices (в т.ч. `ActivePartyCount`);
+   - `GoToAdventure` → резолв стартовой сцены;
+   - coalescing dirty → один notify за кадр;
    - корректность переходов по сценам и изменения состояния.

@@ -28,6 +28,9 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
         public override void Execute(StateData state)
         {
             state.Adventures.CurrentAdventureId = _adventureId;
+            // Drop stale scene id so RuntimeSceneData resolves StartScenes of the new adventure
+            // (avoids accidental reuse when another adventure happens to share the same scene id).
+            state.Adventures.CurrentAdventureSceneId = string.Empty;
         }
     }
 }

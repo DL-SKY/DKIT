@@ -6,6 +6,7 @@
         WorldParams = 1,
         AdventureParams = 2,
         GlobalParams = 3,
+        ActivePartyCount = 4,
 
 
         // = 1000,

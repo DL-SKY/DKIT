@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using static Modules.Definitions.Scripts.Implementation.Adventures.Constants.Glossary;
 
 namespace Modules.Definitions.Scripts.Editor.Adventures
 {
@@ -829,6 +830,19 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             {
                 DrawChoiceActionParamsEditor(actionData.Params);
             }
+            else if (actionData.Type == ChoiceActionType.GoToAdventure)
+            {
+                DrawField(() =>
+                {
+                    actionData.Params.Strings.TryGetValue(ChoiceActions.ADVENTURE_ID, out string currentAdventureId);
+                    string nextValue = EditorGUILayout.TextField("Target Adventure", currentAdventureId ?? string.Empty);
+                    actionData.Params.Strings[ChoiceActions.ADVENTURE_ID] = nextValue ?? string.Empty;
+                });
+            }
+            else if (actionData.Type == ChoiceActionType.OpenWindow)
+            {
+                DrawOpenWindowActionEditor(actionData);
+            }
             else if (AdventureGraphBuilder.IsSceneTransitionAction(actionData))
             {
                 string currentTarget = AdventureGraphBuilder.GetSceneId(actionData);
@@ -864,6 +878,42 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     MarkDirty();
                 }
             }
+        }
+
+        private void DrawOpenWindowActionEditor(ChoiceActionData actionData)
+        {
+            string[] knownWindowIds =
+            {
+                Windows.CREATE_CHARACTER,
+                Windows.SELECT_CHARACTER,
+                Windows.TRADE,
+                Windows.PARTY,
+                Windows.ADVENTURE_LIST,
+            };
+
+            DrawField(() =>
+            {
+                actionData.Params.Strings.TryGetValue(ChoiceActions.WINDOW_ID, out string currentWindowId);
+                currentWindowId ??= string.Empty;
+
+                var options = new List<string>(knownWindowIds);
+                int selectedIndex = options.IndexOf(currentWindowId);
+                if (selectedIndex < 0)
+                {
+                    if (!string.IsNullOrWhiteSpace(currentWindowId))
+                    {
+                        options.Insert(0, currentWindowId);
+                        selectedIndex = 0;
+                    }
+                    else
+                    {
+                        selectedIndex = 0;
+                    }
+                }
+
+                int nextIndex = EditorGUILayout.Popup("Window Id", selectedIndex, options.ToArray());
+                actionData.Params.Strings[ChoiceActions.WINDOW_ID] = options[nextIndex];
+            });
         }
 
         private void DrawDiceCheckEditor(ChoiceData choiceData)

@@ -954,6 +954,18 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         new List<string> { ChoiceActions.SCENE_ID },
                         new List<string>(),
                         new List<string>());
+                case ChoiceActionType.GoToAdventure:
+                    return new ChoiceActionValidationContract(
+                        type,
+                        new List<string> { ChoiceActions.ADVENTURE_ID },
+                        new List<string>(),
+                        new List<string>());
+                case ChoiceActionType.OpenWindow:
+                    return new ChoiceActionValidationContract(
+                        type,
+                        new List<string> { ChoiceActions.WINDOW_ID },
+                        new List<string>(),
+                        new List<string>());
                 case ChoiceActionType.SetWorldParams:
                 case ChoiceActionType.SetAdventureParams:
                 case ChoiceActionType.SetGlobalParams:

@@ -25,7 +25,7 @@
 - сцены (`SceneData`),
 - контент сцены (`SceneContentData`),
 - выборы (`ChoiceData`): `ChoiceType.Default` и `ChoiceType.DiceCheck`,
-- action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams` (см. `.cursor/docs/modules/RPG.md`),
+- action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.GoToAdventure` (`Params.Strings["AdventureId"]`), `ChoiceActionType.OpenWindow` (`Params.Strings["WindowId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams` (см. `.cursor/docs/modules/RPG.md`),
 - для `ChoiceType.DiceCheck` — блок `ChoiceData.DiceCheck` с параметрами броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`) и action-списками исходов (`OnCriticalSuccess`, `OnSuccess`, `OnFailure`, `OnCriticalFailure`).
 
 Инструмент доступен через меню:
@@ -287,6 +287,8 @@
 
 Сейчас в реестре добавлены шаблоны:
 - `Go To Scene` (`Type = GoToScene`, `Params.Strings["SceneId"]` — константа `Glossary.ChoiceActions.SCENE_ID`);
+- `Go To Adventure` (`Type = GoToAdventure`, `Params.Strings["AdventureId"]` — `Glossary.ChoiceActions.ADVENTURE_ID`);
+- `Open Window` (`Type = OpenWindow`, `Params.Strings["WindowId"]` — `Glossary.ChoiceActions.WINDOW_ID`; шаблонные ids в `Glossary.Windows`);
 - `Set World Params` (`Type = SetWorldParams`, редактируемые `Params.Strings/Ints/Bools`);
 - `Set Adventure Params` (`Type = SetAdventureParams`, редактируемые `Params.Strings/Ints/Bools`);
 - `Set Global Params` (`Type = SetGlobalParams`, редактируемые `Params.Strings/Ints/Bools`, иконка `save.png` из `ButtonIcons/`).
@@ -340,6 +342,8 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
 - CRUD сцен, контента, выборов.
 - CRUD actions выбора:
   - `ChoiceActionType.GoToScene` + `SceneId`;
+  - `ChoiceActionType.GoToAdventure` + `AdventureId`;
+  - `ChoiceActionType.OpenWindow` + `WindowId`;
   - `ChoiceActionType.SetWorldParams` + словари `Params.Strings/Ints/Bools`;
   - `ChoiceActionType.SetAdventureParams` + словари `Params.Strings/Ints/Bools`;
   - `ChoiceActionType.SetGlobalParams` + словари `Params.Strings/Ints/Bools`.
@@ -365,8 +369,10 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
   - `DiceCheck` должен быть `null` (с `Fix`: `DiceCheck = null`).
 - Валидация `ChoiceActionData` по контрактам `ChoiceActionType`:
   - `GoToScene` — обязательный `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`);
+  - `GoToAdventure` — обязательный `Params.Strings["AdventureId"]` (`Glossary.ChoiceActions.ADVENTURE_ID`);
+  - `OpenWindow` — обязательный `Params.Strings["WindowId"]` (`Glossary.ChoiceActions.WINDOW_ID`);
   - `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` — хотя бы один ключ в `Params.Strings/Ints/Bools`.
-- Редактор `Selected Action` для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`: inline-редактирование словарей `Params.Strings`, `Params.Ints`, `Params.Bools`.
+- Редактор `Selected Action` для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`: inline-редактирование словарей `Params.Strings`, `Params.Ints`, `Params.Bools`; для `GoToAdventure` — поле Target Adventure; для `OpenWindow` — popup `Window Id` по `Glossary.Windows` (кастомный id тоже сохраняется в списке).
 - В `Validation` для исправляемых кейсов доступна кнопка `Fix` (например, `sceneId` → `SceneId`).
 - Окно `Localization` для генерации ключей и экспорта в `.txt` (tab-separated) для Google Sheets.
 - Цветовая индикация состояния:
@@ -507,6 +513,7 @@ TEST_KEY_2	Перевод номер 2
 | `WorldParams` | Проверка `AdventuresStateData.World.Parameters` |
 | `AdventureParams` | Проверка `AdventuresStateData.Adventures[currentAdventureId].Parameters` |
 | `GlobalParams` | Проверка `AdventuresStateData.Global.Parameters` (данные игрока, не сбрасываются при перезапуске приключений) |
+| `ActivePartyCount` | Сравнение `Characters.ActivePartyCharacterIds.Count` с `IntValues[0]` через `CompareOptions` |
 
 Формат `WorldParams` / `AdventureParams` / `GlobalParams`:
 
@@ -529,6 +536,7 @@ TEST_KEY_2	Перевод номер 2
 | `RestrictionType` | Видимые поля в TEA |
 |---|---|
 | `TimeNow` | `Compare`, `Longs (csv)` |
+| `ActivePartyCount` | `Compare`, `Ints (csv)` |
 | `WorldParams` | все поля (default) |
 | `AdventureParams` | все поля (default) |
 | `GlobalParams` | все поля (default) |

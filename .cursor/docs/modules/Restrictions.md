@@ -1,6 +1,6 @@
 # Модуль Restrictions
 
-**Последнее обновление:** 2026-07-05 22:05:00 (+03:00)
+**Последнее обновление:** 2026-07-22 11:48:00 (+03:00)
 
 ## Назначение
 
@@ -23,7 +23,7 @@
   Модель ограничения: `Type`, `StringValues`, `IntValues`, `LongValues`, `BoolValues`, `CompareOptions`.
 
 - `RestrictionType`  
-  Перечень типов ограничений: `TimeNow`, `WorldParams`, `AdventureParams`, `GlobalParams`.
+  Перечень типов ограничений: `TimeNow`, `WorldParams`, `AdventureParams`, `GlobalParams`, `ActivePartyCount`.
 
 - `IChecker`  
   Контракт конкретной проверки: `bool Check(Restriction restriction)`.
@@ -39,6 +39,9 @@
 
 - `GlobalParamsRestrictionChecker`  
   Проверка параметров `AdventuresStateData.Global.Parameters` (данные игрока, не сбрасываются при перезапуске приключений).
+
+- `ActivePartyCountRestrictionChecker`  
+  Сравнение `Characters.ActivePartyCharacterIds.Count` с `IntValues[0]` через `CompareOptions` (`Equal`, `MoreEqual`, …).
 
 - `CompareRestrictionStaticChecker` + `CompareType`  
   Универсальный слой сравнения типов `string/int/long` с операциями `Equal`, `More`, `Less` и т.д.
@@ -126,13 +129,27 @@
 }
 ```
 
+```json
+{
+  "Type": "ActivePartyCount",
+  "CompareOptions": "MoreEqual",
+  "StringValues": [],
+  "IntValues": [1],
+  "LongValues": [],
+  "BoolValues": []
+}
+```
+
+В TEA для `ActivePartyCount` отображаются только `Compare` и `Ints (csv)`; см. `RestrictionEditorFieldProfilesRegistry`.
+
 ## Где используется `Restriction` в проекте
 
 | Модуль | Класс / поле | Назначение |
 |---|---|---|
 | `RPG` | `AdventureData.Restrictions` | Ограничения доступа к приключению |
-| `RPG` | `ChoiceData.Restrictions` | Ограничения доступности выбора |
-| `RPG` | `SceneContentData.Restrictions` | Ограничения видимости элемента контента сцены |
+| `RPG` | `ChoiceData.Restrictions` | Ограничения доступности выбора; runtime-фильтр в `RuntimeSceneData.GetCurrentChoices()` (`AlwaysShow` обходит провал) |
+| `RPG` | `SceneContentData.Restrictions` | Ограничения видимости элемента контента; runtime-фильтр в `RuntimeSceneData.GetCurrentContent()` |
+| `RPG` | `RuntimeSceneData` + `RestrictionsChecker` | Фактическая проверка restrictions при выдаче content/choices UI |
 | `Definitions` | `ObjectivesDef.VictoryConditions` | Условия победы раунда Match3 |
 | `Definitions` | `ObjectivesDef.DefeatConditions` | Условия поражения раунда Match3 |
 | `Definitions` | `FeatDef.Restrictions` | Требования/ограничения для взятия или использования черты (prerequisites; checker’ы для персонажа — в планах) |

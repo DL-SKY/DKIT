@@ -8,6 +8,8 @@
         SetWorldParams = 2,
         SetAdventureParams = 3,
         SetGlobalParams = 4,
+        GoToAdventure = 5,
+        OpenWindow = 6,
 
 
         //TODO: rework

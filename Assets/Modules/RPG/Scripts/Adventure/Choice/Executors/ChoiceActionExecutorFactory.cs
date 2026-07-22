@@ -17,11 +17,23 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
 
             return actionData.Type switch
             {
+                ChoiceActionType.GoToAdventure => _container.Instantiate<GoToAdventureChoiceActionExecutor>(
+                    new object[]
+                    {
+                        GetRequiredString(actionData.Params?.Strings, ChoiceActions.ADVENTURE_ID, actionData.Type),
+                    }),
                 ChoiceActionType.GoToScene => _container.Instantiate<GoToSceneChoiceActionExecutor>(
                     new object[]
                     {
                         GetRequiredString(actionData.Params?.Strings, ChoiceActions.SCENE_ID, actionData.Type),
                     }),
+
+                ChoiceActionType.OpenWindow => _container.Instantiate<OpenWindowChoiceActionExecutor>(
+                new object[]
+                {
+                        GetRequiredString(actionData.Params?.Strings, ChoiceActions.WINDOW_ID, actionData.Type),
+                }),
+
                 ChoiceActionType.SetWorldParams => _container.Instantiate<SetWorldParamsChoiceActionExecutor>(
                     new object[]
                     {

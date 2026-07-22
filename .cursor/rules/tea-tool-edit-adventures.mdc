@@ -44,6 +44,9 @@ alwaysApply: true
 - «Добавь кнопку Chapter / Adventure / Location» → `AdventureCreateOptionsRegistry` в `AdventureCreateOptions.cs`
 - «Добавь DiceCheck choice» → `ChoiceCreateOptionsRegistry` (`choice.dice_check`, иконка `dice-twenty-faces-twenty`) + блок `ChoiceData.DiceCheck` в `ChoiceData.cs`
 - «Валидация DiceCheck / Default choice» → `AdventureValidationService` в `AdventureEditorServices.cs` (`DiceCheck` null для `Default`; пустой `Actions` для `DiceCheck`)
+- «Добавь GoToAdventure action» → `ChoiceActionCreateOptionsRegistry` (`action.goto_adventure`) + `ChoiceActionType.GoToAdventure`
+- «Добавь OpenWindow action» → `ChoiceActionCreateOptionsRegistry` (`action.open_window`) + `Glossary.Windows.*`
+- «Валидация ActivePartyCount» → `RestrictionType.ActivePartyCount` + профиль в `RestrictionEditorFieldProfilesRegistry`
 - «Поправь граф в TEA» → `AdventureGraphPreviewWindow.cs`
 - «Валидация в редакторе приключений» → `AdventureValidationService` / `AdventureValidationWindow.cs`
 - «Локализация в TEA» / «сгенерируй ключи» → `AdventureLocalizationExportWindow` / `AdventureLocalizationGenerationService`

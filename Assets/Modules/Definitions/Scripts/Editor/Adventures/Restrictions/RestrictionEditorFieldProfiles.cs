@@ -40,6 +40,10 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.Restrictions
                     RestrictionType.TimeNow,
                     RestrictionEditorField.CompareOptions | RestrictionEditorField.LongValues
                 },
+                {
+                    RestrictionType.ActivePartyCount,
+                    RestrictionEditorField.CompareOptions | RestrictionEditorField.IntValues
+                },
             };
         }
 

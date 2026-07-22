@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-04 00:45:00 (+03:00)
+**Последнее обновление:** 2026-07-22 11:55:00 (+03:00)
 
 ## Назначение
 
@@ -342,7 +342,7 @@ stateLogic.StateChanged += source =>
 - `ChangeWalletResourceStateAction<TStateData>` — общий экшен кошелька (Match-3 и Adventure).
 - `SetWalletResourceStateAction<TStateData>` — установка ресурса кошелька (Match-3 и Adventure).
 - `SetProfileUpdateTimeStateAction` — обновление `Profile.UpdateTime` (Match-3 и Adventure).
-- `SetCurrentAdventureIdStateAction` — установка `Adventures.CurrentAdventureId` (Adventure).
+- `SetCurrentAdventureIdStateAction` — установка `Adventures.CurrentAdventureId` и сброс `Adventures.CurrentAdventureSceneId` в `null` (чтобы `RuntimeSceneData` заново выбрал сцену из `StartScenes` целевого приключения; защита от коллизии одинаковых scene id между adventure).
 - `SetCurrentAdventureSceneIdStateAction` — установка `Adventures.CurrentAdventureSceneId` (Adventure).
 - `SetLocalizationLanguageStateAction<TStateData>` — установка `Localization.Language` (Adventure).
 - `SetWorldParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.World.Parameters` (Adventure).

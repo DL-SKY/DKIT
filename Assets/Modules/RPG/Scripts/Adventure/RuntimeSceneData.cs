@@ -1,11 +1,13 @@
 using Modules.Definitions.Scripts.Implementation.Adventures;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Adventures;
+using Modules.Restrictions.Scripts.Core;
 using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Data;
 using Modules.State.Scripts.Actions.Models;
 using Modules.State.Scripts.Implementation.Adventure;
 using Modules.State.Scripts.Implementation.Adventure.Actions;
 using Modules.State.Scripts.Implementation.Adventure.Logic;
+using Modules.Utils.Scripts.Components;
 using System;
 using System.Collections.Generic;
 using Zenject;
@@ -17,18 +19,22 @@ namespace Modules.RPG.Scripts.Adventure
         [Inject] private readonly DefinitionsManager _definitionsManager;
         [Inject] private readonly AdventureStateManager _stateManager;
         [Inject] private readonly AdventureStateLogic _stateLogic;
+        [Inject] private readonly Updater _updater;
+        [Inject] private readonly RestrictionsChecker _restrictionsChecker;
 
         private readonly System.Random _random = new System.Random();
-
-        private string _adventureId;
-        private string _sceneId;
-        private AdventureDef _adventure;
-        private bool _isSyncingState;
 
         public event Action<string> ChangedAdventure;
         public event Action<string> ChangedScene;
         public event Action ChangedContent;
         public event Action ChangedChoices;
+
+        private string _adventureId;
+        private string _sceneId;
+        private AdventureDef _adventure;
+        private bool _isSyncingState;
+        private bool _isDirty;
+
 
         public void Init()
         {
@@ -51,28 +57,58 @@ namespace Modules.RPG.Scripts.Adventure
 
         public List<SceneContentData> GetCurrentContent()
         {
-            if (!TryGetCurrentSceneData(out var sceneData))
+            if (!TryGetCurrentSceneData(out var sceneData) || sceneData.Content == null)
                 return new List<SceneContentData>();
 
-            return sceneData.Content ?? new List<SceneContentData>();
+            var result = new List<SceneContentData>(sceneData.Content.Count);
+            for (int i = 0; i < sceneData.Content.Count; i++)
+            {
+                var content = sceneData.Content[i];
+                if (content != null && PassesRestrictions(content.Restrictions))
+                    result.Add(content);
+            }
+
+            return result;
         }
 
         public List<ChoiceData> GetCurrentChoices()
         {
-            if (!TryGetCurrentSceneData(out var sceneData))
+            if (!TryGetCurrentSceneData(out var sceneData) || sceneData.Choices == null)
                 return new List<ChoiceData>();
 
-            return sceneData.Choices ?? new List<ChoiceData>();
+            var result = new List<ChoiceData>(sceneData.Choices.Count);
+            for (int i = 0; i < sceneData.Choices.Count; i++)
+            {
+                var choice = sceneData.Choices[i];
+                if (choice == null)
+                    continue;
+
+                // AlwaysShow keeps the choice visible even when restrictions fail.
+                if (choice.AlwaysShow || PassesRestrictions(choice.Restrictions))
+                    result.Add(choice);
+            }
+
+            return result;
+        }
+
+        private bool PassesRestrictions(List<Restriction> restrictions)
+        {
+            if (restrictions == null || restrictions.Count == 0)
+                return true;
+
+            return _restrictionsChecker.Check(restrictions);
         }
 
         private void Subscribe()
         {
             _stateLogic.StateChanged += OnStateChangedHandler;
+            _updater.OnUpdate += OnUpdateHandler;
         }
 
         private void Unsubscribe()
         {
             _stateLogic.StateChanged -= OnStateChangedHandler;
+            _updater.OnUpdate -= OnUpdateHandler;
         }
 
         private void OnStateChangedHandler(StateChangeSource source)
@@ -84,9 +120,22 @@ namespace Modules.RPG.Scripts.Adventure
             {
                 case StateChangeSource.SetCurrentAdventureId:
                 case StateChangeSource.SetCurrentAdventureSceneId:
-                    SyncFromStateAndNotify();
+                    _isDirty = true;
                     break;
+
+                //default:
+                //    _isDirty = true;
+                //    break;
             }
+        }
+
+        private void OnUpdateHandler(float deltaTime)
+        {
+            if (!_isDirty)
+                return;
+
+            _isDirty = false;
+            SyncFromStateAndNotify();
         }
 
         private void SyncFromStateAndNotify()
@@ -106,11 +155,11 @@ namespace Modules.RPG.Scripts.Adventure
                 ChangedAdventure?.Invoke(_adventureId);
 
             if (!string.Equals(oldSceneId, _sceneId, StringComparison.Ordinal))
-            {
                 ChangedScene?.Invoke(_sceneId);
-                ChangedContent?.Invoke();
-                ChangedChoices?.Invoke();
-            }
+
+            // Params-only changes also need UI refresh (restrictions on content/choices).
+            ChangedContent?.Invoke();
+            ChangedChoices?.Invoke();
         }
 
         private void ApplyResolvedIds(string resolvedAdventureId, string resolvedSceneId)

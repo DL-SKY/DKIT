@@ -139,6 +139,20 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
         public static class ChoiceActions
         {
             public const string SCENE_ID = "SceneId";
+            public const string ADVENTURE_ID = "AdventureId";
+            public const string WINDOW_ID = "WindowId";
+        }
+
+        /// <summary>
+        /// Window ids for <see cref="Modules.RPG.Scripts.Adventure.Choice.Actions.ChoiceActionType.OpenWindow"/>.
+        /// </summary>
+        public static class Windows
+        {
+            public const string CREATE_CHARACTER = "CreateCharacter";
+            public const string SELECT_CHARACTER = "SelectCharacter";
+            public const string TRADE = "Trade";
+            public const string PARTY = "Party";
+            public const string ADVENTURE_LIST = "AdventureList";
         }
     }
 }

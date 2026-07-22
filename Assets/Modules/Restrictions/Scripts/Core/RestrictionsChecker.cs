@@ -40,6 +40,7 @@ namespace Modules.Restrictions.Scripts.Core
                 RestrictionType.WorldParams => _restrictionFactory.Create<WorldParamsRestrictionChecker>(),
                 RestrictionType.AdventureParams => _restrictionFactory.Create<AdventureParamsRestrictionChecker>(),
                 RestrictionType.GlobalParams => _restrictionFactory.Create<GlobalParamsRestrictionChecker>(),
+                RestrictionType.ActivePartyCount => _restrictionFactory.Create<ActivePartyCountRestrictionChecker>(),
 
                 _ => throw new NotImplementedException()
             };

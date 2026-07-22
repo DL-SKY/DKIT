@@ -299,6 +299,48 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                 },
                 new CreateOptionDescriptor<ChoiceActionData>
                 {
+                    Id = "action.goto_adventure",
+                    ButtonText = "Go To Adventure",
+                    Tooltip = "Switch current adventure id; RuntimeSceneData picks a start scene.",
+                    IconName = "Animation.NextKey",
+                    IconAssetName = "play-button",
+                    Create = () => new ChoiceActionData
+                    {
+                        Type = ChoiceActionType.GoToAdventure,
+                        Params = new ChoiceActionParamsData
+                        {
+                            Strings = new Dictionary<string, string>
+                            {
+                                { ChoiceActions.ADVENTURE_ID, string.Empty },
+                            },
+                            Ints = new Dictionary<string, int>(),
+                            Bools = new Dictionary<string, bool>(),
+                        },
+                    },
+                },
+                new CreateOptionDescriptor<ChoiceActionData>
+                {
+                    Id = "action.open_window",
+                    ButtonText = "Open Window",
+                    Tooltip = "Open a hub UI window by WindowId (create/select character, trade, party, adventure list).",
+                    IconName = "d_winbtn_mac_max_h",
+                    IconAssetName = "load(1)",
+                    Create = () => new ChoiceActionData
+                    {
+                        Type = ChoiceActionType.OpenWindow,
+                        Params = new ChoiceActionParamsData
+                        {
+                            Strings = new Dictionary<string, string>
+                            {
+                                { ChoiceActions.WINDOW_ID, Windows.CREATE_CHARACTER },
+                            },
+                            Ints = new Dictionary<string, int>(),
+                            Bools = new Dictionary<string, bool>(),
+                        },
+                    },
+                },
+                new CreateOptionDescriptor<ChoiceActionData>
+                {
                     Id = "action.set_world_params",
                     ButtonText = "Set World Params",
                     Tooltip = "Set world-level adventure params from action Params.",
