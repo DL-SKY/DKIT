@@ -1,6 +1,6 @@
 # AdventuresManager
 
-**Последнее обновление:** 2026-07-22 11:48:00 (+03:00)
+**Последнее обновление:** 2026-07-22 17:33:35 (+03:00)
 
 ## Назначение
 
@@ -26,6 +26,8 @@
 Так формируется runtime-loop: `Choice -> StateAction -> StateChanged -> (dirty) -> next frame Sync -> AdventuresManager -> UI -> Choice`.
 
 > Оркестрация «клик choice → прогон списка `Actions` через фабрику executors» со стороны UI пока может быть не полностью замкнута; переход по сцене и запись params через executors уже реализованы.
+
+> **UI (Windows):** заложены Main/Scroll stubs, content items (Text/Image/Item), `IContentAnimator`, `CachedPathImage`/`IImageCache`. Связка Scroll → `GetCurrentContent()` / sequencer появления / Choices UI — ещё впереди. Подробности: [Windows.md](Windows.md) (секция Adventure runtime UI).
 
 ## Ключевые классы и роли
 

@@ -1,10 +1,10 @@
 # Модуль Windows
 
-**Последнее обновление:** 2026-06-29 11:50:00 (+03:00)
+**Последнее обновление:** 2026-07-22 17:33:35 (+03:00)
 
 ## Назначение
 
-`Windows` реализует базовую UI-архитектуру окон (View/ViewModel), управление стеком открытых окон, сортировкой и закрытием по `Esc`.
+`Windows` реализует базовую UI-архитектуру окон (View/ViewModel), управление стеком открытых окон, сортировкой и закрытием по `Esc`, а также runtime UI приключений (Adventure Main / Scroll / content items) и общий сервис загрузки картинок по path/URL.
 
 ## Краткая логика работы
 
@@ -34,6 +34,81 @@
 
 - Примеры реализаций: `MainLoadView`/`MainLoadViewModel`, `DefaultMatch3View`/`DefaultMatch3ViewModel`, `AdventureMainView`/`AdventureMainViewModel`.
 
+- Компоненты: `ProgressBar`, `SafeAreaRect`, `CachedPathImage`.
+
+- Сервисы: `IImageCache` / `CachedPathImageService` (Zenject singleton).
+
+## Adventure runtime UI
+
+Корневая папка скриптов:
+
+`Assets/Modules/Windows/Scripts/Implementation/Adventure/`
+
+Prefab главного окна: `Resources/Prefabs/Views/Adventure/AdventureMainView`.
+
+### Слои
+
+| Слой | Тип | Назначение |
+|---|---|---|
+| `AdventureMainView` / `AdventureMainViewModel` | `ViewBase` / `ViewModelBase` | Главный экран приключения (заготовки; wiring со Scroll ещё не завершён) |
+| `AdventureScrollView` / `AdventureScrollViewModel` | MonoBehaviour sub-view | Скролл контента сцены (заготовки) |
+| Content items | MonoBehaviour + VM | Элементы `SceneContentType` в скролле |
+
+Content item View **не** наследуют `ViewBase`: паттерн как у `AdventureScrollView` — `Init(vm)`, `Subscribe`/`Unsubscribe`, `OnDestroy` → `Dispose` VM.
+
+База:
+
+- `AdventureContentViewModelBase` — `Init(SceneContentData)`, `Data`, `IsContentReady` / `ContentReady`
+- `AdventureContentViewBase<TViewModel>` — `Init`, `Animator` (`GetComponent<IContentAnimator>`)
+
+VM создаются через DiContainer (`Instantiate` + `Init(data)`), зависимости — `[Inject]`.
+
+### Content items (View + VM)
+
+Три View на типы контента:
+
+| View | `SceneContentType` | VM |
+|---|---|---|
+| `AdventureTextContentView` | `Text` | `AdventureTextContentViewModel` |
+| `AdventureImageContentView` | `Image`, `RandomImage`, `Slideshow`, `Splitter` | `AdventureImageContentViewModel`, `AdventureRandomImageContentViewModel`, `AdventureSlideshowContentViewModel`, `AdventureSplitterContentViewModel` |
+| `AdventureItemContentView` | `Item` | `AdventureItemContentViewModel` (`DefinitionsManager` → `ItemDef` по `Value`) |
+
+Image-группа:
+
+- VM держит только **path/URL** (`CurrentPath`, `ON_CHANGE_PATH`), без `Sprite`.
+- View прокидывает path в `CachedPathImage`.
+- `Splitter` — декоративная картинка-разделитель (тот же пайплайн, что `Image`).
+- `Slideshow` — цикл `Values` раз в **1 с** через подписку VM на `Updater` (не `Update` во View).
+
+### Анимация появления (`IContentAnimator`)
+
+Папка: `.../Scroll/Items/Animation/`
+
+Контракт:
+
+- `Play()` / `Skip()` / `IsPlaying` / `event Completed` (один раз — естественный конец или Skip).
+- Оркестрация последовательности item’ов и global skip (tap) — снаружи (будущий sequencer в Scroll).
+
+Реализации:
+
+- `FadeInContentAnimator` — `CanvasGroup.alpha` 0→1 за `_duration`.
+- `TypewriterContentAnimator` — TMP `maxVisibleCharacters`, скорость `_charsPerSecond`; RTF-теги не считаются (`textInfo.characterCount` после `ForceMeshUpdate`), `\n` учитывается.
+
+Ожидаемая связка на префабах: Text + Typewriter; Image/Item + FadeIn.
+
+### `CachedPathImage` + `IImageCache`
+
+- UI-компонент: `Modules.Windows.Scripts.Components.CachedPathImage` (`SetPath`, placeholder/throbber).
+- Сервис: `Modules.Windows.Scripts.Services.IImageCache` / `CachedPathImageService`.
+- Bind: Adventure и Match3 `ProjectInstaller` → `IImageCache` → `CachedPathImageService` AsSingle.
+- Загрузки через `CoroutineHolder`.
+- Локальный path → `Resources.Load`.
+- URL → memory cache → disk (`persistentDataPath/CachedPathImages/<sha256>`) → сеть.
+- Prefetch: `EnsureRemoteLoading(url)` — очередь, **лимит 5**.
+- Отображение UI: `EnsureRemoteLoading(url, prioritize: true)` — старт сразу, лимит игнорируется; если URL был в очереди — promote.
+- `ClearMemoryCache()` — чистит memory (диск остаётся).
+- Prefab View через `Resources.Instantiate` может резолвить сервис через `ProjectContext`, если Zenject inject не сработал.
+
 ## Как добавить новое окно (View + ViewModel)
 
 1. Создать VM, наследованный от `ViewModelBase`:
@@ -50,4 +125,3 @@
    - корректное открытие/закрытие;
    - реакцию UI на `OnChange`/`OnChangeCustom`;
    - очистку подписок после уничтожения окна.
-

@@ -11,10 +11,11 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ima
     /// </summary>
     public sealed class AdventureSlideshowContentViewModel : AdventureImageContentViewModelBase
     {
+        private const float INTERVAL_SECONDS = 1f;
+
         [Inject] private readonly Updater _updater;
 
         private IReadOnlyList<string> _paths;
-        private float _intervalSeconds = 3f;
         private int _index;
         private float _elapsed;
 
@@ -26,14 +27,6 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ima
 
             InitImage(data, GetInitialPath(data));
             Subscribe();
-        }
-
-        /// <summary>
-        /// Updates slide interval (e.g. from prefab SerializeField on the View during Init).
-        /// </summary>
-        public void SetIntervalSeconds(float intervalSeconds)
-        {
-            _intervalSeconds = intervalSeconds > 0f ? intervalSeconds : 3f;
         }
 
         public override void Dispose()
@@ -57,7 +50,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ima
                 return;
 
             _elapsed += deltaTime;
-            if (_elapsed < _intervalSeconds)
+            if (_elapsed < INTERVAL_SECONDS)
                 return;
 
             _elapsed = 0f;
