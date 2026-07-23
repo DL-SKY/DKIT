@@ -21,6 +21,7 @@ namespace Modules.Windows.Scripts.Components
         [Inject] private IImageCache _imageCache;
 
         private string _currentPath = string.Empty;
+        private string _currentImageKey = string.Empty;
         private bool _subscribed;
 
         private void Awake()
@@ -52,13 +53,17 @@ namespace Modules.Windows.Scripts.Components
             _subscribed = false;
         }
 
+        private void OnDestroy()
+        {
+            ReleaseCurrentImageUsage();
+        }
+
         /// <summary>
         /// Shows the image at <paramref name="pathOrUrl"/> (Resources path or http(s) URL).
         /// </summary>
         public void SetPath(string pathOrUrl)
         {
             EnsureResolved();
-            _currentPath = pathOrUrl ?? string.Empty;
 
             if (_image == null)
             {
@@ -75,6 +80,8 @@ namespace Modules.Windows.Scripts.Components
                     this);
                 return;
             }
+
+            SetCurrentImagePath(pathOrUrl ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(_currentPath))
             {
@@ -94,7 +101,7 @@ namespace Modules.Windows.Scripts.Components
 
         private void OnRemoteSpriteReady(string url, Sprite sprite)
         {
-            if (_currentPath != url)
+            if (_currentImageKey != url)
                 return;
 
             if (sprite == null)
@@ -167,5 +174,54 @@ namespace Modules.Windows.Scripts.Components
             if (ProjectContext.HasInstance)
                 _imageCache = ProjectContext.Instance.Container.Resolve<IImageCache>();
         }
+
+        private void SetCurrentImagePath(string newPath)
+        {
+            if (_imageCache == null)
+            {
+                _currentPath = newPath;
+                _currentImageKey = string.Empty;
+                return;
+            }
+
+            string newImageKey = _imageCache.GetImageKey(newPath);
+            if (_currentImageKey == newImageKey && _currentPath == newPath)
+                return;
+
+            if (!string.IsNullOrWhiteSpace(_currentImageKey))
+                _imageCache.ReleaseImageUsage(_currentImageKey);
+
+            _currentPath = newPath;
+            _currentImageKey = newImageKey;
+
+            if (!string.IsNullOrWhiteSpace(_currentImageKey))
+                _imageCache.AcquireImageUsage(_currentImageKey);
+        }
+
+        private void ReleaseCurrentImageUsage()
+        {
+            if (_imageCache == null || string.IsNullOrWhiteSpace(_currentImageKey))
+                return;
+
+            _imageCache.ReleaseImageUsage(_currentImageKey);
+            _currentImageKey = string.Empty;
+        }
+
+#if UNITY_EDITOR
+        [ContextMenu("Image Cache/Clear Memory Cache")]
+        private void EditorClearMemoryCache()
+        {
+            EnsureResolved();
+            if (_imageCache == null)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[{nameof(CachedPathImage)}] {nameof(IImageCache)} is not available on '{name}'.",
+                    this);
+                return;
+            }
+
+            _imageCache.ClearMemoryCache();
+        }
+#endif
     }
 }

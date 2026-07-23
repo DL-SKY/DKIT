@@ -9,7 +9,8 @@ namespace Modules.Windows.Scripts.Services
     public interface IImageCache
     {
         /// <summary>
-        /// Raised when a remote URL finishes loading. <c>sprite</c> is null on failure.
+        /// Raised when a remote image finishes loading. <c>sprite</c> is null on failure.
+        /// First argument is a normalized image key (not raw path/URL).
         /// </summary>
         event Action<string, Sprite> RemoteSpriteReady;
 
@@ -26,6 +27,24 @@ namespace Modules.Windows.Scripts.Services
         bool TryGetRemoteCached(string url, out Sprite sprite);
 
         /// <summary>
+        /// Returns a normalized image key for path/URL or an empty string for invalid input.
+        /// The key is stable and can be used to deduplicate image usage tracking.
+        /// </summary>
+        string GetImageKey(string pathOrUrl);
+
+        /// <summary>
+        /// Increments usage counter for the normalized image key.
+        /// Empty/invalid keys are ignored.
+        /// </summary>
+        void AcquireImageUsage(string imageKey);
+
+        /// <summary>
+        /// Decrements usage counter for the normalized image key.
+        /// Empty/invalid keys are ignored.
+        /// </summary>
+        void ReleaseImageUsage(string imageKey);
+
+        /// <summary>
         /// Starts (or joins) a remote download.
         /// Prefetch uses <paramref name="prioritize"/> = false (queued, concurrency limit).
         /// Visible UI (<c>CachedPathImage</c>) uses <paramref name="prioritize"/> = true
@@ -37,8 +56,9 @@ namespace Modules.Windows.Scripts.Services
         void EnsureRemoteLoading(string url, bool prioritize = false);
 
         /// <summary>
-        /// Destroys cached sprites/textures and clears the in-memory dictionary.
-        /// Disk files are kept.
+        /// Destroys cached sprites/textures only for images with usage count less than 1,
+        /// and clears queued prefetch URLs that have not started yet.
+        /// In-flight downloads are not cancelled. Disk files are kept.
         /// </summary>
         void ClearMemoryCache();
     }

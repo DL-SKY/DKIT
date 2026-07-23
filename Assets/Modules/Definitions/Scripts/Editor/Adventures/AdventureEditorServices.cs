@@ -555,6 +555,28 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
     public sealed class AdventureValidationService
     {
+        private enum IdentifierStyle
+        {
+            Unknown = 0,
+            LowerSnake = 1,
+            CamelOrPascal = 2,
+            Other = 3,
+        }
+
+        private static readonly Regex UPPER_SNAKE_TAG_REGEX = new Regex(
+            "^[A-Z0-9]+(?:_[A-Z0-9]+)*$",
+            RegexOptions.Compiled);
+        private static readonly Regex KEY_WITH_UNDERSCORE_REGEX = new Regex(
+            "^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+$",
+            RegexOptions.Compiled);
+        private static readonly Regex LOWER_SNAKE_ID_REGEX = new Regex(
+            "^[a-z0-9]+(?:_[a-z0-9]+)*$",
+            RegexOptions.Compiled);
+        private static readonly Regex CAMEL_OR_PASCAL_ID_REGEX = new Regex(
+            "^[A-Za-z][A-Za-z0-9]*$",
+            RegexOptions.Compiled);
+        private const string LOC_PREFIX = "loc:";
+
         private sealed class ChoiceActionValidationContract
         {
             public readonly ChoiceActionType Type;
@@ -620,6 +642,19 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             if (adventureData.StartScenes == null || adventureData.StartScenes.Count == 0)
                 issues.Add(new AdventureValidationIssue("Adventure must contain at least one start scene."));
 
+            ValidateTagsList(issues, adventureData.Tags, "Adventure.Tags");
+            ValidateTagsList(issues, adventureData.IgnoredTags, "Adventure.IgnoredTags");
+            ValidateLocalizedTextField(
+                issues,
+                "Adventure.Title",
+                () => adventureData.Title,
+                value => adventureData.Title = value);
+            ValidateLocalizedTextField(
+                issues,
+                "Adventure.Description",
+                () => adventureData.Description,
+                value => adventureData.Description = value);
+
             if (adventureData.StartScenes != null && adventureData.Scenes != null)
             {
                 for (int i = 0; i < adventureData.StartScenes.Count; i++)
@@ -655,6 +690,24 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     if (!string.Equals(sceneData.Id, sceneId, StringComparison.Ordinal))
                         issues.Add(new AdventureValidationIssue($"Scene key '{sceneId}' does not match SceneData.Id '{sceneData.Id}'."));
 
+                    ValidateTagsList(issues, sceneData.Tags, $"Scene '{sceneId}'.Tags");
+
+                    if (sceneData.Content != null)
+                    {
+                        for (int contentIndex = 0; contentIndex < sceneData.Content.Count; contentIndex++)
+                        {
+                            SceneContentData contentData = sceneData.Content[contentIndex];
+                            if (contentData == null)
+                                continue;
+
+                            ValidateLocalizedTextField(
+                                issues,
+                                $"Scene '{sceneId}' content #{contentIndex} Value",
+                                () => contentData.Value,
+                                value => contentData.Value = value);
+                        }
+                    }
+
                     if (sceneData.Choices == null)
                         continue;
 
@@ -672,6 +725,18 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                         if (!string.IsNullOrWhiteSpace(choice.Id) && !choiceIds.Add(choice.Id))
                             issues.Add(new AdventureValidationIssue($"Scene '{sceneId}' contains duplicated choice id '{choice.Id}'."));
+
+                        ValidateTagsList(issues, choice.Tags, $"Choice '{choiceId}' in scene '{sceneId}'.Tags");
+                        ValidateLocalizedTextField(
+                            issues,
+                            $"Choice '{choiceId}' in scene '{sceneId}' Text",
+                            () => choice.Text,
+                            value => choice.Text = value);
+                        ValidateLocalizedTextField(
+                            issues,
+                            $"Choice '{choiceId}' in scene '{sceneId}' Description",
+                            () => choice.Description,
+                            value => choice.Description = value);
 
                         if (choice.Type == ChoiceType.Default)
                         {
@@ -760,7 +825,187 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 }
             }
 
+            ValidateIdentifierStyleConsistency(issues, adventureData);
             return issues;
+        }
+
+        private static void ValidateTagsList(List<AdventureValidationIssue> issues, List<string> tags, string scope)
+        {
+            if (tags == null)
+                return;
+
+            for (int i = 0; i < tags.Count; i++)
+            {
+                string tag = tags[i];
+                if (string.IsNullOrWhiteSpace(tag))
+                {
+                    int indexCopy = i;
+                    issues.Add(new AdventureValidationIssue(
+                        $"{scope} contains an empty tag at index {indexCopy}.",
+                        () => tags.RemoveAt(indexCopy)));
+                    continue;
+                }
+
+                if (UPPER_SNAKE_TAG_REGEX.IsMatch(tag))
+                    continue;
+
+                string normalizedTag = NormalizeTagToUpperSnake(tag);
+                if (string.IsNullOrWhiteSpace(normalizedTag))
+                {
+                    issues.Add(new AdventureValidationIssue(
+                        $"{scope} tag '{tag}' cannot be normalized to UPPER_SNAKE_CASE."));
+                    continue;
+                }
+
+                int index = i;
+                string oldTag = tag;
+                issues.Add(new AdventureValidationIssue(
+                    $"{scope} tag '{oldTag}' must be UPPER_SNAKE_CASE.",
+                    () => tags[index] = normalizedTag));
+            }
+        }
+
+        private static void ValidateLocalizedTextField(
+            List<AdventureValidationIssue> issues,
+            string fieldPath,
+            Func<string> getter,
+            Action<string> setter)
+        {
+            string value = getter?.Invoke();
+            if (string.IsNullOrEmpty(value))
+                return;
+
+            if (HasLineBreak(value))
+            {
+                issues.Add(new AdventureValidationIssue(
+                    $"{fieldPath} contains line breaks. Use escaped '\\n' (or RTF tags) instead of literal line breaks.",
+                    () => setter?.Invoke(ReplaceLineBreaksWithEscapedNewlines(value))));
+            }
+
+            if (!LooksLikeLocalizationKey(value))
+                return;
+
+            issues.Add(new AdventureValidationIssue(
+                $"{fieldPath} looks like a localization key ('{value}'). TEA adventure JSON should store user-facing text unless explicitly requested otherwise."));
+        }
+
+        private static bool HasLineBreak(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return false;
+
+            return value.IndexOf('\n') >= 0 || value.IndexOf('\r') >= 0;
+        }
+
+        private static string ReplaceLineBreaksWithEscapedNewlines(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return string.Empty;
+
+            return value
+                .Replace("\r\n", "\n")
+                .Replace('\r', '\n')
+                .Replace("\n", "\\n");
+        }
+
+        private static bool LooksLikeLocalizationKey(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+
+            string trimmed = value.Trim();
+            if (trimmed.StartsWith(LOC_PREFIX, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (trimmed.IndexOf(' ') >= 0)
+                return false;
+
+            return KEY_WITH_UNDERSCORE_REGEX.IsMatch(trimmed);
+        }
+
+        private static string NormalizeTagToUpperSnake(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            StringBuilder builder = new StringBuilder(value.Length);
+            for (int i = 0; i < value.Length; i++)
+            {
+                char c = value[i];
+                if (char.IsLetterOrDigit(c))
+                    builder.Append(char.ToUpperInvariant(c));
+                else
+                    builder.Append('_');
+            }
+
+            string normalized = Regex.Replace(builder.ToString(), "_{2,}", "_").Trim('_');
+            return normalized;
+        }
+
+        private static void ValidateIdentifierStyleConsistency(List<AdventureValidationIssue> issues, AdventureData adventureData)
+        {
+            HashSet<IdentifierStyle> sceneStyles = new HashSet<IdentifierStyle>();
+            HashSet<IdentifierStyle> choiceStyles = new HashSet<IdentifierStyle>();
+
+            foreach (KeyValuePair<string, SceneData> pair in adventureData.Scenes)
+            {
+                string sceneId = pair.Key;
+                IdentifierStyle sceneStyle = DetectIdentifierStyle(sceneId);
+                if (sceneStyle == IdentifierStyle.Other)
+                {
+                    issues.Add(new AdventureValidationIssue(
+                        $"Scene id '{sceneId}' has an unsupported style. Use either lower_snake_case or CamelCase/PascalCase."));
+                }
+                else if (sceneStyle != IdentifierStyle.Unknown)
+                {
+                    sceneStyles.Add(sceneStyle);
+                }
+
+                SceneData scene = pair.Value;
+                if (scene?.Choices == null)
+                    continue;
+
+                for (int i = 0; i < scene.Choices.Count; i++)
+                {
+                    string choiceId = scene.Choices[i]?.Id;
+                    IdentifierStyle choiceStyle = DetectIdentifierStyle(choiceId);
+                    if (choiceStyle == IdentifierStyle.Other)
+                    {
+                        issues.Add(new AdventureValidationIssue(
+                            $"Choice id '{choiceId}' in scene '{sceneId}' has an unsupported style. Use either lower_snake_case or CamelCase/PascalCase."));
+                    }
+                    else if (choiceStyle != IdentifierStyle.Unknown)
+                    {
+                        choiceStyles.Add(choiceStyle);
+                    }
+                }
+            }
+
+            if (sceneStyles.Count > 1)
+            {
+                issues.Add(new AdventureValidationIssue(
+                    "Scene ids use mixed styles. Keep one style consistently across adventure scenes."));
+            }
+
+            if (choiceStyles.Count > 1)
+            {
+                issues.Add(new AdventureValidationIssue(
+                    "Choice ids use mixed styles. Keep one style consistently across adventure choices."));
+            }
+        }
+
+        private static IdentifierStyle DetectIdentifierStyle(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return IdentifierStyle.Unknown;
+
+            if (LOWER_SNAKE_ID_REGEX.IsMatch(value))
+                return IdentifierStyle.LowerSnake;
+
+            if (CAMEL_OR_PASCAL_ID_REGEX.IsMatch(value))
+                return IdentifierStyle.CamelOrPascal;
+
+            return IdentifierStyle.Other;
         }
 
         private static void ValidateActionParamsContract(

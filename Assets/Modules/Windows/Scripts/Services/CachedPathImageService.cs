@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Profiling;
 using Zenject;
 
 namespace Modules.Windows.Scripts.Services
@@ -23,20 +24,17 @@ namespace Modules.Windows.Scripts.Services
         [Inject] private readonly CoroutineHolder _coroutineHolder;
 
         private readonly Dictionary<string, Sprite> _memoryCache = new Dictionary<string, Sprite>();
-        private readonly HashSet<string> _inFlightUrls = new HashSet<string>();
-        private readonly HashSet<string> _queuedUrls = new HashSet<string>();
-        private readonly Queue<string> _downloadQueue = new Queue<string>();
+        private readonly Dictionary<string, int> _imageUsageCounters = new Dictionary<string, int>();
+        private readonly HashSet<string> _inFlightKeys = new HashSet<string>();
+        private readonly HashSet<string> _queuedKeys = new HashSet<string>();
+        private readonly Queue<RemoteLoadRequest> _downloadQueue = new Queue<RemoteLoadRequest>();
         private string _cacheFolderPath;
 
         public event Action<string, Sprite> RemoteSpriteReady;
 
         public bool IsRemoteUrl(string pathOrUrl)
         {
-            if (string.IsNullOrWhiteSpace(pathOrUrl))
-                return false;
-
-            return Uri.TryCreate(pathOrUrl, UriKind.Absolute, out Uri uri)
-                   && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+            return TryGetRemoteInfo(pathOrUrl, out _, out _);
         }
 
         public bool TryLoadLocal(string path, out Sprite sprite)
@@ -65,104 +63,167 @@ namespace Modules.Windows.Scripts.Services
         {
             sprite = null;
 
-            if (string.IsNullOrWhiteSpace(url) || !IsRemoteUrl(url))
+            if (!TryGetRemoteInfo(url, out string imageKey, out string remoteUrl))
                 return false;
 
-            if (_memoryCache.TryGetValue(url, out sprite) && sprite != null)
+            if (_memoryCache.TryGetValue(imageKey, out sprite) && sprite != null)
                 return true;
 
-            string cachePath = GetCachePath(url);
+            string cachePath = GetCachePath(remoteUrl);
             if (!File.Exists(cachePath))
                 return false;
 
-            if (!TryCreateSpriteFromFile(cachePath, url, out sprite))
+            if (!TryCreateSpriteFromFile(cachePath, remoteUrl, out sprite))
                 return false;
 
-            _memoryCache[url] = sprite;
+            _memoryCache[imageKey] = sprite;
             return true;
+        }
+
+        public string GetImageKey(string pathOrUrl)
+        {
+            if (string.IsNullOrWhiteSpace(pathOrUrl))
+                return string.Empty;
+
+            if (TryGetRemoteInfo(pathOrUrl, out string remoteKey, out _))
+                return remoteKey;
+
+            return BuildLocalImageKey(pathOrUrl);
+        }
+
+        public void AcquireImageUsage(string imageKey)
+        {
+            if (string.IsNullOrWhiteSpace(imageKey))
+                return;
+
+            _imageUsageCounters.TryGetValue(imageKey, out int count);
+            _imageUsageCounters[imageKey] = count + 1;
+        }
+
+        public void ReleaseImageUsage(string imageKey)
+        {
+            if (string.IsNullOrWhiteSpace(imageKey))
+                return;
+
+            _imageUsageCounters.TryGetValue(imageKey, out int count);
+            _imageUsageCounters[imageKey] = count - 1;
         }
 
         public void EnsureRemoteLoading(string url, bool prioritize = false)
         {
-            if (string.IsNullOrWhiteSpace(url) || !IsRemoteUrl(url))
+            if (!TryGetRemoteInfo(url, out string imageKey, out string remoteUrl))
                 return;
 
-            if (_memoryCache.ContainsKey(url) || _inFlightUrls.Contains(url))
+            if (_memoryCache.ContainsKey(imageKey) || _inFlightKeys.Contains(imageKey))
                 return;
 
-            if (TryGetRemoteCached(url, out Sprite cached))
+            if (TryGetRemoteCached(remoteUrl, out Sprite cached))
             {
-                RemoteSpriteReady?.Invoke(url, cached);
+                RemoteSpriteReady?.Invoke(imageKey, cached);
                 return;
             }
 
             if (prioritize)
             {
                 // Drop from prefetch queue if present, then start regardless of MAX_LOADING_COUNT.
-                _queuedUrls.Remove(url);
-                StartDownload(url);
+                _queuedKeys.Remove(imageKey);
+                StartDownload(imageKey, remoteUrl);
                 return;
             }
 
-            if (_queuedUrls.Contains(url))
+            if (_queuedKeys.Contains(imageKey))
                 return;
 
-            _queuedUrls.Add(url);
-            _downloadQueue.Enqueue(url);
+            _queuedKeys.Add(imageKey);
+            _downloadQueue.Enqueue(new RemoteLoadRequest(imageKey, remoteUrl));
             TryStartQueuedDownloads();
         }
 
         public void ClearMemoryCache()
         {
+            int beforeCount = _memoryCache.Count;
+            long beforeBytes = EstimateRuntimeTextureMemoryBytes();
+
+            UnityEngine.Debug.Log(
+                $"[{nameof(CachedPathImageService)}] ClearMemoryCache start: " +
+                $"memoryCache={beforeCount}, approxTextureMemory={FormatBytes(beforeBytes)}, " +
+                $"queued={_downloadQueue.Count}, inFlight={_inFlightKeys.Count}.");
+
+            var keysToRemove = new List<string>();
+
+            int usageCount = 0;
             foreach (KeyValuePair<string, Sprite> pair in _memoryCache)
             {
-                if (pair.Value == null)
+                _imageUsageCounters.TryGetValue(pair.Key, out usageCount);
+                if (usageCount > 0)
                     continue;
+
+                if (pair.Value == null)
+                {
+                    keysToRemove.Add(pair.Key);
+                    continue;
+                }
 
                 Texture2D texture = pair.Value.texture;
                 UnityEngine.Object.Destroy(pair.Value);
                 if (texture != null)
                     UnityEngine.Object.Destroy(texture);
+
+                keysToRemove.Add(pair.Key);
             }
 
-            _memoryCache.Clear();
+            for (int i = 0; i < keysToRemove.Count; i++)
+                _memoryCache.Remove(keysToRemove[i]);
+
+            // Drop queued prefetch requests that have not started yet.
+            // In-flight downloads are intentionally kept running.
+            _queuedKeys.Clear();
+            _downloadQueue.Clear();
+
+            int afterCount = _memoryCache.Count;
+            long afterBytes = EstimateRuntimeTextureMemoryBytes();
+
+            UnityEngine.Debug.Log(
+                $"[{nameof(CachedPathImageService)}] ClearMemoryCache end: " +
+                $"memoryCache={afterCount}, approxTextureMemory={FormatBytes(afterBytes)}, " +
+                $"queued={_downloadQueue.Count}, inFlight={_inFlightKeys.Count}.");
         }
 
         private void TryStartQueuedDownloads()
         {
-            while (_downloadQueue.Count > 0 && _inFlightUrls.Count < MAX_LOADING_COUNT)
+            while (_downloadQueue.Count > 0 && _inFlightKeys.Count < MAX_LOADING_COUNT)
             {
-                string url = _downloadQueue.Dequeue();
+                RemoteLoadRequest request = _downloadQueue.Dequeue();
 
                 // Stale entry: already promoted via prioritize, or otherwise removed from the set.
-                if (!_queuedUrls.Remove(url))
+                if (!_queuedKeys.Remove(request.ImageKey))
                     continue;
 
-                if (_memoryCache.ContainsKey(url) || _inFlightUrls.Contains(url))
+                if (_memoryCache.ContainsKey(request.ImageKey) || _inFlightKeys.Contains(request.ImageKey))
                     continue;
 
-                if (TryGetRemoteCached(url, out Sprite cached))
+                if (TryGetRemoteCached(request.RemoteUrl, out Sprite cached))
                 {
-                    RemoteSpriteReady?.Invoke(url, cached);
+                    RemoteSpriteReady?.Invoke(request.ImageKey, cached);
                     continue;
                 }
 
-                StartDownload(url);
+                StartDownload(request.ImageKey, request.RemoteUrl);
             }
         }
 
-        private void StartDownload(string url)
+        private void StartDownload(string imageKey, string remoteUrl)
         {
-            if (_inFlightUrls.Contains(url))
+            if (_inFlightKeys.Contains(imageKey))
                 return;
 
-            _inFlightUrls.Add(url);
-            _coroutineHolder.StartCoroutine(DownloadCoroutine(url, GetCachePath(url)));
+            _inFlightKeys.Add(imageKey);
+            _coroutineHolder.StartCoroutine(DownloadCoroutine(imageKey, remoteUrl, GetCachePath(remoteUrl)));
         }
 
-        private IEnumerator DownloadCoroutine(string url, string cachePath)
+        private IEnumerator DownloadCoroutine(string imageKey, string remoteUrl, string cachePath)
         {
-            using UnityWebRequest request = UnityWebRequest.Get(url);
+            using UnityWebRequest request = UnityWebRequest.Get(remoteUrl);
             yield return request.SendWebRequest();
 
             try
@@ -170,15 +231,15 @@ namespace Modules.Windows.Scripts.Services
                 if (request.result != UnityWebRequest.Result.Success)
                 {
                     UnityEngine.Debug.LogWarning(
-                        $"[{nameof(CachedPathImageService)}] Failed to download '{url}': {request.error}");
-                    RemoteSpriteReady?.Invoke(url, null);
+                        $"[{nameof(CachedPathImageService)}] Failed to download '{remoteUrl}': {request.error}");
+                    RemoteSpriteReady?.Invoke(imageKey, null);
                     yield break;
                 }
 
                 byte[] data = request.downloadHandler.data;
                 if (data == null || data.Length == 0)
                 {
-                    RemoteSpriteReady?.Invoke(url, null);
+                    RemoteSpriteReady?.Invoke(imageKey, null);
                     yield break;
                 }
 
@@ -190,21 +251,21 @@ namespace Modules.Windows.Scripts.Services
                 catch (Exception exception)
                 {
                     UnityEngine.Debug.LogWarning(
-                        $"[{nameof(CachedPathImageService)}] Failed to write cache for '{url}': {exception.Message}");
+                        $"[{nameof(CachedPathImageService)}] Failed to write cache for '{remoteUrl}': {exception.Message}");
                 }
 
-                if (!TryCreateSpriteFromBytes(data, url, out Sprite sprite))
+                if (!TryCreateSpriteFromBytes(data, remoteUrl, out Sprite sprite))
                 {
-                    RemoteSpriteReady?.Invoke(url, null);
+                    RemoteSpriteReady?.Invoke(imageKey, null);
                     yield break;
                 }
 
-                _memoryCache[url] = sprite;
-                RemoteSpriteReady?.Invoke(url, sprite);
+                _memoryCache[imageKey] = sprite;
+                RemoteSpriteReady?.Invoke(imageKey, sprite);
             }
             finally
             {
-                _inFlightUrls.Remove(url);
+                _inFlightKeys.Remove(imageKey);
                 TryStartQueuedDownloads();
             }
         }
@@ -269,6 +330,76 @@ namespace Modules.Windows.Scripts.Services
                 new Vector2(0.5f, 0.5f));
             sprite.name = spriteName;
             return true;
+        }
+
+        private static bool TryGetRemoteInfo(string pathOrUrl, out string imageKey, out string remoteUrl)
+        {
+            imageKey = string.Empty;
+            remoteUrl = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(pathOrUrl))
+                return false;
+
+            if (!Uri.TryCreate(pathOrUrl, UriKind.Absolute, out Uri uri))
+                return false;
+
+            if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+                return false;
+
+            remoteUrl = uri.AbsoluteUri;
+            imageKey = BuildRemoteImageKey(remoteUrl);
+            return true;
+        }
+
+        private static string BuildRemoteImageKey(string remoteUrl)
+        {
+            return $"url:{ComputeStableFileName(remoteUrl)}";
+        }
+
+        private static string BuildLocalImageKey(string localPath)
+        {
+            string normalizedPath = localPath.Trim().Replace('\\', '/');
+            return $"res:{normalizedPath}";
+        }
+
+        private readonly struct RemoteLoadRequest
+        {
+            public readonly string ImageKey;
+            public readonly string RemoteUrl;
+
+            public RemoteLoadRequest(string imageKey, string remoteUrl)
+            {
+                ImageKey = imageKey;
+                RemoteUrl = remoteUrl;
+            }
+        }
+
+        private long EstimateRuntimeTextureMemoryBytes()
+        {
+            long totalBytes = 0;
+            var visitedTextures = new HashSet<Texture2D>();
+
+            foreach (KeyValuePair<string, Sprite> pair in _memoryCache)
+            {
+                Sprite sprite = pair.Value;
+                if (sprite == null)
+                    continue;
+
+                Texture2D texture = sprite.texture;
+                if (texture == null || !visitedTextures.Add(texture))
+                    continue;
+
+                totalBytes += Profiler.GetRuntimeMemorySizeLong(texture);
+            }
+
+            return totalBytes;
+        }
+
+        private static string FormatBytes(long bytes)
+        {
+            const float bytesPerMb = 1024f * 1024f;
+            float mb = bytes / bytesPerMb;
+            return $"{bytes} B ({mb:0.00} MB)";
         }
     }
 }

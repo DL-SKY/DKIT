@@ -1,5 +1,6 @@
 ﻿using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Data;
+using Modules.Windows.Scripts.Services;
 using System;
 using System.Collections.Generic;
 using Zenject;
@@ -9,6 +10,7 @@ namespace Modules.RPG.Scripts.Adventure
     public class AdventuresManager : IDisposable
     {
         [Inject] private readonly DiContainer _container;
+        [Inject] private readonly IImageCache _imageCache;
 
         private RuntimeSceneData _runtimeSceneData;
 
@@ -75,6 +77,7 @@ namespace Modules.RPG.Scripts.Adventure
 
         private void OnChangedAdventureHandler(string adventureId)
         {
+            _imageCache.ClearMemoryCache();
             ChangedAdventure?.Invoke(adventureId);
         }
 

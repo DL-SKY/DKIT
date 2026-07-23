@@ -372,6 +372,15 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
   - `GoToAdventure` — обязательный `Params.Strings["AdventureId"]` (`Glossary.ChoiceActions.ADVENTURE_ID`);
   - `OpenWindow` — обязательный `Params.Strings["WindowId"]` (`Glossary.ChoiceActions.WINDOW_ID`);
   - `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` — хотя бы один ключ в `Params.Strings/Ints/Bools`.
+- Валидация и автокоррекция тегов:
+  - `Adventure.Tags`, `Adventure.IgnoredTags`, `Scene.Tags`, `Choice.Tags` проверяются на `UPPER_SNAKE_CASE`;
+  - для некорректных тегов доступен `Fix`, который нормализует значение в `UPPER_SNAKE_CASE`.
+- Валидация локализуемых текстовых полей (`Title`, `Description`, `Choice.Text`, `Choice.Description`, `SceneContentData.Value`):
+  - предупреждение, если поле похоже на ключ локализации (например, `loc:SOME_KEY` или `SOME_KEY_NAME`);
+  - предупреждение и `Fix`, если в поле есть literal переносы строк: `Fix` заменяет их на escaped `\n`.
+- Валидация стиля id внутри сценария:
+  - предупреждение, если id сцены/выбора не в `lower_snake_case` и не в `CamelCase/PascalCase`;
+  - предупреждение, если стили id смешаны внутри одного adventure.
 - Редактор `Selected Action` для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`: inline-редактирование словарей `Params.Strings`, `Params.Ints`, `Params.Bools`; для `GoToAdventure` — поле Target Adventure; для `GoToRandomAdventure` — без params; для `GoToRandomScene` — поле списка Scene Ids через `;`; для `OpenWindow` — popup `Window Id` по `Glossary.Windows` (кастомный id тоже сохраняется в списке).
 - В `Validation` для исправляемых кейсов доступна кнопка `Fix` (например, `sceneId` → `SceneId`).
 - Окно `Localization` для генерации ключей и экспорта в `.txt` (tab-separated) для Google Sheets.
@@ -488,13 +497,13 @@ TEST_KEY_2	Перевод номер 2
 
 - **Создание приключения**
   - Нажатие кнопки в `Create Adventure` открывает окно ввода id.
-  - Введенный id используется как имя JSON-файла (с нормализацией имени).
+  - Введенный id используется как имя JSON-файла и автоматически нормализуется в CamelCase (например, `adventure tavern by martha` -> `AdventureTavernByMartha`).
 - **Создание сцены**
   - Нажатие кнопки в `Add Scene` открывает окно ввода id сцены.
   - Если id занят, автоматически подбирается уникальный (через суффикс).
 - **Переименование приключения**
   - Кнопка `R` в списке `Files` открывает окно с текущим id.
-  - Переименовывается сам файл (это и есть id приключения в текущем пайплайне).
+  - Переименовывается сам файл (это и есть id приключения в текущем пайплайне) с той же CamelCase-нормализацией имени.
 - **Переименование сцены**
   - Кнопка `R` в списке `Scenes` открывает окно с текущим id.
   - Переименование обновляет `StartScenes` и все `SceneId` ссылки в choice actions.

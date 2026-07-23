@@ -137,9 +137,9 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 return "NewAdventure";
 
             foreach (char invalid in Path.GetInvalidFileNameChars())
-                value = value.Replace(invalid, '_');
+                value = value.Replace(invalid, ' ');
 
-            return value.Replace(' ', '_');
+            return ConvertToCamelCaseIdentifier(value);
         }
 
         public static string GetFileNameWithoutExtension(string projectRelativePath)
@@ -167,6 +167,64 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
             if (!Directory.Exists(directoryPath))
                 Directory.CreateDirectory(directoryPath);
+        }
+
+        private static string ConvertToCamelCaseIdentifier(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "NewAdventure";
+
+            List<string> tokens = new List<string>();
+            char[] chars = value.ToCharArray();
+            int tokenStart = -1;
+
+            for (int i = 0; i < chars.Length; i++)
+            {
+                char c = chars[i];
+                bool isAlphaNumeric = char.IsLetterOrDigit(c);
+                if (isAlphaNumeric && tokenStart < 0)
+                {
+                    tokenStart = i;
+                    continue;
+                }
+
+                if (!isAlphaNumeric && tokenStart >= 0)
+                {
+                    tokens.Add(value.Substring(tokenStart, i - tokenStart));
+                    tokenStart = -1;
+                }
+            }
+
+            if (tokenStart >= 0)
+                tokens.Add(value.Substring(tokenStart));
+
+            if (tokens.Count == 0)
+                return "NewAdventure";
+
+            string result = string.Empty;
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                string token = tokens[i];
+                if (string.IsNullOrWhiteSpace(token))
+                    continue;
+
+                string trimmedToken = token.Trim();
+                if (trimmedToken.Length == 0)
+                    continue;
+
+                char first = char.ToUpperInvariant(trimmedToken[0]);
+                result += trimmedToken.Length == 1
+                    ? first.ToString()
+                    : first + trimmedToken.Substring(1);
+            }
+
+            if (string.IsNullOrWhiteSpace(result))
+                return "NewAdventure";
+
+            if (!char.IsLetter(result[0]))
+                result = "Adventure" + result;
+
+            return result;
         }
 
         private static void NormalizeAdventureData(AdventureData adventureData)
