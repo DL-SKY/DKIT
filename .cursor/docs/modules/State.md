@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-23 16:40:00 (+03:00)
+**Последнее обновление:** 2026-07-23 22:45:00 (+03:00)
 
 ## Назначение
 
@@ -191,8 +191,9 @@ Implementation/Wallet/
 
 **Defs → State (планируемый поток):**
 - дефы (`ClassDef`, `AncestryDef`, `BackgroundDef`, `FeatDef`, `ItemDef`, `SpellDef`) описывают статический контент;
+- для черт механика задаётся в `FeatDef.Apply` (`CharacterParamsPatchData`: `Add`, `Set`, `AlsoApplyFeatIds`; см. [Definitions.md](Definitions.md));
 - при создании/прокачке персонажа runtime читает дефы и записывает итоговые значения в `Parameters`, `Spells`, `StatusEffects` и связанные поля;
-- на текущем этапе дефы содержат минимальный контракт; структурированные модификаторы с величинами будут добавлены в дефы по мере разработки механик (см. [Definitions.md — Adventure-дефы персонажа](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
+- применение `Apply` в state-actions / сервисе персонажа — следующий этап; bool в `Parameters` кодируется как `0` / ненулевое значение.
 
 ### Adventure: `InventoryStateData`
 

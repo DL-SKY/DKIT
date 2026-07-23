@@ -35,7 +35,7 @@ Skill для добавления нового adventure-дефа в `Modules.De
 
 ## Workflow
 
-1. Определи целевой тип adventure-дефа и ближайший существующий аналог (`AdventureDef`, `ClassDef`, `AncestryDef`, `BackgroundDef`, `FeatDef`, `ItemDef`, `SpellDef`).
+1. Определи целевой тип adventure-дефа и ближайший существующий аналог (`AdventureDef`, `ClassDef`, `AncestryDef`, `BackgroundDef`, `PregeneratedCharacterDef`, `FeatDef`, `ItemDef`, `SpellDef`).
 2. Создай новый C#-класс:
    - по умолчанию наследуй от `AbstractDefinition`;
    - исключение: использовать другую базу только если это явно следует из контракта adventures.

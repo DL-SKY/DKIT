@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-23 16:40:00 (+03:00)
+**Последнее обновление:** 2026-07-23 22:45:00 (+03:00)
 
 ## Назначение
 
@@ -33,7 +33,7 @@
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
   - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`);
-  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`.
+  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`.
 
 ### Соглашение по наследованию adventure-дефов
 
@@ -46,6 +46,8 @@
 | `ClassDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Classes` |
 | `AncestryDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Ancestries` |
 | `BackgroundDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Backgrounds` |
+| `PregeneratedCharacterDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/PregeneratedCharacters` |
+| `CharacterParamsPatchData` | POCO (не def) | вложен в JSON `FeatDef.Apply` |
 | `FeatDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Feats` |
 | `ItemDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Items` |
 | `SpellDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Spells` |
@@ -103,6 +105,11 @@
 | | `Title` | `string` | `Title` | да |
 | | `Description` | `string` | `Description` | да |
 | | `Features` | `List<string>` | `Features` | да (id feat/feature) |
+| `PregeneratedCharacterDef` | `Avatar` | `string` | `Avatar` | да (часто `""`; id/ключ аватара) |
+| | `Class` | `string` | `Class` | да, id `ClassDef` |
+| `CharacterParamsPatchData` | `Add` | `Dictionary<string, int>` | `Add` | нет (опционально) |
+| | `Set` | `Dictionary<string, int>` | `Set` | нет (опционально) |
+| | `AlsoApplyFeatIds` | `List<string>` | `AlsoApplyFeatIds` | нет (опционально; id `FeatDef`) |
 | `FeatDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Restrictions` | `List<Restriction>` | `Restrictions` | да, но везде `[]` |
 | | `Tags` | `List<string>` | `Tags` | да (часто пустой) |
@@ -111,6 +118,8 @@
 | | `Description` | `string` | `Description` | да |
 | | `Type` | `FeatType` | `Type` | да |
 | | `Level` | `int` | `Level` | да |
+| | `Apply` | `CharacterParamsPatchData` | `Apply` | нет (опционально) |
+| | `Options` | `List<string>` | `Options` | нет (опционально; id `FeatDef`) |
 | `ItemDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `IsQuestItem` | `bool` | `IsQuestItem` | да, везде `false` |
 | | `Category` | `ItemCategory` | `Category` | да |
@@ -169,9 +178,27 @@
   Предыстория персонажа (PF2e Background). Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Features` (`List<string>` — id связанных feat/feature).  
   Загрузка: `DefinitionsManager.Backgrounds` из `_ADVENTURES_/Backgrounds` (между Ancestries и Feats в `LoadAll()`). Id в state — `CharacterStateData.Background`.
 
+- `PregeneratedCharacterDef`  
+  Заготовленный персонаж (шаблон для быстрого старта / выбора готового героя). Поля: `Avatar` (id или ключ аватара), `Class` (id `ClassDef`).  
+  Загрузка: `DefinitionsManager.PregeneratedCharacters` из `_ADVENTURES_/PregeneratedCharacters` (между Backgrounds и Feats в `LoadAll()`). Контракт расширяется по мере появления механик прегенов в state/UI.
+
 - `FeatDef`  
-  Черта/способность. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Type` (`FeatType`), `Level`.  
-  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Restrictions` — структурированные требования/ограничения (prerequisites, class, ancestry, proficiency и т.д.); формат `Restriction` — см. [Restrictions.md](Restrictions.md). Проверка в runtime пока не реализована; в стартовом контенте `Restrictions` везде пустые, часть условий временно дублируется в `Tags`.
+  Черта/способность. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Type` (`FeatType`), `Level`, `Apply` (`CharacterParamsPatchData`), `Options` (`List<string>` — id дочерних feat при выборе).  
+  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Apply` описывает, какие ключи `CharacterStateData.Parameters` изменить при взятии или пересчёте билда (`Add` — прибавить, `Set` — установить; bool через `0` / ненулевое значение). `AlsoApplyFeatIds` внутри `Apply` — каскадное применение других feat id. `Restrictions` — структурированные требования (prerequisites); формат `Restriction` — см. [Restrictions.md](Restrictions.md). Проверка и применение `Apply` в runtime пока не реализованы; в стартовом контенте `Apply`/`Options` отсутствуют, часть условий временно дублируется в `Tags`.
+
+- `CharacterParamsPatchData`  
+  Общий POCO патча параметров персонажа (`Assets/Modules/Definitions/Scripts/Implementation/Adventures/Defs/CharacterParamsPatchData.cs`). Не наследует `AbstractDefinition`, не загружается отдельно. Сейчас используется в `FeatDef.Apply`; позже может переиспользоваться в других adventure-дефах (ancestry, background, предметы). Ключи параметров — `Glossary.Characters` и согласованные id (в т.ч. id feat для флага «черта взята»). Семантика merge (`+=` vs `=`) — в сервисе персонажа, не в JSON.
+
+  Пример JSON (`Apply` внутри feat):
+
+  ```json
+  "Apply": {
+    "Add": { "MaxHitPoints": 2, "Speed": 5 },
+    "Set": { "_Toughness": 1 },
+    "AlsoApplyFeatIds": ["_SomeLinkedFeat"]
+  },
+  "Options": ["_FightingStyleArchery", "_FightingStyleSword"]
+  ```
 
 - `ItemDef`  
   Предмет. Поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`.
@@ -266,13 +293,15 @@ Runtime в будущем читает деф → вычисляет или пр
 
 ### Планируемое расширение (механики)
 
-По мере разработки в дефы будут добавляться **структурированные данные** с конкретными величинами:
+Структурированные эффекты для черт заданы в **`FeatDef.Apply`** (`CharacterParamsPatchData`: `Add`, `Set`, `AlsoApplyFeatIds`) и **`FeatDef.Options`**. Применение в `CharacterStateData.Parameters` — следующий этап (сервис персонажа / state-actions).
+
+По мере разработки тот же формат патча может появиться в других дефах (ancestry, background, предметы):
 
 - бонусы и штрафы к характеристикам, навыкам, спасброскам;
 - особенности (сопротивления, чувства, ограничения);
-- эффекты черт, предметов и заклинаний с явными значениями для записи в `CharacterStateData` и связанные секции.
+- эффекты заклинаний с явными значениями для записи в state.
 
-Формат этих блоков будет согласован с уже существующими контрактами (`ChoiceActionData.Params`, state-actions), чтобы не дублировать способы описания модификаторов.
+Adventure-choice params (`ChoiceActionData.Params`) остаются отдельным контрактом для world/adventure/global; у персонажа — своя семантика (`Add` / `Set` вместо assign-only merge).
 
 ### Порядок полей в JSON
 
@@ -288,6 +317,7 @@ Runtime в будущем читает деф → вычисляет или пр
 | `Classes` | `_ADVENTURES_/Classes` | — | 24 класса |
 | `Ancestries` | `_ADVENTURES_/Ancestries` | — | 8 ancestries |
 | `Backgrounds` | `_ADVENTURES_/Backgrounds` | — | 2 тестовые (`_Farmhand`, `_Scholar`) |
+| `PregeneratedCharacters` | `_ADVENTURES_/PregeneratedCharacters` | — | 1 тестовый (`_TestFighter`) |
 | `Feats` | `_ADVENTURES_/Feats` | `General`, `Ancestry`, `Class`, `ClassFeature`, `Skill` | 15 черт |
 | `Spells` | `_ADVENTURES_/Spells` | `Cantrips`, `Arcane`, `Divine` | 13 заклинаний |
 | `Items` | `_ADVENTURES_/Items` | `Weapons`, `Armor`, `Shields`, `Consumables`, `Equipment` | 18 предметов |
@@ -323,14 +353,14 @@ Single-def:
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Оба менеджера сейчас загружают `LocalizationSettingsDef` (пути: `Definitions/LocalizationSettings/LocalizationSettings` и `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings`).
-- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
 - `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost` и `RuleDef.SkillDependencies` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет) на стороне runtime.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Background`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)).
 - `AncestryDef.Names` / `Avatars` индексируются по `CharacterGender`; id ancestry — в `CharacterStateData.Ancestry`. Текущие JSON ancestries ещё могут содержать legacy `MaleNames`/`FemaleNames` — их нужно мигрировать на `Names`/`Avatars`.
 - `BackgroundDef.Features` — плоский список id; у `ClassDef` / `AncestryDef` поле `Features` — словарь уровень → список id.
 - `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.
 - `Restrictions` на class/ancestry/background/feat может быть пустым или отсутствовать в JSON; при добавлении ограничений JSON-ключи совпадают с полями `Restriction` (см. [Restrictions.md](Restrictions.md)).
-- В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds` (между Ancestries и Feats).
+- В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds` и `PregeneratedCharacters` (между Ancestries и Feats).
 - Механические эффекты дефов пока не применяются автоматически; `Tags` — вспомогательные метки до появления структурированных модификаторов (см. [Adventure-дефы персонажа](#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.
 - `LoadCollection()` загружает JSON из указанной папки и всех вложенных подпапок; `Id` — только имя файла, без пути.

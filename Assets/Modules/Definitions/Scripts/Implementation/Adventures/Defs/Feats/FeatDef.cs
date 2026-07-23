@@ -1,4 +1,5 @@
 using Modules.Definitions.Scripts.Defs;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs;
 using Modules.Restrictions.Scripts.Core;
 using System.Collections.Generic;
 
@@ -30,5 +31,15 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats
 
         public FeatType Type;
         public int Level;
+
+        /// <summary>
+        /// Статический эффект черты при взятии или при полном пересчёте билда персонажа.
+        /// </summary>
+        public CharacterParamsPatchData Apply;
+
+        /// <summary>
+        /// Для черт с выбором (например ClassFeature): id дочерних feat, один из которых выбирает игрок.
+        /// </summary>
+        public List<string> Options;
     }
 }

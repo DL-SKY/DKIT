@@ -6,6 +6,7 @@ using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Backgrounds;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.PregeneratedCharacters;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Rules;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Single;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Spells;
@@ -37,6 +38,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         public Dictionary<string, ClassDef> Classes;
         public Dictionary<string, AncestryDef> Ancestries;
         public Dictionary<string, BackgroundDef> Backgrounds;
+        public Dictionary<string, PregeneratedCharacterDef> PregeneratedCharacters;
         public Dictionary<string, FeatDef> Feats;
         public Dictionary<string, ItemDef> Items;
         public Dictionary<string, SpellDef> Spells;
@@ -74,6 +76,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
                 LoadClasses,
                 LoadAncestries,
                 LoadBackgrounds,
+                LoadPregeneratedCharacters,
                 LoadFeats,
                 LoadItems,
                 LoadSpells,                
@@ -119,6 +122,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         private void LoadBackgrounds()
         {
             Backgrounds = _loader.LoadCollection<BackgroundDef>("Definitions/_ADVENTURES_/Backgrounds");
+        }
+
+        private void LoadPregeneratedCharacters()
+        {
+            PregeneratedCharacters = _loader.LoadCollection<PregeneratedCharacterDef>("Definitions/_ADVENTURES_/PregeneratedCharacters");
         }
 
         private void LoadFeats()

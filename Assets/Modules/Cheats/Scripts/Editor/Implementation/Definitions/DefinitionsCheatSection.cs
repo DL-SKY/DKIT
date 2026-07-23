@@ -71,6 +71,11 @@ namespace Modules.Cheats.Scripts.Editor.Implementation.Definitions
             DrawDefinitionIds(definitionsManager.Backgrounds);
             EditorGUI.indentLevel--;
 
+            EditorGUILayout.LabelField("PregeneratedCharacters:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.PregeneratedCharacters);
+            EditorGUI.indentLevel--;
+
             EditorGUILayout.LabelField("Feats:");
             EditorGUI.indentLevel++;
             DrawDefinitionIds(definitionsManager.Feats);
