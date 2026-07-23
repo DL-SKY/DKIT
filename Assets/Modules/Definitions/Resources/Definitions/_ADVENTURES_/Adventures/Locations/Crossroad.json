@@ -1,0 +1,253 @@
+{
+  "Disabled": false,
+  "Tags": [
+    "CROSSROADS",
+    "HUB",
+    "LOCATION",
+    "SAFE"
+  ],
+  "IgnoredTags": [],
+  "IsRepeatable": true,
+  "Type": "Location",
+  "AdventureLinks": [],
+  "Title": "Перепутье",
+  "Description": "Перекрёсток дорог у тракта: отсюда можно спуститься к таверне Марты, осмотреться или уйти навстречу случайному приключению.",
+  "Restrictions": [],
+  "StartScenes": [
+    "scene_01"
+  ],
+  "Scenes": {
+    "scene_01": {
+      "Id": "scene_01",
+      "Tags": [
+        "START",
+        "ENTRY",
+        "HUB"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы выходите на Перепутье. Здесь сходятся несколько дорог: одна уходит вниз к дымку таверны, другая — в сторону холмов, третья теряется в лесной дымке, будто сама не решила, куда ведёт.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Ветер шевелит траву у обочины и шелестит сухими листьями. На столбе — старый указатель: буквы стёрты дождями, стрелки смотрят в разные стороны с равной уверенностью.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Где-то вдалеке каркает ворона. Воздух пахнет пылью тракта, прелой хвоей и обещанием историй, которые ещё не начались.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s01_to_tavern",
+          "Tags": [
+            "EXIT",
+            "TAVERN"
+          ],
+          "Type": "Default",
+          "Text": "Отправиться в таверну",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "AdventureTavernByMartha"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s01_look_around",
+          "Tags": [
+            "LOOK"
+          ],
+          "Type": "Default",
+          "Text": "Осмотреться",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToRandomScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "look_a;look_b;look_c"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s01_random_adventure",
+          "Tags": [
+            "EXIT",
+            "QUEST"
+          ],
+          "Type": "Default",
+          "Text": "Отправиться навстречу новым приключениям",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToRandomAdventure",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "look_a": {
+      "Id": "look_a",
+      "Tags": [
+        "LOOK"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы прищуриваетесь на указатель. На одной стрелке едва читается «Таверна», на другой — что-то похожее на «Холмы», а третья, кажется, когда-то вела «в лес»… или «к бесу». Сложно сказать.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "look_a_back",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться к перепутью",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_01"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "look_b": {
+      "Id": "look_b",
+      "Tags": [
+        "LOOK"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "У обочины лежит забытый котелок и обрывок карты. На клочке нацарапано: «не ходить ночью» — и тут же другая рука добавила: «особенно если очень хочется».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "look_b_back",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться к перепутью",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_01"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "look_c": {
+      "Id": "look_c",
+      "Tags": [
+        "LOOK"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Ворона на сухом суку склоняет голову, будто оценивает ваш состав отряда. Потом каркает так, что кажется: либо одобрение, либо предупреждение. Или просто карканье.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "look_c_back",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться к перепутью",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_01"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

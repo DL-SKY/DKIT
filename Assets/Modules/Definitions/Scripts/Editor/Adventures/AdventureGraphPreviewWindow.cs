@@ -579,38 +579,39 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     for (int actionIndex = 0; actionIndex < choice.Actions.Count; actionIndex++)
                     {
                         var action = choice.Actions[actionIndex];
-                        if (action == null || !AdventureGraphBuilder.IsSceneTransitionAction(action))
+                        if (action == null || !AdventureGraphBuilder.IsGraphSceneEdgeAction(action))
                             continue;
 
-                        string target = AdventureGraphBuilder.GetSceneId(action);
-                        if (string.IsNullOrWhiteSpace(target))
-                            continue;
-
-                        if (!_nodes.ContainsKey(target))
+                        IReadOnlyList<string> targets = AdventureGraphBuilder.GetGraphSceneTargets(action);
+                        for (int targetIndex = 0; targetIndex < targets.Count; targetIndex++)
                         {
-                            _nodes[target] = new PreviewNode
+                            string target = targets[targetIndex];
+                            if (!_nodes.ContainsKey(target))
                             {
-                                Id = target,
-                                TagsLabel = "tags: -",
-                                ContentIcons = new List<Texture>(),
-                                ChoiceIcons = new List<Texture>(),
-                                ChoiceActionIconsPerRow = new List<List<Texture>>(),
-                                ChoiceIds = new List<string>(),
-                                ChoiceExitsScenario = new List<bool>(),
-                                ChoiceCount = 0,
-                                IsExistingScene = false,
-                                IsBrokenTarget = true,
-                                IsStart = false,
-                                IsReachable = false,
-                            };
-                        }
+                                _nodes[target] = new PreviewNode
+                                {
+                                    Id = target,
+                                    TagsLabel = "tags: -",
+                                    ContentIcons = new List<Texture>(),
+                                    ChoiceIcons = new List<Texture>(),
+                                    ChoiceActionIconsPerRow = new List<List<Texture>>(),
+                                    ChoiceIds = new List<string>(),
+                                    ChoiceExitsScenario = new List<bool>(),
+                                    ChoiceCount = 0,
+                                    IsExistingScene = false,
+                                    IsBrokenTarget = true,
+                                    IsStart = false,
+                                    IsReachable = false,
+                                };
+                            }
 
-                        _edges.Add(new PreviewEdge
-                        {
-                            FromNodeId = fromScene,
-                            ToNodeId = target,
-                            FromChoiceIndex = choiceIndex,
-                        });
+                            _edges.Add(new PreviewEdge
+                            {
+                                FromNodeId = fromScene,
+                                ToNodeId = target,
+                                FromChoiceIndex = choiceIndex,
+                            });
+                        }
                     }
                 }
             }

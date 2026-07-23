@@ -55,20 +55,21 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     for (int actionIndex = 0; actionIndex < choice.Actions.Count; actionIndex++)
                     {
                         var action = choice.Actions[actionIndex];
-                        if (action == null || !IsSceneTransitionAction(action))
+                        if (action == null || !IsGraphSceneEdgeAction(action))
                             continue;
 
-                        string targetSceneId = GetSceneId(action);
-                        if (string.IsNullOrWhiteSpace(targetSceneId))
-                            continue;
-
-                        graphData.Edges.Add(new AdventureGraphEdge
+                        IReadOnlyList<string> targetSceneIds = GetGraphSceneTargets(action);
+                        for (int targetIndex = 0; targetIndex < targetSceneIds.Count; targetIndex++)
                         {
-                            FromSceneId = sceneId,
-                            ToSceneId = targetSceneId,
-                            ChoiceId = choice.Id,
-                            ChoiceText = choice.Text,
-                        });
+                            string targetSceneId = targetSceneIds[targetIndex];
+                            graphData.Edges.Add(new AdventureGraphEdge
+                            {
+                                FromSceneId = sceneId,
+                                ToSceneId = targetSceneId,
+                                ChoiceId = choice.Id,
+                                ChoiceText = choice.Text,
+                            });
+                        }
                     }
                 }
             }
@@ -88,6 +89,15 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 || typeCode == LEGACY_GO_TO_SCENE_TYPE_CODE;
         }
 
+        public static bool IsGraphSceneEdgeAction(ChoiceActionData actionData)
+        {
+            if (actionData == null)
+                return false;
+
+            return IsSceneTransitionAction(actionData)
+                || actionData.Type == ChoiceActionType.GoToRandomScene;
+        }
+
         public static string GetSceneId(ChoiceActionData actionData)
         {
             if (actionData?.Params?.Strings == null)
@@ -102,6 +112,39 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 return value;
 
             return string.Empty;
+        }
+
+        public static List<string> GetGraphSceneTargets(ChoiceActionData actionData)
+        {
+            List<string> targets = new List<string>();
+            if (actionData == null)
+                return targets;
+
+            string raw = GetSceneId(actionData);
+            if (string.IsNullOrWhiteSpace(raw))
+                return targets;
+
+            if (actionData.Type != ChoiceActionType.GoToRandomScene)
+            {
+                targets.Add(raw);
+                return targets;
+            }
+
+            string[] parts = raw.Split(new[] { ChoiceActions.SCENE_IDS_SEPARATOR }, StringSplitOptions.None);
+            HashSet<string> unique = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < parts.Length; i++)
+            {
+                string sceneId = parts[i]?.Trim();
+                if (string.IsNullOrWhiteSpace(sceneId))
+                    continue;
+
+                if (!unique.Add(sceneId))
+                    continue;
+
+                targets.Add(sceneId);
+            }
+
+            return targets;
         }
 
         public static void SetSceneId(ChoiceActionData actionData, string sceneId)
@@ -806,20 +849,24 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                             ValidateActionParamsContract(issues, action, sceneId, choiceId, actionIndex);
 
-                            if (!AdventureGraphBuilder.IsSceneTransitionAction(action))
+                            if (!AdventureGraphBuilder.IsGraphSceneEdgeAction(action))
                                 continue;
 
-                            string targetSceneId = AdventureGraphBuilder.GetSceneId(action);
-                            if (string.IsNullOrWhiteSpace(targetSceneId))
+                            IReadOnlyList<string> targetSceneIds = AdventureGraphBuilder.GetGraphSceneTargets(action);
+                            if (targetSceneIds.Count == 0)
                             {
                                 issues.Add(new AdventureValidationIssue(
                                     $"Choice '{choiceId}' in scene '{sceneId}' has scene transition action with empty SceneId."));
                                 continue;
                             }
 
-                            if (!adventureData.Scenes.ContainsKey(targetSceneId))
-                                issues.Add(new AdventureValidationIssue(
-                                    $"Choice '{choiceId}' in scene '{sceneId}' points to missing scene '{targetSceneId}'."));
+                            for (int targetIndex = 0; targetIndex < targetSceneIds.Count; targetIndex++)
+                            {
+                                string targetSceneId = targetSceneIds[targetIndex];
+                                if (!adventureData.Scenes.ContainsKey(targetSceneId))
+                                    issues.Add(new AdventureValidationIssue(
+                                        $"Choice '{choiceId}' in scene '{sceneId}' points to missing scene '{targetSceneId}'."));
+                            }
                         }
                     }
                 }

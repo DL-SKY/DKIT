@@ -409,7 +409,7 @@
               "Type": "GoToAdventure",
               "Params": {
                 "Strings": {
-                  "AdventureId": "AdventureCrossroad"
+                  "AdventureId": "Crossroad"
                 },
                 "Ints": {},
                 "Bools": {}
