@@ -2,6 +2,7 @@ using Modules.Definitions.Scripts.Core;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.BattleRules;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Adventures;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Backgrounds;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items;
@@ -35,6 +36,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         public Dictionary<string, AdventureDef> Adventures;
         public Dictionary<string, ClassDef> Classes;
         public Dictionary<string, AncestryDef> Ancestries;
+        public Dictionary<string, BackgroundDef> Backgrounds;
         public Dictionary<string, FeatDef> Feats;
         public Dictionary<string, ItemDef> Items;
         public Dictionary<string, SpellDef> Spells;
@@ -71,6 +73,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
 
                 LoadClasses,
                 LoadAncestries,
+                LoadBackgrounds,
                 LoadFeats,
                 LoadItems,
                 LoadSpells,                
@@ -111,6 +114,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         private void LoadAncestries()
         {
             Ancestries = _loader.LoadCollection<AncestryDef>("Definitions/_ADVENTURES_/Ancestries");
+        }
+
+        private void LoadBackgrounds()
+        {
+            Backgrounds = _loader.LoadCollection<BackgroundDef>("Definitions/_ADVENTURES_/Backgrounds");
         }
 
         private void LoadFeats()

@@ -66,6 +66,11 @@ namespace Modules.Cheats.Scripts.Editor.Implementation.Definitions
             DrawDefinitionIds(definitionsManager.Ancestries);
             EditorGUI.indentLevel--;
 
+            EditorGUILayout.LabelField("Backgrounds:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.Backgrounds);
+            EditorGUI.indentLevel--;
+
             EditorGUILayout.LabelField("Feats:");
             EditorGUI.indentLevel++;
             DrawDefinitionIds(definitionsManager.Feats);

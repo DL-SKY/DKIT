@@ -35,7 +35,7 @@ Skill для добавления нового adventure-дефа в `Modules.De
 
 ## Workflow
 
-1. Определи целевой тип adventure-дефа и ближайший существующий аналог (`AdventureDef`, `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef`).
+1. Определи целевой тип adventure-дефа и ближайший существующий аналог (`AdventureDef`, `ClassDef`, `AncestryDef`, `BackgroundDef`, `FeatDef`, `ItemDef`, `SpellDef`).
 2. Создай новый C#-класс:
    - по умолчанию наследуй от `AbstractDefinition`;
    - исключение: использовать другую базу только если это явно следует из контракта adventures.
@@ -46,7 +46,10 @@ Skill для добавления нового adventure-дефа в `Modules.De
    - поле хранения (`T` или `Dictionary<string, T>`);
    - метод загрузки;
    - регистрация в `LoadAll()` в правильном порядке зависимостей.
-5. Выполни проверки:
+5. Актуализируй блок читов Definitions (Editor-окно `Tools/Cheats`):
+   - файл: `Assets/Modules/Cheats/Scripts/Editor/Implementation/Definitions/DefinitionsCheatSection.cs`;
+   - в `DrawAdventuresDefinitionsManager` добавь вывод нового дефа (для коллекций — `DrawDefinitionIds(...)`) в том же порядке, что и в `DefinitionsManager` / `LoadAll()`.
+6. Выполни проверки:
    - `Id` берется из имени JSON-файла;
    - JSON-ключи совпадают с именами публичных полей;
    - для коллекций нет конфликтов id в пределах дерева папки.
@@ -62,4 +65,5 @@ Skill для добавления нового adventure-дефа в `Modules.De
 После выполнения сообщи:
 - выбранный формат (`single` или `dictionary`);
 - список измененных/добавленных файлов;
-- где подключен новый adventure-def в `DefinitionsManager`.
+- где подключен новый adventure-def в `DefinitionsManager`;
+- что обновлён блок читов Definitions (`DefinitionsCheatSection`).

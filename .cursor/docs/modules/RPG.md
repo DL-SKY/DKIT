@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-22 11:48:00 (+03:00)
+**Последнее обновление:** 2026-07-23 16:40:00 (+03:00)
 
 ## Назначение
 
@@ -13,7 +13,7 @@
 
 На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`) для переходов по сценам и записи параметров `World/Adventure` в `State`.
 
-> **Связь с `Modules.Definitions`:** JSON-дефы adventure-проекта загружаются через `DefinitionsManager` (Adventures). `AdventureDef` — единственный деф, который наследует RPG-модель (`AdventureData`); классы, происхождения, черты, предметы и заклинания описаны как `ClassDef` / `AncestryDef` / `FeatDef` / `ItemDef` / `SpellDef` и наследуют `AbstractDefinition` напрямую. Контракт дефов расширяется (`AncestryDef.MaleNames`/`FemaleNames`, `ItemDef.IsQuestItem`, `FeatDef.Restrictions` и др.); применение механик в state — в планах. Подробности — в [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция).
+> **Связь с `Modules.Definitions`:** JSON-дефы adventure-проекта загружаются через `DefinitionsManager` (Adventures). `AdventureDef` — единственный деф, который наследует RPG-модель (`AdventureData`); классы, ancestry, предыстории, черты, предметы и заклинания описаны как `ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` / `ItemDef` / `SpellDef` и наследуют `AbstractDefinition` напрямую. Контракт дефов расширяется (`Restrictions`, `Icon`, `Features`, `AncestryDef.Names`/`Avatars` и др.); применение механик в state — в планах. Подробности — в [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция).
 >
 > **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живёт в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Изменения прогресса из choice-executors проходят через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
 >
@@ -317,7 +317,7 @@ Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
 - `Dictionary<string, bool>`
 
 В `Modules.State` для персонажа:
-- `CharacterStateData.Parameters`, `SavingThrows`, `Spells`, `StatusEffects` — `Dictionary<string, int>`;
+- `CharacterStateData.Parameters`, `Spells`, `StatusEffects` — `Dictionary<string, int>`;
 - прогресс мира и приключений — `AdventureStateParamsData` (`Strings` / `Ints` / `Bools`) в `AdventuresStateData`.
 
 Рекомендация по неймингу ключей параметров:
@@ -329,7 +329,7 @@ Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
 
 **Идентификаторы:**
 - runtime-сущности (персонаж) — `int`, выдаются игрой (`NextCharacterId`);
-- ссылки на дефы (класс, происхождение, предмет, заклинание, черта) — `string` (id дефа = имя JSON-файла в `Definitions/_ADVENTURES_/...`; см. [Definitions.md](Definitions.md)).
+- ссылки на дефы (класс, ancestry, предыстория, предмет, заклинание, черта) — `string` (id дефа = имя JSON-файла в `Definitions/_ADVENTURES_/...`; см. [Definitions.md](Definitions.md)).
 
 ## Персистентное состояние (`Modules.State`)
 
@@ -342,9 +342,9 @@ RPG-контент (сцены, выборы, действия) описывае
 - `HeroPoints` — очки героя на уровне профиля (ресурс кампании; дефолт `0` при создании профиля).
 - `Characters` — `Dictionary<int, CharacterStateData>`: весь ростер профиля.
 - `ActivePartyCharacterIds` — `List<int>`: текущий отряд (до 4 персонажей).
-- `CharacterStateData`: `CreateTime`, `Name`, `Gender`, `Ancestry`, `Class`, `Level`, `Experience`, `IsDead`, `DeathTime`, `Parameters`, `SavingThrows`, `Spells`, `StatusEffects`, `EquippedItems`.
-  - `Gender` — `CharacterGender` (`Male` / `Female`); при генерации имени — вместе с `AncestryDef.MaleNames` / `FemaleNames`;
-  - `Ancestry`, `Class` — id дефов `AncestryDef` / `ClassDef`;
+- `CharacterStateData`: `CreateTime`, `Name`, `Gender`, `Ancestry`, `Class`, `Background`, `Level`, `Experience`, `IsDead`, `DeathTime`, `Parameters`, `Spells`, `StatusEffects`, `EquippedItems`.
+  - `Gender` — `CharacterGender` (`Male` / `Female`); при генерации имени/аватара — вместе с `AncestryDef.Names` / `Avatars`;
+  - `Ancestry`, `Class`, `Background` — id дефов `AncestryDef` / `ClassDef` / `BackgroundDef`;
   - `Spells` — словарь id заклинаний (`SpellDef`) или связанных счётчиков (контракт уточняется при подключении runtime);
   - `EquippedItems` — экипировка персонажа.
 - `EquippedItemStateData`: `{ Slot, ItemId }` — слот и id дефа надетого предмета.

@@ -20,14 +20,15 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats
     {
         public bool Disabled;
 
-        public FeatType Type;
-        public int Level;
+        public List<Restriction> Restrictions;
 
         public List<string> Tags;
 
+        public string Icon;
         public string Title;
         public string Description;
 
-        public List<Restriction> Restrictions;
+        public FeatType Type;
+        public int Level;
     }
 }

@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-22 11:55:00 (+03:00)
+**Последнее обновление:** 2026-07-23 16:40:00 (+03:00)
 
 ## Назначение
 
@@ -167,13 +167,13 @@ Implementation/Wallet/
 | `IsDead` | `bool` | Признак смерти (доска славы, исключение из отряда) |
 | `DeathTime` | `long` | Время смерти, Unix ms UTC; `0` — не умер |
 | `Name` | `string` | Отображаемое имя персонажа |
-| `Gender` | `CharacterGender` | Пол персонажа; при генерации имени используется с `AncestryDef.MaleNames` / `FemaleNames` |
-| `Ancestry` | `string` | Id дефа происхождения (`AncestryDef`) |
+| `Gender` | `CharacterGender` | Пол персонажа; при генерации имени/аватара используется с `AncestryDef.Names` / `Avatars` |
+| `Ancestry` | `string` | Id дефа ancestry (`AncestryDef`) |
 | `Class` | `string` | Id дефа класса (`ClassDef`) |
+| `Background` | `string` | Id дефа предыстории (`BackgroundDef`) |
 | `Level` | `int` | Уровень персонажа |
 | `Experience` | `int` | Опыт персонажа |
 | `Parameters` | `Dictionary<string, int>` | Числовые параметры: abilities, skills, HP, speed, feats и т.д. |
-| `SavingThrows` | `Dictionary<string, int>` | Спасброски |
 | `EquippedItems` | `List<EquippedItemStateData>` | Надетая экипировка |
 | `Spells` | `Dictionary<string, int>` | Заклинания |
 | `StatusEffects` | `Dictionary<string, int>` | Статусные эффекты: id эффекта → значение |
@@ -190,8 +190,8 @@ Implementation/Wallet/
 - ссылки на контент из дефов — `string` (имя дефа / id из `Definitions`; типы дефов — в [Definitions.md](Definitions.md)).
 
 **Defs → State (планируемый поток):**
-- дефы (`ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef`) описывают статический контент;
-- при создании/прокачке персонажа runtime читает дефы и записывает итоговые значения в `Parameters`, `SavingThrows`, `Spells`, `StatusEffects` и связанные поля;
+- дефы (`ClassDef`, `AncestryDef`, `BackgroundDef`, `FeatDef`, `ItemDef`, `SpellDef`) описывают статический контент;
+- при создании/прокачке персонажа runtime читает дефы и записывает итоговые значения в `Parameters`, `Spells`, `StatusEffects` и связанные поля;
 - на текущем этапе дефы содержат минимальный контракт; структурированные модификаторы с величинами будут добавлены в дефы по мере разработки механик (см. [Definitions.md — Adventure-дефы персонажа](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
 
 ### Adventure: `InventoryStateData`

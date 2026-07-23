@@ -31,6 +31,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
 
         public string Ancestry;
         public string Class;
+        public string Background;
 
         public int Level;
         public int Experience;
@@ -39,7 +40,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         /// Abilities, Skills, HP, Speed, Feats, etc...
         /// </summary>
         public Dictionary<string, int> Parameters;
-        public Dictionary<string, int> SavingThrows;    // TODO: obsolete? Use Parameters?
+        //public Dictionary<string, int> SavingThrows;    // TODO: obsolete? Use Parameters?
 
         public List<EquippedItemStateData> EquippedItems;
 

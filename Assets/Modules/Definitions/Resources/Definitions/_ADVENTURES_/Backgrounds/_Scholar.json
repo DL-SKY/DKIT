@@ -1,0 +1,19 @@
+{
+	"Disabled": false,
+	"Restrictions": [],
+	"Tags": [
+		"player-core",
+		"boost-intelligence",
+		"skill-arcana",
+		"skill-nature",
+		"skill-occultism",
+		"skill-religion",
+		"lore-academia"
+	],
+	"Icon": "",
+	"Title": "Учёный",
+	"Description": "Годы среди свитков и трактатов сделали вас знатоком одной из академических дисциплин — вы умеете читать, спорить и находить ответы в книгах.",
+	"Features": [
+		"_AssuranceLore"
+	]
+}

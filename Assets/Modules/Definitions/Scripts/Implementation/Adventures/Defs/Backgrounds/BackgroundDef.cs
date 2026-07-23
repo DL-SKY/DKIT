@@ -2,9 +2,9 @@ using Modules.Definitions.Scripts.Defs;
 using Modules.Restrictions.Scripts.Core;
 using System.Collections.Generic;
 
-namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes
+namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Backgrounds
 {
-    public class ClassDef : AbstractDefinition
+    public class BackgroundDef : AbstractDefinition
     {
         public bool Disabled;
 
@@ -16,6 +16,6 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes
         public string Title;
         public string Description;
 
-        public Dictionary<int, List<string>> Features;
+        public List<string> Features;
     }
 }

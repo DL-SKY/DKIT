@@ -1,4 +1,6 @@
 using Modules.Definitions.Scripts.Defs;
+using Modules.Restrictions.Scripts.Core;
+using Modules.State.Scripts.Implementation.Adventure.StateDatas;
 using System.Collections.Generic;
 
 namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries
@@ -15,18 +17,20 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries
     {
         public bool Disabled;
 
-        public AncestrySize Size;
-        public int Speed;
+        public List<Restriction> Restrictions;
 
         public List<string> Tags;
 
+        public string Icon;
         public string Title;
         public string Description;
 
-        public List<string> MaleNames;
-        public List<string> FemaleNames;
+        public AncestrySize Size;
+        public int Speed;
 
-        //public List<string> AbilityBoosts;
-        //public List<string> AbilityFlaws;
+        public Dictionary<int, List<string>> Features;
+
+        public Dictionary<CharacterGender, List<string>> Names;
+        public Dictionary<CharacterGender, List<string>> Avatars;
     }
 }

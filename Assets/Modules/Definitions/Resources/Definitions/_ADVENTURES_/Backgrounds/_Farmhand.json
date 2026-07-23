@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Restrictions": [],
+	"Tags": [
+		"player-core",
+		"boost-strength",
+		"boost-constitution",
+		"skill-athletics",
+		"lore-farming"
+	],
+	"Icon": "",
+	"Title": "Батрак",
+	"Description": "Вы выросли среди полей и скота: тяжёлая работа закалила тело и научила полагаться на силу и выносливость.",
+	"Features": [
+		"_AssuranceAthletics"
+	]
+}

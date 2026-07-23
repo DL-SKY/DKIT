@@ -24,7 +24,26 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
         public static class Adventures
         {
             // --- Tags ---
+
+            public const string BOARD = "BOARD";
+            public const string CHARACTER = "CHARACTER";
+            public const string CROSSROADS = "CROSSROADS";
+            public const string ENTRY = "ENTRY";
+            public const string EXIT = "EXIT";
+            public const string GUIDEBOOK = "GUIDEBOOK";
             public const string HUB = "HUB";
+            public const string INTRO = "INTRO";
+            public const string LOCATION = "LOCATION";
+            public const string LOOK = "LOOK";
+            public const string MAIN = "MAIN";
+            public const string PARTY = "PARTY";
+            public const string QUEST = "QUEST";
+            public const string SAFE = "SAFE";
+            public const string SOCIAL = "SOCIAL";
+            public const string START = "START";
+            public const string TAVERN = "TAVERN";
+            public const string TRADE = "TRADE";
+            public const string TUTORIAL = "TUTORIAL";
 
             // --- Parameters ---
         }
@@ -35,67 +54,67 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
             // --- Parameters ---
 
-            public const string STR = "STR";    // Сила
-            public const string DEX = "DEX";    // Лвкость
-            public const string CON = "CON";    // Телосложение
-            public const string INT = "INT";    // Интеллект
-            public const string WIS = "WIS";    // Мудрость
-            public const string CHA = "CHA";    // Харизма
+            public const string STR = "STR";    // РЎРёР»Р°
+            public const string DEX = "DEX";    // Р›РѕРІРєРѕСЃС‚СЊ
+            public const string CON = "CON";    // РўРµР»РѕСЃР»РѕР¶РµРЅРёРµ
+            public const string INT = "INT";    // РРЅС‚РµР»Р»РµРєС‚
+            public const string WIS = "WIS";    // РњСѓРґСЂРѕСЃС‚СЊ
+            public const string CHA = "CHA";    // РҐР°СЂРёР·РјР°
 
-            public const string ARMOR_CLASS = "AC"; // Класс Брони
+            public const string ARMOR_CLASS = "AC"; // РљР»Р°СЃСЃ Р±СЂРѕРЅРё
 
             public const string MAX_HIT_POINTS = "MaxHitPoints";
             public const string HIT_POINTS = "HitPoints";
 
-            public const string PERCEPTION = "Perception";  // Восприятие
+            public const string PERCEPTION = "Perception";  // Р’РѕСЃРїСЂРёСЏС‚РёРµ
 
-            public const string ACROBATICS = "Acrobatics";  // Акробатика
-            public const string ARCANA = "Arcana";  // Мистицизм
-            public const string ATHLETICS = "Athletics";  // Атлетика
-            public const string CRAFTING = "Crafting";  // Ремесло
-            public const string DECEPTION = "Deception";  // Обман
-            public const string DIPLOMACY = "Diplomacy";  // Дипломатия
-            public const string INTIMIDATION = "Intimidation";  // Запугивание
-            public const string LORE = "Lore";  // Знания
-            public const string MEDICINE = "Medicine";  // Медицина
-            public const string NATURE = "Nature";  // Природа
-            public const string OCCULTISM = "Occultism";  // Оккультизм
-            public const string PERFORMANCE = "Performance";  // Выступление
-            public const string RELIGION = "Religion";  // Религия
-            public const string SOCIETY = "Society";  // Общество
-            public const string STEALTH = "Stealth";  // Скрытность
-            public const string SURVIVAL = "Survival";  // Выживание
-            public const string THIEVERY = "Thievery";  // Воровство
+            public const string ACROBATICS = "Acrobatics";  // РђРєСЂРѕР±Р°С‚РёРєР°
+            public const string ARCANA = "Arcana";  // РњРёСЃС‚РёС†РёР·Рј
+            public const string ATHLETICS = "Athletics";  // РђС‚Р»РµС‚РёРєР°
+            public const string CRAFTING = "Crafting";  // Р РµРјРµСЃР»Рѕ
+            public const string DECEPTION = "Deception";  // РћР±РјР°РЅ
+            public const string DIPLOMACY = "Diplomacy";  // Р”РёРїР»РѕРјР°С‚РёСЏ
+            public const string INTIMIDATION = "Intimidation";  // Р—Р°РїСѓРіРёРІР°РЅРёРµ
+            public const string LORE = "Lore";  // Р—РЅР°РЅРёРµ
+            public const string MEDICINE = "Medicine";  // РњРµРґРёС†РёРЅР°
+            public const string NATURE = "Nature";  // РџСЂРёСЂРѕРґР°
+            public const string OCCULTISM = "Occultism";  // РћРєРєСѓР»СЊС‚РёР·Рј
+            public const string PERFORMANCE = "Performance";  // Р’С‹СЃС‚СѓРїР»РµРЅРёРµ
+            public const string RELIGION = "Religion";  // Р РµР»РёРіРёСЏ
+            public const string SOCIETY = "Society";  // РћР±С‰РµСЃС‚РІРѕ
+            public const string STEALTH = "Stealth";  // РЎРєСЂС‹С‚РЅРѕСЃС‚СЊ
+            public const string SURVIVAL = "Survival";  // Р’С‹Р¶РёРІР°РЅРёРµ
+            public const string THIEVERY = "Thievery";  // Р’РѕСЂРѕРІСЃС‚РІРѕ
         }
 
         public static class Classes
         {
             // --- Tags ---
 
-            public const string ALCHEMIST = "Alchemist";
-            public const string ANIMIST = "Animist";
-            public const string BARBARIAN = "Barbarian";
-            public const string BARD = "Bard";
-            public const string CHAMPION = "Champion";
-            public const string CLERIC = "Cleric";
-            public const string COMMANDER = "Commander";
-            public const string DRUID = "Druid";
-            public const string FIGHTER = "Fighter";
-            public const string GUARDIAN = "Guardian";
-            public const string INVESTIGATOR = "Investigator";
-            public const string KINETICIST = "Kineticist";
-            public const string MAGUS = "Magus";
-            public const string MONK = "Monk";
-            public const string ORACLE = "Oracle";
-            public const string PSYCHIC = "Psychic";
-            public const string RANGER = "Ranger";
-            public const string ROGUE = "Rogue";
-            public const string SORCERER = "Sorcerer";
-            public const string SUMMONER = "Summoner";
-            public const string SWASHBUCKLER = "Swashbuckler";
-            public const string THAUMATURGE = "Thaumaturge";
-            public const string WITCH = "Witch";
-            public const string WIZARD = "Wizard";
+            public const string ALCHEMIST = "ALCHEMIST";
+            public const string ANIMIST = "ANIMIST";
+            public const string BARBARIAN = "BARBARIAN";
+            public const string BARD = "BARD";
+            public const string CHAMPION = "CHAMPION";
+            public const string CLERIC = "CLERIC";
+            public const string COMMANDER = "COMMANDER";
+            public const string DRUID = "DRUID";
+            public const string FIGHTER = "FIGHTER";
+            public const string GUARDIAN = "GUARDIAN";
+            public const string INVESTIGATOR = "INVESTIGATOR";
+            public const string KINETICIST = "KINETICIST";
+            public const string MAGUS = "MAGUS";
+            public const string MONK = "MONK";
+            public const string ORACLE = "ORACLE";
+            public const string PSYCHIC = "PSYCHIC";
+            public const string RANGER = "RANGER";
+            public const string ROGUE = "ROGUE";
+            public const string SORCERER = "SORCERER";
+            public const string SUMMONER = "SUMMONER";
+            public const string SWASHBUCKLER = "SWASHBUCKLER";
+            public const string THAUMATURGE = "THAUMATURGE";
+            public const string WITCH = "WITCH";
+            public const string WIZARD = "WIZARD";
 
             // --- Parameters ---
         }
@@ -104,14 +123,21 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
         {
             // --- Tags ---
 
-            public const string DWARF = "Dwarf";
-            public const string ELF = "Elf";
-            public const string GNOME = "Gnome";
-            public const string GOBLIN = "Goblin";
-            public const string HALFLING = "Halfling";
-            public const string HUMAN = "Human";
-            public const string LESHY = "Leshy";
-            public const string ORC = "Orc";
+            public const string DWARF = "DWARF";
+            public const string ELF = "ELF";
+            public const string GNOME = "GNOME";
+            public const string GOBLIN = "GOBLIN";
+            public const string HALFLING = "HALFLING";
+            public const string HUMAN = "HUMAN";
+            public const string LESHY = "LESHY";
+            public const string ORC = "ORC";
+
+            // --- Parameters ---
+        }
+
+        public static class Backgrounds
+        {
+            // --- Tags ---
 
             // --- Parameters ---
         }
