@@ -377,7 +377,7 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
   - для некорректных тегов доступен `Fix`, который нормализует значение в `UPPER_SNAKE_CASE`.
 - Валидация локализуемых текстовых полей (`Title`, `Description`, `Choice.Text`, `Choice.Description`, `SceneContentData.Value`):
   - предупреждение, если поле похоже на ключ локализации (например, `loc:SOME_KEY` или `SOME_KEY_NAME`);
-  - предупреждение и `Fix`, если в поле есть literal переносы строк: `Fix` заменяет их на escaped `\n`.
+  - переносы строк (`\n`) в тексте допустимы (в JSON это escaped `\n`, в памяти — обычный line break).
 - Валидация стиля id внутри сценария:
   - предупреждение, если id сцены/выбора не в `lower_snake_case` и не в `CamelCase/PascalCase`;
   - предупреждение, если стили id смешаны внутри одного adventure.

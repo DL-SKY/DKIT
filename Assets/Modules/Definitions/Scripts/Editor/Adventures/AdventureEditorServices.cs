@@ -875,37 +875,13 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             if (string.IsNullOrEmpty(value))
                 return;
 
-            if (HasLineBreak(value))
-            {
-                issues.Add(new AdventureValidationIssue(
-                    $"{fieldPath} contains line breaks. Use escaped '\\n' (or RTF tags) instead of literal line breaks.",
-                    () => setter?.Invoke(ReplaceLineBreaksWithEscapedNewlines(value))));
-            }
-
+            // Newlines (\n / \r) are valid in localized text: JSON stores them as escaped "\n",
+            // and after deserialization they become real line breaks in memory.
             if (!LooksLikeLocalizationKey(value))
                 return;
 
             issues.Add(new AdventureValidationIssue(
                 $"{fieldPath} looks like a localization key ('{value}'). TEA adventure JSON should store user-facing text unless explicitly requested otherwise."));
-        }
-
-        private static bool HasLineBreak(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return false;
-
-            return value.IndexOf('\n') >= 0 || value.IndexOf('\r') >= 0;
-        }
-
-        private static string ReplaceLineBreaksWithEscapedNewlines(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return string.Empty;
-
-            return value
-                .Replace("\r\n", "\n")
-                .Replace('\r', '\n')
-                .Replace("\n", "\\n");
         }
 
         private static bool LooksLikeLocalizationKey(string value)

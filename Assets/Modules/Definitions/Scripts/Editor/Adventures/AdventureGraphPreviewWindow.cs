@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using Modules.Definitions.Scripts.Editor.Adventures.CreateOptions;
+using Modules.Definitions.Scripts.Implementation.Adventures.Constants;
 
 namespace Modules.Definitions.Scripts.Editor.Adventures
 {
@@ -22,6 +23,10 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
         private const float CONTENT_ICON_SIZE = 14f;
         private const float CONTENT_ICON_SPACING = 4f;
         private const float ICON_BOTTOM_MARGIN = 4f;
+        private const float CHOICE_EXIT_OUTLINE = 2f;
+
+        private static readonly Color SCENARIO_EXIT_COLOR = new Color(0.72f, 0.55f, 0.08f, 1f);
+        private static readonly Color UNREACHABLE_COLOR = new Color(0.48f, 0.30f, 0.14f, 1f);
 
         private readonly Dictionary<string, PreviewNode> _nodes = new Dictionary<string, PreviewNode>(StringComparer.Ordinal);
         private readonly List<PreviewEdge> _edges = new List<PreviewEdge>();
@@ -113,9 +118,11 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 GUILayout.Space(10f);
                 GUILayout.Label("Regular", GetLegendStyle(new Color(0.48f, 0.48f, 0.48f, 1f)));
                 GUILayout.Space(10f);
-                GUILayout.Label("Unreachable", GetLegendStyle(new Color(0.85f, 0.55f, 0.2f, 1f)));
+                GUILayout.Label("Unreachable", GetLegendStyle(UNREACHABLE_COLOR));
                 GUILayout.Space(10f);
                 GUILayout.Label("Broken Target", GetLegendStyle(new Color(0.9f, 0.3f, 0.3f, 1f)));
+                GUILayout.Space(10f);
+                GUILayout.Label("Scenario Exit", GetLegendStyle(SCENARIO_EXIT_COLOR));
                 GUILayout.FlexibleSpace();
             }
         }
@@ -321,6 +328,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 EditorGUI.DrawRect(new Rect(rowRect.x, rowRect.y, rowRect.width, 1f), new Color(1f, 1f, 1f, 0.15f));
                 EditorGUI.DrawRect(new Rect(rowRect.x, rowRect.yMax - 1f, rowRect.width, 1f), new Color(0f, 0f, 0f, 0.28f));
 
+                bool exitsScenario = node.ChoiceExitsScenario != null
+                    && i < node.ChoiceExitsScenario.Count
+                    && node.ChoiceExitsScenario[i];
+                if (exitsScenario)
+                    DrawRectOutline(rowRect, SCENARIO_EXIT_COLOR, CHOICE_EXIT_OUTLINE);
+
                 Texture icon = (node.ChoiceIcons != null && i < node.ChoiceIcons.Count) ? node.ChoiceIcons[i] : null;
                 float iconSize = CONTENT_ICON_SIZE * _zoom;
                 float iconSpacing = CONTENT_ICON_SPACING * _zoom;
@@ -399,7 +412,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             if (node.IsStart)
                 return new Color(0.19f, 0.42f, 0.66f, 0.96f);
             if (!node.IsReachable)
-                return new Color(0.53f, 0.36f, 0.18f, 0.96f);
+                return new Color(UNREACHABLE_COLOR.r, UNREACHABLE_COLOR.g, UNREACHABLE_COLOR.b, 0.96f);
 
             return new Color(0.26f, 0.26f, 0.26f, 0.96f);
         }
@@ -542,6 +555,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     ChoiceIcons = BuildChoiceIcons(sceneData?.Choices),
                     ChoiceActionIconsPerRow = BuildChoiceActionIcons(sceneData?.Choices),
                     ChoiceIds = BuildChoiceIds(sceneData?.Choices),
+                    ChoiceExitsScenario = BuildChoiceExitsScenario(sceneData?.Choices),
                     ChoiceCount = sceneData?.Choices?.Count ?? 0,
                     IsExistingScene = true,
                     IsStart = startSet.Contains(id),
@@ -582,6 +596,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                                 ChoiceIcons = new List<Texture>(),
                                 ChoiceActionIconsPerRow = new List<List<Texture>>(),
                                 ChoiceIds = new List<string>(),
+                                ChoiceExitsScenario = new List<bool>(),
                                 ChoiceCount = 0,
                                 IsExistingScene = false,
                                 IsBrokenTarget = true,
@@ -1007,8 +1022,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                             continue;
                         }
 
-                        _choiceActionIconsByType.TryGetValue(action.Type, out Texture icon);
-                        rowIcons.Add(icon);
+                        rowIcons.Add(ResolveChoiceActionIcon(action));
                     }
                 }
 
@@ -1016,6 +1030,49 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             }
 
             return result;
+        }
+
+        private Texture ResolveChoiceActionIcon(ChoiceActionData action)
+        {
+            if (action == null)
+                return null;
+
+            if (action.Type == ChoiceActionType.OpenWindow)
+                return ResolveOpenWindowIcon(action);
+
+            _choiceActionIconsByType.TryGetValue(action.Type, out Texture icon);
+            return icon;
+        }
+
+        private static Texture ResolveOpenWindowIcon(ChoiceActionData action)
+        {
+            string windowId = null;
+            action.Params?.Strings?.TryGetValue(Glossary.ChoiceActions.WINDOW_ID, out windowId);
+
+            string iconAssetName = GetOpenWindowIconAssetName(windowId);
+            Texture icon = AdventureEditorButtonIcons.Resolve(null, iconAssetName);
+            if (icon != null)
+                return icon;
+
+            return AdventureEditorButtonIcons.Resolve(null, "WindowDefault");
+        }
+
+        private static string GetOpenWindowIconAssetName(string windowId)
+        {
+            if (string.Equals(windowId, Glossary.Windows.TRADE, StringComparison.Ordinal))
+                return "WindowTrade";
+
+            if (string.Equals(windowId, Glossary.Windows.CREATE_CHARACTER, StringComparison.Ordinal)
+                || string.Equals(windowId, Glossary.Windows.SELECT_CHARACTER, StringComparison.Ordinal))
+                return "WindowCharacter";
+
+            if (string.Equals(windowId, Glossary.Windows.PARTY, StringComparison.Ordinal))
+                return "WindowParty";
+
+            if (string.Equals(windowId, Glossary.Windows.ADVENTURE_LIST, StringComparison.Ordinal))
+                return "WindowBoard";
+
+            return "WindowDefault";
         }
 
         private static List<string> BuildChoiceIds(List<ChoiceData> choices)
@@ -1034,6 +1091,77 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             }
 
             return result;
+        }
+
+        private static List<bool> BuildChoiceExitsScenario(List<ChoiceData> choices)
+        {
+            List<bool> result = new List<bool>();
+            if (choices == null)
+                return result;
+
+            for (int i = 0; i < choices.Count; i++)
+                result.Add(ChoiceLeadsToScenarioExit(choices[i]));
+
+            return result;
+        }
+
+        private static bool ChoiceLeadsToScenarioExit(ChoiceData choice)
+        {
+            if (choice == null)
+                return false;
+
+            if (HasScenarioExitAction(choice.Actions))
+                return true;
+
+            ChoiceDiceCheckData diceCheck = choice.DiceCheck;
+            if (diceCheck == null)
+                return false;
+
+            return HasScenarioExitAction(diceCheck.OnCriticalSuccess)
+                || HasScenarioExitAction(diceCheck.OnSuccess)
+                || HasScenarioExitAction(diceCheck.OnFailure)
+                || HasScenarioExitAction(diceCheck.OnCriticalFailure);
+        }
+
+        private static bool HasScenarioExitAction(List<ChoiceActionData> actions)
+        {
+            if (actions == null)
+                return false;
+
+            for (int i = 0; i < actions.Count; i++)
+            {
+                if (IsScenarioExitAction(actions[i]))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsScenarioExitAction(ChoiceActionData action)
+        {
+            if (action == null)
+                return false;
+
+            if (action.Type == ChoiceActionType.GoToAdventure
+                || action.Type == ChoiceActionType.GoToRandomAdventure)
+                return true;
+
+            if (action.Type != ChoiceActionType.OpenWindow)
+                return false;
+
+            if (action.Params?.Strings == null)
+                return false;
+
+            return action.Params.Strings.TryGetValue(Glossary.ChoiceActions.WINDOW_ID, out string windowId)
+                && string.Equals(windowId, Glossary.Windows.ADVENTURE_LIST, StringComparison.Ordinal);
+        }
+
+        private static void DrawRectOutline(Rect rect, Color color, float thickness)
+        {
+            EditorGUI.DrawRect(new Rect(rect.x - thickness, rect.y - thickness, rect.width + thickness * 2f, thickness), color);
+            EditorGUI.DrawRect(new Rect(rect.x - thickness, rect.yMax, rect.width + thickness * 2f, thickness), color);
+            EditorGUI.DrawRect(new Rect(rect.x - thickness, rect.y, thickness, rect.height), color);
+            EditorGUI.DrawRect(new Rect(rect.xMax, rect.y, thickness, rect.height), color);
         }
 
         private GUIStyle GetLegendStyle(Color color)
@@ -1087,6 +1215,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             public List<Texture> ChoiceIcons;
             public List<List<Texture>> ChoiceActionIconsPerRow;
             public List<string> ChoiceIds;
+            public List<bool> ChoiceExitsScenario;
             public int ChoiceCount;
             public List<Rect> ChoiceRowScreenRects = new List<Rect>();
             public bool IsExistingScene;

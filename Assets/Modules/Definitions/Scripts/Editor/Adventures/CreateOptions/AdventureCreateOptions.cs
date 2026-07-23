@@ -364,7 +364,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     ButtonText = "Open Window",
                     Tooltip = "Open a hub UI window by WindowId (create/select character, trade, party, adventure list).",
                     IconName = "d_winbtn_mac_max_h",
-                    IconAssetName = "load(1)",
+                    IconAssetName = "WindowDefault",
                     Create = () => new ChoiceActionData
                     {
                         Type = ChoiceActionType.OpenWindow,

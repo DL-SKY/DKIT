@@ -1,16 +1,1262 @@
 {
   "Disabled": false,
   "Tags": [
-    "location",
-    "tavern"
+    "TAVERN",
+    "HUB",
+    "LOCATION",
+    "SAFE",
+    "SOCIAL"
   ],
   "IgnoredTags": [],
   "IsRepeatable": true,
   "Type": "Location",
   "AdventureLinks": [],
-  "Title": "Таверна Марты",
-  "Description": "Уютная таверна у дороги, где хозяйка Марта знает все местные новости.",
+  "Title": "Таверна Приключений Марты",
+  "Description": "Уютная таверна у тракта: хаб для торговли, отряда, объявлений и стартовых приключений.",
   "Restrictions": [],
-  "StartScenes": [],
-  "Scenes": {}
+  "StartScenes": [
+    "scene_01"
+  ],
+  "Scenes": {
+    "scene_01": {
+      "Id": "scene_01",
+      "Tags": [
+        "START",
+        "ENTRY",
+        "INTRO"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы оказываетесь перед таверной. Двухэтажный дом из темного дерева стоит чуть в стороне от тракта, будто сам выбрал себе спокойное место. Над дверью покачивается вывеска: «Таверна Приключений». Из трубы тянется дымок, а из-под порога слышен приглушенный гул голосов — не угрожающий, а домашний.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "С легким скрипом дверь открывается, и вы проходите внутрь.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "В зале пахнет свежим хлебом, жареным луком и чуть сладковатым элем. Камин на дальней стене роняет свет на столы, карты и старые щиты. За стойкой звенят кружки, у камина кто-то настраивает струны, а воздух кажется густым от тепла и чужих историй, которые здесь рассказывают уже не первый десяток лет.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s01_continue",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Далее…",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_02"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_02": {
+      "Id": "scene_02",
+      "Tags": [
+        "ENTRY",
+        "CHARACTER"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Трактирщица Марта замечает вас и приветливо машет из-за барной стойки. Низкорослая, энергичная, с острыми скулами и улыбкой чуть насмешливой — но не злой. Руки у нее быстрые: одной она уже ставит кружку гостю, другой указывает вам на свободное место, будто давно ждала именно вас. В волосах поблескивает медная заколка, а на поясе — побрякивает связка ключей.",
+          "Values": null
+        },
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "WorldParams",
+              "StringValues": [
+                "WAS_IN_MARTHA_TAVERN"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "Дорогуша! Новым лицам здесь всегда рады! Проходи, располагайся! И обязательно расскажи о себе! Я Марта, а это моя таверна. Таверна Приключений!",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "WorldParams",
+              "StringValues": [
+                "WAS_IN_MARTHA_TAVERN"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "Дорогуша! Рада снова тебя видеть в моей таверне!",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s02_select_character",
+          "Tags": [
+            "CHARACTER"
+          ],
+          "Type": "Default",
+          "Text": "Выбрать персонажа",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [
+            {
+              "Type": "WorldParams",
+              "StringValues": [
+                "WAS_IN_MARTHA_TAVERN"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "OpenWindow",
+              "Params": {
+                "Strings": {
+                  "WindowId": "SelectCharacter"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s02_create_character",
+          "Tags": [
+            "CHARACTER"
+          ],
+          "Type": "Default",
+          "Text": "Создать персонажа",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [
+            {
+              "Type": "WorldParams",
+              "StringValues": [
+                "WAS_IN_MARTHA_TAVERN"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "OpenWindow",
+              "Params": {
+                "Strings": {
+                  "WindowId": "CreateCharacter"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s02_continue",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Далее…",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [
+            {
+              "Type": "ActivePartyCount",
+              "StringValues": [],
+              "IntValues": [
+                0
+              ],
+              "LongValues": [],
+              "BoolValues": [],
+              "CompareOptions": "More"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetWorldParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "WAS_IN_MARTHA_TAVERN": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_03"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_03": {
+      "Id": "scene_03",
+      "Tags": [
+        "HUB",
+        "MAIN",
+        "EXIT"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы обмениваетесь новостями с хозяйкой таверны. Она кивает вам из-за барного стола, иногда отвлекаясь на других гостей. За разговорами вы осматриваете зал.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "На стойке недалеко от вас лежит потрепанная книжка «Краткий путеводитель искателя приключений».",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Около камина вы замечаете в компании музыкантов других искателей приключений со всем своим снаряжением. Несколько менестрелей наигрывают мелодию, пока другие записывают рассказы бывалых авантюристов.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "У дальней же стены расположились странствующие торговцы. Столы ломятся от еды и питья, а под лавками лежат их мешки с товарами со всего света.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "А у самого выхода на специальной доске вы обращаете внимание на объявления. Листовки разных размеров и содержания закреплены булавками и гвоздями. А некоторые листы пергамента держатся на воткнутых в доску ножах.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s03_board",
+          "Tags": [
+            "BOARD"
+          ],
+          "Type": "Default",
+          "Text": "Подойти к доске объявлений",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_04"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s03_trade",
+          "Tags": [
+            "TRADE"
+          ],
+          "Type": "Default",
+          "Text": "Торговать",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "OpenWindow",
+              "Params": {
+                "Strings": {
+                  "WindowId": "Trade"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s03_party",
+          "Tags": [
+            "PARTY"
+          ],
+          "Type": "Default",
+          "Text": "Сменить состав отряда",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "OpenWindow",
+              "Params": {
+                "Strings": {
+                  "WindowId": "Party"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s03_guidebook",
+          "Tags": [
+            "TUTORIAL"
+          ],
+          "Type": "Default",
+          "Text": "Полистать «Краткий путеводитель искателя приключений»",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_05"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s03_leave",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Покинуть таверну…",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "AdventureCrossroad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_04": {
+      "Id": "scene_04",
+      "Tags": [
+        "BOARD",
+        "QUEST",
+        "EXIT"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы подходите к доске объявлений у выхода. Пергаменты и бумажные листы висят рядами: сверху — свежие, еще пахнущие чернилами; ниже — выцветшие, с загнутыми углами. На одном клочке нарисован кривой череп, на другом — аккуратная карта с пометкой «не ходить ночью». Несколько записок держатся на ножах — местная традиция подчеркивать важность. Стоит задержаться взглядом на секунду дольше — и уже чувствуете, как за спиной таверна продолжает жить своей жизнью, а впереди начинается дорога.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "STARTED_MARTHA_START_QUEST"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "Внезапно раздается окрик хозяйки таверны\n- Дорогуша! Если так интересуешься заданиями с доски объявлений, то у меня есть для тебя отличное стартовое приключение! В амбаре снова безобразничают крысы. Поможешь мне?",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s04_adventure_list",
+          "Tags": [
+            "BOARD"
+          ],
+          "Type": "Default",
+          "Text": "Посмотреть объявления",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "OpenWindow",
+              "Params": {
+                "Strings": {
+                  "WindowId": "AdventureList"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s04_help_martha",
+          "Tags": [
+            "EXIT",
+            "QUEST"
+          ],
+          "Type": "Default",
+          "Text": "Помочь Марте с крысами",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "STARTED_MARTHA_START_QUEST"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "STARTED_MARTHA_START_QUEST": true
+                }
+              }
+            },
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "AdventureMarthaRatsInBarn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s04_back_to_table",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться к столу",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_03"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_05": {
+      "Id": "scene_05",
+      "Tags": [
+        "TUTORIAL",
+        "GUIDEBOOK"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы берете со стойки потрепанную книжку «Краткий путеводитель искателя приключений». Обложка заляпана чем-то липким — похоже, это был мед. Или эль. Или и то, и другое.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Марта опирается локтями на барную стойку и довольно прищуривается.\n— А, классика! Читай вслух, дорогуша. Я подскажу, где авторы соврали, а где — недосказали.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы открываете первую страницу. На ней крупными буквами:",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Глава I. Что такое приключение»\n«Приключение — это история. Ты читаешь текст, смотришь картинки, а в конце каждой сцены выбираешь, что делать дальше. Иногда выбор простой. Иногда — проверка на кубике.»",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Марта кивает так энергично, что у нее звенит серьга.\n— Дорогуша! Вся наша жизнь — это приключение. А приключения — это как игра. Авторы тут даже не соврали — просто забыли дописать самое вкусное. Если вдруг кажется, что «кнопок мало» — проверь, не забыл ли ты героя. Без героя и история как-то… пустовата.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s05_next",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Далее…",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_06"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s05_close",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Закрыть путеводитель",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_03"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_06": {
+      "Id": "scene_06",
+      "Tags": [
+        "TUTORIAL",
+        "GUIDEBOOK"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы перелистываете страницу. Слышен характерный треск старого корешка.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Глава II. Сцены и выборы»\n«Каждый фрагмент истории называется сценой. В сцене бывает описание, иногда картинка, а внизу — варианты действий. Выбрал вариант — попал в следующую сцену. Вернуться «назад» можно не всегда: жизнь жестока, а авторы — еще жесточе.»",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Марта фыркает.\n— Не слушай эту пафосную часть. В моей таверне «назад» — это просто «вернуться к столу». А вот в настоящем приключении… ну, если ты уже полез в нору к крысам, то «ой, я передумал» работает редко.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Она указывает пальцем на строчку про варианты.\n— И запомни: не все варианты всегда видны. Иногда нужно сначала создать героя, иногда — дойти до нужного места, иногда — просто не быть слишком самоуверенным.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s06_next",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Далее…",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_07"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s06_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Назад",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_05"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s06_close",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Закрыть путеводитель",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_03"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_07": {
+      "Id": "scene_07",
+      "Tags": [
+        "TUTORIAL",
+        "GUIDEBOOK"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "На следующей странице — рисунок огромного двадцатигранника, который кто-то явно пытался «улучшить» усами и короной.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Глава III. Кубики и проверки»\n«Когда выбор помечен как проверка, ты бросаешь кубик. К результату добавляется модификатор умения или характеристики. Сумма сравнивается со сложностью. Больше или равно — успех. Меньше — неудача. Иногда бывает еще хуже. Или лучше. Авторы любят сюрпризы.»",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Марта достает из-за стойки настоящий d20 и крутит его между пальцами.\n— Вот он, главный судья. Двадцать граней, ноль милосердия. Выпало много — ты герой. Выпало мало — ты… тоже герой, просто чуть более мокрый и с синяком. А если видишь, что проверяют, скажем, Скрытность — не пытайся убеждать крысу Дипломатией. Хотя… с моими крысами иногда и это помогает. Шучу. Почти.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s07_next",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Далее…",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_08"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s07_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Назад",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_06"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s07_close",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Закрыть путеводитель",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_03"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_08": {
+      "Id": "scene_08",
+      "Tags": [
+        "TUTORIAL",
+        "GUIDEBOOK",
+        "PARTY"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Страница украшена четырьмя силуэтами: воин, маг, плут и кто-то с подозрительно большой ложкой.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Глава IV. Герои и отряд»\n«Искатель приключений — это твой персонаж: имя, народ, класс, умения. Можно создать нового или выбрать уже знакомого. В дорогу можно взять отряд — до нескольких героев сразу. Состав удобнее всего менять в безопасном месте. Например, в таверне.»",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Марта гордо хлопает ладонью по стойке.\n— Видишь? Даже книга признает: без таверны приключениям делать нечего. А без героя тебя на доске объявлений и всерьез-то воспринимать не станут. С отрядом хотя бы будет кому держать фонарь, пока ты орешь: «Это была ловушка!» Состав меняй здесь, дорогуша — не в подземелье, когда уже темно и мокро.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s08_next",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Далее…",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_09"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s08_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Назад",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_07"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s08_close",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Закрыть путеводитель",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_03"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_09": {
+      "Id": "scene_09",
+      "Tags": [
+        "TUTORIAL",
+        "GUIDEBOOK",
+        "TRADE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы открываете главу с заголовком, рядом с которым кто-то нарисовал монетку и стрелку «в карман».",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Глава V. Торговля»\n«Странствующие торговцы продают снаряжение, расходники и всякую полезную ерунду. Торговля обычно открывается отдельным окном: смотри товары, сравнивай цены, не покупай тринадцатый плащ «на всякий случай».»",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Марта понижает голос до заговорщицкого шепота.\n— Это важно: у меня в зале — не «внутриигровой магазин из подземелья», а нормальные люди с нормальными ценами… ну, относительно нормальными. Хочешь торговать — выбирай «Торговать». Закроешь окно — снова окажешься за столом, как ни в чем не бывало. Деньги, впрочем, уже не вернутся. Капитализм, дорогуша!",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s09_next",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Далее…",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_10"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s09_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Назад",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_08"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s09_close",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Закрыть путеводитель",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_03"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_10": {
+      "Id": "scene_10",
+      "Tags": [
+        "TUTORIAL",
+        "GUIDEBOOK",
+        "BOARD"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "На развороте — схема доски, испещренной булавками, кляксами и одним очень реалистичным ножом.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Глава VI. Доска объявлений»\n«На доске висят задания и слухи о приключениях. Можно просто посмотреть список доступного. Иногда хозяйка таверны знает, с чего лучше начать новичку.»",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Марта довольно ухмыляется.\n— О, это про меня. Я скромно промолчу. Подойдешь к доске — увидишь объявления. Можно открыть выбор приключений… а можно помочь доброй хозяйке с одной маленькой, совсем крошечной проблемой в амбаре.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Она делает паузу.\n— Крысы. Да. Я сказала «маленькой». Не смотри на меня так.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s10_next",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Далее…",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_11"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s10_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Назад",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_09"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s10_close",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Закрыть путеводитель",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_03"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scene_11": {
+      "Id": "scene_11",
+      "Tags": [
+        "TUTORIAL",
+        "GUIDEBOOK"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Последняя страница путеводителя чуть вырвана и подклеена медом. Снова медом.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Глава VII. Куда идти дальше»\n«Таверна — это хаб: отсюда удобно торговать, собирать отряд, читать объявления и уходить в другие места. Если покинуть таверну, можно попасть на Перепутье — оттуда дороги ведут в разные стороны мира.»",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Марта смахивает крошки со страницы.\n— Вот и вся мудрость. Не зубри наизусть — если дойдет дело, крысы в амбаре и так все доходчиво объяснят. Запомнил главное? Читаешь. Выбираешь. Иногда бросаешь кубик. Иногда покупаешь веревку. Иногда жалеешь, что не купил веревку.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Она подмигивает.\n— А если забудешь — книжка никуда не денется. Ну, если только ее снова не утащит бард. В третий раз.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "s11_restart",
+          "Tags": [
+            "TUTORIAL"
+          ],
+          "Type": "Default",
+          "Text": "Начать сначала",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_05"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s11_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Назад",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_10"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "s11_close",
+          "Tags": [
+            "HUB"
+          ],
+          "Type": "Default",
+          "Text": "Закрыть путеводитель",
+          "Description": "",
+          "AlwaysShow": true,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "scene_03"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
 }
