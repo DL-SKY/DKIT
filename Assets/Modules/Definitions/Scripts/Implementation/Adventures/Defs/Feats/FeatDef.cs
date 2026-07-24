@@ -1,5 +1,4 @@
 using Modules.Definitions.Scripts.Defs;
-using Modules.Definitions.Scripts.Implementation.Adventures.Defs;
 using Modules.Restrictions.Scripts.Core;
 using System.Collections.Generic;
 

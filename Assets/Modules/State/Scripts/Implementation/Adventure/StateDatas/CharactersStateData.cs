@@ -18,6 +18,16 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         Female = 1,
     }
 
+    public enum ProficiencyType
+    {
+        Untrained = 0,
+        
+        Trained,
+        Expert,
+        Master,
+        Legendary
+    }
+
     public class CharacterStateData
     {
         public int Id;
@@ -32,9 +42,6 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         public string Ancestry;
         public string Class;
         public string Background;
-
-        public int Level;
-        public int Experience;
 
         /// <summary>
         /// Abilities, Skills, HP, Speed, Feats, etc...

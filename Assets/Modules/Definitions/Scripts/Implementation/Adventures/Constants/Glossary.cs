@@ -54,6 +54,9 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
             // --- Parameters ---
 
+            public const string LEVEL = "Level";
+            public const string EXPERIENCE = "Experience";
+
             public const string STR = "STR";    // Сила
             public const string DEX = "DEX";    // Ловкость
             public const string CON = "CON";    // Телосложение
@@ -85,6 +88,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             public const string STEALTH = "Stealth";  // Скрытность
             public const string SURVIVAL = "Survival";  // Выживание
             public const string THIEVERY = "Thievery";  // Воровство
+
+            // --- Game Logic Suffix ---
+
+            public const string PROFICIENCY_SUFFIX = ".ProfRank";  // Умение (enum ProficiencyType)
+            public const string ITEMS_SUFFIX = ".ItemsBonus";  // Умение (enum ProficiencyType)
         }
 
         public static class Classes
