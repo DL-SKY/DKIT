@@ -40,21 +40,73 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
         public string Group;
 
         /// <summary>
-        /// Candidate ability keys used by weapon formulas.
-        /// If more than one key is provided, the highest value can be selected by formula keyword.
+        /// Кандидатные характеристики для оружейных формул (например <c>STR</c>, <c>DEX</c>).
+        /// Используются ключевыми словами <c>ABILITY_BEST</c> / <c>ATTACK_ABILITY_BEST</c> /
+        /// <c>DAMAGE_ABILITY_BEST</c>: берётся максимальное сырое значение среди списка.
+        /// Для finesse-оружия обычно указывают и STR, и DEX.
         /// </summary>
         public List<string> AbilityDependencies;
 
         /// <summary>
-        /// Formula for attack modifier calculation.
-        /// Supports literals, operators (+, -, *, /, parentheses) and weapon formula keywords.
+        /// Формула модификатора атаки оружием (без броска d20).
+        /// Вычисляется в <c>WeaponProxy.GetAttackModifier</c>.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Синтаксис: литералы (числа), операторы <c>+</c>, <c>-</c>, <c>*</c>, <c>/</c>
+        /// и скобки. Деление целочисленное; при делителе 0 результат слагаемого — 0.
+        /// Имена токенов регистронезависимы; в токене допустимы буквы, цифры, <c>_</c> и <c>.</c>.
+        /// Пустая формула даёт 0.
+        /// </para>
+        /// <para>
+        /// Специальные ключевые слова (контекст Attack):
+        /// <list type="bullet">
+        /// <item><c>PROFICIENCY</c> — владение типом оружия: Level + ранг из <c>Type.ProfRank</c> (например <c>Weapon.Martial.ProfRank</c>).</item>
+        /// <item><c>ITEMS</c> — предметный бонус атаки: <c>{Id}.Attack.ItemsBonus</c>.</item>
+        /// <item><c>GROUP_ATTACK_BONUS</c> — бонус группы: <c>{Group}.Attack.Group.Bonus</c>.</item>
+        /// <item><c>ABILITY_BEST</c>, <c>ATTACK_ABILITY_BEST</c>, <c>DAMAGE_ABILITY_BEST</c> — max среди <see cref="AbilityDependencies"/>.</item>
+        /// </list>
+        /// Любой другой токен — сырой параметр персонажа (<c>STR</c>, <c>DEX</c>, <c>Level</c> и т.д.).
+        /// </para>
+        /// <para>Примеры:</para>
+        /// <code>
+        /// "ATTACK_ABILITY_BEST+PROFICIENCY+ITEMS+GROUP_ATTACK_BONUS"
+        /// "DEX+PROFICIENCY+ITEMS"
+        /// "STR+PROFICIENCY"
+        /// "ATTACK_ABILITY_BEST+PROFICIENCY+1"
+        /// </code>
+        /// </remarks>
         public string AttackModifierFormula;
 
         /// <summary>
-        /// Formula for damage modifier calculation (without damage dice roll result).
-        /// Supports literals, operators (+, -, *, /, parentheses) and weapon formula keywords.
+        /// Формула модификатора урона оружием (без результата броска костей урона).
+        /// Вычисляется в <c>WeaponProxy.GetDamageModifier</c>.
+        /// Кости урона задаются отдельно в <see cref="DamageDice"/>.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Синтаксис тот же, что у <see cref="AttackModifierFormula"/>:
+        /// литералы, <c>+</c>/<c>-</c>/<c>*</c>/<c>/</c>, скобки.
+        /// Пустая формула даёт 0.
+        /// </para>
+        /// <para>
+        /// Специальные ключевые слова (контекст Damage):
+        /// <list type="bullet">
+        /// <item><c>PROFICIENCY</c> — владение типом оружия (как в атаке).</item>
+        /// <item><c>ITEMS</c> — предметный бонус урона: <c>{Id}.Damage.ItemsBonus</c>.</item>
+        /// <item><c>GROUP_DAMAGE_BONUS</c> — бонус группы: <c>{Group}.Damage.Group.Bonus</c>.</item>
+        /// <item><c>ABILITY_BEST</c>, <c>ATTACK_ABILITY_BEST</c>, <c>DAMAGE_ABILITY_BEST</c> — max среди <see cref="AbilityDependencies"/>.</item>
+        /// </list>
+        /// Любой другой токен — сырой параметр персонажа (часто <c>STR</c> для рукопашного урона).
+        /// </para>
+        /// <para>Примеры:</para>
+        /// <code>
+        /// "STR+ITEMS+GROUP_DAMAGE_BONUS"
+        /// "DAMAGE_ABILITY_BEST+ITEMS"
+        /// "STR+ITEMS"
+        /// "(STR+DEX)/2"
+        /// </code>
+        /// </remarks>
         public string DamageModifierFormula;
 
         /// <summary>

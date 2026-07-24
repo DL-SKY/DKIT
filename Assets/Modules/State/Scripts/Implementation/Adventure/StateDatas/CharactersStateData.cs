@@ -36,6 +36,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         public bool IsDead;
         public long DeathTime;
 
+        public string Avatar;
         public string Name;
         public CharacterGender Gender;
 
