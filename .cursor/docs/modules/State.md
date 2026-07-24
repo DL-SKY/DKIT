@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-24 19:45:00 (+03:00)
+**Последнее обновление:** 2026-07-24 20:25:00 (+03:00)
 
 ## Назначение
 
@@ -128,9 +128,35 @@ Implementation/Wallet/
   | `SetWorldParams` | `SetWorldParamsStateAction` (Adventure) |
   | `SetAdventureParams` | `SetAdventureParamsStateAction` (Adventure) |
   | `SetGlobalParams` | `SetGlobalParamsStateAction` (Adventure) |
+| `CreateCharacter` | `CreateCharacterStateAction` (Adventure) |
+| `UpdateCharacter` | `UpdateCharacterStateAction` (Adventure) |
+| `EquipItemFromInventory` | `EquipItemFromInventoryStateAction` (Adventure) |
+| `UnequipItemToInventory` | `UnequipItemToInventoryStateAction` (Adventure) |
+| `MoveEquippedItemBetweenSlots` | `MoveEquippedItemBetweenSlotsStateAction` (Adventure) |
 
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
+
+- `CreateCharacterRequestData`  
+  DTO входных данных для `CreateCharacterStateAction` (единый буфер для ручного создания и выбора прегена): персонажные поля (`Name`, `Avatar`, `Gender`, `Ancestry`, `Class`, `Background`), блок `CharacterData` (`CharacterRequestData`) и флаг `AddToActiveParty`.
+
+- `CharacterRequestData`  
+  Переиспользуемый блок изменяемых данных персонажа: `Parameters`, `EquippedItems`, `Spells`, `StatusEffects`. Используется в `CreateCharacterRequestData` и `UpdateCharacterRequestData`.
+
+- `UpdateCharacterRequestData`  
+  DTO входных данных для `UpdateCharacterStateAction`: `CharacterId` и `CharacterData` (`CharacterRequestData`).
+
+- `EquipItemFromInventoryRequestData`  
+  DTO для `EquipItemFromInventoryStateAction`: `CharacterId`, `SlotIndex` (индекс в `EquippedItems`), `ItemId` (предмет из `Inventory.Items`).
+
+- `UnequipItemToInventoryRequestData`  
+  DTO для `UnequipItemToInventoryStateAction`: `CharacterId`, `SlotIndex`.
+
+- `MoveEquippedItemBetweenSlotsRequestData`  
+  DTO для `MoveEquippedItemBetweenSlotsStateAction`: `CharacterId`, `FromSlotIndex`, `ToSlotIndex` (оба — индексы в `EquippedItems`).
+
+- `InventoryItemsOperator`  
+  Вспомогательный оператор общего инвентаря: `GetCount`, `TryConsume`, `Add` для `Inventory.Items`.
 
 - `StateActionValidationResult`  
   Результат валидации (`Ok` / `Fail(message, errorCode)`).
@@ -291,7 +317,156 @@ Implementation/Wallet/
 
 **Разделение экипировки:**
 - общий пул отряда — в `Inventory.Items` (`ItemDef` id → количество);
-- слоты конкретного персонажа — в `CharacterStateData.EquippedItems` (тип слота + `ItemId`); при надевании предмет списывается из общего инвентаря (количество уменьшается), при снятии — возвращается в `Inventory.Items`.
+- слоты конкретного персонажа — в `CharacterStateData.EquippedItems` (тип слота + `ItemId`).
+
+**Перенос предметов** выполняется только через dedicated state-actions:
+- `EquipItemFromInventoryStateAction` — из `Inventory.Items` в слот (`SlotIndex`); если слот был занят, старый предмет возвращается в инвентарь (swap);
+- `UnequipItemToInventoryStateAction` — из слота обратно в `Inventory.Items`, слот очищается (`ItemId = null`);
+- `MoveEquippedItemBetweenSlotsStateAction` — перенос между двумя слотами **одного** персонажа (`FromSlotIndex` → `ToSlotIndex`) **без** участия `Inventory.Items`; если целевой слот занят — swap `ItemId`.
+
+`CreateCharacterStateAction` / `UpdateCharacterStateAction` **не** трогают `Inventory.Items`: они работают только с локальными данными персонажа.
+
+**Важно про `SlotIndex`:** это индекс в списке `CharacterStateData.EquippedItems`, а не “тип слота”.  
+Пример набора слотов у персонажа:
+
+| SlotIndex | Slot | ItemId (пример) |
+|-----------|------|-----------------|
+| `0` | `Hand` | `"_Longsword"` |
+| `1` | `Hand` | `null` |
+| `2` | `Bag` | `null` |
+| `3` | `Bag` | `"_Torch"` |
+| `4` | `Body` | `"_LeatherArmor"` |
+
+#### Примеры использования inventory-экшенов
+
+Ниже `characterId = 1`, `stateLogic` — `AdventureStateLogic`.
+
+**1) Перенести предмет из руки персонажа в его мешок**  
+Атомарно, без участия `Inventory.Items`:
+
+До: `EquippedItems[0] = Hand/_Longsword`, `EquippedItems[2] = Bag/null`.
+
+```csharp
+stateLogic.ProcessAction(new MoveEquippedItemBetweenSlotsStateAction(
+    new MoveEquippedItemBetweenSlotsRequestData
+    {
+        CharacterId = 1,
+        FromSlotIndex = 0,      // Hand
+        ToSlotIndex = 2,        // Bag
+    }));
+```
+
+После: `EquippedItems[0] = Hand/null`, `EquippedItems[2] = Bag/_Longsword`.  
+`Inventory.Items` не меняется.
+
+**1b) Поменять местами предметы между двумя слотами персонажа (swap)**
+
+До: `EquippedItems[0] = Hand/_Longsword`, `EquippedItems[3] = Bag/_Torch`.
+
+```csharp
+stateLogic.ProcessAction(new MoveEquippedItemBetweenSlotsStateAction(
+    new MoveEquippedItemBetweenSlotsRequestData
+    {
+        CharacterId = 1,
+        FromSlotIndex = 0,      // Hand/_Longsword
+        ToSlotIndex = 3,        // Bag/_Torch
+    }));
+```
+
+После: `EquippedItems[0] = Hand/_Torch`, `EquippedItems[3] = Bag/_Longsword`.  
+`Inventory.Items` не меняется.
+
+**2) Перенести из глобального хранилища в мешок персонажа**
+
+До: `Inventory.Items["_Potion"] = 3`, `EquippedItems[2] = Bag/null`.
+
+```csharp
+stateLogic.ProcessAction(new EquipItemFromInventoryStateAction(
+    new EquipItemFromInventoryRequestData
+    {
+        CharacterId = 1,
+        SlotIndex = 2,          // Bag
+        ItemId = "_Potion",
+    }));
+```
+
+После: `Inventory.Items["_Potion"] = 2`, `EquippedItems[2] = Bag/_Potion`.
+
+**3) Перенести из глобального хранилища в руку персонажа**
+
+До: `Inventory.Items["_Dagger"] = 1`, `EquippedItems[1] = Hand/null`.
+
+```csharp
+stateLogic.ProcessAction(new EquipItemFromInventoryStateAction(
+    new EquipItemFromInventoryRequestData
+    {
+        CharacterId = 1,
+        SlotIndex = 1,          // вторая Hand
+        ItemId = "_Dagger",
+    }));
+```
+
+После: ключ `"_Dagger"` удалён из `Inventory.Items` (count стал 0), `EquippedItems[1] = Hand/_Dagger`.
+
+**4) Снять предмет с персонажа в глобальное хранилище**
+
+До: `EquippedItems[4] = Body/_LeatherArmor`.
+
+```csharp
+stateLogic.ProcessAction(new UnequipItemToInventoryStateAction(
+    new UnequipItemToInventoryRequestData
+    {
+        CharacterId = 1,
+        SlotIndex = 4,          // Body
+    }));
+```
+
+После: `EquippedItems[4].ItemId = null`, `Inventory.Items["_LeatherArmor"]` увеличен на 1.
+
+**5) Надеть предмет в уже занятый слот (авто-swap)**
+
+До: `EquippedItems[0] = Hand/_Dagger`, `Inventory.Items["_Longsword"] = 1`, `Inventory.Items["_Dagger"]` отсутствует.
+
+```csharp
+stateLogic.ProcessAction(new EquipItemFromInventoryStateAction(
+    new EquipItemFromInventoryRequestData
+    {
+        CharacterId = 1,
+        SlotIndex = 0,
+        ItemId = "_Longsword",
+    }));
+```
+
+После: `EquippedItems[0] = Hand/_Longsword`, `Inventory.Items["_Longsword"]` уменьшен на 1, `Inventory.Items["_Dagger"]` увеличен на 1 (старый предмет вернулся в хранилище).
+
+**6) Ошибка: предмета нет в глобальном хранилище**
+
+```csharp
+var result = stateLogic.ProcessAction(new EquipItemFromInventoryStateAction(
+    new EquipItemFromInventoryRequestData
+    {
+        CharacterId = 1,
+        SlotIndex = 0,
+        ItemId = "_MissingItem",
+    }));
+
+// result.IsValid == false
+// персонаж и Inventory не изменены
+```
+
+**7) Ошибка: снять пустой слот**
+
+```csharp
+var result = stateLogic.ProcessAction(new UnequipItemToInventoryStateAction(
+    new UnequipItemToInventoryRequestData
+    {
+        CharacterId = 1,
+        SlotIndex = 1, // Hand, но ItemId уже null
+    }));
+
+// result.IsValid == false ("Equipped slot is already empty.")
+```
+
 
 ### Adventure: `AdventuresStateData` и связанные типы
 
@@ -433,6 +608,11 @@ stateLogic.StateChanged += source =>
 - `SetWorldParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.World.Parameters` (Adventure).
 - `SetAdventureParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.Adventures[CurrentAdventureId].Parameters` (Adventure).
 - `SetGlobalParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.Global.Parameters` (Adventure).
+- `CreateCharacterStateAction` — создание нового `CharacterStateData` из `CreateCharacterRequestData`, запись в `Characters[NextCharacterId]`, опциональное добавление id в `ActivePartyCharacterIds`, инкремент `NextCharacterId` (Adventure).
+- `UpdateCharacterStateAction` — обновление существующего персонажа по `CharacterId` из `UpdateCharacterRequestData`; перезаписывает mutable-блок (`Parameters`, `EquippedItems`, `Spells`, `StatusEffects`) из `CharacterRequestData` (Adventure).
+- `EquipItemFromInventoryStateAction` — перенос предмета из `Inventory.Items` в слот персонажа (`CharacterId` + `SlotIndex` + `ItemId`); при занятом слоте старый предмет возвращается в инвентарь (Adventure).
+- `UnequipItemToInventoryStateAction` — перенос предмета из слота персонажа обратно в `Inventory.Items` и очистка слота (Adventure).
+- `MoveEquippedItemBetweenSlotsStateAction` — перенос/`swap` предмета между двумя слотами одного персонажа (`FromSlotIndex` → `ToSlotIndex`) без участия `Inventory.Items` (Adventure).
 
 ## Как добавить новый state-action
 

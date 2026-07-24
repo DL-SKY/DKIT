@@ -15,5 +15,11 @@ namespace Modules.State.Scripts.Actions.Models
         SetWorldParams = 8,
         SetAdventureParams = 9,
         SetGlobalParams = 10,
+        CreateCharacter = 11,
+        UpdateCharacter = 12,
+
+        EquipItemFromInventory = 13,
+        UnequipItemToInventory = 14,
+        MoveEquippedItemBetweenSlots = 15,
     }
 }

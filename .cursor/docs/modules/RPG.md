@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-24 19:45:00 (+03:00)
+**Последнее обновление:** 2026-07-24 20:25:00 (+03:00)
 
 ## Назначение
 
@@ -354,7 +354,10 @@ RPG-контент (сцены, выборы, действия) описывае
 ### Инвентарь (`InventoryStateData`)
 
 - `Items` — `Dictionary<string, int>`: расходники и стакающиеся предметы (`defId → count`), общий пул отряда.
-- Слоты конкретного персонажа — `CharacterStateData.EquippedItems` (отдельно от инвентаря); при надевании предмет списывается из `Inventory.Items`.
+- Слоты конкретного персонажа — `CharacterStateData.EquippedItems` (отдельно от инвентаря).
+- Перенос между общим инвентарём и слотами персонажа — через `EquipItemFromInventoryStateAction` / `UnequipItemToInventoryStateAction`.
+- Перенос между слотами одного персонажа — через `MoveEquippedItemBetweenSlotsStateAction` (без участия `Inventory.Items`).
+- Примеры кейсов (рука→мешок, хранилище→мешок/рука, swap, ошибки) — в [State.md](State.md#adventure-inventorystatedata).
 
 ### Прогресс приключений (`AdventuresStateData`)
 
