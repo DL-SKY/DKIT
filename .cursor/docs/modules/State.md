@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-24 12:20:00 (+03:00)
+**Последнее обновление:** 2026-07-24 14:20:00 (+03:00)
 
 ## Назначение
 
@@ -56,6 +56,7 @@ Implementation/Adventure/
   StateData.cs                    ← корень: поля-секции
   AdventureStateManager.cs
   CharacterParametersProxy.cs     ← GetTotalValue: формулы RuleDef + Ancestry/Class HP из DefinitionsManager
+  WeaponProxy.cs                  ← attack/damage modifiers по ItemDef формулам
   Factories/
     IAdventureStateDataFactory.cs
     AdventureStateDataFactory.cs  ← создание нового профиля
@@ -97,6 +98,10 @@ Implementation/Wallet/
 - `CharacterParametersProxy`  
   Прокси чтения параметров персонажа: сырые значения из `CharacterStateData.Parameters` и вычисляемые по `RuleDef.ParameterFormulas` (навыки, `MaxHitPoints`).  
   Зависит от `DefinitionsManager` (Adventures) для `ANCESTRY_HP` / `CLASS_HP`. Подробнее — [ниже](#adventure-characterparametersproxy).
+
+- `WeaponProxy`  
+  Прокси модификаторов оружия по формулам `ItemDef.AttackModifierFormula` / `DamageModifierFormula`.  
+  Читает сырые ключи из `CharacterStateData.Parameters` (профа по `Type`, item/group bonuses). Подробнее — [ниже](#adventure-weaponproxy).
 
 - `StateLogic<TStateData>`  
   Единая точка применения state-actions. Принимает `IStateManager`, callback сохранения и `batchSize`.  
@@ -204,8 +209,10 @@ Implementation/Wallet/
 
 **`Parameters` (сырое хранилище):**
 - ключи abilities/skills/level согласованы с `Glossary.Characters` (`STR`, `DEX`, `CON`, `Level`, `Athletics.ProfRank`, `Athletics.ItemsBonus`, `MaxHitPoints.PerLevel`, `MaxHitPoints.Bonus`, …);
+- оружейные сырые ключи: `Weapon.Martial.ProfRank` (и аналоги по `Glossary.Weapons` типам), `<ItemId>.Attack.ItemsBonus` / `<ItemId>.Damage.ItemsBonus`, `<Group>.Attack.Group.Bonus` / `<Group>.Damage.Group.Bonus`;
 - bool-флаги кодируются как `0` / ненулевое значение;
-- итоговый модификатор навыка и `MaxHitPoints` **не пишутся** в `Parameters` — их даёт `CharacterParametersProxy.GetTotalValue`.
+- итоговый модификатор навыка и `MaxHitPoints` **не пишутся** в `Parameters` — их даёт `CharacterParametersProxy.GetTotalValue`;
+- итоговые attack/damage modifiers оружия тоже **не пишутся** — их даёт `WeaponProxy`.
 
 **Defs → State (планируемый поток):**
 - дефы (`ClassDef`, `AncestryDef`, `BackgroundDef`, `FeatDef`, `ItemDef`, `SpellDef`) описывают статический контент;
@@ -242,6 +249,33 @@ Implementation/Wallet/
   (дварф-воин 5 ур., CON+3, без доп. бонусов → `10+(10+3+0)*5+0 = 75`).
 
 Формулы навыков и `MaxHitPoints` заданы в `GeneralRule.ParameterFormulas` (см. [Definitions.md](Definitions.md)).
+
+### Adventure: `WeaponProxy`
+
+Файл: `Implementation/Adventure/WeaponProxy.cs`.
+
+Прокси модификаторов атаки и урона оружия поверх `CharacterStateData.Parameters` и формул конкретного `ItemDef`. Пока не подключён в gameplay/DI как обязательный API.
+
+Конструктор: `(CharacterStateData characterState)`.
+
+| Метод | Поведение |
+|-------|-----------|
+| `GetAttackModifier(itemDef)` | Вычисляет `itemDef.AttackModifierFormula`; пустая формула / `null` → `0` |
+| `GetDamageModifier(itemDef)` | Вычисляет `itemDef.DamageModifierFormula` (**без** броска костей); пустая формула / `null` → `0` |
+| `GetDamageDice(itemDef)` | Возвращает `itemDef.DamageDice` как метаданные для будущего броска (прокси не роллит) |
+
+Ключевые слова формулы:
+- `PROFICIENCY` → `itemDef.Type + ".ProfRank"` (например `Weapon.Martial.ProfRank`) → `ProficiencyType`; `Untrained` → `0`, иначе `Level + rankBonus` (2/4/6/8);
+- `ITEMS` → в контексте атаки `<ItemId>.Attack.ItemsBonus`, в контексте урона `<ItemId>.Damage.ItemsBonus`;
+- `GROUP_ATTACK_BONUS` → `<Group>.Attack.Group.Bonus` (например `Bow.Attack.Group.Bonus`);
+- `GROUP_DAMAGE_BONUS` → `<Group>.Damage.Group.Bonus`;
+- `ABILITY_BEST` / `ATTACK_ABILITY_BEST` / `DAMAGE_ABILITY_BEST` → максимум среди `itemDef.AbilityDependencies`;
+- остальные токены (`STR`, `DEX`, …) и числовые литералы (`+2`, `+8`) — напрямую.
+
+Пример: `GetAttackModifier` при `ATTACK_ABILITY_BEST+PROFICIENCY+ITEMS+GROUP_ATTACK_BONUS`  
+= max(`AbilityDependencies`) + prof(`Type`) + item attack bonus + group attack bonus.
+
+Контракт полей оружия и стартовые JSON — в [Definitions.md](Definitions.md) (`ItemDef`).
 
 ### Adventure: `InventoryStateData`
 

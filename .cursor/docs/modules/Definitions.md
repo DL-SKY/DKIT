@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-24 12:20:00 (+03:00)
+**Последнее обновление:** 2026-07-24 14:20:00 (+03:00)
 
 ## Назначение
 
@@ -43,6 +43,10 @@
   - HP: `MAX_HIT_POINTS` (`"MaxHitPoints"`, **вычисляемый**), `HIT_POINTS` (`"HitPoints"`, текущие);
   - навыки / `Perception` — имена как в `SkillDependencies`;
   - суффиксы сырых составляющих: `PROFICIENCY_SUFFIX` (`.ProfRank`), `ITEMS_SUFFIX` (`.ItemsBonus`), `PER_LEVEL_SUFFIX` (`.PerLevel`), `BONUS_SUFFIX` (`.Bonus`).
+
+  Для оружия — `Glossary.Weapons`:
+  - типы (`ItemDef.Type`): `SIMPLE` = `"Weapon.Simple"`, `MARTIAL` = `"Weapon.Martial"`, `ADVANCED` = `"Weapon.Advanced"`;
+  - группы (`ItemDef.Group`): `AXE`, `BRAWLING`, `CLUB`, `FLAIL`, `HAMMER`, `KNIFE`, `PICK`, `POLEARM`, `SHIELD`, `SPEAR`, `SWORD`, `BOW`, `CROSSBOW`, `DART`, `SLING`, `BOMB`, `FIREARM` (значения CamelCase: `"Axe"`, `"Bow"`, …).
 
 ### Соглашение по наследованию adventure-дефов
 
@@ -140,6 +144,14 @@
 | | `Title` | `string` | `Title` | да |
 | | `Description` | `string` | `Description` | да |
 | | `Price` | `int` | `Price` | да |
+| | `Type` | `string` | `Type` | да для оружия (`Glossary.Weapons.SIMPLE` / `MARTIAL` / `ADVANCED`) |
+| | `Group` | `string` | `Group` | да для оружия (`Glossary.Weapons.*` группа) |
+| | `AbilityDependencies` | `List<string>` | `AbilityDependencies` | да для оружия (ключи ability: `STR`, `DEX`, …) |
+| | `AttackModifierFormula` | `string` | `AttackModifierFormula` | да для оружия |
+| | `DamageModifierFormula` | `string` | `DamageModifierFormula` | да для оружия |
+| | `DamageDice` | `List<WeaponDamageDicePartData>` | `DamageDice` | да для оружия |
+| `WeaponDamageDicePartData` | `Count` | `int` | `Count` | да (число костей, например `1` или `2`) |
+| | `DiceType` | `DiceType` | `DiceType` | да (`D4`, `D6`, `D8`, … из `Modules.Dices`) |
 | `SpellDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Type` | `SpellType` | `Type` | да |
 | | `Level` | `int` | `Level` | да (`0` для cantrip) |
@@ -216,8 +228,32 @@
 
   Для Max HP не пишите итог в `MaxHitPoints`: бонусы за уровень кладите в `MaxHitPoints.PerLevel`, flat — в `MaxHitPoints.Bonus` (см. `CharacterParametersProxy`).
 - `ItemDef`  
-  Предмет. Поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`.
+  Предмет. Базовые поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`.  
+  Для оружия (`Category = Weapon`) дополнительно:
+  - `Type` — тип владения (`Glossary.Weapons.SIMPLE` / `MARTIAL` / `ADVANCED`, значения `"Weapon.Simple"` и т.п.);
+  - `Group` — группа оружия (`Glossary.Weapons.SWORD`, `BOW`, …);
+  - `AbilityDependencies` — кандидаты ability для формул; если больше одного, ключевое слово `ATTACK_ABILITY_BEST` берёт максимум;
+  - `AttackModifierFormula` — формула модификатора атаки (литералы, `+`/`*`/`()`, ключевые слова `WeaponProxy`);
+  - `DamageModifierFormula` — формула модификатора урона **без** броска костей;
+  - `DamageDice` — список `WeaponDamageDicePartData` (`Count` + `DiceType`) для броска урона (прокси кости не бросает).
 
+  Пример JSON оружия:
+
+  ```json
+  "Type": "Weapon.Martial",
+  "Group": "Sword",
+  "AbilityDependencies": ["STR", "DEX"],
+  "AttackModifierFormula": "ATTACK_ABILITY_BEST+PROFICIENCY+ITEMS+GROUP_ATTACK_BONUS",
+  "DamageModifierFormula": "STR+ITEMS+GROUP_DAMAGE_BONUS",
+  "DamageDice": [{ "Count": 1, "DiceType": "D8" }]
+  ```
+
+  Чтение модификаторов — `WeaponProxy` в модуле `State` (см. [State.md](State.md#adventure-weaponproxy)). Сырые бонусы в `Parameters`:
+  - профа по типу: `Weapon.Martial.ProfRank`;
+  - item bonus: `<ItemId>.Attack.ItemsBonus`, `<ItemId>.Damage.ItemsBonus`;
+  - group bonus: `<Group>.Attack.Group.Bonus`, `<Group>.Damage.Group.Bonus` (например `Bow.Attack.Group.Bonus`).
+
+  Стартовый контент: 6 weapon JSON (`_BattleAxe`, `_Dagger`, `_Longsword`, `_Rapier`, `_Shortbow`, `_Shortsword`) заполнены этими полями; у не-оружия поля опциональны / отсутствуют.
 - `SpellDef`  
   Заклинание. Поля: `Disabled`, `Type` (`SpellType`), `Level`, `Tags`, `Title`, `Description`.
 
@@ -310,9 +346,9 @@
 
 | Слой | Что хранит |
 |---|---|
-| **Defs** | Статический контент: что даёт класс, ancestry, предыстория, черта, предмет или заклинание; формулы в `RuleDef.ParameterFormulas` |
+| **Defs** | Статический контент: что даёт класс, ancestry, предыстория, черта, предмет или заклинание; формулы в `RuleDef.ParameterFormulas` и оружейные формулы в `ItemDef` |
 | **State** | Сырой прогресс персонажа: `CharacterStateData.Parameters` (abilities, ranks, bonuses, текущие HP…), `Spells`, `StatusEffects`, экипировка |
-| **Proxy** | Вычисляемые итоги (`Athletics`, `MaxHitPoints`, …) — не персистятся, считаются на чтении |
+| **Proxy** | Вычисляемые итоги персонажа (`Athletics`, `MaxHitPoints`, …) через `CharacterParametersProxy`; модификаторы оружия через `WeaponProxy` |
 
 Runtime в будущем применяет эффекты дефов в state (через state-actions / сервисы персонажа); чтение итоговых значений уже идёт через `CharacterParametersProxy.GetTotalValue`.
 
@@ -392,6 +428,7 @@ Single-def:
 - Итоговые `MaxHitPoints` / навыки **не** пишутся в `CharacterStateData.Parameters`: в state — сырые ключи (`CON`, `Level`, `MaxHitPoints.PerLevel`, `MaxHitPoints.Bonus`, `*.ProfRank`, …), итог — `CharacterParametersProxy.GetTotalValue`.
 - Механические эффекты дефов пока не применяются автоматически через state-actions; `FeatDef.Apply` и `RuleDef.ParameterFormulas` уже задают контракт данных (см. [Adventure-дефы персонажа](#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
 - `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.
+- Оружейные `ItemDef` в `_ADVENTURES_/Items/Weapons` содержат `Type` / `Group` / формулы / `DamageDice`; модификаторы атаки и урона считает `WeaponProxy` (модуль `State`), кости урона — только метаданные для будущего броска.
 - `Restrictions` на class/ancestry/background/feat может быть пустым или отсутствовать в JSON; при добавлении ограничений JSON-ключи совпадают с полями `Restriction` (см. [Restrictions.md](Restrictions.md)).
 - В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds` и `PregeneratedCharacters` (между Ancestries и Feats).
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.

@@ -14,5 +14,18 @@
 	],
 	"Title": "Боевой топор",
 	"Description": "Одноручный рубящий топор для мощных ударов по нескольким целям.",
-	"Price": 10
+	"Price": 10,
+	"Type": "Weapon.Martial",
+	"Group": "Axe",
+	"AbilityDependencies": [
+		"STR"
+	],
+	"AttackModifierFormula": "ATTACK_ABILITY_BEST+PROFICIENCY+ITEMS+GROUP_ATTACK_BONUS",
+	"DamageModifierFormula": "STR+ITEMS+GROUP_DAMAGE_BONUS",
+	"DamageDice": [
+		{
+			"Count": 1,
+			"DiceType": "D8"
+		}
+	]
 }

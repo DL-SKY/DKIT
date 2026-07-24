@@ -16,5 +16,19 @@
 	],
 	"Title": "Рапира",
 	"Description": "Изящное одноручное оружие дуэлянтов с высоким потенциалом критического урона.",
-	"Price": 20
+	"Price": 20,
+	"Type": "Weapon.Martial",
+	"Group": "Sword",
+	"AbilityDependencies": [
+		"STR",
+		"DEX"
+	],
+	"AttackModifierFormula": "ATTACK_ABILITY_BEST+PROFICIENCY+ITEMS+GROUP_ATTACK_BONUS",
+	"DamageModifierFormula": "STR+ITEMS+GROUP_DAMAGE_BONUS",
+	"DamageDice": [
+		{
+			"Count": 1,
+			"DiceType": "D6"
+		}
+	]
 }

@@ -16,5 +16,19 @@
 	],
 	"Title": "Кинжал",
 	"Description": "Лёгкое простое оружие ближнего и метательного боя.",
-	"Price": 2
+	"Price": 2,
+	"Type": "Weapon.Simple",
+	"Group": "Knife",
+	"AbilityDependencies": [
+		"STR",
+		"DEX"
+	],
+	"AttackModifierFormula": "ATTACK_ABILITY_BEST+PROFICIENCY+ITEMS+GROUP_ATTACK_BONUS",
+	"DamageModifierFormula": "STR+ITEMS+GROUP_DAMAGE_BONUS",
+	"DamageDice": [
+		{
+			"Count": 1,
+			"DiceType": "D4"
+		}
+	]
 }

@@ -15,5 +15,18 @@
 	],
 	"Title": "Короткий лук",
 	"Description": "Компактный дальнобойный лук для стрельбы на средней дистанции.",
-	"Price": 30
+	"Price": 30,
+	"Type": "Weapon.Martial",
+	"Group": "Bow",
+	"AbilityDependencies": [
+		"DEX"
+	],
+	"AttackModifierFormula": "ATTACK_ABILITY_BEST+PROFICIENCY+ITEMS+GROUP_ATTACK_BONUS",
+	"DamageModifierFormula": "ITEMS+GROUP_DAMAGE_BONUS",
+	"DamageDice": [
+		{
+			"Count": 1,
+			"DiceType": "D6"
+		}
+	]
 }
