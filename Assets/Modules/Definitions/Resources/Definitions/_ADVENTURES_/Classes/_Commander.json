@@ -1,5 +1,6 @@
 {
 	"Disabled": false,
+	"HitPointsPerLevel": 8,
 	"Tags": [
 		"battlecry",
 		"key-intelligence",

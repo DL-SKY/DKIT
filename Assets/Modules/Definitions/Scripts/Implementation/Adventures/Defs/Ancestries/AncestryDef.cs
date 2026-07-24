@@ -28,6 +28,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries
         public AncestrySize Size;
         public int Speed;
 
+        /// <summary>
+        /// Hit Points granted by ancestry at character creation (once, not per level).
+        /// </summary>
+        public int HitPoints;
+
         public Dictionary<int, List<string>> Features;
 
         public Dictionary<CharacterGender, List<string>> Names;

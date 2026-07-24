@@ -1,5 +1,6 @@
 {
 	"Disabled": false,
+	"HitPointsPerLevel": 10,
 	"Tags": [
 		"player-core",
 		"key-strength|dexterity",

@@ -27,5 +27,9 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
         public string Description;
 
         public int Price;
+
+        public string Type;         // например для оружия - Weapon.Martial
+        public string Group;        // например для оружия - Hammer
+        public List<string> AbilityDependencies;    // Характеристики, отвечающие за предмет. Для оружия - модификатор атаки (если список не с одним элементом - берется наилучшее)
     }
 }

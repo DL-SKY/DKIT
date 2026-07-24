@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-23 22:45:00 (+03:00)
+**Последнее обновление:** 2026-07-24 12:20:00 (+03:00)
 
 ## Назначение
 
@@ -33,7 +33,16 @@
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
   - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`);
-  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`.
+  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`.  
+  Используется и `CharacterParametersProxy` (модуль `State`) для резолва `ANCESTRY_HP` / `CLASS_HP` из `Ancestries` / `Classes`.
+
+- `Glossary` (`Implementation/Adventures/Constants/Glossary.cs`)  
+  Константы id/ключей adventure-контента. Для параметров персонажа — `Glossary.Characters`:
+  - abilities: `STR`, `DEX`, `CON`, `INT`, `WIS`, `CHA`;
+  - прогресс: `LEVEL` (`"Level"`), `EXPERIENCE`;
+  - HP: `MAX_HIT_POINTS` (`"MaxHitPoints"`, **вычисляемый**), `HIT_POINTS` (`"HitPoints"`, текущие);
+  - навыки / `Perception` — имена как в `SkillDependencies`;
+  - суффиксы сырых составляющих: `PROFICIENCY_SUFFIX` (`.ProfRank`), `ITEMS_SUFFIX` (`.ItemsBonus`), `PER_LEVEL_SUFFIX` (`.PerLevel`), `BONUS_SUFFIX` (`.Bonus`).
 
 ### Соглашение по наследованию adventure-дефов
 
@@ -79,6 +88,7 @@
 | `RuleDef` | `Tags` | `List<string>` | `Tags` | да |
 | | `AbilityBoostPointCost` | `Dictionary<int, int>` | `AbilityBoostPointCost` | да; ключи в JSON — строки (`"4"`, `"5"`) |
 | | `SkillDependencies` | `Dictionary<string, string>` | `SkillDependencies` | да, 18 навыков (включая `Perception`) |
+| | `ParameterFormulas` | `Dictionary<string, string>` | `ParameterFormulas` | да; навыки (`ABILITY+PROFICIENCY+ITEMS`) + `MaxHitPoints` |
 | `BattleRuleDef` | `Tags` | `List<string>` | `Tags` | да |
 | `ClassDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Restrictions` | `List<Restriction>` | `Restrictions` | нет (опционально) |
@@ -86,6 +96,7 @@
 | | `Icon` | `string` | `Icon` | нет (опционально) |
 | | `Title` | `string` | `Title` | да |
 | | `Description` | `string` | `Description` | да |
+| | `HitPointsPerLevel` | `int` | `HitPointsPerLevel` | да (HP класса за уровень) |
 | | `Features` | `Dictionary<int, List<string>>` | `Features` | нет (опционально; ключи в JSON — строки) |
 | `AncestryDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Restrictions` | `List<Restriction>` | `Restrictions` | нет (опционально) |
@@ -95,6 +106,7 @@
 | | `Description` | `string` | `Description` | да |
 | | `Size` | `AncestrySize` | `Size` | да (`Small` / `Medium` / `Large`) |
 | | `Speed` | `int` | `Speed` | да |
+| | `HitPoints` | `int` | `HitPoints` | да (HP происхождения, один раз) |
 | | `Features` | `Dictionary<int, List<string>>` | `Features` | нет (опционально; ключи в JSON — строки) |
 | | `Names` | `Dictionary<CharacterGender, List<string>>` | `Names` | нет (контент ещё на legacy `MaleNames`/`FemaleNames`) |
 | | `Avatars` | `Dictionary<CharacterGender, List<string>>` | `Avatars` | нет (опционально) |
@@ -167,11 +179,13 @@
   Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`, `ChoiceDiceCheckData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). В `ChoiceType` доступны `Default` и `DiceCheck`; для `DiceCheck` используется блок `ChoiceData.DiceCheck` с полями броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam` — ключ атрибута/скилла) и outcome action-списками (`OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure`); для `Default` блок `DiceCheck` должен отсутствовать, а `Actions` — использоваться вместо outcome-списков (TEA-валидация с `Fix`). Choice-actions в runtime: `GoToScene` (`SceneId`), `GoToAdventure` (`AdventureId`), `GoToRandomAdventure`, `GoToRandomScene` (`SceneId` через `;`), `OpenWindow` (`WindowId`, stub), `SetWorldParams`, `SetAdventureParams`, `SetGlobalParams`; ключи — `Glossary.ChoiceActions.*`, ids окон хаба — `Glossary.Windows.*`. Executors пишут в `State` через соответствующие state-actions (см. [RPG.md](RPG.md)).
 
 - `ClassDef`  
-  Класс персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Features` (`Dictionary<int, List<string>>` — уровень → список id фич/черт).  
+  Класс персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `HitPointsPerLevel`, `Features` (`Dictionary<int, List<string>>` — уровень → список id фич/черт).  
+  `HitPointsPerLevel` — HP класса за каждый уровень (до модификатора `CON`). Значения также временно дублируются в `Tags` как `hp_per_level-*`.  
   Общий каркас метаданных совпадает с `BackgroundDef` / `AncestryDef` (без size/speed/имён).
 
 - `AncestryDef`  
-  Ancestry (раса/происхождение в смысле PF2e Ancestry) персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Size` (`AncestrySize`), `Speed`, `Features` (`Dictionary<int, List<string>>`), `Names` / `Avatars` (`Dictionary<CharacterGender, List<string>>`).  
+  Ancestry (раса/происхождение в смысле PF2e Ancestry) персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Size` (`AncestrySize`), `Speed`, `HitPoints`, `Features` (`Dictionary<int, List<string>>`), `Names` / `Avatars` (`Dictionary<CharacterGender, List<string>>`).  
+  `HitPoints` — HP происхождения (добавляются один раз, не масштабируются уровнем). Значения также временно дублируются в `Tags` как `hp-*`.  
   `Names` и `Avatars` — пулы по полу (`Male` / `Female` из `CharacterGender` в модуле `State`); связь с `CharacterStateData.Gender` — в [State.md](State.md#adventure-charactersstatedata-и-characterstatedata). Legacy-ключи JSON `MaleNames` / `FemaleNames` больше не соответствуют полям C#.
 
 - `BackgroundDef`  
@@ -193,13 +207,14 @@
 
   ```json
   "Apply": {
-    "Add": { "MaxHitPoints": 2, "Speed": 5 },
+    "Add": { "MaxHitPoints.PerLevel": 1, "Speed": 5 },
     "Set": { "_Toughness": 1 },
     "AlsoApplyFeatIds": ["_SomeLinkedFeat"]
   },
   "Options": ["_FightingStyleArchery", "_FightingStyleSword"]
   ```
 
+  Для Max HP не пишите итог в `MaxHitPoints`: бонусы за уровень кладите в `MaxHitPoints.PerLevel`, flat — в `MaxHitPoints.Bonus` (см. `CharacterParametersProxy`).
 - `ItemDef`  
   Предмет. Поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`.
 
@@ -210,8 +225,14 @@
   Общее правило приключения (вне боя): механика создания/прокачки персонажа и связанные настройки. Поля:
   - `Tags` — метки набора правил (`core`, `exploration`, `social` и т.п.);
   - `AbilityBoostPointCost` (`Dictionary<int, int>`) — пороговая таблица стоимости ability boost в очках: **ключ** — пороговое значение (номер буста / уровень шкалы), **значение** — цена в очках для этого порога. В рантайме для текущего номера буста выбирается **ближайший ключ** из словаря — по нему определяется стоимость (например, `4 → 1`, `5 → 2`: до порога 5 стоимость 1, начиная с порога 5 — 2);
-  - `SkillDependencies` (`Dictionary<string, string>`) — привязка навыка к характеристике: **ключ** — id навыка (имя skill, см. `Glossary.Characters`), **значение** — ключ ability (`STR`, `DEX`, `CON`, `INT`, `WIS`, `CHA` из `Glossary.Characters`).  
-  Стартовый контент: `GeneralRule` — `Tags`: `core`, `exploration`, `social`; `AbilityBoostPointCost`: пороги `4 → 1`, `5 → 2`; `SkillDependencies` — 18 навыков PF2e Remaster (включая `Perception`).
+  - `SkillDependencies` (`Dictionary<string, string>`) — привязка навыка к характеристике: **ключ** — id навыка (имя skill, см. `Glossary.Characters`), **значение** — ключ ability (`STR`, `DEX`, `CON`, `INT`, `WIS`, `CHA` из `Glossary.Characters`);
+  - `ParameterFormulas` (`Dictionary<string, string>`) — формулы вычисляемых параметров персонажа: **ключ** — id параметра, **значение** — выражение с `+`, `*`, скобками. Обычные токены (`STR`, `DEX`, `CON`, `Level`, …) читаются сырыми из `CharacterStateData.Parameters`. Ключевые слова:
+    - `PROFICIENCY` / `ITEMS` — через суффиксы `PROFICIENCY_SUFFIX` / `ITEMS_SUFFIX` к requested key;
+    - `ANCESTRY_HP` — `AncestryDef.HitPoints` по `CharacterStateData.Ancestry`;
+    - `CLASS_HP` — `ClassDef.HitPointsPerLevel` по `CharacterStateData.Class`;
+    - `PER_LEVEL` / `BONUS` — через суффиксы `PER_LEVEL_SUFFIX` / `BONUS_SUFFIX` (например `MaxHitPoints.PerLevel`, `MaxHitPoints.Bonus`).  
+    Чтение итога — через `CharacterParametersProxy.GetTotalValue` (нужны `CharacterStateData`, `RuleDef`, `DefinitionsManager`; см. [State.md](State.md#adventure-characterparametersproxy)).  
+  Стартовый контент: `GeneralRule` — `Tags`: `core`, `exploration`, `social`; `AbilityBoostPointCost`: пороги `4 → 1`, `5 → 2`; `SkillDependencies` и skill-формулы — 18 навыков PF2e Remaster (включая `Perception`); плюс `MaxHitPoints`: `ANCESTRY_HP+(CLASS_HP+CON+PER_LEVEL)*Level+BONUS`.
 
 - `BattleRuleDef`  
   Боевое правило приключения. Поля: `Tags`. Стартовый контент: `GeneralBattleRule` (`core`, `combat`, `encounter`).
@@ -256,11 +277,11 @@
 
 | Слой | Назначение |
 |---|---|
-| `RuleDef` | Статические правила вне боя: теги набора + механические таблицы (стоимость ability boost, skill → ability) |
+| `RuleDef` | Статические правила вне боя: теги набора + механические таблицы (стоимость ability boost, skill → ability, формулы итоговых параметров) |
 | `BattleRuleDef` | Статические боевые правила (столкновения, тактика и т.п.) |
 | `RuleSettingsDef` | Single-def, указывающий, какие правила из коллекций считаются активными по умолчанию |
 
-Активный `RuleDef` выбирается через `RuleSettingsDef.Rule` (id JSON-файла, например `GeneralRule`). Потребитель читает поля правила как конфигурацию: для ability boost — ближайший порог в `AbilityBoostPointCost`, для модификатора навыка — `SkillDependencies[skillId]`. Ключи навыков и ability согласованы с `Glossary.Characters`; ключи параметров choice-actions — с `Glossary.ChoiceActions` (например, `SCENE_ID` = `"SceneId"`) в `Modules.Definitions.Scripts.Implementation.Adventures.Constants`.
+Активный `RuleDef` выбирается через `RuleSettingsDef.Rule` (id JSON-файла, например `GeneralRule`). Потребитель читает поля правила как конфигурацию: для ability boost — ближайший порог в `AbilityBoostPointCost`; для связанной ability навыка — `SkillDependencies[skillId]`; для итогового значения навыка/perception/MaxHitPoints — `ParameterFormulas[...]` через `CharacterParametersProxy.GetTotalValue`. Ключи навыков и ability согласованы с `Glossary.Characters`; ключи параметров choice-actions — с `Glossary.ChoiceActions` (например, `SCENE_ID` = `"SceneId"`) в `Modules.Definitions.Scripts.Implementation.Adventures.Constants`.
 
 Ссылки между дефами — строковые id (имя JSON-файла), по тому же принципу, что `RoundDef -> GameZone/Gems/Objectives`.
 
@@ -270,34 +291,43 @@
 
 ### Минимальный контракт (сейчас)
 
-На текущем этапе adventure-дефы персонажа содержат **необходимый минимум** для загрузки, отображения в UI и ссылок из `Modules.State`:
+На текущем этапе adventure-дефы персонажа содержат **необходимый минимум** для загрузки, отображения в UI, ссылок из `Modules.State` и вычисления ключевых производных параметров:
 
 - идентификация через `Id` (имя JSON-файла);
 - метаданные (`Title`, `Description`, `Disabled`, `Icon`);
 - классификация (`Type`, `Level`, `Category`, `Size`, `Speed`, `IsQuestItem` — где применимо);
-- `Tags` — произвольные строковые метки (источник книги, роль, черновые механические подсказки);
+- `AncestryDef.HitPoints` / `ClassDef.HitPointsPerLevel` — константы для формулы `MaxHitPoints`;
+- `Tags` — произвольные строковые метки (источник книги, роль; legacy-подсказки вроде `hp-*` / `hp_per_level-*` пока дублируют поля HP);
 - `Restrictions` на `ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` — структурированные требования (см. [Restrictions.md](Restrictions.md));
 - `Features` — ссылки на связанные feat/feature id (`Dictionary<int, List<string>>` у класса/ancestry по уровню; `List<string>` у background);
-- `Names` / `Avatars` на `AncestryDef` — пулы по `CharacterGender` для создания персонажа.
+- `Names` / `Avatars` на `AncestryDef` — пулы по `CharacterGender` для создания персонажа;
+- `FeatDef.Apply` / `Options` — контракт эффектов черты (runtime-применение — следующий этап);
+- `RuleDef.ParameterFormulas` — декларативные формулы итоговых параметров (навыки, `MaxHitPoints`), читаются через `CharacterParametersProxy`.
 
-`Tags` **не являются** финальным механическим слоем: это временный способ группировки и заметок до появления структурированных полей (для черт — миграция в `FeatDef.Restrictions`).
+`Tags` **не являются** финальным механическим слоем: это временный способ группировки и заметок; механические числа (HP ancestry/class) уже вынесены в отдельные поля.
 
 ### Разделение Defs и State
 
 | Слой | Что хранит |
 |---|---|
-| **Defs** | Статический контент: что даёт класс, ancestry, предыстория, черта, предмет или заклинание |
-| **State** | Персистентный прогресс персонажа: `CharacterStateData.Parameters`, `Spells`, `StatusEffects`, экипировка и т.д. |
+| **Defs** | Статический контент: что даёт класс, ancestry, предыстория, черта, предмет или заклинание; формулы в `RuleDef.ParameterFormulas` |
+| **State** | Сырой прогресс персонажа: `CharacterStateData.Parameters` (abilities, ranks, bonuses, текущие HP…), `Spells`, `StatusEffects`, экипировка |
+| **Proxy** | Вычисляемые итоги (`Athletics`, `MaxHitPoints`, …) — не персистятся, считаются на чтении |
 
-Runtime в будущем читает деф → вычисляет или применяет эффекты → записывает результат в state (через state-actions / сервисы персонажа).
+Runtime в будущем применяет эффекты дефов в state (через state-actions / сервисы персонажа); чтение итоговых значений уже идёт через `CharacterParametersProxy.GetTotalValue`.
 
 ### Планируемое расширение (механики)
 
-Структурированные эффекты для черт заданы в **`FeatDef.Apply`** (`CharacterParamsPatchData`: `Add`, `Set`, `AlsoApplyFeatIds`) и **`FeatDef.Options`**. Применение в `CharacterStateData.Parameters` — следующий этап (сервис персонажа / state-actions).
+Уже есть:
+- формулы навыков и `MaxHitPoints` в `RuleDef.ParameterFormulas`;
+- HP ancestry/class в полях дефов;
+- контракт `FeatDef.Apply` (`CharacterParamsPatchData`: `Add`, `Set`, `AlsoApplyFeatIds`) и `FeatDef.Options`.
+
+Следующий этап — runtime-применение `Apply` в `CharacterStateData.Parameters` (сервис персонажа / state-actions) и подключение прокси в gameplay/UI.
 
 По мере разработки тот же формат патча может появиться в других дефах (ancestry, background, предметы):
 
-- бонусы и штрафы к характеристикам, навыкам, спасброскам;
+- бонусы и штрафы к характеристикам, навыкам, спасброскам (через сырые ключи / суффиксы);
 - особенности (сопротивления, чувства, ограничения);
 - эффекты заклинаний с явными значениями для записи в state.
 
@@ -354,14 +384,16 @@ Single-def:
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Оба менеджера сейчас загружают `LocalizationSettingsDef` (пути: `Definitions/LocalizationSettings/LocalizationSettings` и `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings`).
 - Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
-- `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost` и `RuleDef.SkillDependencies` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет) на стороне runtime.
-- Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Background`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)).
+- `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost`, `RuleDef.SkillDependencies` и `RuleDef.ParameterFormulas` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет / сырое чтение параметра) на стороне runtime. Для навыков в `GeneralRule` набор ключей skill-формул совпадает с `SkillDependencies`; отдельно задана формула `MaxHitPoints`.
+- Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Background`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)). `ANCESTRY_HP` / `CLASS_HP` в формулах резолвятся через эти id в `AncestryDef.HitPoints` / `ClassDef.HitPointsPerLevel`.
 - `AncestryDef.Names` / `Avatars` индексируются по `CharacterGender`; id ancestry — в `CharacterStateData.Ancestry`. Текущие JSON ancestries ещё могут содержать legacy `MaleNames`/`FemaleNames` — их нужно мигрировать на `Names`/`Avatars`.
+- `AncestryDef.HitPoints` и `ClassDef.HitPointsPerLevel` заполнены в стартовом контенте; теги `hp-*` / `hp_per_level-*` пока оставлены как дубликаты для удобства чтения JSON.
 - `BackgroundDef.Features` — плоский список id; у `ClassDef` / `AncestryDef` поле `Features` — словарь уровень → список id.
+- Итоговые `MaxHitPoints` / навыки **не** пишутся в `CharacterStateData.Parameters`: в state — сырые ключи (`CON`, `Level`, `MaxHitPoints.PerLevel`, `MaxHitPoints.Bonus`, `*.ProfRank`, …), итог — `CharacterParametersProxy.GetTotalValue`.
+- Механические эффекты дефов пока не применяются автоматически через state-actions; `FeatDef.Apply` и `RuleDef.ParameterFormulas` уже задают контракт данных (см. [Adventure-дефы персонажа](#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
 - `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.
 - `Restrictions` на class/ancestry/background/feat может быть пустым или отсутствовать в JSON; при добавлении ограничений JSON-ключи совпадают с полями `Restriction` (см. [Restrictions.md](Restrictions.md)).
 - В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds` и `PregeneratedCharacters` (между Ancestries и Feats).
-- Механические эффекты дефов пока не применяются автоматически; `Tags` — вспомогательные метки до появления структурированных модификаторов (см. [Adventure-дефы персонажа](#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.
 - `LoadCollection()` загружает JSON из указанной папки и всех вложенных подпапок; `Id` — только имя файла, без пути.
 - Для коллекций id должен быть уникален в рамках всего дерева папки; при совпадении имён побеждает первый загруженный деф, дубликат пишется в `LogWarning`.

@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-23 22:45:00 (+03:00)
+**Последнее обновление:** 2026-07-24 12:20:00 (+03:00)
 
 ## Назначение
 
@@ -55,12 +55,13 @@
 Implementation/Adventure/
   StateData.cs                    ← корень: поля-секции
   AdventureStateManager.cs
+  CharacterParametersProxy.cs     ← GetTotalValue: формулы RuleDef + Ancestry/Class HP из DefinitionsManager
   Factories/
     IAdventureStateDataFactory.cs
     AdventureStateDataFactory.cs  ← создание нового профиля
   StateDatas/
     ProfileStateData.cs
-    CharactersStateData.cs        ← CharactersStateData + CharacterGender + CharacterStateData + EquippedItemStateData
+    CharactersStateData.cs        ← CharactersStateData + CharacterGender + ProficiencyType + CharacterStateData + EquippedItemStateData
     InventoryStateData.cs
     AdventuresStateData.cs        ← AdventuresStateData + WorldStateData + AdventureStateData + AdventureStateParamsData
 Implementation/Wallet/
@@ -92,6 +93,10 @@ Implementation/Wallet/
 - `IAdventureStateDataFactory` / `AdventureStateDataFactory`  
   Фабрика начального состояния Adventure-профиля. Создаёт и инициализирует все секции `StateData`.  
   Регистрация в DI: `IAdventureStateDataFactory → AdventureStateDataFactory`, `AsTransient()`.
+
+- `CharacterParametersProxy`  
+  Прокси чтения параметров персонажа: сырые значения из `CharacterStateData.Parameters` и вычисляемые по `RuleDef.ParameterFormulas` (навыки, `MaxHitPoints`).  
+  Зависит от `DefinitionsManager` (Adventures) для `ANCESTRY_HP` / `CLASS_HP`. Подробнее — [ниже](#adventure-characterparametersproxy).
 
 - `StateLogic<TStateData>`  
   Единая точка применения state-actions. Принимает `IStateManager`, callback сохранения и `batchSize`.  
@@ -158,6 +163,16 @@ Implementation/Wallet/
 | `Male` | Мужской |
 | `Female` | Женский |
 
+`ProficiencyType` — ранг владения навыком (в том же файле; значение хранится в `Parameters` по ключу `<SkillId> + Glossary.Characters.PROFICIENCY_SUFFIX`, например `Athletics.ProfRank`):
+
+| Значение | Описание |
+|----------|----------|
+| `Untrained` | Не изучено (бонус владения `0`) |
+| `Trained` | Обучен (`Level + 2`) |
+| `Expert` | Эксперт (`Level + 4`) |
+| `Master` | Мастер (`Level + 6`) |
+| `Legendary` | Легендарный (`Level + 8`) |
+
 `CharacterStateData` — данные одного персонажа (в том же файле):
 
 | Поле | Тип | Назначение |
@@ -171,9 +186,7 @@ Implementation/Wallet/
 | `Ancestry` | `string` | Id дефа ancestry (`AncestryDef`) |
 | `Class` | `string` | Id дефа класса (`ClassDef`) |
 | `Background` | `string` | Id дефа предыстории (`BackgroundDef`) |
-| `Level` | `int` | Уровень персонажа |
-| `Experience` | `int` | Опыт персонажа |
-| `Parameters` | `Dictionary<string, int>` | Числовые параметры: abilities, skills, HP, speed, feats и т.д. |
+| `Parameters` | `Dictionary<string, int>` | Сырые числовые параметры: abilities, level/experience, proficiency ranks, item/per-level/flat bonuses, текущие HP, speed, feats и т.д. Итоговые навыки и `MaxHitPoints` **не** хранятся здесь — считаются через `CharacterParametersProxy` |
 | `EquippedItems` | `List<EquippedItemStateData>` | Надетая экипировка |
 | `Spells` | `Dictionary<string, int>` | Заклинания |
 | `StatusEffects` | `Dictionary<string, int>` | Статусные эффекты: id эффекта → значение |
@@ -189,11 +202,46 @@ Implementation/Wallet/
 - runtime-сущности, создаваемые игрой (персонажи) — `int`, выдаются через `NextCharacterId`;
 - ссылки на контент из дефов — `string` (имя дефа / id из `Definitions`; типы дефов — в [Definitions.md](Definitions.md)).
 
+**`Parameters` (сырое хранилище):**
+- ключи abilities/skills/level согласованы с `Glossary.Characters` (`STR`, `DEX`, `CON`, `Level`, `Athletics.ProfRank`, `Athletics.ItemsBonus`, `MaxHitPoints.PerLevel`, `MaxHitPoints.Bonus`, …);
+- bool-флаги кодируются как `0` / ненулевое значение;
+- итоговый модификатор навыка и `MaxHitPoints` **не пишутся** в `Parameters` — их даёт `CharacterParametersProxy.GetTotalValue`.
+
 **Defs → State (планируемый поток):**
 - дефы (`ClassDef`, `AncestryDef`, `BackgroundDef`, `FeatDef`, `ItemDef`, `SpellDef`) описывают статический контент;
+- `AncestryDef.HitPoints` и `ClassDef.HitPointsPerLevel` — константы для формулы Max HP (не копируются в `Parameters`);
 - для черт механика задаётся в `FeatDef.Apply` (`CharacterParamsPatchData`: `Add`, `Set`, `AlsoApplyFeatIds`; см. [Definitions.md](Definitions.md));
-- при создании/прокачке персонажа runtime читает дефы и записывает итоговые значения в `Parameters`, `Spells`, `StatusEffects` и связанные поля;
-- применение `Apply` в state-actions / сервисе персонажа — следующий этап; bool в `Parameters` кодируется как `0` / ненулевое значение.
+- при создании/прокачке персонажа runtime читает дефы и записывает **сырые** значения в `Parameters`, `Spells`, `StatusEffects` и связанные поля;
+- применение `Apply` в state-actions / сервисе персонажа — следующий этап.
+
+### Adventure: `CharacterParametersProxy`
+
+Файл: `Implementation/Adventure/CharacterParametersProxy.cs`.
+
+Прокси чтения параметров персонажа поверх `CharacterStateData.Parameters`, `RuleDef.ParameterFormulas` и дефов из `DefinitionsManager`. Пока никуда не подключён как обязательный API, но является целевой точкой чтения итоговых значений.
+
+Конструктор: `(CharacterStateData characterState, RuleDef ruleDef, DefinitionsManager definitionsManager)`.
+
+| Метод | Поведение |
+|-------|-----------|
+| `GetTotalValue(key)` | Если `key` есть в `RuleDef.ParameterFormulas` — вычисляет выражение (`+`, `*`, скобки); иначе возвращает сырое значение из `Parameters` (или `0`) |
+| `GetRawValue(key)` | Всегда читает только `CharacterStateData.Parameters` (или `0`) |
+
+Ключевые слова формулы:
+- `PROFICIENCY` → `<requestedKey> + PROFICIENCY_SUFFIX` (например `Athletics.ProfRank`) → `ProficiencyType`; для `Untrained` бонус `0`, иначе `Level + rankBonus` (2/4/6/8);
+- `ITEMS` → `<requestedKey> + ITEMS_SUFFIX` (например `Athletics.ItemsBonus`);
+- `ANCESTRY_HP` → `AncestryDef.HitPoints` по `CharacterStateData.Ancestry`;
+- `CLASS_HP` → `ClassDef.HitPointsPerLevel` по `CharacterStateData.Class`;
+- `PER_LEVEL` → `<requestedKey> + PER_LEVEL_SUFFIX` (например `MaxHitPoints.PerLevel`);
+- `BONUS` → `<requestedKey> + BONUS_SUFFIX` (например `MaxHitPoints.Bonus`);
+- остальные токены (`STR`, `DEX`, `CON`, `Level`, …) — сырые ключи из `Parameters`.
+
+Примеры:
+- `GetTotalValue("Athletics")` при `STR+PROFICIENCY+ITEMS`;
+- `GetTotalValue("MaxHitPoints")` при `ANCESTRY_HP+(CLASS_HP+CON+PER_LEVEL)*Level+BONUS`  
+  (дварф-воин 5 ур., CON+3, без доп. бонусов → `10+(10+3+0)*5+0 = 75`).
+
+Формулы навыков и `MaxHitPoints` заданы в `GeneralRule.ParameterFormulas` (см. [Definitions.md](Definitions.md)).
 
 ### Adventure: `InventoryStateData`
 

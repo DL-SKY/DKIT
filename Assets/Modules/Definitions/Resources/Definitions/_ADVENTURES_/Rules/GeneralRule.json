@@ -27,5 +27,26 @@
 		"Survival": "WIS",
 		"Thievery": "DEX",
 		"Perception": "WIS"
+	},
+	"ParameterFormulas": {
+		"Acrobatics": "DEX+PROFICIENCY+ITEMS",
+		"Arcana": "INT+PROFICIENCY+ITEMS",
+		"Athletics": "STR+PROFICIENCY+ITEMS",
+		"Crafting": "INT+PROFICIENCY+ITEMS",
+		"Deception": "CHA+PROFICIENCY+ITEMS",
+		"Diplomacy": "CHA+PROFICIENCY+ITEMS",
+		"Intimidation": "CHA+PROFICIENCY+ITEMS",
+		"Lore": "INT+PROFICIENCY+ITEMS",
+		"Medicine": "WIS+PROFICIENCY+ITEMS",
+		"Nature": "WIS+PROFICIENCY+ITEMS",
+		"Occultism": "INT+PROFICIENCY+ITEMS",
+		"Performance": "CHA+PROFICIENCY+ITEMS",
+		"Religion": "WIS+PROFICIENCY+ITEMS",
+		"Society": "INT+PROFICIENCY+ITEMS",
+		"Stealth": "DEX+PROFICIENCY+ITEMS",
+		"Survival": "WIS+PROFICIENCY+ITEMS",
+		"Thievery": "DEX+PROFICIENCY+ITEMS",
+		"Perception": "WIS+PROFICIENCY+ITEMS",
+		"MaxHitPoints": "ANCESTRY_HP+(CLASS_HP+CON+PER_LEVEL)*Level+BONUS"
 	}
 }

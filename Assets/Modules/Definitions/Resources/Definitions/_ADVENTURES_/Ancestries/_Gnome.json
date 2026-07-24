@@ -2,6 +2,7 @@
 	"Disabled": false,
 	"Size": "Small",
 	"Speed": 25,
+	"HitPoints": 8,
 	"Tags": [
 		"player-core",
 		"hp-8",

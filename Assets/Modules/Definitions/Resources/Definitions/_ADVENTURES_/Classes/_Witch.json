@@ -1,5 +1,6 @@
 {
 	"Disabled": false,
+	"HitPointsPerLevel": 6,
 	"Tags": [
 		"player-core",
 		"key-intelligence|charisma",

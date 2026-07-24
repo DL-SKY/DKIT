@@ -91,8 +91,10 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
             // --- Game Logic Suffix ---
 
-            public const string PROFICIENCY_SUFFIX = ".ProfRank";  // Умение (enum ProficiencyType)
-            public const string ITEMS_SUFFIX = ".ItemsBonus";  // Умение (enum ProficiencyType)
+            public const string PROFICIENCY_SUFFIX = ".ProfRank";  // Proficiency rank (enum ProficiencyType)
+            public const string ITEMS_SUFFIX = ".ItemsBonus";  // Item bonus for a skill/parameter
+            public const string PER_LEVEL_SUFFIX = ".PerLevel";  // Extra value applied each level (e.g. MaxHitPoints.PerLevel)
+            public const string BONUS_SUFFIX = ".Bonus";  // Flat bonus for a computed parameter (e.g. MaxHitPoints.Bonus)
         }
 
         public static class Classes
@@ -159,6 +161,39 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
         public static class Items
         {
+            // --- Tags ---
+
+            // --- Parameters ---
+        }
+
+        public static class Weapons
+        {
+            // --- Types ---
+
+            public const string SIMPLE = "Weapon.Simple";                    // Простое оружие
+            public const string MARTIAL = "Weapon.Martial";                  // Воинское оружие
+            public const string ADVANCED = "Weapon.Advanced";                // Продвинутое оружие
+
+            // --- Groups ---
+
+            public const string AXE = "Axe";                // Топоры
+            public const string BRAWLING = "Brawling";      // Рукопашная (в т.ч. безоружные атаки)
+            public const string CLUB = "Club";              // Дубинки
+            public const string FLAIL = "Flail";            // Цепы
+            public const string HAMMER = "Hammer";          // Молоты
+            public const string KNIFE = "Knife";            // Ножи
+            public const string PICK = "Pick";              // Кирки
+            public const string POLEARM = "Polearm";        // Древковое
+            public const string SHIELD = "Shield";          // Щиты
+            public const string SPEAR = "Spear";            // Копья
+            public const string SWORD = "Sword";            // Мечи
+            public const string BOW = "Bow";                // Луки
+            public const string CROSSBOW = "Crossbow";      // Арбалеты
+            public const string DART = "Dart";              // Дротики
+            public const string SLING = "Sling";            // Пращи
+            public const string BOMB = "Bomb";              // Бомбы
+            public const string FIREARM = "Firearm";        // Огнестрельное
+
             // --- Tags ---
 
             // --- Parameters ---

@@ -16,6 +16,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes
         public string Title;
         public string Description;
 
+        /// <summary>
+        /// Hit Points granted by the class each level (before Constitution modifier).
+        /// </summary>
+        public int HitPointsPerLevel;
+
         public Dictionary<int, List<string>> Features;
     }
 }
