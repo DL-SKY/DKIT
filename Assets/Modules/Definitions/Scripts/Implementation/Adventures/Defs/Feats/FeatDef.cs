@@ -40,5 +40,10 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats
         /// Для черт с выбором (например ClassFeature): id дочерних feat, один из которых выбирает игрок.
         /// </summary>
         public List<string> Options;
+
+        /// <summary>
+        /// Additional equipment slot entries granted by this feat (for example Hand, Hand, Bag).
+        /// </summary>
+        public List<string> AdditionalSlots;
     }
 }

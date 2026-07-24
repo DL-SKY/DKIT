@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-24 14:20:00 (+03:00)
+**Последнее обновление:** 2026-07-24 19:45:00 (+03:00)
 
 ## Назначение
 
@@ -200,8 +200,10 @@ Implementation/Wallet/
 
 | Поле | Тип | Назначение |
 |------|-----|------------|
-| `Slot` | `string` | Идентификатор слота (`HAND`, `BAG`, …) |
-| `ItemId` | `string` | Id дефа предмета (`ItemDef`, имя JSON-файла) |
+| `Slot` | `string` | Тип слота из `Glossary.Items` (`Hand`, `Legs`, `Head`, `Body`, `Bag`). Несколько одинаковых типов допустимы (список повторяемых записей, без индексов) |
+| `ItemId` | `string` | Id дефа предмета (`ItemDef`, имя JSON-файла); пустой/`null` — свободный слот |
+
+Базовый набор слотов обычно задаётся в `ClassDef.EquippedItems` (и/или в `PregeneratedCharacterDef.EquippedItems`); дополнительные слоты могут выдавать черты через `FeatDef.AdditionalSlots`. Предмет можно положить в слот только если тип слота есть в `ItemDef.AvailableSlots`.
 
 **Соглашения по id:**
 - runtime-сущности, создаваемые игрой (персонажи) — `int`, выдаются через `NextCharacterId`;
@@ -288,8 +290,8 @@ Implementation/Wallet/
 | `Items` | `Dictionary<string, int>` | Предметы и расходники: defId → количество (общий пул отряда) |
 
 **Разделение экипировки:**
-- стакающиеся предметы и расходники — в `Inventory.Items`;
-- надетая экипировка персонажа — в `CharacterStateData.EquippedItems` (слот + defId предмета).
+- общий пул отряда — в `Inventory.Items` (`ItemDef` id → количество);
+- слоты конкретного персонажа — в `CharacterStateData.EquippedItems` (тип слота + `ItemId`); при надевании предмет списывается из общего инвентаря (количество уменьшается), при снятии — возвращается в `Inventory.Items`.
 
 ### Adventure: `AdventuresStateData` и связанные типы
 

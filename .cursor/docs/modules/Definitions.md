@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-24 14:20:00 (+03:00)
+**Последнее обновление:** 2026-07-24 19:45:00 (+03:00)
 
 ## Назначение
 
@@ -47,6 +47,14 @@
   Для оружия — `Glossary.Weapons`:
   - типы (`ItemDef.Type`): `SIMPLE` = `"Weapon.Simple"`, `MARTIAL` = `"Weapon.Martial"`, `ADVANCED` = `"Weapon.Advanced"`;
   - группы (`ItemDef.Group`): `AXE`, `BRAWLING`, `CLUB`, `FLAIL`, `HAMMER`, `KNIFE`, `PICK`, `POLEARM`, `SHIELD`, `SPEAR`, `SWORD`, `BOW`, `CROSSBOW`, `DART`, `SLING`, `BOMB`, `FIREARM` (значения CamelCase: `"Axe"`, `"Bow"`, …).
+
+  Для слотов экипировки — `Glossary.Items` (значения пишутся в `EquippedItemStateData.Slot` / `ItemDef.AvailableSlots` / `FeatDef.AdditionalSlots`):
+  - `SLOT_TYPE_HAND` = `"Hand"`;
+  - `SLOT_TYPE_LEGS` = `"Legs"`;
+  - `SLOT_TYPE_HEAD` = `"Head"`;
+  - `SLOT_TYPE_BODY` = `"Body"`;
+  - `SLOT_TYPE_BAG` = `"Bag"`.  
+  Контракт — **повторяемый список типов**, без индексов: несколько рук/сумок задаются несколькими записями с одним и тем же типом (`Hand`, `Hand`, `Bag`, `Bag`, …).
 
 ### Соглашение по наследованию adventure-дефов
 
@@ -102,6 +110,7 @@
 | | `Description` | `string` | `Description` | да |
 | | `HitPointsPerLevel` | `int` | `HitPointsPerLevel` | да (HP класса за уровень) |
 | | `Features` | `Dictionary<int, List<string>>` | `Features` | нет (опционально; ключи в JSON — строки) |
+| | `EquippedItems` | `List<EquippedItemStateData>` | `EquippedItems` | нет (опционально; базовые слоты класса + стартовая экипировка; `Slot` из `Glossary.Items`, пустой `ItemId` = свободный слот) |
 | `AncestryDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Restrictions` | `List<Restriction>` | `Restrictions` | нет (опционально) |
 | | `Tags` | `List<string>` | `Tags` | да |
@@ -122,7 +131,14 @@
 | | `Description` | `string` | `Description` | да |
 | | `Features` | `List<string>` | `Features` | да (id feat/feature) |
 | `PregeneratedCharacterDef` | `Avatar` | `string` | `Avatar` | да (часто `""`; id/ключ аватара) |
+| | `Name` | `string` | `Name` | нет (опционально) |
+| | `Gender` | `CharacterGender` | `Gender` | нет (опционально) |
+| | `Ancestry` | `string` | `Ancestry` | нет (опционально; id `AncestryDef`) |
 | | `Class` | `string` | `Class` | да, id `ClassDef` |
+| | `Background` | `string` | `Background` | нет (опционально; id `BackgroundDef`) |
+| | `Parameters` | `Dictionary<string, int>` | `Parameters` | нет (опционально) |
+| | `EquippedItems` | `List<EquippedItemStateData>` | `EquippedItems` | нет (опционально; слоты/стартовая экипировка прегена) |
+| | `Spells` | `Dictionary<string, int>` | `Spells` | нет (опционально) |
 | `CharacterParamsPatchData` | `Add` | `Dictionary<string, int>` | `Add` | нет (опционально) |
 | | `Set` | `Dictionary<string, int>` | `Set` | нет (опционально) |
 | | `AlsoApplyFeatIds` | `List<string>` | `AlsoApplyFeatIds` | нет (опционально; id `FeatDef`) |
@@ -136,6 +152,7 @@
 | | `Level` | `int` | `Level` | да |
 | | `Apply` | `CharacterParamsPatchData` | `Apply` | нет (опционально) |
 | | `Options` | `List<string>` | `Options` | нет (опционально; id `FeatDef`) |
+| | `AdditionalSlots` | `List<string>` | `AdditionalSlots` | нет (опционально; типы слотов из `Glossary.Items`, например дополнительные `Hand`) |
 | `ItemDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `IsQuestItem` | `bool` | `IsQuestItem` | да, везде `false` |
 | | `Category` | `ItemCategory` | `Category` | да |
@@ -144,6 +161,7 @@
 | | `Title` | `string` | `Title` | да |
 | | `Description` | `string` | `Description` | да |
 | | `Price` | `int` | `Price` | да |
+| | `AvailableSlots` | `List<string>` | `AvailableSlots` | нет (опционально; whitelist типов слотов из `Glossary.Items`) |
 | | `Type` | `string` | `Type` | да для оружия (`Glossary.Weapons.SIMPLE` / `MARTIAL` / `ADVANCED`) |
 | | `Group` | `string` | `Group` | да для оружия (`Glossary.Weapons.*` группа) |
 | | `AbilityDependencies` | `List<string>` | `AbilityDependencies` | да для оружия (ключи ability: `STR`, `DEX`, …) |
@@ -191,8 +209,9 @@
   Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`, `ChoiceDiceCheckData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). В `ChoiceType` доступны `Default` и `DiceCheck`; для `DiceCheck` используется блок `ChoiceData.DiceCheck` с полями броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam` — ключ атрибута/скилла) и outcome action-списками (`OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure`); для `Default` блок `DiceCheck` должен отсутствовать, а `Actions` — использоваться вместо outcome-списков (TEA-валидация с `Fix`). Choice-actions в runtime: `GoToScene` (`SceneId`), `GoToAdventure` (`AdventureId`), `GoToRandomAdventure`, `GoToRandomScene` (`SceneId` через `;`), `OpenWindow` (`WindowId`, stub), `SetWorldParams`, `SetAdventureParams`, `SetGlobalParams`; ключи — `Glossary.ChoiceActions.*`, ids окон хаба — `Glossary.Windows.*`. Executors пишут в `State` через соответствующие state-actions (см. [RPG.md](RPG.md)).
 
 - `ClassDef`  
-  Класс персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `HitPointsPerLevel`, `Features` (`Dictionary<int, List<string>>` — уровень → список id фич/черт).  
+  Класс персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `HitPointsPerLevel`, `Features` (`Dictionary<int, List<string>>` — уровень → список id фич/черт), `EquippedItems` (`List<EquippedItemStateData>` — базовый набор слотов персонажа класса и стартовая экипировка).  
   `HitPointsPerLevel` — HP класса за каждый уровень (до модификатора `CON`). Значения также временно дублируются в `Tags` как `hp_per_level-*`.  
+  В `EquippedItems` поле `Slot` — тип слота из `Glossary.Items` (`Hand`, `Legs`, `Head`, `Body`, `Bag`); несколько одинаковых типов допустимы (например две `Hand` и три `Bag`). Пустой/`null` `ItemId` означает свободный доступный слот.  
   Общий каркас метаданных совпадает с `BackgroundDef` / `AncestryDef` (без size/speed/имён).
 
 - `AncestryDef`  
@@ -205,12 +224,13 @@
   Загрузка: `DefinitionsManager.Backgrounds` из `_ADVENTURES_/Backgrounds` (между Ancestries и Feats в `LoadAll()`). Id в state — `CharacterStateData.Background`.
 
 - `PregeneratedCharacterDef`  
-  Заготовленный персонаж (шаблон для быстрого старта / выбора готового героя). Поля: `Avatar` (id или ключ аватара), `Class` (id `ClassDef`).  
-  Загрузка: `DefinitionsManager.PregeneratedCharacters` из `_ADVENTURES_/PregeneratedCharacters` (между Backgrounds и Feats в `LoadAll()`). Контракт расширяется по мере появления механик прегенов в state/UI.
+  Заготовленный персонаж (шаблон для быстрого старта / выбора готового героя). Поля: `Avatar`, `Name`, `Gender`, `Ancestry`, `Class`, `Background`, `Parameters`, `EquippedItems`, `Spells`.  
+  `EquippedItems` — слоты и стартовая экипировка прегена (`Slot` из `Glossary.Items`, `ItemId` — id `ItemDef` или пусто для свободного слота).  
+  Загрузка: `DefinitionsManager.PregeneratedCharacters` из `_ADVENTURES_/PregeneratedCharacters` (между Backgrounds и Feats в `LoadAll()`).
 
 - `FeatDef`  
-  Черта/способность. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Type` (`FeatType`), `Level`, `Apply` (`CharacterParamsPatchData`), `Options` (`List<string>` — id дочерних feat при выборе).  
-  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Apply` описывает, какие ключи `CharacterStateData.Parameters` изменить при взятии или пересчёте билда (`Add` — прибавить, `Set` — установить; bool через `0` / ненулевое значение). `AlsoApplyFeatIds` внутри `Apply` — каскадное применение других feat id. `Restrictions` — структурированные требования (prerequisites); формат `Restriction` — см. [Restrictions.md](Restrictions.md). Проверка и применение `Apply` в runtime пока не реализованы; в стартовом контенте `Apply`/`Options` отсутствуют, часть условий временно дублируется в `Tags`.
+  Черта/способность. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Type` (`FeatType`), `Level`, `Apply` (`CharacterParamsPatchData`), `Options` (`List<string>` — id дочерних feat при выборе), `AdditionalSlots` (`List<string>` — дополнительные типы слотов из `Glossary.Items`).  
+  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Apply` описывает, какие ключи `CharacterStateData.Parameters` изменить при взятии или пересчёте билда (`Add` — прибавить, `Set` — установить; bool через `0` / ненулевое значение). `AlsoApplyFeatIds` внутри `Apply` — каскадное применение других feat id. `AdditionalSlots` расширяет набор слотов персонажа (например две дополнительные `Hand` для четырёхрукого существа); runtime-применение — следующий этап. `Restrictions` — структурированные требования (prerequisites); формат `Restriction` — см. [Restrictions.md](Restrictions.md). Проверка и применение `Apply` в runtime пока не реализованы; в стартовом контенте `Apply`/`Options`/`AdditionalSlots` отсутствуют, часть условий временно дублируется в `Tags`.
 
 - `CharacterParamsPatchData`  
   Общий POCO патча параметров персонажа (`Assets/Modules/Definitions/Scripts/Implementation/Adventures/Defs/CharacterParamsPatchData.cs`). Не наследует `AbstractDefinition`, не загружается отдельно. Сейчас используется в `FeatDef.Apply`; позже может переиспользоваться в других adventure-дефах (ancestry, background, предметы). Ключи параметров — `Glossary.Characters` и согласованные id (в т.ч. id feat для флага «черта взята»). Семантика merge (`+=` vs `=`) — в сервисе персонажа, не в JSON.
@@ -228,7 +248,7 @@
 
   Для Max HP не пишите итог в `MaxHitPoints`: бонусы за уровень кладите в `MaxHitPoints.PerLevel`, flat — в `MaxHitPoints.Bonus` (см. `CharacterParametersProxy`).
 - `ItemDef`  
-  Предмет. Базовые поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`.  
+  Предмет. Базовые поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`, `AvailableSlots` (`List<string>` — whitelist типов слотов из `Glossary.Items`, куда предмет можно надеть/положить).  
   Для оружия (`Category = Weapon`) дополнительно:
   - `Type` — тип владения (`Glossary.Weapons.SIMPLE` / `MARTIAL` / `ADVANCED`, значения `"Weapon.Simple"` и т.п.);
   - `Group` — группа оружия (`Glossary.Weapons.SWORD`, `BOW`, …);

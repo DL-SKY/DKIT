@@ -30,6 +30,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
         public int Price;
 
         /// <summary>
+        /// Allowed equipment slot types for this item (for example Hand, Legs, Head, Body, Bag).
+        /// </summary>
+        public List<string> AvailableSlots;
+
+        /// <summary>
         /// Weapon type key, for example <c>Weapon.Martial</c>.
         /// </summary>
         public string Type;

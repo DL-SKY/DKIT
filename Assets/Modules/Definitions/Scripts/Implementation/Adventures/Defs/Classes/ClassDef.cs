@@ -1,5 +1,6 @@
 using Modules.Definitions.Scripts.Defs;
 using Modules.Restrictions.Scripts.Core;
+using Modules.State.Scripts.Implementation.Adventure.StateDatas;
 using System.Collections.Generic;
 
 namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes
@@ -22,5 +23,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes
         public int HitPointsPerLevel;
 
         public Dictionary<int, List<string>> Features;
+
+        public List<EquippedItemStateData> EquippedItems;
     }
 }

@@ -62,6 +62,9 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
 
     public class EquippedItemStateData
     {
+        /// <summary>
+        /// Character slot type (for example Hand, Legs, Head, Body, Bag).
+        /// </summary>
         public string Slot;
         public string ItemId;
     }

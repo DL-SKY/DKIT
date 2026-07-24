@@ -164,6 +164,14 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             // --- Tags ---
 
             // --- Parameters ---
+
+            // --- Character Equipment Slots ---
+
+            public const string SLOT_TYPE_HAND = "Hand";
+            public const string SLOT_TYPE_LEGS = "Legs";
+            public const string SLOT_TYPE_HEAD = "Head";
+            public const string SLOT_TYPE_BODY = "Body";
+            public const string SLOT_TYPE_BAG = "Bag";
         }
 
         public static class Weapons

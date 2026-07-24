@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-24 14:20:00 (+03:00)
+**Последнее обновление:** 2026-07-24 19:45:00 (+03:00)
 
 ## Назначение
 
@@ -349,12 +349,12 @@ RPG-контент (сцены, выборы, действия) описывае
   - `Ancestry`, `Class`, `Background` — id дефов `AncestryDef` / `ClassDef` / `BackgroundDef`;
   - `Spells` — словарь id заклинаний (`SpellDef`) или связанных счётчиков (контракт уточняется при подключении runtime);
   - `EquippedItems` — экипировка персонажа.
-- `EquippedItemStateData`: `{ Slot, ItemId }` — слот и id дефа надетого предмета.
+- `EquippedItemStateData`: `{ Slot, ItemId }` — тип слота из `Glossary.Items` (`Hand`, `Legs`, `Head`, `Body`, `Bag`; повторяемый список без индексов) и id дефа надетого предмета (пустой `ItemId` — свободный слот). Подробнее — [State.md](State.md#adventure-charactersstatedata-и-characterstatedata).
 
 ### Инвентарь (`InventoryStateData`)
 
 - `Items` — `Dictionary<string, int>`: расходники и стакающиеся предметы (`defId → count`), общий пул отряда.
-- Надетая экипировка — `CharacterStateData.EquippedItems` (отдельно от инвентаря).
+- Слоты конкретного персонажа — `CharacterStateData.EquippedItems` (отдельно от инвентаря); при надевании предмет списывается из `Inventory.Items`.
 
 ### Прогресс приключений (`AdventuresStateData`)
 
