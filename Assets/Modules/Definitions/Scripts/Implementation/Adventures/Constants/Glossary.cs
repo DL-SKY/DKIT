@@ -11,6 +11,8 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
         {
             // --- Tags ---
 
+            public const string ATTACK = "ATTACK";
+
             // --- Parameters ---
         }
 

@@ -33,6 +33,9 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Rules
         /// </remarks>
         public Dictionary<int, int> AbilityBoostPointCost;
 
+        /// <summary>
+        /// Неактуально. Стоит удалить.
+        /// </summary>
         [Obsolete] public Dictionary<string, string> SkillDependencies;
 
         /// <summary>

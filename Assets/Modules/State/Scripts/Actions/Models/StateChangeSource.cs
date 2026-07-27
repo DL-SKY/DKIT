@@ -21,5 +21,10 @@ namespace Modules.State.Scripts.Actions.Models
         EquipItemFromInventory = 13,
         UnequipItemToInventory = 14,
         MoveEquippedItemBetweenSlots = 15,
+
+        AddInventoryItems = 16,
+        RemoveInventoryItems = 17,
+        AddCharacterItem = 18,
+        RemoveCharacterEquippedItem = 19,
     }
 }

@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-24 20:25:00 (+03:00)
+**Последнее обновление:** 2026-07-27 10:25:00 (+03:00)
 
 ## Назначение
 
@@ -357,7 +357,9 @@ RPG-контент (сцены, выборы, действия) описывае
 - Слоты конкретного персонажа — `CharacterStateData.EquippedItems` (отдельно от инвентаря).
 - Перенос между общим инвентарём и слотами персонажа — через `EquipItemFromInventoryStateAction` / `UnequipItemToInventoryStateAction`.
 - Перенос между слотами одного персонажа — через `MoveEquippedItemBetweenSlotsStateAction` (без участия `Inventory.Items`).
-- Примеры кейсов (рука→мешок, хранилище→мешок/рука, swap, ошибки) — в [State.md](State.md#adventure-inventorystatedata).
+- Добавление/удаление в общий инвентарь — `AddInventoryItemsStateAction` / `RemoveInventoryItemsStateAction`.
+- Выдача/удаление у персонажа — `AddCharacterItemStateAction` (Bag → иначе inventory) / `RemoveCharacterEquippedItemStateAction` (без возврата в inventory).
+- Примеры кейсов — в [State.md](State.md#adventure-inventorystatedata).
 
 ### Прогресс приключений (`AdventuresStateData`)
 

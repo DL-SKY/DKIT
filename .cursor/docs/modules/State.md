@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-24 20:25:00 (+03:00)
+**Последнее обновление:** 2026-07-27 10:25:00 (+03:00)
 
 ## Назначение
 
@@ -133,6 +133,10 @@ Implementation/Wallet/
 | `EquipItemFromInventory` | `EquipItemFromInventoryStateAction` (Adventure) |
 | `UnequipItemToInventory` | `UnequipItemToInventoryStateAction` (Adventure) |
 | `MoveEquippedItemBetweenSlots` | `MoveEquippedItemBetweenSlotsStateAction` (Adventure) |
+| `AddInventoryItems` | `AddInventoryItemsStateAction` (Adventure) |
+| `RemoveInventoryItems` | `RemoveInventoryItemsStateAction` (Adventure) |
+| `AddCharacterItem` | `AddCharacterItemStateAction` (Adventure) |
+| `RemoveCharacterEquippedItem` | `RemoveCharacterEquippedItemStateAction` (Adventure) |
 
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
@@ -155,8 +159,20 @@ Implementation/Wallet/
 - `MoveEquippedItemBetweenSlotsRequestData`  
   DTO для `MoveEquippedItemBetweenSlotsStateAction`: `CharacterId`, `FromSlotIndex`, `ToSlotIndex` (оба — индексы в `EquippedItems`).
 
+- `AddInventoryItemsRequestData`  
+  DTO для `AddInventoryItemsStateAction`: `ItemId`, `Count` (1..N).
+
+- `RemoveInventoryItemsRequestData`  
+  DTO для `RemoveInventoryItemsStateAction`: `ItemId`, `Count` (1..N). Валидация требует, чтобы предмет **был** в инвентаре (`count > 0`); удаление большего количества, чем есть, допустимо и clamp-ится до 0.
+
+- `AddCharacterItemRequestData`  
+  DTO для `AddCharacterItemStateAction`: `CharacterId`, `ItemId` (поштучно). Сначала свободный `Bag`-слот, иначе общий инвентарь.
+
+- `RemoveCharacterEquippedItemRequestData`  
+  DTO для `RemoveCharacterEquippedItemStateAction`: `CharacterId`, `SlotIndex`, `ItemId`. `SlotIndex = -1` — найти первый слот с этим `ItemId`. Удаление без возврата в `Inventory.Items`.
+
 - `InventoryItemsOperator`  
-  Вспомогательный оператор общего инвентаря: `GetCount`, `TryConsume`, `Add` для `Inventory.Items`.
+  Вспомогательный оператор общего инвентаря: `GetCount`, `TryConsume`, `TryAdd` (возвращает фактическое добавленное количество; capacity stub пока = requested), `Add`, `RemoveUpTo` (`Max(0, current - amount)`).
 
 - `StateActionValidationResult`  
   Результат валидации (`Ok` / `Fail(message, errorCode)`).
@@ -324,6 +340,12 @@ Implementation/Wallet/
 - `UnequipItemToInventoryStateAction` — из слота обратно в `Inventory.Items`, слот очищается (`ItemId = null`);
 - `MoveEquippedItemBetweenSlotsStateAction` — перенос между двумя слотами **одного** персонажа (`FromSlotIndex` → `ToSlotIndex`) **без** участия `Inventory.Items`; если целевой слот занят — swap `ItemId`.
 
+**Добавление / удаление предметов** (не перенос):
+- `AddInventoryItemsStateAction` — добавить `Count` штук `ItemId` в `Inventory.Items` (через `InventoryItemsOperator.TryAdd`; capacity stub пока пропускает всё количество);
+- `RemoveInventoryItemsStateAction` — удалить до `Count` штук `ItemId` из `Inventory.Items` (`RemoveUpTo` / `Max(0, …)`). Валидация: предмет должен существовать (`count > 0`), даже если `Count` больше текущего количества;
+- `AddCharacterItemStateAction` — выдать 1 предмет персонажу: свободный слот `Glossary.Items.SLOT_TYPE_BAG`, иначе в общий инвентарь;
+- `RemoveCharacterEquippedItemStateAction` — удалить предмет из слота персонажа (без возврата в инвентарь). `SlotIndex = -1` ищет первый слот с указанным `ItemId`.
+
 `CreateCharacterStateAction` / `UpdateCharacterStateAction` **не** трогают `Inventory.Items`: они работают только с локальными данными персонажа.
 
 **Важно про `SlotIndex`:** это индекс в списке `CharacterStateData.EquippedItems`, а не “тип слота”.  
@@ -466,6 +488,78 @@ var result = stateLogic.ProcessAction(new UnequipItemToInventoryStateAction(
 
 // result.IsValid == false ("Equipped slot is already empty.")
 ```
+
+**8) Добавить предметы в общий инвентарь (1..N)**
+
+До: `Inventory.Items["_Apple"] = 2`.
+
+```csharp
+stateLogic.ProcessAction(new AddInventoryItemsStateAction(
+    new AddInventoryItemsRequestData
+    {
+        ItemId = "_Apple",
+        Count = 3,
+    }));
+```
+
+После: `Inventory.Items["_Apple"] = 5`.  
+`TryAdd` возвращает фактическое добавленное количество (сейчас stub = requested).
+
+**9) Удалить предметы из общего инвентаря (clamp до 0)**
+
+До: `Inventory.Items["_Apple"] = 5`.
+
+```csharp
+stateLogic.ProcessAction(new RemoveInventoryItemsStateAction(
+    new RemoveInventoryItemsRequestData
+    {
+        ItemId = "_Apple",
+        Count = 10, // больше, чем есть — валидация OK, т.к. яблоки существуют
+    }));
+```
+
+После: ключ `"_Apple"` удалён (`Max(0, 5-10) = 0`).
+
+**10) Выдать предмет персонажу (Bag, иначе общий инвентарь)**
+
+```csharp
+stateLogic.ProcessAction(new AddCharacterItemStateAction(
+    new AddCharacterItemRequestData
+    {
+        CharacterId = 1,
+        ItemId = "_Potion",
+    }));
+```
+
+Если есть свободный `Bag`-слот — предмет туда; иначе `Inventory.Items["_Potion"] += 1`.
+
+**11) Удалить предмет из слота персонажа (без возврата в инвентарь)**
+
+По индексу:
+
+```csharp
+stateLogic.ProcessAction(new RemoveCharacterEquippedItemStateAction(
+    new RemoveCharacterEquippedItemRequestData
+    {
+        CharacterId = 1,
+        SlotIndex = 3,          // Bag/_Torch
+        ItemId = "_Torch",
+    }));
+```
+
+Или поиск по `ItemId` (`SlotIndex = -1`):
+
+```csharp
+stateLogic.ProcessAction(new RemoveCharacterEquippedItemStateAction(
+    new RemoveCharacterEquippedItemRequestData
+    {
+        CharacterId = 1,
+        SlotIndex = -1,
+        ItemId = "_Torch",
+    }));
+```
+
+После: слот очищен (`ItemId = null`), `Inventory.Items` не меняется.
 
 
 ### Adventure: `AdventuresStateData` и связанные типы
@@ -613,6 +707,10 @@ stateLogic.StateChanged += source =>
 - `EquipItemFromInventoryStateAction` — перенос предмета из `Inventory.Items` в слот персонажа (`CharacterId` + `SlotIndex` + `ItemId`); при занятом слоте старый предмет возвращается в инвентарь (Adventure).
 - `UnequipItemToInventoryStateAction` — перенос предмета из слота персонажа обратно в `Inventory.Items` и очистка слота (Adventure).
 - `MoveEquippedItemBetweenSlotsStateAction` — перенос/`swap` предмета между двумя слотами одного персонажа (`FromSlotIndex` → `ToSlotIndex`) без участия `Inventory.Items` (Adventure).
+- `AddInventoryItemsStateAction` — добавить `Count` предметов `ItemId` в `Inventory.Items` (Adventure).
+- `RemoveInventoryItemsStateAction` — удалить до `Count` предметов `ItemId` из `Inventory.Items` с clamp до 0; валидация требует наличие хотя бы 1 шт. (Adventure).
+- `AddCharacterItemStateAction` — выдать 1 предмет персонажу в свободный `Bag`-слот или, если мест нет, в общий инвентарь (Adventure).
+- `RemoveCharacterEquippedItemStateAction` — удалить предмет из слота персонажа без возврата в инвентарь; `SlotIndex = -1` ищет по `ItemId` (Adventure).
 
 ## Как добавить новый state-action
 
