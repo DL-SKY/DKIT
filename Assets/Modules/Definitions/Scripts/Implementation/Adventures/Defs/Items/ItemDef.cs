@@ -46,6 +46,12 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
         public List<string> AvailableSlots;
 
         /// <summary>
+        /// Id связанных feat/feature (<c>FeatDef</c>), которые применяются к персонажу
+        /// при экипировке предмета (через Write API Apply / Unapply). Как у <c>BackgroundDef.Features</c>.
+        /// </summary>
+        public List<string> Features;
+
+        /// <summary>
         /// Weapon type key, for example <c>Weapon.Martial</c>.
         /// </summary>
         public string Type;

@@ -32,7 +32,9 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats
         public int Level;
 
         /// <summary>
-        /// Статический эффект черты при взятии или при полном пересчёте билда персонажа.
+        /// Статический эффект черты при выдаче или снятии с билда персонажа.
+        /// Применяется / откатывается через Write API параметров персонажа
+        /// (семантика Apply / Unapply у <see cref="CharacterParamsPatchData"/>).
         /// </summary>
         public CharacterParamsPatchData Apply;
 

@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-27 16:35:00 (+03:00)
+**Последнее обновление:** 2026-07-27 17:21:29 (+03:00)
 
 ## Назначение
 
@@ -57,7 +57,7 @@
 Implementation/Adventure/
   StateData.cs                    ← корень: поля-секции
   AdventureStateManager.cs
-  CharacterParametersProxy.cs     ← GetTotalValue: формулы RuleDef + Ancestry/Class HP из DefinitionsManager
+  CharacterParametersProxy.cs     ← Read API: GetRawValue / GetTotalValue; Write API (Apply/Unapply) — следующий этап
   WeaponProxy.cs                  ← attack/damage modifiers по ItemDef формулам
   Factories/
     IAdventureStateDataFactory.cs
@@ -98,8 +98,8 @@ Implementation/Wallet/
   Регистрация в DI: `IAdventureStateDataFactory → AdventureStateDataFactory`, `AsTransient()`.
 
 - `CharacterParametersProxy`  
-  Прокси чтения параметров персонажа: сырые значения из `CharacterStateData.Parameters` и вычисляемые по `RuleDef.ParameterFormulas` (навыки, `MaxHitPoints`).  
-  Зависит от `DefinitionsManager` (Adventures) для `ANCESTRY_HP` / `CLASS_HP`. Подробнее — [ниже](#adventure-characterparametersproxy).
+  **Read API** параметров персонажа: сырые значения из `CharacterStateData.Parameters` и вычисляемые по `RuleDef.ParameterFormulas` (навыки, `MaxHitPoints`).  
+  Зависит от `DefinitionsManager` (Adventures) для `ANCESTRY_HP` / `CLASS_HP`. Конвенция: читать через proxy (`GetRawValue` / `GetTotalValue`); мутации — через Write API (Apply / Unapply). Подробнее — [ниже](#adventure-characterparametersproxy-read-api).
 
 - `WeaponProxy`  
   Прокси модификаторов оружия по формулам `ItemDef.AttackModifierFormula` / `DamageModifierFormula`.  
@@ -147,10 +147,12 @@ Implementation/Wallet/
   DTO входных данных для `CreateCharacterStateAction` (единый буфер для ручного создания и выбора прегена): персонажные поля (`Name`, `Avatar`, `Gender`, `Ancestry`, `Class`, `Background`), блок `CharacterData` (`CharacterRequestData`) и флаг `AddToActiveParty`.
 
 - `CharacterRequestData`  
-  Переиспользуемый блок изменяемых данных персонажа: `Parameters`, `EquippedItems`, `Spells`, `StatusEffects`. Используется в `CreateCharacterRequestData` и `UpdateCharacterRequestData`.
+  Переиспользуемый блок изменяемых данных персонажа: `Parameters`, `EquippedItems`, `Spells`, `StatusEffects`. Используется в `CreateCharacterRequestData` и `UpdateCharacterRequestData`.  
+  Для update (прокачка) `Parameters` ожидается собранным через Write API (Apply / Unapply), а не произвольными правками словаря.
 
 - `UpdateCharacterRequestData`  
-  DTO входных данных для `UpdateCharacterStateAction`: `CharacterId` и `CharacterData` (`CharacterRequestData`).
+  DTO для `UpdateCharacterStateAction`: `CharacterId` и `CharacterData` (`CharacterRequestData`).  
+  **Контракт:** только прокачка (новый уровень). UI делает слепок персонажа, последовательно применяет feats нового уровня (включая выбор фитов / параметров) через тот же Apply-контур, затем отправляет результат в `CharacterData`.
 
 - `EquipItemFromInventoryRequestData`  
   DTO для `EquipItemFromInventoryStateAction`: `CharacterId`, `SlotIndex` (индекс в `EquippedItems`), `ItemId` (предмет из `Inventory.Items`).
@@ -235,7 +237,7 @@ Implementation/Wallet/
 | `Ancestry` | `string` | Id дефа ancestry (`AncestryDef`) |
 | `Class` | `string` | Id дефа класса (`ClassDef`) |
 | `Background` | `string` | Id дефа предыстории (`BackgroundDef`) |
-| `Parameters` | `Dictionary<string, int>` | Сырые числовые параметры: abilities, level/experience, proficiency ranks, item/per-level/flat bonuses, текущие HP, speed, feats и т.д. Итоговые навыки и `MaxHitPoints` **не** хранятся здесь — считаются через `CharacterParametersProxy` |
+| `Parameters` | `Dictionary<string, int>` | Сырое хранилище: abilities, level/experience, proficiency ranks, item/per-level/flat bonuses, текущие HP, speed, feat-флаги и т.д. Итоги (`MaxHitPoints`, навыки) **не** хранятся — `CharacterParametersProxy.GetTotalValue`. Чтение — через proxy; запись — через Write API (Apply / Unapply) |
 | `EquippedItems` | `List<EquippedItemStateData>` | Надетая экипировка |
 | `Spells` | `Dictionary<string, int>` | Заклинания |
 | `StatusEffects` | `Dictionary<string, int>` | Статусные эффекты: id эффекта → значение |
@@ -258,20 +260,22 @@ Implementation/Wallet/
 - оружейные сырые ключи: `Weapon.Martial.ProfRank` (и аналоги по `Glossary.Weapons` типам), `<ItemId>.Attack.ItemsBonus` / `<ItemId>.Damage.ItemsBonus`, `<Group>.Attack.Group.Bonus` / `<Group>.Damage.Group.Bonus`;
 - bool-флаги кодируются как `0` / ненулевое значение;
 - итоговый модификатор навыка и `MaxHitPoints` **не пишутся** в `Parameters` — их даёт `CharacterParametersProxy.GetTotalValue`;
-- итоговые attack/damage modifiers оружия тоже **не пишутся** — их даёт `WeaponProxy`.
+- итоговые attack/damage modifiers оружия тоже **не пишутся** — их даёт `WeaponProxy`;
+- **чтение:** конвенция — через `CharacterParametersProxy` (пока не enforced компилятором);
+- **запись:** через Write API — Apply / Unapply `CharacterParamsPatchData` (реализация — следующий этап).
 
 **Defs → State (планируемый поток):**
 - дефы (`ClassDef`, `AncestryDef`, `BackgroundDef`, `FeatDef`, `ItemDef`, `SpellDef`) описывают статический контент;
 - `AncestryDef.HitPoints` и `ClassDef.HitPointsPerLevel` — константы для формулы Max HP (не копируются в `Parameters`);
 - для черт механика задаётся в `FeatDef.Apply` (`CharacterParamsPatchData`: `Add`, `Set`, `AlsoApplyFeatIds`; см. [Definitions.md](Definitions.md));
-- при создании/прокачке персонажа runtime читает дефы и записывает **сырые** значения в `Parameters`, `Spells`, `StatusEffects` и связанные поля;
-- применение `Apply` в state-actions / сервисе персонажа — следующий этап.
+- при создании/прокачке / экипировке runtime применяет патчи в **сырые** ключи `Parameters` (и связанные поля) через Write API;
+- `UpdateCharacter` — батч прокачки (слепок + последовательный Apply feats/ручных правок нового уровня), не произвольный edit.
 
-### Adventure: `CharacterParametersProxy`
+### Adventure: `CharacterParametersProxy` (Read API)
 
 Файл: `Implementation/Adventure/CharacterParametersProxy.cs`.
 
-Прокси чтения параметров персонажа поверх `CharacterStateData.Parameters`, `RuleDef.ParameterFormulas` и дефов из `DefinitionsManager`. Пока никуда не подключён как обязательный API, но является целевой точкой чтения итоговых значений.
+Прокси **чтения** параметров персонажа поверх `CharacterStateData.Parameters`, `RuleDef.ParameterFormulas` и дефов из `DefinitionsManager`. Целевая точка чтения raw/total; обязательность в gameplay пока закреплена документацией и комментариями, не кодом.
 
 Конструктор: `(CharacterStateData characterState, RuleDef ruleDef, DefinitionsManager definitionsManager)`.
 
@@ -295,6 +299,25 @@ Implementation/Wallet/
   (дварф-воин 5 ур., CON+3, без доп. бонусов → `10+(10+3+0)*5+0 = 75`).
 
 Формулы навыков и `MaxHitPoints` заданы в `GeneralRule.ParameterFormulas` (см. [Definitions.md](Definitions.md)).
+
+### Adventure: Write API параметров (Apply / Unapply) — контракт
+
+Единая точка **записи** в `CharacterStateData.Parameters` (класс/оператор — следующий этап реализации). Вход — `CharacterParamsPatchData` из дефов (`FeatDef.Apply`, позже item/features и т.п.).
+
+| Операция патча | Apply | Unapply |
+|----------------|-------|---------|
+| `Add` | `current += value` | `current += -value` |
+| `Set` | `current = value` | если патч ставил **≠ 0** → `0`; если патч ставил **0** → `1` (инверсия флага; не откат к прежнему произвольному int) |
+| `AlsoApplyFeatIds` | каскадный Apply связанных `FeatDef` | каскадный Unapply (обычно в обратном порядке) |
+
+Итоги (`MaxHitPoints`, навыки) отдельно не пересчитываются и не пишутся: меняются только сырые ключи; итог снова даёт Read API.
+
+Планируемые вызывающие сценарии:
+- выдача / снятие feat → Apply / Unapply `FeatDef.Apply`;
+- прокачка (`UpdateCharacter`) → слепок + последовательный Apply feats нового уровня и ручных правок;
+- экипировка / снятие предмета → Apply / Unapply эффектов предмета через `ItemDef.Features` (id → `FeatDef.Apply`), включая swap слота.
+
+Текущий `UpdateCharacterStateAction` пока делает wholesale-замену mutable-блока; после появления Write API семантика параметров должна идти через Apply / Unapply.
 
 ### Adventure: `WeaponProxy`
 
@@ -705,7 +728,7 @@ stateLogic.StateChanged += source =>
 - `SetAdventureParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.Adventures[CurrentAdventureId].Parameters` (Adventure).
 - `SetGlobalParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.Global.Parameters` (Adventure).
 - `CreateCharacterStateAction` — создание нового `CharacterStateData` из `CreateCharacterRequestData`, запись в `Characters[NextCharacterId]`, опциональное добавление id в `ActivePartyCharacterIds`, инкремент `NextCharacterId` (Adventure).
-- `UpdateCharacterStateAction` — обновление существующего персонажа по `CharacterId` из `UpdateCharacterRequestData`; перезаписывает mutable-блок (`Parameters`, `EquippedItems`, `Spells`, `StatusEffects`) из `CharacterRequestData` (Adventure).
+- `UpdateCharacterStateAction` — обновление существующего персонажа по `CharacterId` из `UpdateCharacterRequestData` (контракт: **только прокачка** — слепок + последовательный Apply feats/ручных правок нового уровня). Сейчас перезаписывает mutable-блок wholesale; после Write API `Parameters` — через Apply / Unapply (Adventure).
 - `EquipItemFromInventoryStateAction` — перенос предмета из `Inventory.Items` в слот персонажа (`CharacterId` + `SlotIndex` + `ItemId`); при занятом слоте старый предмет возвращается в инвентарь (Adventure).
 - `UnequipItemToInventoryStateAction` — перенос предмета из слота персонажа обратно в `Inventory.Items` и очистка слота (Adventure).
 - `MoveEquippedItemBetweenSlotsStateAction` — перенос/`swap` предмета между двумя слотами одного персонажа (`FromSlotIndex` → `ToSlotIndex`) без участия `Inventory.Items` (Adventure).

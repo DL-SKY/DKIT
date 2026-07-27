@@ -9,6 +9,17 @@ using System.Collections.Generic;
 
 namespace Modules.State.Scripts.Implementation.Adventure
 {
+    /// <summary>
+    /// Read API параметров персонажа: сырые значения из <see cref="CharacterStateData.Parameters"/>
+    /// и итоги по <see cref="RuleDef.ParameterFormulas"/>.
+    /// </summary>
+    /// <remarks>
+    /// Конвенция (закреплена документацией; компилятором не enforced): читать через этот proxy
+    /// (<see cref="GetRawValue"/> / <see cref="GetTotalValue"/>), а не индексировать
+    /// <see cref="CharacterStateData.Parameters"/> напрямую.
+    /// Мутации сырых параметров — у отдельного Write API (Apply / Unapply
+    /// <c>CharacterParamsPatchData</c>), не у этого класса.
+    /// </remarks>
     public class CharacterParametersProxy
     {
         private const string PROFICIENCY_KEYWORD = "PROFICIENCY";

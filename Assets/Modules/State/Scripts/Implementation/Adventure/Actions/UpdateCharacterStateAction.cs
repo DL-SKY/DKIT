@@ -6,6 +6,15 @@ using System.Collections.Generic;
 
 namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
+    /// <summary>
+    /// Обновляет mutable-блок существующего персонажа из <see cref="Models.UpdateCharacterRequestData"/>.
+    /// </summary>
+    /// <remarks>
+    /// Только для прокачки: запрос собирается из слепка персонажа последовательными Apply
+    /// feats / параметров (см. <see cref="Models.UpdateCharacterRequestData"/>).
+    /// Сейчас реализация всё ещё заменяет mutable-словари wholesale; после подключения Write API
+    /// (Apply / Unapply) семантика мутации параметров будет у него.
+    /// </remarks>
     public class UpdateCharacterStateAction : StateActionBase<StateData>
     {
         public override StateChangeSource Source => StateChangeSource.UpdateCharacter;

@@ -45,8 +45,16 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         public string Background;
 
         /// <summary>
-        /// Abilities, Skills, HP, Speed, Feats, etc...
+        /// Сырые числовые параметры: abilities, level/experience, proficiency ranks,
+        /// item/per-level/flat bonuses, текущие HP, speed, флаги черт и т.д.
         /// </summary>
+        /// <remarks>
+        /// Итоги вроде модификаторов навыков и <c>MaxHitPoints</c> здесь не хранятся —
+        /// их даёт <c>CharacterParametersProxy.GetTotalValue</c>.
+        /// Чтение предпочтительно через <c>CharacterParametersProxy</c> (<c>GetRawValue</c> / <c>GetTotalValue</c>).
+        /// Запись предпочтительно через Write API параметров персонажа (Apply / Unapply
+        /// <c>CharacterParamsPatchData</c>), а не произвольной мутацией словаря.
+        /// </remarks>
         public Dictionary<string, int> Parameters;
         //public Dictionary<string, int> SavingThrows;    // TODO: obsolete? Use Parameters?
 

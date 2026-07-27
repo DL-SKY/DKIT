@@ -27,6 +27,10 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Backgrounds
         public string Title;
         public string Description;
 
+        /// <summary>
+        /// ‘ичи происхождени€ по уровню: ключ Ч уровень персонажа, значение Ч список id feat/feature.
+        /// ѕример JSON: { "1": ["_Darkvision", "_ClanDagger", "_DwarfHeritage"], "5": ["_DwarfAncestryFeat5"] }.
+        /// </summary>
         public List<string> Features;
     }
 }
