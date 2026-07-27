@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"skill-athletics"
+	],
+	"Title": "Обученность: Атлетика",
+	"Description": "Вы становитесь обучены в навыке Атлетика.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"Athletics.ProfRank": 1,
+			"_TrainAthletics": 1
+		}
+	}
+}

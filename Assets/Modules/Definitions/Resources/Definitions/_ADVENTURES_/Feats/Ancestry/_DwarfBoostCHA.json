@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Повышение: Харизма",
+	"Description": "Свободное повышение Харизмы от происхождения дварфа (может компенсировать изъян).",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"CHA": 1
+		},
+		"Set": {
+			"_DwarfBoostCHA": 1
+		}
+	}
+}

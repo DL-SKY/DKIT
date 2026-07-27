@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Type": "AncestryFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Дварфийское знакомство с оружием",
+	"Description": "Доступ ко всем uncommon оружиям с признаком dwarf. Familiarity с оружием dwarf-trait, а также с боевым топором, киркой и боевым молотом: martial считается simple, advanced — martial. С 5-го уровня критический успех такими оружиями даёт эффект критической специализации.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_DwarvenWeaponFamiliarity": 1
+		}
+	}
+}

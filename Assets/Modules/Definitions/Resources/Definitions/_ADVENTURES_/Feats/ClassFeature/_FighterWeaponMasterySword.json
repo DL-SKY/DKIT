@@ -1,0 +1,19 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 5,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"weapon-group-sword"
+	],
+	"Title": "Мастерство оружия: Мечи",
+	"Description": "Мастерство в группе мечей: простой/воинский/безоружный — мастер; продвинутый — эксперт; доступна критическая специализация.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"Sword.WeaponMastery": 1,
+			"_FighterWeaponMasterySword": 1
+		}
+	}
+}

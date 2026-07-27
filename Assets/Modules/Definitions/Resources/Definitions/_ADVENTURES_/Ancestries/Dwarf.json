@@ -1,0 +1,49 @@
+{
+	"Disabled": false,
+	"Size": "Medium",
+	"Speed": 20,
+	"HitPoints": 10,
+	"Tags": [
+		"player-core",
+		"hp-10",
+		"boost-constitution",
+		"boost-wisdom",
+		"boost-free",
+		"flaw-charisma",
+		"sense-darkvision",
+		"ancestry-dwarf"
+	],
+	"Title": "Дварф",
+	"Description": "Низкорослый и крепкий народ с сильными традициями ремесла, чести и упрямства. Доверие дварфа трудно завоевать, но оно крепче железа.",
+	"Features": {
+		"1": [
+			"_DwarfAttributeBoosts",
+			"_DwarfFreeBoost",
+			"_Darkvision",
+			"_ClanDagger",
+			"_DwarfHeritage",
+			"_DwarfAncestryFeat1"
+		],
+		"5": [
+			"_DwarfAncestryFeat5"
+		]
+	},
+	"Names": {
+		"Male": [
+			"Dolgrin",
+			"Agnar",
+			"Edrukk",
+			"Grunyar",
+			"Morgrym",
+			"Rogar"
+		],
+		"Female": [
+			"Agna",
+			"Brunhild",
+			"Bodill",
+			"Ingra",
+			"Kotri",
+			"Torra"
+		]
+	}
+}

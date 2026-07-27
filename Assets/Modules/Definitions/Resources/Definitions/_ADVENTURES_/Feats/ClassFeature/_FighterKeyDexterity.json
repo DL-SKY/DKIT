@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"key-dexterity"
+	],
+	"Title": "Ключевая характеристика: Ловкость",
+	"Description": "Повышение Ловкости от классовой ключевой характеристики.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"DEX": 1
+		},
+		"Set": {
+			"_FighterKeyDexterity": 1
+		}
+	}
+}

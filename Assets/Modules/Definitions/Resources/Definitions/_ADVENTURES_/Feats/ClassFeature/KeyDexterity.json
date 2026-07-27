@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"PLAYER_CORE",
+		"KEY_ABILITY",
+		"KEY_DEXTERITY"
+	],
+	"Title": "Ключевая характеристика: Ловкость",
+	"Description": "Повышение Ловкости от ключевой характеристики.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"DEX": 1
+		},
+		"Set": {
+			"KeyDexterity": 1
+		}
+	}
+}

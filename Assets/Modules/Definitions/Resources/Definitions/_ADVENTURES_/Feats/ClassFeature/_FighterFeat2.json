@@ -1,0 +1,23 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 2,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"feat-choice"
+	],
+	"Title": "Классовая черта воина (2)",
+	"Description": "Выберите одну классовую черту воина 2-го уровня или ниже.",
+	"Restrictions": [],
+	"Options": [
+		"_PowerAttack",
+		"_DoubleSlice",
+		"_SuddenCharge",
+		"_SnaggingStrike",
+		"_ExactingStrike",
+		"_IntimidatingStrike",
+		"_AggressiveBlock",
+		"_Lunge"
+	]
+}

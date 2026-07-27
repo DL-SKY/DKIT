@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 4,
+	"Tags": [
+		"player-core",
+		"class-fighter"
+	],
+	"Title": "Шаг за щитом",
+	"Description": "Пока ваш щит поднят, вы можете Шагать, не провоцируя реакции. Если у щита Hardness 10 или выше, можете вместо этого Переместиться на половину Speed без провоцирования реакций.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_ShieldedStride": 1
+		}
+	}
+}

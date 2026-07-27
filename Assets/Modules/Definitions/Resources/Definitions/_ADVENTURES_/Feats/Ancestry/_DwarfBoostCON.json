@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Повышение: Телосложение",
+	"Description": "Свободное повышение Телосложения от происхождения дварфа.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"CON": 1
+		},
+		"Set": {
+			"_DwarfBoostCON": 1
+		}
+	}
+}

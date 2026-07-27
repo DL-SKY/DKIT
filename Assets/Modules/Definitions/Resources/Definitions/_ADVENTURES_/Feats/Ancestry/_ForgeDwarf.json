@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"heritage"
+	],
+	"Title": "Кузнечный дварф",
+	"Description": "Сопротивление огню, равное половине вашего уровня (минимум 1). Эффекты окружающей жары для вас на одну ступень слабее.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_ForgeDwarf": 1
+		}
+	}
+}

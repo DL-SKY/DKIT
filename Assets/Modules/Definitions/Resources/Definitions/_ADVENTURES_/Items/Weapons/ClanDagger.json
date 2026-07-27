@@ -1,0 +1,38 @@
+{
+	"Disabled": false,
+	"IsQuestItem": false,
+	"Category": "Weapon",
+	"Level": 0,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"trait-dwarf",
+		"trait-agile",
+		"trait-finesse",
+		"trait-versatile-b",
+		"trait-thrown-10",
+		"trait-twin",
+		"clan-dagger"
+	],
+	"Title": "Кинжал клана",
+	"Description": "Родовой кинжал дварфа, выкованный к рождению. Продавать его — тяжёлое табу.",
+	"Price": 0,
+	"AvailableSlots": [
+		"Hand",
+		"Bag"
+	],
+	"Type": "Weapon.Simple",
+	"Group": "Knife",
+	"AbilityDependencies": [
+		"STR",
+		"DEX"
+	],
+	"AttackModifierFormula": "ATTACK_ABILITY_BEST+PROFICIENCY+ITEMS+GROUP_ATTACK_BONUS",
+	"DamageModifierFormula": "STR+ITEMS+GROUP_DAMAGE_BONUS",
+	"DamageDice": [
+		{
+			"Count": 1,
+			"DiceType": "D4"
+		}
+	]
+}

@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 2,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"trait-reaction"
+	],
+	"Title": "Агрессивный блок",
+	"Description": "Когда вы используете Блок щитом, можете оттолкнуть атакующего на 5 футов или сделать его off-guard до начала вашего следующего хода.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_AggressiveBlock": 1
+		}
+	}
+}

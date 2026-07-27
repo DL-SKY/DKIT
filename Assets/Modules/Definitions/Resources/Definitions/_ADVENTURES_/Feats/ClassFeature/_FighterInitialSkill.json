@@ -1,0 +1,16 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter"
+	],
+	"Title": "Навык воина",
+	"Description": "Вы становитесь обучены в Акробатике или Атлетике. Дополнительно получаете обученность в числе навыков, равном 3 + модификатор Интеллекта.",
+	"Restrictions": [],
+	"Options": [
+		"_TrainAcrobatics",
+		"_TrainAthletics"
+	]
+}

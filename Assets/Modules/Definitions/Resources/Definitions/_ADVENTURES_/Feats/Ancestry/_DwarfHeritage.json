@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"heritage-choice"
+	],
+	"Title": "Наследие дварфа",
+	"Description": "Выберите одно дварфийское наследие (heritage) 1-го уровня.",
+	"Restrictions": [],
+	"Options": [
+		"_AncientBloodedDwarf",
+		"_DeathWardenDwarf",
+		"_ForgeDwarf",
+		"_RockDwarf",
+		"_StrongBloodedDwarf"
+	]
+}

@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "AncestryFeat",
+	"Level": 5,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"trait-move"
+	],
+	"Title": "Катящийся валун",
+	"Description": "Два действия: Шаг, затем Stride до Speed. Во время этого перемещения можете пройти через пространство врагов вашего размера или меньше, толкая их. Каждый такой враг получает blunt-урон и должен преуспеть в спасброске Стойкости или стать prone.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_BoulderRoll": 1
+		}
+	}
+}

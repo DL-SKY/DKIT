@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "GeneralFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"trait-reaction",
+		"general"
+	],
+	"Title": "Блок щитом",
+	"Description": "Реакция: когда вы получите урон от физической атаки, пока держите поднятый щит, можете снизить урон на значение Hardness щита (щит при этом получает урон).",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_ShieldBlock": 1
+		}
+	}
+}

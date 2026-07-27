@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"key-strength"
+	],
+	"Title": "Ключевая характеристика: Сила",
+	"Description": "Повышение Силы от классовой ключевой характеристики.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"STR": 1
+		},
+		"Set": {
+			"_FighterKeyStrength": 1
+		}
+	}
+}

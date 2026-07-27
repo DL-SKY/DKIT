@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Повышение: Сила",
+	"Description": "Свободное повышение Силы от происхождения дварфа.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"STR": 1
+		},
+		"Set": {
+			"_DwarfBoostSTR": 1
+		}
+	}
+}

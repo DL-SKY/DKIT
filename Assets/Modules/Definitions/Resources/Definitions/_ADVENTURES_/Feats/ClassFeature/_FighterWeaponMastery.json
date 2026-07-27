@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 5,
+	"Tags": [
+		"player-core",
+		"class-fighter"
+	],
+	"Title": "Мастерство оружия воина",
+	"Description": "Выберите одну группу оружия. Владение простым и воинским оружием и безоружными атаками этой группы повышается до мастера, продвинутым оружием этой группы — до эксперта. Вы получаете доступ к эффектам критической специализации для оружия и безоружных атак, в которых у вас мастерство.",
+	"Restrictions": [],
+	"Options": [
+		"_FighterWeaponMasterySword",
+		"_FighterWeaponMasteryAxe",
+		"_FighterWeaponMasteryBow",
+		"_FighterWeaponMasteryKnife"
+	]
+}

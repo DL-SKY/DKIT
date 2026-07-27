@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"PLAYER_CORE",
+		"KEY_ABILITY",
+		"KEY_INTELLIGENCE"
+	],
+	"Title": "Ключевая характеристика: Интеллект",
+	"Description": "Повышение Интеллекта от ключевой характеристики.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"INT": 1
+		},
+		"Set": {
+			"KeyIntelligence": 1
+		}
+	}
+}

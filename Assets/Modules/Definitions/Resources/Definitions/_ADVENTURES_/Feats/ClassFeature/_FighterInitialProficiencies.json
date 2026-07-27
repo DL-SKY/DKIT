@@ -1,0 +1,27 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter"
+	],
+	"Title": "Начальное владение",
+	"Description": "Базовые ранги владения воина: эксперт в Восприятии, Стойкости и Реакции; обучен в Воле; эксперт в простом и воинском оружии и безоружных атаках; обучен в продвинутом оружии, всей броне, бездоспешной защите и классовой Сл.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"Perception.ProfRank": 2,
+			"Fortitude.ProfRank": 2,
+			"Reflex.ProfRank": 2,
+			"Will.ProfRank": 1,
+			"Weapon.Simple.ProfRank": 2,
+			"Weapon.Martial.ProfRank": 2,
+			"Weapon.Advanced.ProfRank": 1,
+			"Unarmed.ProfRank": 2,
+			"Armor.ProfRank": 1,
+			"Unarmored.ProfRank": 1,
+			"ClassDC.ProfRank": 1
+		}
+	}
+}

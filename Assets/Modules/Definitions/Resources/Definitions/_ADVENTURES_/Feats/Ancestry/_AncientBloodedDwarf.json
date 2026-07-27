@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"heritage"
+	],
+	"Title": "Древней крови",
+	"Description": "Реакция «Воззвать к древней крови»: когда вы совершаете спасбросок против магического эффекта (до броска), до конца хода получаете ситуационный бонус +1 к спасброскам (включая этот).",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_AncientBloodedDwarf": 1
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Кинжал клана",
+	"Description": "Вы получаете клановый кинжал бесплатно — он был выкован к вашему рождению. Продавать его — тяжёлое табу среди дварфов.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_ClanDagger": 1
+		}
+	}
+}

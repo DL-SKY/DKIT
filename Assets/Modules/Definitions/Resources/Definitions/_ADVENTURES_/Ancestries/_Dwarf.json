@@ -1,19 +1,15 @@
 {
-	"Disabled": false,
+	"Disabled": true,
 	"Size": "Medium",
 	"Speed": 20,
 	"HitPoints": 10,
 	"Tags": [
 		"player-core",
-		"hp-10",
-		"boost-constitution",
-		"boost-wisdom",
-		"boost-free",
-		"flaw-charisma",
-		"sense-darkvision"
+		"legacy",
+		"hp-10"
 	],
-	"Title": "Дварф",
-	"Description": "Низкорослый и крепкий народ с сильными традициями ремесла, чести и упрямства.",
+	"Title": "Дварф (устарело)",
+	"Description": "Устаревший черновик. Используйте Dwarf.",
 	"MaleNames": [
 		"Dolgrin",
 		"Agnar"

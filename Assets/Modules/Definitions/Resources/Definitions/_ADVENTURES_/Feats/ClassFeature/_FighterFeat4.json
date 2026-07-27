@@ -1,0 +1,26 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 4,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"feat-choice"
+	],
+	"Title": "Классовая черта воина (4)",
+	"Description": "Выберите одну классовую черту воина 4-го уровня или ниже.",
+	"Restrictions": [],
+	"Options": [
+		"_PowerAttack",
+		"_DoubleSlice",
+		"_SuddenCharge",
+		"_SnaggingStrike",
+		"_ExactingStrike",
+		"_IntimidatingStrike",
+		"_AggressiveBlock",
+		"_Lunge",
+		"_Knockdown",
+		"_Swipe",
+		"_ShieldedStride"
+	]
+}

@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Повышение: Интеллект",
+	"Description": "Свободное повышение Интеллекта от происхождения дварфа.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"INT": 1
+		},
+		"Set": {
+			"_DwarfBoostINT": 1
+		}
+	}
+}

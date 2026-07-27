@@ -1,11 +1,13 @@
 {
-	"Disabled": false,
+	"Disabled": true,
 	"Type": "ClassFeature",
 	"Level": 1,
 	"Tags": [
-		"Fighter"
+		"player-core",
+		"class-fighter",
+		"legacy"
 	],
-	"Title": "Боевой стиль",
-	"Description": "Вы выбираете специализацию владения оружием.",
+	"Title": "Боевой стиль (устарело)",
+	"Description": "Устаревший черновик. Используйте _FighterWeaponMastery (уровень 5) и его Options по группам оружия.",
 	"Restrictions": []
 }

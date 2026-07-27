@@ -3,9 +3,16 @@
 	"Type": "ClassFeat",
 	"Level": 1,
 	"Tags": [
-		"Fighter"
+		"player-core",
+		"class-fighter",
+		"trait-flourish"
 	],
 	"Title": "Мощная атака",
-	"Description": "Вы совершаете удар с меньшей точностью, но большим уроном.",
-	"Restrictions": []
+	"Description": "Два действия: совершите Удар с штрафом −2 к атаке. При попадании добавьте одну дополнительную кость урона оружия того же типа. Признаки: flourish.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_PowerAttack": 1
+		}
+	}
 }

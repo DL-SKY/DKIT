@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 5,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"feat-choice"
+	],
+	"Title": "Черта происхождения дварфа (5)",
+	"Description": "Выберите одну черту происхождения дварфа 5-го уровня или ниже.",
+	"Restrictions": [],
+	"Options": [
+		"_RockRunner",
+		"_DwarvenWeaponFamiliarity",
+		"_DwarvenDoughtiness",
+		"_DwarvenStubbornness",
+		"_BoulderRoll",
+		"_DwarvenWeaponCunning"
+	]
+}

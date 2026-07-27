@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"heritage"
+	],
+	"Title": "Крепкой крови",
+	"Description": "Сопротивление яду, равное половине вашего уровня (минимум 1). Успешный спасбросок против яда снижает его стадию на 2 (на 1 для virulent); критический успех — на 3 (на 2 для virulent).",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_StrongBloodedDwarf": 1
+		}
+	}
+}

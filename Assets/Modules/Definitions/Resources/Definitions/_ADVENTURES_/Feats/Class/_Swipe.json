@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 4,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"trait-flourish"
+	],
+	"Title": "Размашистый удар",
+	"Description": "Два действия: Удар по двум врагам в досягаемости одним взмахом. Совершите отдельный бросок атаки по каждой цели. Признаки: flourish.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_Swipe": 1
+		}
+	}
+}

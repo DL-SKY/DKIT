@@ -1,0 +1,16 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter"
+	],
+	"Title": "Ключевая характеристика",
+	"Description": "На 1-м уровне класс даёт повышение Силы или Ловкости.",
+	"Restrictions": [],
+	"Options": [
+		"_FighterKeyStrength",
+		"_FighterKeyDexterity"
+	]
+}

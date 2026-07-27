@@ -1,0 +1,25 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 5,
+	"Tags": [
+		"player-core",
+		"feat-choice",
+		"ancestry-feat"
+	],
+	"Title": "Черта происхождения",
+	"Description": "Выберите одну черту происхождения вашего ancestry. Доступный список определяется выбранным происхождением.",
+	"Restrictions": [],
+	"Options": [
+		"_ElvenLore",
+		"_GoblinScuttle",
+		"_HalflingLuck",
+		"_Forlorn",
+		"_RockRunner",
+		"_DwarvenWeaponFamiliarity",
+		"_DwarvenDoughtiness",
+		"_DwarvenStubbornness",
+		"_BoulderRoll",
+		"_DwarvenWeaponCunning"
+	]
+}

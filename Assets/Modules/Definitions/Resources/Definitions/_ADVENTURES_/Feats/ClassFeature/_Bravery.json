@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 3,
+	"Tags": [
+		"player-core",
+		"class-fighter"
+	],
+	"Title": "Отвага",
+	"Description": "Владение спасбросками Воли повышается до эксперта. Успех спасброска Воли против эффекта страха считается критическим успехом. Когда вы получаете состояние frightened, его значение уменьшается на 1.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"Will.ProfRank": 2,
+			"_Bravery": 1
+		}
+	}
+}

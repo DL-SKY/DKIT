@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"PLAYER_CORE",
+		"KEY_ABILITY",
+		"KEY_CONSTITUTION"
+	],
+	"Title": "Ключевая характеристика: Телосложение",
+	"Description": "Повышение Телосложения от ключевой характеристики.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"CON": 1
+		},
+		"Set": {
+			"KeyConstitution": 1
+		}
+	}
+}

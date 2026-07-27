@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter"
+	],
+	"Title": "Цепкий удар",
+	"Description": "Одно действие: Удар свободной рукой или одноручным оружием. При попадании цель становится off-guard до начала вашего следующего хода или пока не отойдёт от вас.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_SnaggingStrike": 1
+		}
+	}
+}

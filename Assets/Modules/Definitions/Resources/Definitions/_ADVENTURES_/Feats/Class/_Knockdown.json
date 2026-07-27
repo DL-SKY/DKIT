@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 4,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"trait-flourish"
+	],
+	"Title": "Сбивание",
+	"Description": "Два действия: Удар, затем попытка Trip против той же цели. Штраф за серию атак применяется к Trip как обычно. Признаки: flourish.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_Knockdown": 1
+		}
+	}
+}

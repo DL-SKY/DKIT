@@ -1,0 +1,71 @@
+{
+	"Disabled": false,
+	"HitPointsPerLevel": 10,
+	"Tags": [
+		"player-core",
+		"key-strength|dexterity",
+		"hp_per_level-10",
+		"role-martial"
+	],
+	"Title": "Воин",
+	"Description": "Непревзойдённый мастер оружия и боевых приёмов, специализирующийся на атаке и защите.",
+	"Features": {
+		"1": [
+			"_FighterKeyAttribute",
+			"_FighterInitialProficiencies",
+			"_FighterInitialSkill",
+			"_ReactiveStrike",
+			"_ShieldBlock",
+			"_FighterFeat1"
+		],
+		"2": [
+			"_FighterFeat2",
+			"_SkillFeatChoice"
+		],
+		"3": [
+			"_Bravery",
+			"_GeneralFeatChoice",
+			"_SkillIncrease"
+		],
+		"4": [
+			"_FighterFeat4",
+			"_SkillFeatChoice"
+		],
+		"5": [
+			"_AncestryFeatChoice",
+			"_AttributeBoosts",
+			"_FighterWeaponMastery",
+			"_SkillIncrease"
+		]
+	},
+	"EquippedItems": [
+		{
+			"Slot": "Hand",
+			"ItemId": "_Longsword"
+		},
+		{
+			"Slot": "Hand",
+			"ItemId": "_SteelShield"
+		},
+		{
+			"Slot": "Body",
+			"ItemId": "_Breastplate"
+		},
+		{
+			"Slot": "Legs",
+			"ItemId": ""
+		},
+		{
+			"Slot": "Head",
+			"ItemId": ""
+		},
+		{
+			"Slot": "Bag",
+			"ItemId": "_Backpack"
+		},
+		{
+			"Slot": "Bag",
+			"ItemId": ""
+		}
+	]
+}

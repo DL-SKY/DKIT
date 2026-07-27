@@ -3,9 +3,15 @@
 	"Type": "AncestryFeat",
 	"Level": 1,
 	"Tags": [
-		"Dwarf"
+		"player-core",
+		"ancestry-dwarf"
 	],
-	"Title": "Дварфийская стойкость",
-	"Description": "Вы получаете бонус к спасброскам против эффектов, вызванных ядом и магией.",
-	"Restrictions": []
+	"Title": "Дварфийское упрямство",
+	"Description": "Когда вы получаете состояние confused, controlled, fascinated или fleeing, можете немедленно совершить спасбросок Воли против Сл эффекта; при успехе состояние заканчивается.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_DwarvenStubbornness": 1
+		}
+	}
 }

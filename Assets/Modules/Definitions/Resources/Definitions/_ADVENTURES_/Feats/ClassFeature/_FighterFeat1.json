@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"feat-choice"
+	],
+	"Title": "Классовая черта воина (1)",
+	"Description": "Выберите одну классовую черту воина 1-го уровня.",
+	"Restrictions": [],
+	"Options": [
+		"_PowerAttack",
+		"_DoubleSlice",
+		"_SuddenCharge",
+		"_SnaggingStrike",
+		"_ExactingStrike"
+	]
+}

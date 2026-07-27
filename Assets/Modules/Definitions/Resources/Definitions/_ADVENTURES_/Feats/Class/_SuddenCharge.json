@@ -1,0 +1,19 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"trait-flourish",
+		"trait-open"
+	],
+	"Title": "Внезапный натиск",
+	"Description": "Два действия: Перемещение вдвое дальше обычного Speed и Удар в конце. Не провоцирует реакции за это перемещение. Признаки: flourish, open.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_SuddenCharge": 1
+		}
+	}
+}

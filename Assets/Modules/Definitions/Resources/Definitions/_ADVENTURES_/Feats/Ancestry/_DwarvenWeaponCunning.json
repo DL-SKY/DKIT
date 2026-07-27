@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Type": "AncestryFeat",
+	"Level": 5,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Дварфийская оружейная хитрость",
+	"Description": "Требование: Дварфийское знакомство с оружием. Когда вы критически попадаете оружием с dwarf-trait, боевым топором, киркой или боевым молотом, применяете эффект критической специализации этого оружия.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_DwarvenWeaponCunning": 1
+		}
+	}
+}

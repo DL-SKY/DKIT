@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Повышение: Ловкость",
+	"Description": "Свободное повышение Ловкости от происхождения дварфа.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"DEX": 1
+		},
+		"Set": {
+			"_DwarfBoostDEX": 1
+		}
+	}
+}

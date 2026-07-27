@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"boost-free"
+	],
+	"Title": "Свободное повышение характеристики",
+	"Description": "Выберите одну характеристику для свободного повышения происхождения.",
+	"Restrictions": [],
+	"Options": [
+		"_DwarfBoostSTR",
+		"_DwarfBoostDEX",
+		"_DwarfBoostCON",
+		"_DwarfBoostINT",
+		"_DwarfBoostWIS",
+		"_DwarfBoostCHA"
+	]
+}

@@ -1,0 +1,16 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 2,
+	"Tags": [
+		"player-core",
+		"feat-choice",
+		"skill-feat"
+	],
+	"Title": "Черта навыка",
+	"Description": "Выберите одну черту навыка. Вы должны быть как минимум обучены в соответствующем навыке.",
+	"Restrictions": [],
+	"Options": [
+		"_BattleMedicine"
+	]
+}

@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Type": "AncestryFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Дварфийская доблесть",
+	"Description": "Успех спасброска против эффекта, который наложил бы frightened, считается критическим успехом. Кроме того, каждый раз, когда вы получаете frightened, снижайте его значение на 1.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_DwarvenDoughtiness": 1
+		}
+	}
+}

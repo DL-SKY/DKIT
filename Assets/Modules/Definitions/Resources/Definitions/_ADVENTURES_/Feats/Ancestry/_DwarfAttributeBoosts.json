@@ -1,0 +1,22 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Повышения и изъян дварфа",
+	"Description": "Вы получаете повышения Телосложения и Мудрости и изъян Харизмы.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"CON": 1,
+			"WIS": 1,
+			"CHA": -1
+		},
+		"Set": {
+			"_DwarfAttributeBoosts": 1
+		}
+	}
+}

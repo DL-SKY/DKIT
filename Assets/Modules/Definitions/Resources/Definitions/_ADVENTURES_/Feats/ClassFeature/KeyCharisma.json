@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"PLAYER_CORE",
+		"KEY_ABILITY",
+		"KEY_CHARISMA"
+	],
+	"Title": "Ключевая характеристика: Харизма",
+	"Description": "Повышение Харизмы от ключевой характеристики.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"CHA": 1
+		},
+		"Set": {
+			"KeyCharisma": 1
+		}
+	}
+}

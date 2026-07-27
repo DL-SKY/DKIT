@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 3,
+	"Tags": [
+		"player-core",
+		"skill-increase"
+	],
+	"Title": "Повышение навыка",
+	"Description": "Станьте обучены в навыке без владения или повысьте уже обученный навык до эксперта. С 7-го уровня можно повышать до мастера, с 15-го — до легендарного.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_SkillIncrease": 1
+		}
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 3,
+	"Tags": [
+		"player-core",
+		"feat-choice",
+		"general-feat"
+	],
+	"Title": "Общая черта",
+	"Description": "Выберите одну общую черту.",
+	"Restrictions": [],
+	"Options": [
+		"_Toughness",
+		"_Fleet",
+		"_Diehard",
+		"_IncredibleInitiative",
+		"_ShieldBlock"
+	]
+}

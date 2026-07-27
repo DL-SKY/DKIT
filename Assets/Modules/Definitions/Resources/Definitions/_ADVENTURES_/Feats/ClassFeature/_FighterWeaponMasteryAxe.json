@@ -1,0 +1,19 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 5,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"weapon-group-axe"
+	],
+	"Title": "Мастерство оружия: Топоры",
+	"Description": "Мастерство в группе топоров: простой/воинский/безоружный — мастер; продвинутый — эксперт; доступна критическая специализация.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"Axe.WeaponMastery": 1,
+			"_FighterWeaponMasteryAxe": 1
+		}
+	}
+}

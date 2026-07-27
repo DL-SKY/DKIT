@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"trait-press"
+	],
+	"Title": "Точный удар",
+	"Description": "Одно действие: Удар. При промахе этот Удар не увеличивает ваш штраф за серию атак. Признаки: press.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_ExactingStrike": 1
+		}
+	}
+}

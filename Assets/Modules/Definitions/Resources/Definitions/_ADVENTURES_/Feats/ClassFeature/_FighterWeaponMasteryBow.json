@@ -1,0 +1,19 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 5,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"weapon-group-bow"
+	],
+	"Title": "Мастерство оружия: Луки",
+	"Description": "Мастерство в группе луков: простой/воинский/безоружный — мастер; продвинутый — эксперт; доступна критическая специализация.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"Bow.WeaponMastery": 1,
+			"_FighterWeaponMasteryBow": 1
+		}
+	}
+}

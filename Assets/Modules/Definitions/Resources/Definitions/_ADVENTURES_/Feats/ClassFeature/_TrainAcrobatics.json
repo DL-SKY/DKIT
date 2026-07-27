@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"skill-acrobatics"
+	],
+	"Title": "Обученность: Акробатика",
+	"Description": "Вы становитесь обучены в навыке Акробатика.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"Acrobatics.ProfRank": 1,
+			"_TrainAcrobatics": 1
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 2,
+	"Tags": [
+		"player-core",
+		"class-fighter"
+	],
+	"Title": "Выпад",
+	"Description": "Одно действие: Удар оружием ближнего боя, увеличивая досягаемость атаки на 5 футов до конца действия.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_Lunge": 1
+		}
+	}
+}

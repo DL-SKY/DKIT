@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeat",
+	"Level": 2,
+	"Tags": [
+		"player-core",
+		"class-fighter",
+		"trait-emotion",
+		"trait-fear",
+		"trait-mental"
+	],
+	"Title": "Устрашающий удар",
+	"Description": "Два действия: Удар. При попадании цель получает frightened 1 (при критическом успехе — frightened 2).",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_IntimidatingStrike": 1
+		}
+	}
+}

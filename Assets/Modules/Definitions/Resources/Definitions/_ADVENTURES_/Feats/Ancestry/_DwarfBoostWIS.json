@@ -1,0 +1,20 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf"
+	],
+	"Title": "Повышение: Мудрость",
+	"Description": "Свободное повышение Мудрости от происхождения дварфа.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"WIS": 1
+		},
+		"Set": {
+			"_DwarfBoostWIS": 1
+		}
+	}
+}

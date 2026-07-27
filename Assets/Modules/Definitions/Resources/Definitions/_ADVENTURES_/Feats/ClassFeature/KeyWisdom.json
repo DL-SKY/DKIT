@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"PLAYER_CORE",
+		"KEY_ABILITY",
+		"KEY_WISDOM"
+	],
+	"Title": "Ключевая характеристика: Мудрость",
+	"Description": "Повышение Мудрости от ключевой характеристики.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"WIS": 1
+		},
+		"Set": {
+			"KeyWisdom": 1
+		}
+	}
+}

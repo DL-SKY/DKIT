@@ -1,0 +1,18 @@
+{
+	"Disabled": false,
+	"Type": "ClassFeature",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"ancestry-dwarf",
+		"heritage"
+	],
+	"Title": "Страж смерти",
+	"Description": "Успех спасброска против эффекта с признаком void или созданного нежитью считается критическим успехом.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_DeathWardenDwarf": 1
+		}
+	}
+}
