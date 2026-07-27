@@ -206,6 +206,8 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
             // --- Tags ---
 
+            public const string AGILE = "AGILE";  // Быстрое (сниженный Multiple Attack Penalty)
+
             // --- Parameters ---
         }
 

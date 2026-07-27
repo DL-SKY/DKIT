@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-24 19:45:00 (+03:00)
+**Последнее обновление:** 2026-07-27 11:01:40 (+03:00)
 
 ## Назначение
 
@@ -102,6 +102,10 @@
 | | `SkillDependencies` | `Dictionary<string, string>` | `SkillDependencies` | да, 18 навыков (включая `Perception`) |
 | | `ParameterFormulas` | `Dictionary<string, string>` | `ParameterFormulas` | да; навыки (`ABILITY+PROFICIENCY+ITEMS`) + `MaxHitPoints` |
 | `BattleRuleDef` | `Tags` | `List<string>` | `Tags` | да |
+| | `UseMultipleAttackPenalty` | `bool` | `UseMultipleAttackPenalty` | да (`true` в `GeneralBattleRule`) |
+| | `AttackTags` | `List<string>` | `AttackTags` | да; теги действия/способности для учёта MAP (`"ATTACK"`) |
+| | `MultipleAttackPenaltyTable` | `List<int>` | `MultipleAttackPenaltyTable` | да; таблица с 1-й атаки (`[0, -5, -10, -10, -10, -10]`) |
+| | `MultipleAttackPenaltyTableByWeaponTag` | `Dictionary<string, List<int>>` | `MultipleAttackPenaltyTableByWeaponTag` | да; override по тегу оружия (`AGILE` → `[0, -4, -8, -8, -8, -8]`) |
 | `ClassDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Restrictions` | `List<Restriction>` | `Restrictions` | нет (опционально) |
 | | `Tags` | `List<string>` | `Tags` | да |
@@ -291,7 +295,9 @@
   Стартовый контент: `GeneralRule` — `Tags`: `core`, `exploration`, `social`; `AbilityBoostPointCost`: пороги `4 → 1`, `5 → 2`; `SkillDependencies` и skill-формулы — 18 навыков PF2e Remaster (включая `Perception`); плюс `MaxHitPoints`: `ANCESTRY_HP+(CLASS_HP+CON+PER_LEVEL)*Level+BONUS`.
 
 - `BattleRuleDef`  
-  Боевое правило приключения. Поля: `Tags`. Стартовый контент: `GeneralBattleRule` (`core`, `combat`, `encounter`).
+  Боевое правило приключения. Поля: `Tags`; MAP — `UseMultipleAttackPenalty`, `AttackTags`, `MultipleAttackPenaltyTable`, `MultipleAttackPenaltyTableByWeaponTag`.  
+  Таблица MAP: индекс `i` → штраф для атаки номер `i + 1` в раунде (индекс 0 — первая атака); за пределами списка повторяется последнее значение.  
+  Стартовый контент: `GeneralBattleRule` (`core`, `combat`, `encounter`; MAP как в PF2e: `[0, -5, -10, …]`, Agile `[0, -4, -8, …]`).
 
 - `RuleSettingsDef`  
   Single-def настроек правил и стартовой точки приключения. Поля: `Tags`, `Rule` (id `RuleDef`), `BattleRule` (id `BattleRuleDef`), `StartAdventure` (id `AdventureDef`). Стартовые значения: `Rule = "GeneralRule"`, `BattleRule = "GeneralBattleRule"`, `StartAdventure = "AdventureTavernByMartha"`.
@@ -334,7 +340,7 @@
 | Слой | Назначение |
 |---|---|
 | `RuleDef` | Статические правила вне боя: теги набора + механические таблицы (стоимость ability boost, skill → ability, формулы итоговых параметров) |
-| `BattleRuleDef` | Статические боевые правила (столкновения, тактика и т.п.) |
+| `BattleRuleDef` | Статические боевые правила, включая таблицы MAP (`MultipleAttackPenaltyTable` / `…ByWeaponTag`) |
 | `RuleSettingsDef` | Single-def, указывающий, какие правила из коллекций считаются активными по умолчанию |
 
 Активный `RuleDef` выбирается через `RuleSettingsDef.Rule` (id JSON-файла, например `GeneralRule`). Потребитель читает поля правила как конфигурацию: для ability boost — ближайший порог в `AbilityBoostPointCost`; для связанной ability навыка — `SkillDependencies[skillId]`; для итогового значения навыка/perception/MaxHitPoints — `ParameterFormulas[...]` через `CharacterParametersProxy.GetTotalValue`. Ключи навыков и ability согласованы с `Glossary.Characters`; ключи параметров choice-actions — с `Glossary.ChoiceActions` (например, `SCENE_ID` = `"SceneId"`) в `Modules.Definitions.Scripts.Implementation.Adventures.Constants`.

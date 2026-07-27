@@ -3,5 +3,27 @@
 		"core",
 		"combat",
 		"encounter"
-	]
+	],
+	"UseMultipleAttackPenalty": true,
+	"AttackTags": [
+		"ATTACK"
+	],
+	"MultipleAttackPenaltyTable": [
+		0,
+		-5,
+		-10,
+		-10,
+		-10,
+		-10
+	],
+	"MultipleAttackPenaltyTableByWeaponTag": {
+		"AGILE": [
+			0,
+			-4,
+			-8,
+			-8,
+			-8,
+			-8
+		]
+	}
 }
