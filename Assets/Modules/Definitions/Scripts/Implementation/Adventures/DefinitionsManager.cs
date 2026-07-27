@@ -1,4 +1,5 @@
 using Modules.Definitions.Scripts.Core;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.BattleActions;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.BattleRules;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Adventures;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries;
@@ -44,6 +45,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         public Dictionary<string, SpellDef> Spells;
         public Dictionary<string, RuleDef> Rules;
         public Dictionary<string, BattleRuleDef> BattleRules;
+        public Dictionary<string, BattleActionDef> BattleActions;
 
 
         public DefinitionsManager()
@@ -79,7 +81,8 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
                 LoadPregeneratedCharacters,
                 LoadFeats,
                 LoadItems,
-                LoadSpells,                
+                LoadSpells,
+                LoadBattleActions,
             };
 
             for (int i = 0; i < loadMethods.Count; i++)
@@ -142,6 +145,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         private void LoadSpells()
         {
             Spells = _loader.LoadCollection<SpellDef>("Definitions/_ADVENTURES_/Spells");
+        }
+
+        private void LoadBattleActions()
+        {
+            BattleActions = _loader.LoadCollection<BattleActionDef>("Definitions/_ADVENTURES_/BattleActions");
         }
 
         private void LoadRules()

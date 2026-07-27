@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-27 10:25:00 (+03:00)
+**Последнее обновление:** 2026-07-27 11:35:48 (+03:00)
 
 ## Назначение
 
@@ -18,6 +18,8 @@
 > **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живёт в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Изменения прогресса из choice-executors проходят через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
 >
 > Персонажи, отряд, инвентарь и прогресс приключений хранятся в `Modules.State` (`CharactersStateData`, `InventoryStateData`, `AdventuresStateData`). Подробности — в [документации модуля State](State.md).
+>
+> **Бой:** runtime пошагового боя ещё не начат. Ранний прототип (дефы действий, economy стороны, MAP, таргетинг) — в [Battle.md](Battle.md).
 
 ## Структура модуля
 
@@ -433,6 +435,7 @@ RPG-контент (сцены, выборы, действия) описывае
   - `SetAdventureParamsChoiceActionExecutor` → `SetAdventureParamsStateAction`;
   - `SetGlobalParamsChoiceActionExecutor` → `SetGlobalParamsStateAction`.
 - `RestrictionType.ActivePartyCount` + `ActivePartyCountRestrictionChecker`: сравнение `ActivePartyCharacterIds.Count` с `IntValues[0]` через `CompareOptions`.
+- `RestrictionType.CharacterParams` + `CharacterParamsRestrictionChecker`: сравнение `CharacterStateData.Parameters[key]` с `IntValues[0]`; цель — `CharacterRestrictionContext` (см. [Restrictions.md](Restrictions.md)).
 - Legacy executor: `ObsoleteGoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) — старый путь через `IAdventureFlowController`.
 - Объявлен legacy интерфейс: `IAdventureFlowController` (**устаревший**, `[Obsolete]`).
 - `AdventuresManager` зарегистрирован в DI (`BindInterfacesAndSelfTo`), инициализируется через `AdventuresManagerInitTask`; владеет `RuntimeSceneData`.

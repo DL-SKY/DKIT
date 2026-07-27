@@ -1,6 +1,6 @@
 # Модуль Restrictions
 
-**Последнее обновление:** 2026-07-22 11:48:00 (+03:00)
+**Последнее обновление:** 2026-07-27 11:35:48 (+03:00)
 
 ## Назначение
 
@@ -23,7 +23,7 @@
   Модель ограничения: `Type`, `StringValues`, `IntValues`, `LongValues`, `BoolValues`, `CompareOptions`.
 
 - `RestrictionType`  
-  Перечень типов ограничений: `TimeNow`, `WorldParams`, `AdventureParams`, `GlobalParams`, `ActivePartyCount`.
+  Перечень типов ограничений: `TimeNow`, `WorldParams`, `AdventureParams`, `GlobalParams`, `ActivePartyCount`, `CharacterParams`.
 
 - `IChecker`  
   Контракт конкретной проверки: `bool Check(Restriction restriction)`.
@@ -42,6 +42,13 @@
 
 - `ActivePartyCountRestrictionChecker`  
   Сравнение `Characters.ActivePartyCharacterIds.Count` с `IntValues[0]` через `CompareOptions` (`Equal`, `MoreEqual`, …).
+
+- `CharacterParamsRestrictionChecker`  
+  Сравнение значения из `CharacterStateData.Parameters[key]` с `IntValues[0]` через `CompareOptions`.  
+  Целевой персонаж — через `CharacterRestrictionContext` (override id или первый живой в `ActivePartyCharacterIds`).
+
+- `CharacterRestrictionContext`  
+  Контекст выбора персонажа для `CharacterParams`: `SetCharacterId` / `ClearCharacterId` / `TryGetCharacterId`. Зарегистрирован в Adventure `ProjectInstaller` как singleton.
 
 - `CompareRestrictionStaticChecker` + `CompareType`  
   Универсальный слой сравнения типов `string/int/long` с операциями `Equal`, `More`, `Less` и т.д.
@@ -142,6 +149,38 @@
 
 В TEA для `ActivePartyCount` отображаются только `Compare` и `Ints (csv)`; см. `RestrictionEditorFieldProfilesRegistry`.
 
+### Формат `Restriction` для `CharacterParams`
+
+Проверка числового параметра персонажа в `CharacterStateData.Parameters` (`Dictionary<string, int>`).
+
+Поля `Restriction`:
+
+- `StringValues[0]` — ключ параметра (например `feat.paladin.super_puper_attack`, `STR`, `Athletics.ProfRank`).
+- `IntValues[0]` — требуемое значение.
+- `CompareOptions` — операция сравнения (`Equal`, `MoreEqual`, …).
+- Отсутствующий ключ в `Parameters` трактуется как `0`.
+
+Целевой персонаж:
+
+1. Если в `CharacterRestrictionContext` задан override (`SetCharacterId`) — этот id (для боя: текущий исполнитель).
+2. Иначе — первый живой персонаж из `Characters.ActivePartyCharacterIds`.
+3. Если персонажа нет / id не найден в `Characters` — проверка `false`.
+
+Пример JSON (черта включена, значение ≥ 1):
+
+```json
+{
+  "Type": "CharacterParams",
+  "CompareOptions": "MoreEqual",
+  "StringValues": ["feat.paladin.super_puper_attack"],
+  "IntValues": [1],
+  "LongValues": [],
+  "BoolValues": []
+}
+```
+
+В TEA для `CharacterParams` отображаются `Compare`, `Strings (csv)`, `Ints (csv)`; см. `RestrictionEditorFieldProfilesRegistry`.
+
 ## Где используется `Restriction` в проекте
 
 | Модуль | Класс / поле | Назначение |
@@ -153,6 +192,7 @@
 | `Definitions` | `ObjectivesDef.VictoryConditions` | Условия победы раунда Match3 |
 | `Definitions` | `ObjectivesDef.DefeatConditions` | Условия поражения раунда Match3 |
 | `Definitions` | `FeatDef.Restrictions` | Требования/ограничения для взятия или использования черты (prerequisites; checker’ы для персонажа — в планах) |
+| `Definitions` *(план)* | `BattleActionDef.AvailabilityRestrictions` | Доступность боевого действия; `RestrictionType.CharacterParams` — см. [Battle.md](Battle.md). Контракт дефа загружается. |
 | `Match3` | `IObjectivesData.GetVictoryConditions()` / `GetDefeatConditions()` | Доступ к условиям из data-слоя |
 | `ECS` | `RoundEndConditionsData.Victory` / `.Defeat` | Копии условий в ECS для проверки в рантайме |
 

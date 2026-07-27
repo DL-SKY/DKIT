@@ -1,0 +1,25 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"ATTACK"
+	],
+	"Icon": "",
+	"Title": "Удар",
+	"Description": "Базовая атака экипированным оружием по одному противнику.",
+	"ActionCost": 1,
+	"TargetType": "EnemySingle",
+	"AvailabilityRestrictions": [],
+	"RequiredWeaponTagsAny": [],
+	"RequiredSpellId": "",
+	"Effects": [
+		{
+			"Type": "Damage",
+			"Value": 0,
+			"ValueFormula": "",
+			"StatusId": "",
+			"StatusValue": 0,
+			"DurationRounds": 0,
+			"OnHitOnly": true
+		}
+	]
+}

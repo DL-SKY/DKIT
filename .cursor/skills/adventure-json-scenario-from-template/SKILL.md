@@ -75,6 +75,7 @@ Skill для создания корректного JSON-сценария пр�
    - `Adventures[...].Parameters` -> `RestrictionType.AdventureParams`;
    - `Global.Parameters` -> `RestrictionType.GlobalParams`;
    - `ActivePartyCharacterIds больше N` -> `RestrictionType.ActivePartyCount` с `CompareOptions = More` и `IntValues = [N]`;
+   - `Parameters персонажа KEY >= N` / feat-флаг -> `RestrictionType.CharacterParams` (`StringValues[0]=KEY`, `IntValues=[N]`, обычно `MoreEqual`);
    - “НЕТ X” обычно -> bool-проверка `Equal false`, “ЕСТЬ X” -> bool-проверка `Equal true`.
 7. Приведи финальный JSON к рабочему контракту TEA и runtime.
 8. Проверь изображения без путей (см. «Предупреждения об изображениях»).
@@ -169,7 +170,7 @@ Skill для создания корректного JSON-сценария пр�
 - `Params.Strings / Params.Ints / Params.Bools`
 
 `Restriction`:
-- `Type: "TimeNow" | "WorldParams" | "AdventureParams" | "GlobalParams" | "ActivePartyCount"`
+- `Type: "TimeNow" | "WorldParams" | "AdventureParams" | "GlobalParams" | "ActivePartyCount" | "CharacterParams"`
 - `StringValues: string[]`
 - `IntValues: int[]`
 - `LongValues: long[]`

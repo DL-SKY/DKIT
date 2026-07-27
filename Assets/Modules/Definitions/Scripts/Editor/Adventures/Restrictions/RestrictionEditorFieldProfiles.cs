@@ -44,6 +44,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.Restrictions
                     RestrictionType.ActivePartyCount,
                     RestrictionEditorField.CompareOptions | RestrictionEditorField.IntValues
                 },
+                {
+                    RestrictionType.CharacterParams,
+                    RestrictionEditorField.CompareOptions
+                    | RestrictionEditorField.StringValues
+                    | RestrictionEditorField.IntValues
+                },
             };
         }
 

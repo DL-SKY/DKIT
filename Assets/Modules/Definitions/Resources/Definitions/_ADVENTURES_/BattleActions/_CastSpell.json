@@ -1,0 +1,15 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"SPELL"
+	],
+	"Icon": "",
+	"Title": "Сотворить заклинание",
+	"Description": "Обёртка каста: конкретное заклинание выбирается в runtime из списка персонажа.",
+	"ActionCost": 2,
+	"TargetType": "EnemySingle",
+	"AvailabilityRestrictions": [],
+	"RequiredWeaponTagsAny": [],
+	"RequiredSpellId": "",
+	"Effects": []
+}

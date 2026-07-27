@@ -41,6 +41,7 @@ namespace Modules.Restrictions.Scripts.Core
                 RestrictionType.AdventureParams => _restrictionFactory.Create<AdventureParamsRestrictionChecker>(),
                 RestrictionType.GlobalParams => _restrictionFactory.Create<GlobalParamsRestrictionChecker>(),
                 RestrictionType.ActivePartyCount => _restrictionFactory.Create<ActivePartyCountRestrictionChecker>(),
+                RestrictionType.CharacterParams => _restrictionFactory.Create<CharacterParamsRestrictionChecker>(),
 
                 _ => throw new NotImplementedException()
             };

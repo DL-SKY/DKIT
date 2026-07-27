@@ -1,0 +1,23 @@
+{
+	"Disabled": false,
+	"Tags": [],
+	"Icon": "",
+	"Title": "Поднять щит",
+	"Description": "Упрощённая защита: даёт временный статус повышения защиты до конца следующего хода.",
+	"ActionCost": 1,
+	"TargetType": "Self",
+	"AvailabilityRestrictions": [],
+	"RequiredWeaponTagsAny": [],
+	"RequiredSpellId": "",
+	"Effects": [
+		{
+			"Type": "AddStatus",
+			"Value": 0,
+			"ValueFormula": "",
+			"StatusId": "RaisedShield",
+			"StatusValue": 1,
+			"DurationRounds": 1,
+			"OnHitOnly": false
+		}
+	]
+}

@@ -1,0 +1,25 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"ATTACK"
+	],
+	"Icon": "",
+	"Title": "Рассекающий удар",
+	"Description": "Атака по всему отряду противника. Дороже обычного удара.",
+	"ActionCost": 2,
+	"TargetType": "EnemyAll",
+	"AvailabilityRestrictions": [],
+	"RequiredWeaponTagsAny": [],
+	"RequiredSpellId": "",
+	"Effects": [
+		{
+			"Type": "Damage",
+			"Value": 0,
+			"ValueFormula": "",
+			"StatusId": "",
+			"StatusValue": 0,
+			"DurationRounds": 0,
+			"OnHitOnly": true
+		}
+	]
+}

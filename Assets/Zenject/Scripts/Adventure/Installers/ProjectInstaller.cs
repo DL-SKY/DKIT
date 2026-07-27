@@ -32,6 +32,7 @@ namespace Zenject.Scripts.Adventure.Installers
             Container.Bind<AdventureStateLogic>().AsSingle().NonLazy();
             Container.Bind<LocalizationManager>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<AdventuresManager>().AsSingle().NonLazy();
+            Container.Bind<Modules.Restrictions.Scripts.Checker.CharacterRestrictionContext>().AsSingle().NonLazy();
             //...
 
             //Core prefabs

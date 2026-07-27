@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-27 11:01:40 (+03:00)
+**Последнее обновление:** 2026-07-27 11:54:36 (+03:00)
 
 ## Назначение
 
@@ -33,7 +33,7 @@
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
   - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`);
-  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`.  
+  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`.  
   Используется и `CharacterParametersProxy` (модуль `State`) для резолва `ANCESTRY_HP` / `CLASS_HP` из `Ancestries` / `Classes`.
 
 - `Glossary` (`Implementation/Adventures/Constants/Glossary.cs`)  
@@ -72,6 +72,7 @@
 | `FeatDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Feats` |
 | `ItemDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Items` |
 | `SpellDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Spells` |
+| `BattleActionDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/BattleActions` |
 | `RuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Rules` |
 | `BattleRuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/BattleRules` |
 | `RuleSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/RuleSettings/RuleSettings` (single) |
@@ -106,6 +107,24 @@
 | | `AttackTags` | `List<string>` | `AttackTags` | да; теги действия/способности для учёта MAP (`"ATTACK"`) |
 | | `MultipleAttackPenaltyTable` | `List<int>` | `MultipleAttackPenaltyTable` | да; таблица с 1-й атаки (`[0, -5, -10, -10, -10, -10]`) |
 | | `MultipleAttackPenaltyTableByWeaponTag` | `Dictionary<string, List<int>>` | `MultipleAttackPenaltyTableByWeaponTag` | да; override по тегу оружия (`AGILE` → `[0, -4, -8, -8, -8, -8]`) |
+| `BattleActionDef` | `Disabled` | `bool` | `Disabled` | да |
+| | `Tags` | `List<string>` | `Tags` | да (`ATTACK`, `SPELL`, …) |
+| | `Icon` | `string` | `Icon` | да (часто `""`) |
+| | `Title` | `string` | `Title` | да |
+| | `Description` | `string` | `Description` | да |
+| | `ActionCost` | `int` | `ActionCost` | да |
+| | `TargetType` | `BattleActionTargetType` | `TargetType` | да (`Self`, `EnemySingle`, `EnemyAll`, …) |
+| | `AvailabilityRestrictions` | `List<Restriction>` | `AvailabilityRestrictions` | да (`[]` или `CharacterParams`) |
+| | `RequiredWeaponTagsAny` | `List<string>` | `RequiredWeaponTagsAny` | да (часто `[]`) |
+| | `RequiredSpellId` | `string` | `RequiredSpellId` | да (`""` = spell выбирается в runtime) |
+| | `Effects` | `List<BattleActionEffectData>` | `Effects` | да |
+| `BattleActionEffectData` | `Type` | `BattleActionEffectType` | `Type` | да (`Damage`, `Heal`, `AddStatus`, …) |
+| | `Value` | `int` | `Value` | да |
+| | `ValueFormula` | `string` | `ValueFormula` | да (`""` = Value / урон оружия) |
+| | `StatusId` | `string` | `StatusId` | да |
+| | `StatusValue` | `int` | `StatusValue` | да |
+| | `DurationRounds` | `int` | `DurationRounds` | да |
+| | `OnHitOnly` | `bool` | `OnHitOnly` | да |
 | `ClassDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Restrictions` | `List<Restriction>` | `Restrictions` | нет (опционально) |
 | | `Tags` | `List<string>` | `Tags` | да |
@@ -297,7 +316,12 @@
 - `BattleRuleDef`  
   Боевое правило приключения. Поля: `Tags`; MAP — `UseMultipleAttackPenalty`, `AttackTags`, `MultipleAttackPenaltyTable`, `MultipleAttackPenaltyTableByWeaponTag`.  
   Таблица MAP: индекс `i` → штраф для атаки номер `i + 1` в раунде (индекс 0 — первая атака); за пределами списка повторяется последнее значение.  
-  Стартовый контент: `GeneralBattleRule` (`core`, `combat`, `encounter`; MAP как в PF2e: `[0, -5, -10, …]`, Agile `[0, -4, -8, …]`).
+  Стартовый контент: `GeneralBattleRule` (`core`, `combat`, `encounter`; MAP как в PF2e: `[0, -5, -10, …]`, Agile `[0, -4, -8, …]`).  
+  Расширение economy боя — в раннем прототипе [Battle.md](Battle.md). Каталог действий: `BattleActionDef`.
+
+- `BattleActionDef`  
+  Боевое действие (опция в бою). Поля: `Disabled`, `Tags`, `Icon`, `Title`, `Description`, `ActionCost`, `TargetType`, `AvailabilityRestrictions`, `RequiredWeaponTagsAny`, `RequiredSpellId`, `Effects`.  
+  Стартовый контент (тестовый, id с префиксом `_`): `_Strike`, `_CastSpell`, `_RaiseShield`, `_Cleave`, `_PaladinSuperPuperAttack` (с `CharacterParams`). Runtime resolver ещё не реализован — см. [Battle.md](Battle.md).
 
 - `RuleSettingsDef`  
   Single-def настроек правил и стартовой точки приключения. Поля: `Tags`, `Rule` (id `RuleDef`), `BattleRule` (id `BattleRuleDef`), `StartAdventure` (id `AdventureDef`). Стартовые значения: `Rule = "GeneralRule"`, `BattleRule = "GeneralBattleRule"`, `StartAdventure = "AdventureTavernByMartha"`.
@@ -341,6 +365,7 @@
 |---|---|
 | `RuleDef` | Статические правила вне боя: теги набора + механические таблицы (стоимость ability boost, skill → ability, формулы итоговых параметров) |
 | `BattleRuleDef` | Статические боевые правила, включая таблицы MAP (`MultipleAttackPenaltyTable` / `…ByWeaponTag`) |
+| `BattleActionDef` | Каталог боевых действий (`_Strike`, `_CastSpell`, …); ранний прототип — см. [Battle.md](Battle.md) |
 | `RuleSettingsDef` | Single-def, указывающий, какие правила из коллекций считаются активными по умолчанию |
 
 Активный `RuleDef` выбирается через `RuleSettingsDef.Rule` (id JSON-файла, например `GeneralRule`). Потребитель читает поля правила как конфигурацию: для ability boost — ближайший порог в `AbilityBoostPointCost`; для связанной ability навыка — `SkillDependencies[skillId]`; для итогового значения навыка/perception/MaxHitPoints — `ParameterFormulas[...]` через `CharacterParametersProxy.GetTotalValue`. Ключи навыков и ability согласованы с `Glossary.Characters`; ключи параметров choice-actions — с `Glossary.ChoiceActions` (например, `SCENE_ID` = `"SceneId"`) в `Modules.Definitions.Scripts.Implementation.Adventures.Constants`.
@@ -413,6 +438,7 @@ Adventure-choice params (`ChoiceActionData.Params`) остаются отдел�
 | `Feats` | `_ADVENTURES_/Feats` | `General`, `Ancestry`, `Class`, `ClassFeature`, `Skill` | 15 черт |
 | `Spells` | `_ADVENTURES_/Spells` | `Cantrips`, `Arcane`, `Divine` | 13 заклинаний |
 | `Items` | `_ADVENTURES_/Items` | `Weapons`, `Armor`, `Shields`, `Consumables`, `Equipment` | 18 предметов |
+| `BattleActions` | `_ADVENTURES_/BattleActions` | — | 5 тестовых действий (`_Strike`, `_CastSpell`, `_RaiseShield`, `_Cleave`, `_PaladinSuperPuperAttack`) |
 | `Rules` | `_ADVENTURES_/Rules` | — | 1 правило (`GeneralRule`) |
 | `BattleRules` | `_ADVENTURES_/BattleRules` | — | 1 боевое правило (`GeneralBattleRule`) |
 
@@ -445,7 +471,7 @@ Single-def:
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Оба менеджера сейчас загружают `LocalizationSettingsDef` (пути: `Definitions/LocalizationSettings/LocalizationSettings` и `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings`).
-- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
 - `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost`, `RuleDef.SkillDependencies` и `RuleDef.ParameterFormulas` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет / сырое чтение параметра) на стороне runtime. Для навыков в `GeneralRule` набор ключей skill-формул совпадает с `SkillDependencies`; отдельно задана формула `MaxHitPoints`.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Background`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)). `ANCESTRY_HP` / `CLASS_HP` в формулах резолвятся через эти id в `AncestryDef.HitPoints` / `ClassDef.HitPointsPerLevel`.
 - `AncestryDef.Names` / `Avatars` индексируются по `CharacterGender`; id ancestry — в `CharacterStateData.Ancestry`. Текущие JSON ancestries ещё могут содержать legacy `MaleNames`/`FemaleNames` — их нужно мигрировать на `Names`/`Avatars`.

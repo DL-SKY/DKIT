@@ -1,0 +1,47 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"ATTACK"
+	],
+	"Icon": "",
+	"Title": "Удар паладина",
+	"Description": "Опциональная атака. Доступна, если у персонажа в Parameters есть флаг feat.paladin.super_puper_attack.",
+	"ActionCost": 1,
+	"TargetType": "EnemySingle",
+	"AvailabilityRestrictions": [
+		{
+			"Type": "CharacterParams",
+			"CompareOptions": "MoreEqual",
+			"StringValues": [
+				"feat.paladin.super_puper_attack"
+			],
+			"IntValues": [
+				1
+			],
+			"LongValues": [],
+			"BoolValues": []
+		}
+	],
+	"RequiredWeaponTagsAny": [],
+	"RequiredSpellId": "",
+	"Effects": [
+		{
+			"Type": "Damage",
+			"Value": 0,
+			"ValueFormula": "",
+			"StatusId": "",
+			"StatusValue": 0,
+			"DurationRounds": 0,
+			"OnHitOnly": true
+		},
+		{
+			"Type": "AddStatus",
+			"Value": 0,
+			"ValueFormula": "",
+			"StatusId": "HolySmite",
+			"StatusValue": 1,
+			"DurationRounds": 1,
+			"OnHitOnly": true
+		}
+	]
+}

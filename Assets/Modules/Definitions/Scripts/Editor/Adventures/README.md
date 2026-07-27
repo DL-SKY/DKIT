@@ -524,6 +524,7 @@ TEST_KEY_2	Перевод номер 2
 | `AdventureParams` | Проверка `AdventuresStateData.Adventures[currentAdventureId].Parameters` |
 | `GlobalParams` | Проверка `AdventuresStateData.Global.Parameters` (данные игрока, не сбрасываются при перезапуске приключений) |
 | `ActivePartyCount` | Сравнение `Characters.ActivePartyCharacterIds.Count` с `IntValues[0]` через `CompareOptions` |
+| `CharacterParams` | Сравнение `CharacterStateData.Parameters[key]` с `IntValues[0]`; ключ в `StringValues[0]`; персонаж через `CharacterRestrictionContext` |
 
 Формат `WorldParams` / `AdventureParams` / `GlobalParams`:
 
@@ -547,6 +548,7 @@ TEST_KEY_2	Перевод номер 2
 |---|---|
 | `TimeNow` | `Compare`, `Longs (csv)` |
 | `ActivePartyCount` | `Compare`, `Ints (csv)` |
+| `CharacterParams` | `Compare`, `Strings (csv)`, `Ints (csv)` |
 | `WorldParams` | все поля (default) |
 | `AdventureParams` | все поля (default) |
 | `GlobalParams` | все поля (default) |

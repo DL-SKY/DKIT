@@ -90,6 +90,11 @@ namespace Modules.Cheats.Scripts.Editor.Implementation.Definitions
             EditorGUI.indentLevel++;
             DrawDefinitionIds(definitionsManager.Spells);
             EditorGUI.indentLevel--;
+
+            EditorGUILayout.LabelField("BattleActions:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.BattleActions);
+            EditorGUI.indentLevel--;
         }
 
         private static void DrawDefinitionIds<T>(Dictionary<string, T> definitions)

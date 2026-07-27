@@ -7,6 +7,7 @@
         AdventureParams = 2,
         GlobalParams = 3,
         ActivePartyCount = 4,
+        CharacterParams = 5,
 
 
         // = 1000,
