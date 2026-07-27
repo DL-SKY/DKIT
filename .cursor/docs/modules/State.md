@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-27 11:32:15 (+03:00)
+**Последнее обновление:** 2026-07-27 16:35:00 (+03:00)
 
 ## Назначение
 
@@ -231,7 +231,7 @@ Implementation/Wallet/
 | `IsDead` | `bool` | Признак смерти (доска славы, исключение из отряда) |
 | `DeathTime` | `long` | Время смерти, Unix ms UTC; `0` — не умер |
 | `Name` | `string` | Отображаемое имя персонажа |
-| `Gender` | `CharacterGender` | Пол персонажа; при генерации имени/аватара используется с `AncestryDef.Names` / `Avatars` |
+| `Gender` | `CharacterGender` | Пол персонажа; при генерации имени используется с `AncestryDef.Names`; аватары — каталог `AvatarsDef` по `Ancestry` |
 | `Ancestry` | `string` | Id дефа ancestry (`AncestryDef`) |
 | `Class` | `string` | Id дефа класса (`ClassDef`) |
 | `Background` | `string` | Id дефа предыстории (`BackgroundDef`) |

@@ -15,6 +15,17 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries
 
     public class AncestryDef : AbstractDefinition
     {
+        /// <summary>
+        /// IAP / store product key.
+        /// </summary>
+        public string ProductId;
+
+        /// <summary>
+        /// Soft-currency price (0 when unused or IAP-only).
+        /// </summary>
+        public int Price;
+
+
         public bool Disabled;
 
         public List<Restriction> Restrictions;
@@ -33,9 +44,15 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries
         /// </summary>
         public int HitPoints;
 
+        /// <summary>
+        /// Фичи происхождения по уровню: ключ — уровень персонажа, значение — список id feat/feature.
+        /// Пример JSON: { "1": ["_Darkvision", "_ClanDagger", "_DwarfHeritage"], "5": ["_DwarfAncestryFeat5"] }.
+        /// </summary>
         public Dictionary<int, List<string>> Features;
 
+        /// <summary>
+        /// Localized KEY
+        /// </summary>
         public Dictionary<CharacterGender, List<string>> Names;
-        public Dictionary<CharacterGender, List<string>> Avatars;
     }
 }

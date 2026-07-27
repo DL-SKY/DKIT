@@ -51,6 +51,11 @@ namespace Modules.Cheats.Scripts.Editor.Implementation.Definitions
                 : "—";
             EditorGUILayout.LabelField("GlobalSettings: " + globalSettingsId);
 
+            string avatarsId = definitionsManager.Avatars != null
+                ? definitionsManager.Avatars.Id
+                : "—";
+            EditorGUILayout.LabelField("Avatars: " + avatarsId);
+
             EditorGUILayout.LabelField("Adventures:");
             EditorGUI.indentLevel++;
             DrawDefinitionIds(definitionsManager.Adventures);

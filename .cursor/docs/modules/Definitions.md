@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-27 11:54:36 (+03:00)
+**Последнее обновление:** 2026-07-27 16:35:00 (+03:00)
 
 ## Назначение
 
@@ -32,7 +32,7 @@
 
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
-  - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`);
+  - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`), `Avatars` (`AvatarsDef`);
   - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`.  
   Используется и `CharacterParametersProxy` (модуль `State`) для резолва `ANCESTRY_HP` / `CLASS_HP` из `Ancestries` / `Classes`.
 
@@ -76,6 +76,7 @@
 | `RuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Rules` |
 | `BattleRuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/BattleRules` |
 | `RuleSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/RuleSettings/RuleSettings` (single) |
+| `AvatarsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Avatars/Avatars` (single) |
 | `ProjectGlobalSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/GlobalSettings/GlobalSettings` (single) |
 | `LocalizationSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings` (single) |
 
@@ -98,6 +99,11 @@
 | | `Rule` | `string` | `Rule` | да, id `RuleDef` (`"GeneralRule"`) |
 | | `BattleRule` | `string` | `BattleRule` | да, id `BattleRuleDef` (`"GeneralBattleRule"`) |
 | | `StartAdventure` | `string` | `StartAdventure` | да, id `AdventureDef` (`"AdventureTavernByMartha"`) |
+| `AvatarsDef` | `Free` | `Dictionary<string, List<string>>` | `Free` | да; ключ — id `AncestryDef`, значение — список avatar id |
+| | `Packs` | `Dictionary<string, AvatarPackData>` | `Packs` | да; ключ — pack id |
+| `AvatarPackData` | `ProductId` | `string` | `ProductId` | да (IAP / store key; может быть `""`) |
+| | `Price` | `int` | `Price` | да (soft-currency; `0` если не используется) |
+| | `Avatars` | `Dictionary<string, List<string>>` | `Avatars` | да; ключ — id `AncestryDef`, значение — список avatar id |
 | `RuleDef` | `Tags` | `List<string>` | `Tags` | да |
 | | `AbilityBoostPointCost` | `Dictionary<int, int>` | `AbilityBoostPointCost` | да; ключи в JSON — строки (`"4"`, `"5"`) |
 | | `SkillDependencies` | `Dictionary<string, string>` | `SkillDependencies` | да, 18 навыков (включая `Perception`) |
@@ -145,7 +151,6 @@
 | | `HitPoints` | `int` | `HitPoints` | да (HP происхождения, один раз) |
 | | `Features` | `Dictionary<int, List<string>>` | `Features` | нет (опционально; ключи в JSON — строки) |
 | | `Names` | `Dictionary<CharacterGender, List<string>>` | `Names` | нет (контент ещё на legacy `MaleNames`/`FemaleNames`) |
-| | `Avatars` | `Dictionary<CharacterGender, List<string>>` | `Avatars` | нет (опционально) |
 | `BackgroundDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Restrictions` | `List<Restriction>` | `Restrictions` | да, `[]` |
 | | `Tags` | `List<string>` | `Tags` | да |
@@ -206,7 +211,7 @@
 | Enum | Значения |
 |---|---|
 | `AncestrySize` | `Small`, `Medium`, `Large` |
-| `CharacterGender` (модуль `State`) | `Male`, `Female` — ключи словарей `AncestryDef.Names` / `Avatars` |
+| `CharacterGender` (модуль `State`) | `Male`, `Female` — ключи словаря `AncestryDef.Names` |
 | `FeatType` | `AncestryFeat`, `BackgroundSkillFeat`, `SkillFeat`, `GeneralFeat`, `ClassFeat`, `ClassFeature`, `Boost` |
 | `ItemCategory` | `Weapon`, `Armor`, `Shield`, `Consumable`, `Equipment` |
 | `SpellType` | `Cantrip`, `Spell`, `Focus`, `Ritual` |
@@ -238,9 +243,16 @@
   Общий каркас метаданных совпадает с `BackgroundDef` / `AncestryDef` (без size/speed/имён).
 
 - `AncestryDef`  
-  Ancestry (раса/происхождение в смысле PF2e Ancestry) персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Size` (`AncestrySize`), `Speed`, `HitPoints`, `Features` (`Dictionary<int, List<string>>`), `Names` / `Avatars` (`Dictionary<CharacterGender, List<string>>`).  
+  Ancestry (раса/происхождение в смысле PF2e Ancestry) персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Size` (`AncestrySize`), `Speed`, `HitPoints`, `Features` (`Dictionary<int, List<string>>`), `Names` (`Dictionary<CharacterGender, List<string>>`).  
   `HitPoints` — HP происхождения (добавляются один раз, не масштабируются уровнем). Значения также временно дублируются в `Tags` как `hp-*`.  
-  `Names` и `Avatars` — пулы по полу (`Male` / `Female` из `CharacterGender` в модуле `State`); связь с `CharacterStateData.Gender` — в [State.md](State.md#adventure-charactersstatedata-и-characterstatedata). Legacy-ключи JSON `MaleNames` / `FemaleNames` больше не соответствуют полям C#.
+  `Names` — пул имён по полу (`Male` / `Female` из `CharacterGender` в модуле `State`); связь с `CharacterStateData.Gender` — в [State.md](State.md#adventure-charactersstatedata-и-characterstatedata). Legacy-ключи JSON `MaleNames` / `FemaleNames` больше не соответствуют полям C#.  
+  Каталог аватаров — не в ancestry: single-def `AvatarsDef` (`DefinitionsManager.Avatars`).
+
+- `AvatarsDef`  
+  Single-каталог аватаров персонажа (`Definitions/_ADVENTURES_/Avatars/Avatars`). Поля: `Free` (`Dictionary<string, List<string>>` — ancestry id → бесплатные avatar id), `Packs` (`Dictionary<string, AvatarPackData>` — pack id → пак).  
+  `AvatarPackData`: `ProductId` (store/IAP key), `Price` (soft-currency), `Avatars` (ancestry id → avatar id пака).  
+  Разблокировка задаётся местом id: `Free` = всегда доступен для ancestry; id внутри `Packs[packId].Avatars` = через владение паком. Путь арта по конвенции от avatar id (например `Resources/Adventures/Avatars/{id}`).  
+  Загрузка: `DefinitionsManager.Avatars` через `LoadSingle` (рядом с `RuleSettings` в `LoadAll()`).
 
 - `BackgroundDef`  
   Предыстория персонажа (PF2e Background). Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Features` (`List<string>` — id связанных feat/feature).  
@@ -387,7 +399,8 @@
 - `Tags` — произвольные строковые метки (источник книги, роль; legacy-подсказки вроде `hp-*` / `hp_per_level-*` пока дублируют поля HP);
 - `Restrictions` на `ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` — структурированные требования (см. [Restrictions.md](Restrictions.md));
 - `Features` — ссылки на связанные feat/feature id (`Dictionary<int, List<string>>` у класса/ancestry по уровню; `List<string>` у background);
-- `Names` / `Avatars` на `AncestryDef` — пулы по `CharacterGender` для создания персонажа;
+- `Names` на `AncestryDef` — пул имён по `CharacterGender` для создания персонажа;
+- `AvatarsDef` — каталог аватаров: `Free` / `Packs` по ancestry id (не на `AncestryDef`);
 - `FeatDef.Apply` / `Options` — контракт эффектов черты (runtime-применение — следующий этап);
 - `RuleDef.ParameterFormulas` — декларативные формулы итоговых параметров (навыки, `MaxHitPoints`), читаются через `CharacterParametersProxy`.
 
@@ -471,10 +484,11 @@ Single-def:
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Оба менеджера сейчас загружают `LocalizationSettingsDef` (пути: `Definitions/LocalizationSettings/LocalizationSettings` и `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings`).
-- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Avatars`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
 - `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost`, `RuleDef.SkillDependencies` и `RuleDef.ParameterFormulas` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет / сырое чтение параметра) на стороне runtime. Для навыков в `GeneralRule` набор ключей skill-формул совпадает с `SkillDependencies`; отдельно задана формула `MaxHitPoints`.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Background`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)). `ANCESTRY_HP` / `CLASS_HP` в формулах резолвятся через эти id в `AncestryDef.HitPoints` / `ClassDef.HitPointsPerLevel`.
-- `AncestryDef.Names` / `Avatars` индексируются по `CharacterGender`; id ancestry — в `CharacterStateData.Ancestry`. Текущие JSON ancestries ещё могут содержать legacy `MaleNames`/`FemaleNames` — их нужно мигрировать на `Names`/`Avatars`.
+- `AncestryDef.Names` индексируется по `CharacterGender`; id ancestry — в `CharacterStateData.Ancestry`. Текущие JSON ancestries ещё могут содержать legacy `MaleNames`/`FemaleNames` — их нужно мигрировать на `Names`.
+- Аватары персонажа описываются в single-def `AvatarsDef` (`Free` / `Packs` по id `AncestryDef`); выбранный avatar id хранится в `CharacterStateData.Avatar` / `PregeneratedCharacterDef.Avatar`. Ownership паков в state — следующий этап.
 - `AncestryDef.HitPoints` и `ClassDef.HitPointsPerLevel` заполнены в стартовом контенте; теги `hp-*` / `hp_per_level-*` пока оставлены как дубликаты для удобства чтения JSON.
 - `BackgroundDef.Features` — плоский список id; у `ClassDef` / `AncestryDef` поле `Features` — словарь уровень → список id.
 - Итоговые `MaxHitPoints` / навыки **не** пишутся в `CharacterStateData.Parameters`: в state — сырые ключи (`CON`, `Level`, `MaxHitPoints.PerLevel`, `MaxHitPoints.Bonus`, `*.ProfRank`, …), итог — `CharacterParametersProxy.GetTotalValue`.
@@ -482,7 +496,7 @@ Single-def:
 - `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.
 - Оружейные `ItemDef` в `_ADVENTURES_/Items/Weapons` содержат `Type` / `Group` / формулы / `DamageDice`; модификаторы атаки и урона считает `WeaponProxy` (модуль `State`), кости урона — только метаданные для будущего броска.
 - `Restrictions` на class/ancestry/background/feat может быть пустым или отсутствовать в JSON; при добавлении ограничений JSON-ключи совпадают с полями `Restriction` (см. [Restrictions.md](Restrictions.md)).
-- В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds` и `PregeneratedCharacters` (между Ancestries и Feats).
+- В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds` и `PregeneratedCharacters` (между Ancestries и Feats), а также id single-def `Avatars`.
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.
 - `LoadCollection()` загружает JSON из указанной папки и всех вложенных подпапок; `Id` — только имя файла, без пути.
 - Для коллекций id должен быть уникален в рамках всего дерева папки; при совпадении имён побеждает первый загруженный деф, дубликат пишется в `LogWarning`.

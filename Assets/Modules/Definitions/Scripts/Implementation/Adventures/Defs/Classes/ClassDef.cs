@@ -7,6 +7,17 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes
 {
     public class ClassDef : AbstractDefinition
     {
+        /// <summary>
+        /// IAP / store product key.
+        /// </summary>
+        public string ProductId;
+
+        /// <summary>
+        /// Soft-currency price (0 when unused or IAP-only).
+        /// </summary>
+        public int Price;
+
+
         public bool Disabled;
 
         public List<Restriction> Restrictions;
@@ -22,6 +33,10 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes
         /// </summary>
         public int HitPointsPerLevel;
 
+        /// <summary>
+        /// Фичи класса по уровню: ключ — уровень персонажа, значение — список id feat/feature.
+        /// Пример JSON: { "1": ["_FighterKeyAttribute", "_ReactiveStrike"], "2": ["_FighterFeat2"] }.
+        /// </summary>
         public Dictionary<int, List<string>> Features;
 
         public List<EquippedItemStateData> EquippedItems;

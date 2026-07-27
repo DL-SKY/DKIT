@@ -16,6 +16,17 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
 
     public class ItemDef : AbstractDefinition
     {
+        /// <summary>
+        /// IAP / store product key.
+        /// </summary>
+        public string ProductId;
+
+        /// <summary>
+        /// Soft-currency price (0 when unused or IAP-only).
+        /// </summary>
+        public int Price;
+
+
         public bool Disabled;
         public bool IsQuestItem;
 
@@ -27,7 +38,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
         public string Title;
         public string Description;
 
-        public int Price;
+        public int IngamePrice;
 
         /// <summary>
         /// Allowed equipment slot types for this item (for example Hand, Legs, Head, Body, Bag).

@@ -6,7 +6,23 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Pregenerate
 {
     public class PregeneratedCharacterDef : AbstractDefinition
     {
+        /// <summary>
+        /// IAP / store product key.
+        /// </summary>
+        public string ProductId;
+
+        /// <summary>
+        /// Soft-currency price (0 when unused or IAP-only).
+        /// </summary>
+        public int Price;
+
+
+        public bool Disabled;
+
         public string Avatar;
+        /// <summary>
+        /// Localized KEY
+        /// </summary>
         public string Name;
         public CharacterGender Gender;
 

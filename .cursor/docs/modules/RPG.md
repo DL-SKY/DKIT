@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-27 11:35:48 (+03:00)
+**Последнее обновление:** 2026-07-27 16:35:00 (+03:00)
 
 ## Назначение
 
@@ -13,7 +13,7 @@
 
 На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`) для переходов по сценам и записи параметров `World/Adventure` в `State`.
 
-> **Связь с `Modules.Definitions`:** JSON-дефы adventure-проекта загружаются через `DefinitionsManager` (Adventures). `AdventureDef` — единственный деф, который наследует RPG-модель (`AdventureData`); классы, ancestry, предыстории, черты, предметы и заклинания описаны как `ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` / `ItemDef` / `SpellDef` и наследуют `AbstractDefinition` напрямую. Контракт дефов расширяется (`Restrictions`, `Icon`, `Features`, `AncestryDef.Names`/`Avatars` и др.); применение механик в state — в планах. Подробности — в [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция).
+> **Связь с `Modules.Definitions`:** JSON-дефы adventure-проекта загружаются через `DefinitionsManager` (Adventures). `AdventureDef` — единственный деф, который наследует RPG-модель (`AdventureData`); классы, ancestry, предыстории, черты, предметы и заклинания описаны как `ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` / `ItemDef` / `SpellDef` и наследуют `AbstractDefinition` напрямую. Контракт дефов расширяется (`Restrictions`, `Icon`, `Features`, `AncestryDef.Names`, single-каталог `AvatarsDef` и др.); применение механик в state — в планах. Подробности — в [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция).
 >
 > **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живёт в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Изменения прогресса из choice-executors проходят через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
 >
@@ -347,7 +347,7 @@ RPG-контент (сцены, выборы, действия) описывае
 - `Characters` — `Dictionary<int, CharacterStateData>`: весь ростер профиля.
 - `ActivePartyCharacterIds` — `List<int>`: текущий отряд (до 4 персонажей).
 - `CharacterStateData`: `CreateTime`, `Name`, `Gender`, `Ancestry`, `Class`, `Background`, `IsDead`, `DeathTime`, `Parameters`, `Spells`, `StatusEffects`, `EquippedItems`. Уровень/опыт и abilities хранятся в `Parameters` (`Glossary.Characters.LEVEL` / `EXPERIENCE`, `STR`, `CON`, …). Итоговые навыки и `MaxHitPoints` читаются через `CharacterParametersProxy.GetTotalValue` по `RuleDef.ParameterFormulas` (см. [State.md](State.md#adventure-characterparametersproxy)).
-  - `Gender` — `CharacterGender` (`Male` / `Female`); при генерации имени/аватара — вместе с `AncestryDef.Names` / `Avatars`;
+  - `Gender` — `CharacterGender` (`Male` / `Female`); при генерации имени — вместе с `AncestryDef.Names`; пул аватаров — в `AvatarsDef` по `Ancestry`;
   - `Ancestry`, `Class`, `Background` — id дефов `AncestryDef` / `ClassDef` / `BackgroundDef`;
   - `Spells` — словарь id заклинаний (`SpellDef`) или связанных счётчиков (контракт уточняется при подключении runtime);
   - `EquippedItems` — экипировка персонажа.
