@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-27 17:21:29 (+03:00)
+**Последнее обновление:** 2026-07-27 18:12:08 (+03:00)
 
 ## Назначение
 
@@ -57,7 +57,9 @@
 Implementation/Adventure/
   StateData.cs                    ← корень: поля-секции
   AdventureStateManager.cs
-  CharacterParametersProxy.cs     ← Read API: GetRawValue / GetTotalValue; Write API (Apply/Unapply) — следующий этап
+  CharacterParametersProxy.cs     ← Read API: GetRawValue / GetTotalValue
+  CharacterParametersOperator.cs  ← Write API: Apply/Unapply patch + Feat; CreateCharacterRequestSnapshot
+  CharacterItemFeaturesOperator.cs ← ItemDef.Features Apply/Unapply с правилом Bag (GrantsItemFeatures)
   WeaponProxy.cs                  ← attack/damage modifiers по ItemDef формулам
   Factories/
     IAdventureStateDataFactory.cs
@@ -99,7 +101,13 @@ Implementation/Wallet/
 
 - `CharacterParametersProxy`  
   **Read API** параметров персонажа: сырые значения из `CharacterStateData.Parameters` и вычисляемые по `RuleDef.ParameterFormulas` (навыки, `MaxHitPoints`).  
-  Зависит от `DefinitionsManager` (Adventures) для `ANCESTRY_HP` / `CLASS_HP`. Конвенция: читать через proxy (`GetRawValue` / `GetTotalValue`); мутации — через Write API (Apply / Unapply). Подробнее — [ниже](#adventure-characterparametersproxy-read-api).
+  Зависит от `DefinitionsManager` (Adventures) для `ANCESTRY_HP` / `CLASS_HP`. Конвенция: читать через proxy (`GetRawValue` / `GetTotalValue`); мутации — через `CharacterParametersOperator` (Apply / Unapply). Подробнее — [ниже](#adventure-characterparametersproxy-read-api).
+
+- `CharacterParametersOperator`  
+  **Write API** сырых `Parameters`: `ApplyPatch` / `UnapplyPatch`, `ApplyFeat` / `UnapplyFeat`, слепок `CreateCharacterRequestSnapshot`. Подробнее — [ниже](#adventure-write-api-параметров-apply--unapply).
+
+- `CharacterItemFeaturesOperator`  
+  Apply / Unapply `ItemDef.Features` с правилом Bag (`Glossary.Items.GrantsItemFeatures`). Используется из equip/unequip/move/remove state-actions.
 
 - `WeaponProxy`  
   Прокси модификаторов оружия по формулам `ItemDef.AttackModifierFormula` / `DamageModifierFormula`.  
@@ -148,11 +156,11 @@ Implementation/Wallet/
 
 - `CharacterRequestData`  
   Переиспользуемый блок изменяемых данных персонажа: `Parameters`, `EquippedItems`, `Spells`, `StatusEffects`. Используется в `CreateCharacterRequestData` и `UpdateCharacterRequestData`.  
-  Для update (прокачка) `Parameters` ожидается собранным через Write API (Apply / Unapply), а не произвольными правками словаря.
+  Методы `ApplyFeat` / `UnapplyFeat` / `ApplyPatch` / `UnapplyPatch` делегируют в `CharacterParametersOperator`.
 
 - `UpdateCharacterRequestData`  
   DTO для `UpdateCharacterStateAction`: `CharacterId` и `CharacterData` (`CharacterRequestData`).  
-  **Контракт:** только прокачка (новый уровень). UI делает слепок персонажа, последовательно применяет feats нового уровня (включая выбор фитов / параметров) через тот же Apply-контур, затем отправляет результат в `CharacterData`.
+  **Контракт:** только прокачка (новый уровень). UI: `CreateCharacterRequestSnapshot` → последовательные Apply на DTO → `ProcessAction(UpdateCharacter…)`. Тонкие делегаты `ApplyFeat` / … на `CharacterData`.
 
 - `EquipItemFromInventoryRequestData`  
   DTO для `EquipItemFromInventoryStateAction`: `CharacterId`, `SlotIndex` (индекс в `EquippedItems`), `ItemId` (предмет из `Inventory.Items`).
@@ -246,10 +254,16 @@ Implementation/Wallet/
 
 | Поле | Тип | Назначение |
 |------|-----|------------|
-| `Slot` | `string` | Тип слота из `Glossary.Items` (`Hand`, `Legs`, `Head`, `Body`, `Bag`). Несколько одинаковых типов допустимы (список повторяемых записей, без индексов) |
+| `Slot` | `string` | Тип слота из `Glossary.Items` (`Hand`, `Legs`, `Head`, `Body`, `Bag`, `Finger`, `Neck`, `Tail`). Несколько одинаковых типов допустимы (список повторяемых записей, без индексов) |
 | `ItemId` | `string` | Id дефа предмета (`ItemDef`, имя JSON-файла); пустой/`null` — свободный слот |
 
-Базовый набор слотов обычно задаётся в `ClassDef.EquippedItems` (и/или в `PregeneratedCharacterDef.EquippedItems`); дополнительные слоты могут выдавать черты через `FeatDef.AdditionalSlots`. Предмет можно положить в слот только если тип слота есть в `ItemDef.AvailableSlots`.
+Базовый набор слотов обычно собирается из `ClassDef.EquippedItems` (оружие/броня/`Bag`) и `AncestryDef.EquippedItems` (украшения: `Finger` / `Neck` / `Tail` и т.п.); также может задаваться в `PregeneratedCharacterDef.EquippedItems`. Дополнительные слоты могут выдавать черты через `FeatDef.AdditionalSlots`. Предмет можно положить в слот только если тип слота есть в `ItemDef.AvailableSlots`.
+
+**`ItemDef.Features` и слоты (правило Bag):**
+- Features применяются только если предмет лежит в слоте, для которого `Glossary.Items.GrantsItemFeatures(slot) == true` (все слоты **кроме** `Bag`);
+- в `Bag` / общем `Inventory.Items` Features **не** применяются;
+- перенос из носимого слота (`Hand`, `Finger`, …) в `Bag` → **Unapply** Features; из `Bag` в носимый → **Apply**;
+- Move между двумя носимыми слотами → Features не трогать (предмет остаётся «надет»).
 
 **Соглашения по id:**
 - runtime-сущности, создаваемые игрой (персонажи) — `int`, выдаются через `NextCharacterId`;
@@ -262,7 +276,7 @@ Implementation/Wallet/
 - итоговый модификатор навыка и `MaxHitPoints` **не пишутся** в `Parameters` — их даёт `CharacterParametersProxy.GetTotalValue`;
 - итоговые attack/damage modifiers оружия тоже **не пишутся** — их даёт `WeaponProxy`;
 - **чтение:** конвенция — через `CharacterParametersProxy` (пока не enforced компилятором);
-- **запись:** через Write API — Apply / Unapply `CharacterParamsPatchData` (реализация — следующий этап).
+- **запись:** через `CharacterParametersOperator` — Apply / Unapply `CharacterParamsPatchData` / `FeatDef`.
 
 **Defs → State (планируемый поток):**
 - дефы (`ClassDef`, `AncestryDef`, `BackgroundDef`, `FeatDef`, `ItemDef`, `SpellDef`) описывают статический контент;
@@ -300,24 +314,53 @@ Implementation/Wallet/
 
 Формулы навыков и `MaxHitPoints` заданы в `GeneralRule.ParameterFormulas` (см. [Definitions.md](Definitions.md)).
 
-### Adventure: Write API параметров (Apply / Unapply) — контракт
+### Adventure: Write API параметров (Apply / Unapply)
 
-Единая точка **записи** в `CharacterStateData.Parameters` (класс/оператор — следующий этап реализации). Вход — `CharacterParamsPatchData` из дефов (`FeatDef.Apply`, позже item/features и т.п.).
+Файл: `Implementation/Adventure/CharacterParametersOperator.cs`.
+
+Единая точка **записи** в `CharacterStateData.Parameters` (и в слепок `CharacterRequestData.Parameters`). Вход — `CharacterParamsPatchData` из дефов (`FeatDef.Apply`) либо опосредованно через `CharacterItemFeaturesOperator` (`ItemDef.Features` → feat ids).
+
+| Метод | Поведение |
+|-------|-----------|
+| `ApplyPatch` / `UnapplyPatch` | патч `Add` / `Set` / `AlsoApplyFeatIds` |
+| `ApplyFeat` / `UnapplyFeat` | резолв `FeatDef` по id → Apply/Unapply его `Apply` |
+| `CreateCharacterRequestSnapshot` | полный слепок mutable-блока для прокачки |
+| Overloads на `CharacterStateData` | `Parameters ??= new()`, делегируют в словарь |
 
 | Операция патча | Apply | Unapply |
 |----------------|-------|---------|
 | `Add` | `current += value` | `current += -value` |
-| `Set` | `current = value` | если патч ставил **≠ 0** → `0`; если патч ставил **0** → `1` (инверсия флага; не откат к прежнему произвольному int) |
-| `AlsoApplyFeatIds` | каскадный Apply связанных `FeatDef` | каскадный Unapply (обычно в обратном порядке) |
+| `Set` | `current = value` | если патч ставил **≠ 0** → `0`; если патч ставил **0** → `1` (инверсия флага) |
+| `AlsoApplyFeatIds` | каскадный Apply (прямой порядок) | каскадный Unapply (обратный порядок) |
 
-Итоги (`MaxHitPoints`, навыки) отдельно не пересчитываются и не пишутся: меняются только сырые ключи; итог снова даёт Read API.
+Циклы / дубликаты feat id в каскаде — warning и skip. Нет feat / `Apply == null` — warning и no-op.
 
-Планируемые вызывающие сценарии:
-- выдача / снятие feat → Apply / Unapply `FeatDef.Apply`;
-- прокачка (`UpdateCharacter`) → слепок + последовательный Apply feats нового уровня и ручных правок;
-- экипировка / снятие предмета → Apply / Unapply эффектов предмета через `ItemDef.Features` (id → `FeatDef.Apply`), включая swap слота.
+Итоги (`MaxHitPoints`, навыки) отдельно не пересчитываются: меняются только сырые ключи; итог даёт Read API.
 
-Текущий `UpdateCharacterStateAction` пока делает wholesale-замену mutable-блока; после появления Write API семантика параметров должна идти через Apply / Unapply.
+Обёртки на DTO: `CharacterRequestData` / `UpdateCharacterRequestData` — методы `ApplyFeat` / `UnapplyFeat` / `ApplyPatch` / `UnapplyPatch`.
+
+Практические сценарии (создание, уровень, экипировка, бой/статусы): [Feats.md](Feats.md) («Как использовать Feats»).
+
+Пример прокачки:
+
+```csharp
+var request = new UpdateCharacterRequestData
+{
+    CharacterId = characterId,
+    CharacterData = CharacterParametersOperator.CreateCharacterRequestSnapshot(character),
+};
+request.ApplyFeat("_SomeLevelFeat", definitionsManager);
+request.ApplyPatch(manualBoostPatch, definitionsManager);
+stateLogic.ProcessAction(new UpdateCharacterStateAction(request));
+```
+
+`UpdateCharacterStateAction` персистит готовый слепок wholesale (не крутит Apply сам).
+
+Планируемые следующие вызывающие сценарии:
+- UI создания / прокачки персонажа (Apply feats на слепке до Create/Update).
+- Бой / проверки: condition-feats + `StatusEffects` (см. [Feats.md](Feats.md)).
+
+**`ItemDef.Features` в inventory state-actions:** сделано. Конструктор Equip/Unequip/Move/Remove принимает `DefinitionsManager`. `AddCharacterItem` кладёт только в `Bag` / общий инвентарь — Features не применяет.
 
 ### Adventure: `WeaponProxy`
 
@@ -386,10 +429,10 @@ Implementation/Wallet/
 
 #### Примеры использования inventory-экшенов
 
-Ниже `characterId = 1`, `stateLogic` — `AdventureStateLogic`.
+Ниже `characterId = 1`, `stateLogic` — `AdventureStateLogic`, `definitionsManager` — Adventures `DefinitionsManager` (нужен для Apply/Unapply `ItemDef.Features`).
 
 **1) Перенести предмет из руки персонажа в его мешок**  
-Атомарно, без участия `Inventory.Items`:
+Атомарно, без участия `Inventory.Items` (Features с `Hand` снимаются — правило Bag):
 
 До: `EquippedItems[0] = Hand/_Longsword`, `EquippedItems[2] = Bag/null`.
 
@@ -400,7 +443,8 @@ stateLogic.ProcessAction(new MoveEquippedItemBetweenSlotsStateAction(
         CharacterId = 1,
         FromSlotIndex = 0,      // Hand
         ToSlotIndex = 2,        // Bag
-    }));
+    },
+    definitionsManager));
 ```
 
 После: `EquippedItems[0] = Hand/null`, `EquippedItems[2] = Bag/_Longsword`.  
@@ -417,11 +461,12 @@ stateLogic.ProcessAction(new MoveEquippedItemBetweenSlotsStateAction(
         CharacterId = 1,
         FromSlotIndex = 0,      // Hand/_Longsword
         ToSlotIndex = 3,        // Bag/_Torch
-    }));
+    },
+    definitionsManager));
 ```
 
 После: `EquippedItems[0] = Hand/_Torch`, `EquippedItems[3] = Bag/_Longsword`.  
-`Inventory.Items` не меняется.
+`Inventory.Items` не меняется. Features: Unapply у `_Longsword` (Hand→Bag), Apply у `_Torch` если у него есть Features и `Hand` их даёт.
 
 **2) Перенести из глобального хранилища в мешок персонажа**
 
@@ -434,10 +479,11 @@ stateLogic.ProcessAction(new EquipItemFromInventoryStateAction(
         CharacterId = 1,
         SlotIndex = 2,          // Bag
         ItemId = "_Potion",
-    }));
+    },
+    definitionsManager));
 ```
 
-После: `Inventory.Items["_Potion"] = 2`, `EquippedItems[2] = Bag/_Potion`.
+После: `Inventory.Items["_Potion"] = 2`, `EquippedItems[2] = Bag/_Potion` (Features не применяются — Bag).
 
 **3) Перенести из глобального хранилища в руку персонажа**
 
@@ -450,10 +496,11 @@ stateLogic.ProcessAction(new EquipItemFromInventoryStateAction(
         CharacterId = 1,
         SlotIndex = 1,          // вторая Hand
         ItemId = "_Dagger",
-    }));
+    },
+    definitionsManager));
 ```
 
-После: ключ `"_Dagger"` удалён из `Inventory.Items` (count стал 0), `EquippedItems[1] = Hand/_Dagger`.
+После: ключ `"_Dagger"` удалён из `Inventory.Items` (count стал 0), `EquippedItems[1] = Hand/_Dagger` (+ Apply Features, если есть).
 
 **4) Снять предмет с персонажа в глобальное хранилище**
 
@@ -465,10 +512,11 @@ stateLogic.ProcessAction(new UnequipItemToInventoryStateAction(
     {
         CharacterId = 1,
         SlotIndex = 4,          // Body
-    }));
+    },
+    definitionsManager));
 ```
 
-После: `EquippedItems[4].ItemId = null`, `Inventory.Items["_LeatherArmor"]` увеличен на 1.
+После: `EquippedItems[4].ItemId = null`, `Inventory.Items["_LeatherArmor"]` увеличен на 1 (+ Unapply Features с Body).
 
 **5) Надеть предмет в уже занятый слот (авто-swap)**
 
@@ -481,10 +529,11 @@ stateLogic.ProcessAction(new EquipItemFromInventoryStateAction(
         CharacterId = 1,
         SlotIndex = 0,
         ItemId = "_Longsword",
-    }));
+    },
+    definitionsManager));
 ```
 
-После: `EquippedItems[0] = Hand/_Longsword`, `Inventory.Items["_Longsword"]` уменьшен на 1, `Inventory.Items["_Dagger"]` увеличен на 1 (старый предмет вернулся в хранилище).
+После: `EquippedItems[0] = Hand/_Longsword`, `Inventory.Items["_Longsword"]` уменьшен на 1, `Inventory.Items["_Dagger"]` увеличен на 1 (старый предмет вернулся в хранилище; Unapply `_Dagger`, Apply `_Longsword`).
 
 **6) Ошибка: предмета нет в глобальном хранилище**
 
@@ -495,7 +544,8 @@ var result = stateLogic.ProcessAction(new EquipItemFromInventoryStateAction(
         CharacterId = 1,
         SlotIndex = 0,
         ItemId = "_MissingItem",
-    }));
+    },
+    definitionsManager));
 
 // result.IsValid == false
 // персонаж и Inventory не изменены
@@ -509,7 +559,8 @@ var result = stateLogic.ProcessAction(new UnequipItemToInventoryStateAction(
     {
         CharacterId = 1,
         SlotIndex = 1, // Hand, но ItemId уже null
-    }));
+    },
+    definitionsManager));
 
 // result.IsValid == false ("Equipped slot is already empty.")
 ```
@@ -556,7 +607,7 @@ stateLogic.ProcessAction(new AddCharacterItemStateAction(
     }));
 ```
 
-Если есть свободный `Bag`-слот — предмет туда; иначе `Inventory.Items["_Potion"] += 1`.
+Если есть свободный `Bag`-слот — предмет туда (**без** Apply Features); иначе `Inventory.Items["_Potion"] += 1`.
 
 **11) Удалить предмет из слота персонажа (без возврата в инвентарь)**
 
@@ -569,7 +620,8 @@ stateLogic.ProcessAction(new RemoveCharacterEquippedItemStateAction(
         CharacterId = 1,
         SlotIndex = 3,          // Bag/_Torch
         ItemId = "_Torch",
-    }));
+    },
+    definitionsManager));
 ```
 
 Или поиск по `ItemId` (`SlotIndex = -1`):
@@ -581,10 +633,11 @@ stateLogic.ProcessAction(new RemoveCharacterEquippedItemStateAction(
         CharacterId = 1,
         SlotIndex = -1,
         ItemId = "_Torch",
-    }));
+    },
+    definitionsManager));
 ```
 
-После: слот очищен (`ItemId = null`), `Inventory.Items` не меняется.
+После: слот очищен (`ItemId = null`), `Inventory.Items` не меняется (Unapply Features только если слот был носимым).
 
 
 ### Adventure: `AdventuresStateData` и связанные типы
@@ -728,14 +781,14 @@ stateLogic.StateChanged += source =>
 - `SetAdventureParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.Adventures[CurrentAdventureId].Parameters` (Adventure).
 - `SetGlobalParamsStateAction` — merge `ChoiceActionParamsData` в `Adventures.Global.Parameters` (Adventure).
 - `CreateCharacterStateAction` — создание нового `CharacterStateData` из `CreateCharacterRequestData`, запись в `Characters[NextCharacterId]`, опциональное добавление id в `ActivePartyCharacterIds`, инкремент `NextCharacterId` (Adventure).
-- `UpdateCharacterStateAction` — обновление существующего персонажа по `CharacterId` из `UpdateCharacterRequestData` (контракт: **только прокачка** — слепок + последовательный Apply feats/ручных правок нового уровня). Сейчас перезаписывает mutable-блок wholesale; после Write API `Parameters` — через Apply / Unapply (Adventure).
-- `EquipItemFromInventoryStateAction` — перенос предмета из `Inventory.Items` в слот персонажа (`CharacterId` + `SlotIndex` + `ItemId`); при занятом слоте старый предмет возвращается в инвентарь (Adventure).
-- `UnequipItemToInventoryStateAction` — перенос предмета из слота персонажа обратно в `Inventory.Items` и очистка слота (Adventure).
-- `MoveEquippedItemBetweenSlotsStateAction` — перенос/`swap` предмета между двумя слотами одного персонажа (`FromSlotIndex` → `ToSlotIndex`) без участия `Inventory.Items` (Adventure).
+- `UpdateCharacterStateAction` — обновление существующего персонажа по `CharacterId` из `UpdateCharacterRequestData` (контракт: **только прокачка**). `Parameters` собираются через `CharacterParametersOperator` на слепке; экшен персистит готовый `CharacterData` wholesale (Adventure).
+- `EquipItemFromInventoryStateAction` — из `Inventory.Items` в слот; при занятом слоте старый в инвентарь; Apply/Unapply `ItemDef.Features` через `CharacterItemFeaturesOperator` (конструктор: request + `DefinitionsManager`) (Adventure).
+- `UnequipItemToInventoryStateAction` — из слота в `Inventory.Items` + Unapply Features если слот носимый (Adventure).
+- `MoveEquippedItemBetweenSlotsStateAction` — перенос/swap между слотами; Features по правилу Bag (носимый↔Bag) (Adventure).
 - `AddInventoryItemsStateAction` — добавить `Count` предметов `ItemId` в `Inventory.Items` (Adventure).
 - `RemoveInventoryItemsStateAction` — удалить до `Count` предметов `ItemId` из `Inventory.Items` с clamp до 0; валидация требует наличие хотя бы 1 шт. (Adventure).
-- `AddCharacterItemStateAction` — выдать 1 предмет персонажу в свободный `Bag`-слот или, если мест нет, в общий инвентарь (Adventure).
-- `RemoveCharacterEquippedItemStateAction` — удалить предмет из слота персонажа без возврата в инвентарь; `SlotIndex = -1` ищет по `ItemId` (Adventure).
+- `AddCharacterItemStateAction` — выдать 1 предмет в свободный `Bag` или общий инвентарь; Features **не** применяет (Adventure).
+- `RemoveCharacterEquippedItemStateAction` — удалить из слота без возврата в инвентарь + Unapply Features если слот носимый; `SlotIndex = -1` ищет по `ItemId` (Adventure).
 
 ## Как добавить новый state-action
 

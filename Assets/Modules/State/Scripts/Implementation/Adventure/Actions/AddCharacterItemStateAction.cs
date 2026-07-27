@@ -50,6 +50,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 
             if (TryFindFreeBagSlot(character, out EquippedItemStateData bagSlot))
             {
+                // Bag never grants ItemDef.Features (Glossary.Items.GrantsItemFeatures).
                 bagSlot.ItemId = _request.ItemId;
                 return;
             }

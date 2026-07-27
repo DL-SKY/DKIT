@@ -1,6 +1,6 @@
 # Боевая система (ранний прототип)
 
-**Последнее обновление:** 2026-07-27 11:54:36 (+03:00)
+**Последнее обновление:** 2026-07-27 17:34:21 (+03:00)
 
 > **Статус:** ранний прототип / design draft.  
 > Runtime-слой пошагового боя **не начат**. Документ фиксирует целевые очертания механики, контракт дефов и границы ответственности модулей.  
@@ -15,7 +15,7 @@
 | Модуль | Роль в бое |
 |---|---|
 | [Definitions](Definitions.md) | Статический контент: `BattleRuleDef`, планируемая коллекция `BattleActionDef`, оружие/заклинания/черты |
-| [State](State.md) | Персистентные итоги боя (HP, постоянные эффекты); runtime-прокси `WeaponProxy` / `CharacterParametersProxy` |
+| [State](State.md) | Персистентные итоги боя (HP, постоянные эффекты); runtime-прокси `WeaponProxy` / `CharacterParametersProxy`; Apply/Unapply condition-feats — [Feats.md](Feats.md) |
 | [Restrictions](Restrictions.md) | Доступность боевых действий (нужен планируемый `CharacterParams`) |
 | [RPG](RPG.md) | Точка входа в бой из adventure (например, будущий `StartCombat` choice-action) |
 | `Dices` | Броски d20 / кости урона |

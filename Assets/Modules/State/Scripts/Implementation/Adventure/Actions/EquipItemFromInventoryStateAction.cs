@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Adventures;
 using Modules.State.Scripts.Actions.Core;
 using Modules.State.Scripts.Actions.Models;
 using Modules.State.Scripts.Implementation.Adventure.Actions.Models;
@@ -11,10 +12,14 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
         public override StateChangeSource Source => StateChangeSource.EquipItemFromInventory;
 
         private readonly EquipItemFromInventoryRequestData _request;
+        private readonly DefinitionsManager _definitionsManager;
 
-        public EquipItemFromInventoryStateAction(EquipItemFromInventoryRequestData request)
+        public EquipItemFromInventoryStateAction(
+            EquipItemFromInventoryRequestData request,
+            DefinitionsManager definitionsManager)
         {
             _request = request;
+            _definitionsManager = definitionsManager;
         }
 
         public override StateActionValidationResult Validate(StateData state)
@@ -67,11 +72,18 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 
             state.Inventory.Items ??= new Dictionary<string, int>();
 
-            if (!string.IsNullOrWhiteSpace(slot.ItemId))
-                InventoryItemsOperator.Add(state.Inventory.Items, slot.ItemId);
+            string previousItemId = slot.ItemId;
+            if (!string.IsNullOrWhiteSpace(previousItemId))
+            {
+                CharacterItemFeaturesOperator.UnapplyIfWorn(
+                    character, slot.Slot, previousItemId, _definitionsManager);
+                InventoryItemsOperator.Add(state.Inventory.Items, previousItemId);
+            }
 
             InventoryItemsOperator.TryConsume(state.Inventory.Items, _request.ItemId);
             slot.ItemId = _request.ItemId;
+            CharacterItemFeaturesOperator.ApplyIfWorn(
+                character, slot.Slot, _request.ItemId, _definitionsManager);
         }
     }
 }

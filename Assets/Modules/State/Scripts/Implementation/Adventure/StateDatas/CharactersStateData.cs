@@ -52,7 +52,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         /// Итоги вроде модификаторов навыков и <c>MaxHitPoints</c> здесь не хранятся —
         /// их даёт <c>CharacterParametersProxy.GetTotalValue</c>.
         /// Чтение предпочтительно через <c>CharacterParametersProxy</c> (<c>GetRawValue</c> / <c>GetTotalValue</c>).
-        /// Запись предпочтительно через Write API параметров персонажа (Apply / Unapply
+        /// Запись предпочтительно через <see cref="CharacterParametersOperator"/> (Apply / Unapply
         /// <c>CharacterParamsPatchData</c>), а не произвольной мутацией словаря.
         /// </remarks>
         public Dictionary<string, int> Parameters;
@@ -71,7 +71,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
     public class EquippedItemStateData
     {
         /// <summary>
-        /// Character slot type (for example Hand, Legs, Head, Body, Bag).
+        /// Character slot type (for example Hand, Legs, Head, Body, Bag, Finger, Neck, Tail).
         /// </summary>
         public string Slot;
         public string ItemId;

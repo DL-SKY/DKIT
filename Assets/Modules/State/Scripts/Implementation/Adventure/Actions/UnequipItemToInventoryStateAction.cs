@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Adventures;
 using Modules.State.Scripts.Actions.Core;
 using Modules.State.Scripts.Actions.Models;
 using Modules.State.Scripts.Implementation.Adventure.Actions.Models;
@@ -11,10 +12,14 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
         public override StateChangeSource Source => StateChangeSource.UnequipItemToInventory;
 
         private readonly UnequipItemToInventoryRequestData _request;
+        private readonly DefinitionsManager _definitionsManager;
 
-        public UnequipItemToInventoryStateAction(UnequipItemToInventoryRequestData request)
+        public UnequipItemToInventoryStateAction(
+            UnequipItemToInventoryRequestData request,
+            DefinitionsManager definitionsManager)
         {
             _request = request;
+            _definitionsManager = definitionsManager;
         }
 
         public override StateActionValidationResult Validate(StateData state)
@@ -54,6 +59,9 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
         {
             CharacterStateData character = state.Characters.Characters[_request.CharacterId];
             EquippedItemStateData slot = character.EquippedItems[_request.SlotIndex];
+
+            CharacterItemFeaturesOperator.UnapplyIfWorn(
+                character, slot.Slot, slot.ItemId, _definitionsManager);
 
             state.Inventory.Items ??= new Dictionary<string, int>();
             InventoryItemsOperator.Add(state.Inventory.Items, slot.ItemId);

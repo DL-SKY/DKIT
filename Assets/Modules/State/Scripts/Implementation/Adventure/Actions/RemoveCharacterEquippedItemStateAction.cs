@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Adventures;
 using Modules.State.Scripts.Actions.Core;
 using Modules.State.Scripts.Actions.Models;
 using Modules.State.Scripts.Implementation.Adventure.Actions.Models;
@@ -10,10 +11,14 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
         public override StateChangeSource Source => StateChangeSource.RemoveCharacterEquippedItem;
 
         private readonly RemoveCharacterEquippedItemRequestData _request;
+        private readonly DefinitionsManager _definitionsManager;
 
-        public RemoveCharacterEquippedItemStateAction(RemoveCharacterEquippedItemRequestData request)
+        public RemoveCharacterEquippedItemStateAction(
+            RemoveCharacterEquippedItemRequestData request,
+            DefinitionsManager definitionsManager)
         {
             _request = request;
+            _definitionsManager = definitionsManager;
         }
 
         public override StateActionValidationResult Validate(StateData state)
@@ -57,7 +62,11 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
         {
             CharacterStateData character = state.Characters.Characters[_request.CharacterId];
             TryResolveSlotIndex(character, out int resolvedSlotIndex, out _, out _);
-            character.EquippedItems[resolvedSlotIndex].ItemId = null;
+            EquippedItemStateData slot = character.EquippedItems[resolvedSlotIndex];
+
+            CharacterItemFeaturesOperator.UnapplyIfWorn(
+                character, slot.Slot, slot.ItemId, _definitionsManager);
+            slot.ItemId = null;
         }
 
         private bool TryResolveSlotIndex(

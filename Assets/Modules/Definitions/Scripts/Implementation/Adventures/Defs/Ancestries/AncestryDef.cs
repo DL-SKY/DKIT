@@ -51,6 +51,13 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries
         public Dictionary<int, List<string>> Features;
 
         /// <summary>
+        /// Ancestry-specific equipment slots and optional starting items
+        /// (for example Finger, Neck, Tail for jewelry). Weapon/armor slot layout usually comes from
+        /// <c>ClassDef.EquippedItems</c>; ancestry adds race-dependent slots.
+        /// </summary>
+        public List<EquippedItemStateData> EquippedItems;
+
+        /// <summary>
         /// Localized KEY
         /// </summary>
         public Dictionary<CharacterGender, List<string>> Names;

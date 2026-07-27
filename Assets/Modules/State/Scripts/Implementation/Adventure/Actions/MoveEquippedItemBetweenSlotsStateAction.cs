@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Adventures;
 using Modules.State.Scripts.Actions.Core;
 using Modules.State.Scripts.Actions.Models;
 using Modules.State.Scripts.Implementation.Adventure.Actions.Models;
@@ -10,10 +11,14 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
         public override StateChangeSource Source => StateChangeSource.MoveEquippedItemBetweenSlots;
 
         private readonly MoveEquippedItemBetweenSlotsRequestData _request;
+        private readonly DefinitionsManager _definitionsManager;
 
-        public MoveEquippedItemBetweenSlotsStateAction(MoveEquippedItemBetweenSlotsRequestData request)
+        public MoveEquippedItemBetweenSlotsStateAction(
+            MoveEquippedItemBetweenSlotsRequestData request,
+            DefinitionsManager definitionsManager)
         {
             _request = request;
+            _definitionsManager = definitionsManager;
         }
 
         public override StateActionValidationResult Validate(StateData state)
@@ -67,9 +72,20 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 
             string movedItemId = fromSlot.ItemId;
             string displacedItemId = toSlot.ItemId;
+            string fromSlotType = fromSlot.Slot;
+            string toSlotType = toSlot.Slot;
 
             toSlot.ItemId = movedItemId;
             fromSlot.ItemId = string.IsNullOrWhiteSpace(displacedItemId) ? null : displacedItemId;
+
+            CharacterItemFeaturesOperator.OnMovedBetweenSlots(
+                character, fromSlotType, toSlotType, movedItemId, _definitionsManager);
+
+            if (!string.IsNullOrWhiteSpace(displacedItemId))
+            {
+                CharacterItemFeaturesOperator.OnMovedBetweenSlots(
+                    character, toSlotType, fromSlotType, displacedItemId, _definitionsManager);
+            }
         }
     }
 }

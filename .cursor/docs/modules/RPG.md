@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-27 17:17:35 (+03:00)
+**Последнее обновление:** 2026-07-27 18:12:08 (+03:00)
 
 ## Назначение
 
@@ -346,7 +346,7 @@ RPG-контент (сцены, выборы, действия) описывае
 - `HeroPoints` — очки героя на уровне профиля (ресурс кампании; дефолт `0` при создании профиля).
 - `Characters` — `Dictionary<int, CharacterStateData>`: весь ростер профиля.
 - `ActivePartyCharacterIds` — `List<int>`: текущий отряд (до 4 персонажей).
-- `CharacterStateData`: `CreateTime`, `Name`, `Gender`, `Ancestry`, `Class`, `Background`, `IsDead`, `DeathTime`, `Parameters`, `Spells`, `StatusEffects`, `EquippedItems`. Уровень/опыт и abilities хранятся в `Parameters` (`Glossary.Characters.LEVEL` / `EXPERIENCE`, `STR`, `CON`, …). Итоговые навыки и `MaxHitPoints` читаются через `CharacterParametersProxy.GetTotalValue` по `RuleDef.ParameterFormulas` (см. [State.md](State.md#adventure-characterparametersproxy-read-api)). Мутации сырых `Parameters` — через Write API Apply / Unapply (контракт закреплён; реализация — следующий этап).
+- `CharacterStateData`: `CreateTime`, `Name`, `Gender`, `Ancestry`, `Class`, `Background`, `IsDead`, `DeathTime`, `Parameters`, `Spells`, `StatusEffects`, `EquippedItems`. Уровень/опыт и abilities хранятся в `Parameters` (`Glossary.Characters.LEVEL` / `EXPERIENCE`, `STR`, `CON`, …). Итоговые навыки и `MaxHitPoints` читаются через `CharacterParametersProxy.GetTotalValue` по `RuleDef.ParameterFormulas` (см. [State.md](State.md#adventure-characterparametersproxy-read-api)). Мутации сырых `Parameters` — через `CharacterParametersOperator` (Apply / Unapply).
   - `Gender` — `CharacterGender` (`Male` / `Female`); при генерации имени — вместе с `AncestryDef.Names`; пул аватаров — в `AvatarsDef` по `Ancestry`;
   - `Ancestry`, `Class`, `Background` — id дефов `AncestryDef` / `ClassDef` / `BackgroundDef`;
   - `Spells` — словарь id заклинаний (`SpellDef`) или связанных счётчиков (контракт уточняется при подключении runtime);
@@ -383,7 +383,7 @@ RPG-контент (сцены, выборы, действия) описывае
 
 ## Интеграции с другими модулями
 
-- `Definitions`: adventure-контент загружается как JSON-дефы (`AdventureDef`, `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef`). Доменная модель приключения (`AdventureData`, `SceneData`, `ChoiceData`) остаётся в `RPG`; `AdventureDef` — тонкая обёртка для загрузчика. Дефы персонажа пока описывают контентный минимум; применение бонусов/эффектов в `CharacterStateData` — следующий этап (см. [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция)).
+- `Definitions`: adventure-контент загружается как JSON-дефы (`AdventureDef`, `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef`). Доменная модель приключения (`AdventureData`, `SceneData`, `ChoiceData`) остаётся в `RPG`; `AdventureDef` — тонкая обёртка для загрузчика. Механика параметров: Write API (`CharacterParametersOperator`) и item Features в equip-экшенах (`CharacterItemFeaturesOperator`) — см. [State.md](State.md) / [Feats.md](Feats.md); UI создания/прокачки — следующий этап.
 - `Dices`: `ChoiceDiceCheckData` ссылается на `DiceType` и `DiceOptions` из `Modules.Dices.Scripts`; runtime-интеграция с adventure-flow в разработке.
 - `Restrictions`: `AdventureData`, `ChoiceData` и `SceneContentData` используют `Restriction` для описания условий доступа. Для параметров прогресса доступны `RestrictionType.WorldParams`, `RestrictionType.AdventureParams` и `RestrictionType.GlobalParams` (см. [Restrictions.md](Restrictions.md)).
 - `State`: персистентный прогресс профиля и ссылки персонажа на id дефов (см. выше).
@@ -417,7 +417,7 @@ RPG-контент (сцены, выборы, действия) описывае
 - `ChoiceType` расширен значением `DiceCheck`; в `ChoiceData` добавлен опциональный блок `DiceCheck` (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`, outcome action-списки).
 - В TEA (`AdventureEditorWindow`) для `ChoiceType.DiceCheck` доступен редактор полей `DiceCheck` (включая `DiceCheckParam`) и outcome action-списков; для `Default` — редактор `Actions`. Валидация TEA обеспечивает взаимную исключительность `DiceCheck` и `Actions` по типу choice (см. `Assets/Modules/Definitions/Scripts/Editor/Adventures/README.md`).
 - В `Modules.Definitions` добавлены adventure-дефы персонажа и контента: `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef` (наследуют `AbstractDefinition`); `AdventureDef` наследует `AdventureData`. Загружен стартовый PF2e-ориентированный набор JSON (классы, ancestries, черты, заклинания, предметы).
-- Runtime применения механик дефов к персонажу (`CharacterStateData.Parameters` и др.) пока не реализован. Контракт Read API (`CharacterParametersProxy`) и Write API (Apply / Unapply `CharacterParamsPatchData`, в т.ч. для прокачки через `UpdateCharacter`) закреплён в [State.md](State.md) / [Definitions.md](Definitions.md); `WeaponProxy` — инфраструктура оружия. Подключение в gameplay — следующий этап.
+- Write API параметров персонажа (`CharacterParametersOperator`) и item Features в equip-экшенах (`CharacterItemFeaturesOperator`) реализованы; UI прокачки/создания — следующий этап. Практика: [Feats.md](Feats.md). `WeaponProxy` — инфраструктура оружия.
 - `SceneContentType`: `Text`, `Image`, `RandomImage`, `Slideshow`, `Splitter`, `Item`; `SceneContentData` поддерживает `Value`, `Values` и `Restrictions`.
 - Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).

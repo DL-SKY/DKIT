@@ -175,6 +175,21 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             public const string SLOT_TYPE_HEAD = "Head";
             public const string SLOT_TYPE_BODY = "Body";
             public const string SLOT_TYPE_BAG = "Bag";
+            public const string SLOT_TYPE_FINGER = "Finger";
+            public const string SLOT_TYPE_NECK = "Neck";
+            public const string SLOT_TYPE_TAIL = "Tail";
+
+            /// <summary>
+            /// Whether an item in this slot grants <c>ItemDef.Features</c> (Apply/Unapply).
+            /// <see cref="SLOT_TYPE_BAG"/> never grants features; worn slots (Hand, Body, Finger, …) do.
+            /// </summary>
+            public static bool GrantsItemFeatures(string slotType)
+            {
+                if (string.IsNullOrWhiteSpace(slotType))
+                    return false;
+
+                return !string.Equals(slotType, SLOT_TYPE_BAG, System.StringComparison.Ordinal);
+            }
         }
 
         public static class Weapons

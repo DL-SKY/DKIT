@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-27 17:21:29 (+03:00)
+**Последнее обновление:** 2026-07-27 18:12:08 (+03:00)
 
 ## Назначение
 
@@ -48,13 +48,17 @@
   - типы (`ItemDef.Type`): `SIMPLE` = `"Weapon.Simple"`, `MARTIAL` = `"Weapon.Martial"`, `ADVANCED` = `"Weapon.Advanced"`;
   - группы (`ItemDef.Group`): `AXE`, `BRAWLING`, `CLUB`, `FLAIL`, `HAMMER`, `KNIFE`, `PICK`, `POLEARM`, `SHIELD`, `SPEAR`, `SWORD`, `BOW`, `CROSSBOW`, `DART`, `SLING`, `BOMB`, `FIREARM` (значения CamelCase: `"Axe"`, `"Bow"`, …).
 
-  Для слотов экипировки — `Glossary.Items` (значения пишутся в `EquippedItemStateData.Slot` / `ItemDef.AvailableSlots` / `FeatDef.AdditionalSlots`):
+  Для слотов экипировки — `Glossary.Items` (значения пишутся в `EquippedItemStateData.Slot` / `ItemDef.AvailableSlots` / `FeatDef.AdditionalSlots` / `ClassDef.EquippedItems` / `AncestryDef.EquippedItems`):
   - `SLOT_TYPE_HAND` = `"Hand"`;
   - `SLOT_TYPE_LEGS` = `"Legs"`;
   - `SLOT_TYPE_HEAD` = `"Head"`;
   - `SLOT_TYPE_BODY` = `"Body"`;
-  - `SLOT_TYPE_BAG` = `"Bag"`.  
-  Контракт — **повторяемый список типов**, без индексов: несколько рук/сумок задаются несколькими записями с одним и тем же типом (`Hand`, `Hand`, `Bag`, `Bag`, …).
+  - `SLOT_TYPE_BAG` = `"Bag"` (хранилище на персонаже; **не** даёт `ItemDef.Features`);
+  - `SLOT_TYPE_FINGER` = `"Finger"` (кольца и т.п.);
+  - `SLOT_TYPE_NECK` = `"Neck"` (ожерелья и т.п.);
+  - `SLOT_TYPE_TAIL` = `"Tail"` (украшения/снаряжение на хвост).  
+  Хелпер: `Glossary.Items.GrantsItemFeatures(slotType)` — `false` только для `Bag` (и пустого типа).  
+  Контракт — **повторяемый список типов**, без индексов: несколько рук/сумок/пальцев задаются несколькими записями с одним и тем же типом.
 
 ### Соглашение по наследованию adventure-дефов
 
@@ -150,6 +154,7 @@
 | | `Speed` | `int` | `Speed` | да |
 | | `HitPoints` | `int` | `HitPoints` | да (HP происхождения, один раз) |
 | | `Features` | `Dictionary<int, List<string>>` | `Features` | нет (опционально; ключи в JSON — строки) |
+| | `EquippedItems` | `List<EquippedItemStateData>` | `EquippedItems` | нет (опционально; слоты происхождения: Finger/Neck/Tail и т.п.; пустой `ItemId` = свободный слот) |
 | | `Names` | `Dictionary<CharacterGender, List<string>>` | `Names` | нет (контент ещё на legacy `MaleNames`/`FemaleNames`) |
 | `BackgroundDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Restrictions` | `List<Restriction>` | `Restrictions` | да, `[]` |
@@ -238,14 +243,15 @@
   Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`, `ChoiceDiceCheckData`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). В `ChoiceType` доступны `Default` и `DiceCheck`; для `DiceCheck` используется блок `ChoiceData.DiceCheck` с полями броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam` — ключ атрибута/скилла) и outcome action-списками (`OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure`); для `Default` блок `DiceCheck` должен отсутствовать, а `Actions` — использоваться вместо outcome-списков (TEA-валидация с `Fix`). Choice-actions в runtime: `GoToScene` (`SceneId`), `GoToAdventure` (`AdventureId`), `GoToRandomAdventure`, `GoToRandomScene` (`SceneId` через `;`), `OpenWindow` (`WindowId`, stub), `SetWorldParams`, `SetAdventureParams`, `SetGlobalParams`; ключи — `Glossary.ChoiceActions.*`, ids окон хаба — `Glossary.Windows.*`. Executors пишут в `State` через соответствующие state-actions (см. [RPG.md](RPG.md)).
 
 - `ClassDef`  
-  Класс персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `HitPointsPerLevel`, `Features` (`Dictionary<int, List<string>>` — уровень → список id фич/черт), `EquippedItems` (`List<EquippedItemStateData>` — базовый набор слотов персонажа класса и стартовая экипировка).  
+  Класс персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `HitPointsPerLevel`, `Features` (`Dictionary<int, List<string>>` — уровень → список id фич/черт), `EquippedItems` (`List<EquippedItemStateData>` — базовый набор слотов класса и стартовая экипировка: оружие/броня/`Bag` и т.п.).  
   `HitPointsPerLevel` — HP класса за каждый уровень (до модификатора `CON`). Значения также временно дублируются в `Tags` как `hp_per_level-*`.  
-  В `EquippedItems` поле `Slot` — тип слота из `Glossary.Items` (`Hand`, `Legs`, `Head`, `Body`, `Bag`); несколько одинаковых типов допустимы (например две `Hand` и три `Bag`). Пустой/`null` `ItemId` означает свободный доступный слот.  
+  В `EquippedItems` поле `Slot` — тип слота из `Glossary.Items` (`Hand`, `Legs`, `Head`, `Body`, `Bag`, `Finger`, `Neck`, `Tail`); несколько одинаковых типов допустимы. Пустой/`null` `ItemId` означает свободный доступный слот.  
   Общий каркас метаданных совпадает с `BackgroundDef` / `AncestryDef` (без size/speed/имён).
 
 - `AncestryDef`  
-  Ancestry (раса/происхождение в смысле PF2e Ancestry) персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Size` (`AncestrySize`), `Speed`, `HitPoints`, `Features` (`Dictionary<int, List<string>>`), `Names` (`Dictionary<CharacterGender, List<string>>`).  
+  Ancestry (раса/происхождение в смысле PF2e Ancestry) персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Size` (`AncestrySize`), `Speed`, `HitPoints`, `Features` (`Dictionary<int, List<string>>`), `EquippedItems` (`List<EquippedItemStateData>` — слоты/стартовые предметы происхождения: украшения `Finger` / `Neck` / `Tail` и т.п.), `Names` (`Dictionary<CharacterGender, List<string>>`).  
   `HitPoints` — HP происхождения (добавляются один раз, не масштабируются уровнем). Значения также временно дублируются в `Tags` как `hp-*`.  
+  Разделение со слотами класса: оружие/броня/`Bag` обычно в `ClassDef.EquippedItems`; ancestry-зависимые слоты (пальцы, шея, хвост) — в `AncestryDef.EquippedItems`. При создании персонажа runtime должен объединить оба списка в `CharacterStateData.EquippedItems`.  
   `Names` — пул имён по полу (`Male` / `Female` из `CharacterGender` в модуле `State`); связь с `CharacterStateData.Gender` — в [State.md](State.md#adventure-charactersstatedata-и-characterstatedata). Legacy-ключи JSON `MaleNames` / `FemaleNames` больше не соответствуют полям C#.  
   Каталог аватаров — не в ancestry: single-def `AvatarsDef` (`DefinitionsManager.Avatars`).
 
@@ -266,12 +272,12 @@
 
 - `FeatDef`  
   Черта/способность. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Type` (`FeatType`), `Level`, `Apply` (`CharacterParamsPatchData`), `Options` (`List<string>` — id дочерних feat при выборе), `AdditionalSlots` (`List<string>` — дополнительные типы слотов из `Glossary.Items`).  
-  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Apply` — статический эффект при выдаче / снятии черты; runtime Apply / Unapply — через Write API модуля `State` (см. [State.md](State.md#adventure-write-api-параметров-apply--unapply--контракт)). `AlsoApplyFeatIds` внутри патча — каскад. `AdditionalSlots` расширяет набор слотов персонажа (например две дополнительные `Hand` для четырёхрукого существа). `Restrictions` — структурированные требования (prerequisites); формат `Restriction` — см. [Restrictions.md](Restrictions.md). Runtime Write API пока не реализован; JSON с `Apply`/`Options` уже есть в стартовом контенте.
+  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Apply` — статический эффект при выдаче / снятии черты; runtime Apply / Unapply — через `CharacterParametersOperator` в модуле `State` (см. [State.md](State.md#adventure-write-api-параметров-apply--unapply)). Практика применения: [Feats.md](Feats.md). `AlsoApplyFeatIds` внутри патча — каскад. `AdditionalSlots` расширяет набор слотов персонажа (например две дополнительные `Hand` для четырёхрукого существа). `Restrictions` — структурированные требования (prerequisites); формат `Restriction` — см. [Restrictions.md](Restrictions.md). JSON с `Apply`/`Options` уже есть в стартовом контенте.
 
 - `CharacterParamsPatchData`  
   Общий POCO патча параметров персонажа (`Assets/Modules/Definitions/Scripts/Implementation/Adventures/Defs/CharacterParamsPatchData.cs`). Не наследует `AbstractDefinition`, не загружается отдельно. Сейчас используется в `FeatDef.Apply`; позже может переиспользоваться в других adventure-дефах (ancestry, background, предметы / `ItemDef.Features`). Ключи — `Glossary.Characters` и согласованные id (в т.ч. id feat для флага «черта взята»).
 
-  **Семантика Apply / Unapply** (владелец — Write API в `State`, не JSON):
+  **Семантика Apply / Unapply** (владелец — `CharacterParametersOperator` в `State`, не JSON):
 
   | Поле | Apply | Unapply |
   |------|-------|---------|
@@ -292,7 +298,7 @@
 
   Для Max HP не пишите итог в `MaxHitPoints`: бонусы за уровень кладите в `MaxHitPoints.PerLevel`, flat — в `MaxHitPoints.Bonus` (чтение итога — `CharacterParametersProxy.GetTotalValue`).
 - `ItemDef`  
-  Предмет. Базовые поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`, `AvailableSlots` (`List<string>` — whitelist типов слотов из `Glossary.Items`, куда предмет можно надеть/положить), `Features` (`List<string>` — id связанных `FeatDef`; при экипировке Apply / при снятии Unapply через Write API — следующий этап).  
+  Предмет. Базовые поля: `Disabled`, `IsQuestItem`, `Category` (`ItemCategory`), `Level`, `Tags`, `Title`, `Description`, `Price`, `AvailableSlots` (`List<string>` — whitelist типов слотов из `Glossary.Items`, куда предмет можно надеть/положить), `Features` (`List<string>` — id связанных `FeatDef`; Apply/Unapply при экипировке через `CharacterItemFeaturesOperator` в inventory state-actions, правило Bag — см. [Feats.md](Feats.md) / [State.md](State.md)).  
   Для оружия (`Category = Weapon`) дополнительно:
   - `Type` — тип владения (`Glossary.Weapons.SIMPLE` / `MARTIAL` / `ADVANCED`, значения `"Weapon.Simple"` и т.п.);
   - `Group` — группа оружия (`Glossary.Weapons.SWORD`, `BOW`, …);
@@ -410,7 +416,7 @@
 - `Features` — ссылки на связанные feat/feature id (`Dictionary<int, List<string>>` у класса/ancestry по уровню; `List<string>` у background и `ItemDef`);
 - `Names` на `AncestryDef` — пул имён по `CharacterGender` для создания персонажа;
 - `AvatarsDef` — каталог аватаров: `Free` / `Packs` по ancestry id (не на `AncestryDef`);
-- `FeatDef.Apply` / `Options` — контракт эффектов черты; семантика Apply / Unapply закреплена (runtime Write API — следующий этап);
+- `FeatDef.Apply` / `Options` — контракт эффектов черты; runtime Apply / Unapply — `CharacterParametersOperator`;
 - `RuleDef.ParameterFormulas` — декларативные формулы итоговых параметров (навыки, `MaxHitPoints`), читаются через `CharacterParametersProxy`.
 
 `Tags` **не являются** финальным механическим слоем: это временный способ группировки и заметок; механические числа (HP ancestry/class) уже вынесены в отдельные поля.
@@ -422,7 +428,7 @@
 | **Defs** | Статический контент: что даёт класс, ancestry, предыстория, черта, предмет или заклинание; формулы в `RuleDef.ParameterFormulas` и оружейные формулы в `ItemDef`; патчи в `FeatDef.Apply` |
 | **State** | Сырой прогресс персонажа: `CharacterStateData.Parameters` (abilities, ranks, bonuses, текущие HP…), `Spells`, `StatusEffects`, экипировка |
 | **Read API** | `CharacterParametersProxy` — raw/total; конвенция закреплена в доках/комментариях |
-| **Write API** | Apply / Unapply `CharacterParamsPatchData` в сырые `Parameters` (реализация — следующий этап); вызывается из state-actions / прокачки / экипировки |
+| **Write API** | `CharacterParametersOperator` — Apply / Unapply feats/патчей; `CharacterItemFeaturesOperator` — `ItemDef.Features` в equip-экшенах (правило Bag); слепок для прокачки |
 | **Weapon proxy** | Модификаторы оружия через `WeaponProxy` |
 
 ### Планируемое расширение (механики)
@@ -430,10 +436,11 @@
 Уже есть:
 - формулы навыков и `MaxHitPoints` в `RuleDef.ParameterFormulas`;
 - HP ancestry/class в полях дефов;
-- контракт `FeatDef.Apply` (`CharacterParamsPatchData`: `Add`, `Set`, `AlsoApplyFeatIds`) и семантика Apply / Unapply;
-- контракт прокачки: `UpdateCharacter` = слепок + последовательный Apply (см. [State.md](State.md)).
+- контракт `FeatDef.Apply` и runtime `CharacterParametersOperator`;
+- `ItemDef.Features` + `CharacterItemFeaturesOperator` в Equip/Unequip/Move/Remove;
+- контракт прокачки: `UpdateCharacter` = слепок + последовательный Apply (см. [State.md](State.md) / [Feats.md](Feats.md)).
 
-Следующий этап — реализация Write API и проводка в state-actions / UI прокачки / экипировку (Apply / Unapply по `ItemDef.Features`).
+Следующий этап — UI прокачки / создания персонажа (и бой/condition-feats).
 
 По мере разработки тот же формат патча может появиться в других дефах (ancestry, background, предметы):
 
@@ -501,8 +508,10 @@ Single-def:
 - Аватары персонажа описываются в single-def `AvatarsDef` (`Free` / `Packs` по id `AncestryDef`); выбранный avatar id хранится в `CharacterStateData.Avatar` / `PregeneratedCharacterDef.Avatar`. Ownership паков в state — следующий этап.
 - `AncestryDef.HitPoints` и `ClassDef.HitPointsPerLevel` заполнены в стартовом контенте; теги `hp-*` / `hp_per_level-*` пока оставлены как дубликаты для удобства чтения JSON.
 - `BackgroundDef.Features` / `ItemDef.Features` — плоский список id feat; у `ClassDef` / `AncestryDef` поле `Features` — словарь уровень → список id.
+- `AncestryDef.EquippedItems` — слоты происхождения (украшения `Finger` / `Neck` / `Tail`); объединяется с `ClassDef.EquippedItems` при создании персонажа.
+- Слоты `Finger` / `Neck` / `Tail` в `Glossary.Items`; `Bag` не даёт `ItemDef.Features` (`GrantsItemFeatures`).
 - Итоговые `MaxHitPoints` / навыки **не** пишутся в `CharacterStateData.Parameters`: в state — сырые ключи (`CON`, `Level`, `MaxHitPoints.PerLevel`, `MaxHitPoints.Bonus`, `*.ProfRank`, …), итог — `CharacterParametersProxy.GetTotalValue`.
-- Механические эффекты дефов: контракт Apply / Unapply закреплён (`CharacterParamsPatchData`); runtime Write API и проводка в state-actions — следующий этап (см. [State.md](State.md#adventure-write-api-параметров-apply--unapply--контракт)).
+- Механические эффекты дефов: Apply / Unapply через `CharacterParametersOperator` (`FeatDef.Apply`); экипировка — `CharacterItemFeaturesOperator` по `ItemDef.Features` в Equip/Unequip/Move/Remove (см. [State.md](State.md), [Feats.md](Feats.md)). UI создания/прокачки — следующий этап.
 - `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.
 - Оружейные `ItemDef` в `_ADVENTURES_/Items/Weapons` содержат `Type` / `Group` / формулы / `DamageDice`; модификаторы атаки и урона считает `WeaponProxy` (модуль `State`), кости урона — только метаданные для будущего броска.
 - `Restrictions` на class/ancestry/background/feat может быть пустым или отсутствовать в JSON; при добавлении ограничений JSON-ключи совпадают с полями `Restriction` (см. [Restrictions.md](Restrictions.md)).

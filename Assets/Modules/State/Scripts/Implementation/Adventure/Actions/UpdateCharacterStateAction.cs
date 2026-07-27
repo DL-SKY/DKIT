@@ -10,10 +10,10 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
     /// Обновляет mutable-блок существующего персонажа из <see cref="Models.UpdateCharacterRequestData"/>.
     /// </summary>
     /// <remarks>
-    /// Только для прокачки: запрос собирается из слепка персонажа последовательными Apply
-    /// feats / параметров (см. <see cref="Models.UpdateCharacterRequestData"/>).
-    /// Сейчас реализация всё ещё заменяет mutable-словари wholesale; после подключения Write API
-    /// (Apply / Unapply) семантика мутации параметров будет у него.
+    /// Только для прокачки. <see cref="Models.UpdateCharacterRequestData.CharacterData"/>.Parameters
+    /// должны быть собраны через <see cref="CharacterParametersOperator"/>
+    /// (слепок + последовательные ApplyFeat / ApplyPatch). Экшен только персистит готовый слепок
+    /// wholesale-заменой mutable-блока.
     /// </remarks>
     public class UpdateCharacterStateAction : StateActionBase<StateData>
     {

@@ -41,7 +41,8 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
         public int IngamePrice;
 
         /// <summary>
-        /// Allowed equipment slot types for this item (for example Hand, Legs, Head, Body, Bag).
+        /// Allowed equipment slot types for this item
+        /// (for example Hand, Legs, Head, Body, Bag, Finger, Neck, Tail).
         /// </summary>
         public List<string> AvailableSlots;
 

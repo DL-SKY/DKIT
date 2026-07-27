@@ -17,7 +17,7 @@ namespace Modules.State.Scripts.Implementation.Adventure
     /// Конвенция (закреплена документацией; компилятором не enforced): читать через этот proxy
     /// (<see cref="GetRawValue"/> / <see cref="GetTotalValue"/>), а не индексировать
     /// <see cref="CharacterStateData.Parameters"/> напрямую.
-    /// Мутации сырых параметров — у отдельного Write API (Apply / Unapply
+    /// Мутации сырых параметров — у <see cref="CharacterParametersOperator"/> (Apply / Unapply
     /// <c>CharacterParamsPatchData</c>), не у этого класса.
     /// </remarks>
     public class CharacterParametersProxy
