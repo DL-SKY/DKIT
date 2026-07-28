@@ -220,6 +220,19 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             public const string BOMB = "Bomb";              // Бомбы
             public const string FIREARM = "Firearm";        // Огнестрельное
 
+            // --- DamageTypes ---
+
+            public const string BLUDGEONING = "Bludgeoning";  // Дробящий
+            public const string PIERCING = "Piercing";        // Колющий
+            public const string SLASHING = "Slashing";        // Рубящий
+            public const string POISON = "Poison";            // Яд
+            public const string ACID = "Acid";                // Кислота
+            public const string COLD = "Cold";                // Холод
+            public const string ELECTRICITY = "Electricity";  // Электричество
+            public const string FIRE = "Fire";                // Огонь
+            public const string SONIC = "Sonic";              // Звук
+            public const string FORCE = "Force";              // Сила
+
             // --- Tags ---
 
             public const string AGILE = "AGILE";  // Быстрое (сниженный Multiple Attack Penalty)

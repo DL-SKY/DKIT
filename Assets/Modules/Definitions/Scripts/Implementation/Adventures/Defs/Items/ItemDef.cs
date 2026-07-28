@@ -137,6 +137,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items
         /// This list is not rolled by proxy; it is returned as weapon metadata for dice systems.
         /// </summary>
         public List<WeaponDamageDicePartData> DamageDice;
+
+        /// <summary>
+        /// Optional semantic type key for consumers (for example Fire, Poison).
+        /// </summary>
+        public string DamageType;
     }
 
     public class WeaponDamageDicePartData
