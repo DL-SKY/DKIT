@@ -34,7 +34,7 @@
   Текущая рабочая секция (Implementation). Показывает пути и параметры сохранений на основе `GlobalSettings.json`, вычисляет ожидаемый путь save-файла и дает кнопку открытия директории сохранений.
 
 - `DefinitionsCheatSection`  
-  Секция диагностики adventure-definitions. В рантайме показывает загруженные single-def/коллекции из `Adventures.DefinitionsManager` (`GlobalSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `BattleActions`). Если игра не запущена или менеджер не найден — показывает `HelpBox`.
+  Секция диагностики adventure-definitions. В рантайме показывает загруженные single-def/коллекции из `Adventures.DefinitionsManager` (`GlobalSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Feats`, `Items`, `Spells`, `BattleActions`). Если игра не запущена или менеджер не найден — показывает `HelpBox`.
 
 - `LocalizationCheatSection`  
   Секция локализации. В рантайме показывает текущий язык и кнопки переключения, которые генерируются динамически из `LocalizationSettingsDef.LanguageFolders`.  

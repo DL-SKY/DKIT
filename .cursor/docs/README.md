@@ -27,7 +27,8 @@
 - `Save` — управление сохранениями и модели сохраняемых данных.
 - `State` — менеджмент состояния игры и данных профиля/сессии.
 
-См. также ранний прототип боевой системы: [modules/Battle.md](modules/Battle.md) (runtime боя ещё не начат).  
-Практическое руководство по чертам: [modules/Feats.md](modules/Feats.md) («Как использовать Feats»).
+См. также ранний прототип боевой системы: [modules/Battle.md](modules/Battle.md) (runtime боя ещё не начат; статблоки `CreatureDef` + factory уже есть).  
+Практическое руководство по чертам: [modules/Feats.md](modules/Feats.md) («Как использовать Feats»).  
+Практическое руководство по противникам: [modules/Creatures.md](modules/Creatures.md) (`CreatureDef` → `CharacterStateData`).
 - `Utils` — общие утилиты, вспомогательные компоненты и инструменты.
 - `Windows` — базовая UI-архитектура окон и view/viewmodel-слой.

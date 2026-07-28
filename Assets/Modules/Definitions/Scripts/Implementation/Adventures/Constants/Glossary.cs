@@ -72,6 +72,14 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             public const string MAX_HIT_POINTS = "MaxHitPoints";
             public const string HIT_POINTS = "HitPoints";
 
+            public const string SPEED = "Speed";
+
+            public const string CHALLENGE_RATING = "ChallengeRating"; // Класс опасности (encounter budget)
+
+            public const string FORTITUDE = "Fortitude";
+            public const string REFLEX = "Reflex";
+            public const string WILL = "Will";
+
             public const string PERCEPTION = "Perception";  // Восприятие
 
             public const string ACROBATICS = "Acrobatics";  // Акробатика

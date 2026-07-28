@@ -1,10 +1,10 @@
 # Как использовать Feats
 
-**Последнее обновление:** 2026-07-28 09:35:01 (+03:00)
+**Последнее обновление:** 2026-07-28 16:40:00 (+03:00)
 
 Практическое руководство: когда и как применять / снимать черты (`FeatDef`) к персонажу через Write API.
 
-Связанные документы: [Definitions.md](Definitions.md) (`FeatDef`, `CharacterParamsPatchData`, `Features` на дефах), [State.md](State.md) (`CharacterParametersOperator`, прокачка, экипировка, `EndCharacterTurn`), [Battle.md](Battle.md) (бой — прототип).
+Связанные документы: [Definitions.md](Definitions.md) (`FeatDef`, `CharacterParamsPatchData`, `Features` на дефах), [State.md](State.md) (`CharacterParametersOperator`, прокачка, экипировка, `EndCharacterTurn`), [Battle.md](Battle.md) (бой — прототип), [Creatures.md](Creatures.md) (статусы на NPC через тот же `CharacterStateData`).
 
 ---
 

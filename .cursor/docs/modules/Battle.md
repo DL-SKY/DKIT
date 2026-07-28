@@ -1,10 +1,10 @@
 # Боевая система (ранний прототип)
 
-**Последнее обновление:** 2026-07-27 17:34:21 (+03:00)
+**Последнее обновление:** 2026-07-28 16:40:00 (+03:00)
 
 > **Статус:** ранний прототип / design draft.  
 > Runtime-слой пошагового боя **не начат**. Документ фиксирует целевые очертания механики, контракт дефов и границы ответственности модулей.  
-> Реализовано сейчас: зачаток `BattleRuleDef` (MAP) в [Definitions](Definitions.md); прокси атаки/урона оружия (`WeaponProxy`) в [State](State.md). Всё остальное ниже — план.
+> Реализовано сейчас: зачаток `BattleRuleDef` (MAP) в [Definitions](Definitions.md); прокси атаки/урона оружия (`WeaponProxy`) в [State](State.md); статблок противников `CreatureDef` + materialize в `CharacterStateData` через `CreatureCombatantFactory`. Всё остальное ниже — план.
 
 ## Цель
 
@@ -14,11 +14,49 @@
 
 | Модуль | Роль в бое |
 |---|---|
-| [Definitions](Definitions.md) | Статический контент: `BattleRuleDef`, планируемая коллекция `BattleActionDef`, оружие/заклинания/черты |
-| [State](State.md) | Персистентные итоги боя (HP, постоянные эффекты); runtime-прокси `WeaponProxy` / `CharacterParametersProxy`; Apply/Unapply condition-feats + `EndCharacterTurn` — [Feats.md](Feats.md) |
+| [Definitions](Definitions.md) | Статический контент: `BattleRuleDef`, `BattleActionDef`, `CreatureDef` (статблок), оружие/заклинания/черты |
+| [State](State.md) | Персистентные итоги боя (HP, постоянные эффекты); runtime-прокси `WeaponProxy` / `CharacterParametersProxy`; Apply/Unapply condition-feats + `EndCharacterTurn` — [Feats.md](Feats.md); `CreatureCombatantFactory` (Creature → `CharacterStateData`) |
 | [Restrictions](Restrictions.md) | Доступность боевых действий (нужен планируемый `CharacterParams`) |
 | [RPG](RPG.md) | Точка входа в бой из adventure (например, будущий `StartCombat` choice-action) |
 | `Dices` | Броски d20 / кости урона |
+
+## Combatants: партия и противники
+
+В бою **обе стороны** используют одинаковый shape — `CharacterStateData` (Apply/Unapply статусов, proxies, экип-фичи).
+
+| Сторона | Источник шаблона | Instance id | Persistence |
+|---------|------------------|-------------|-------------|
+| Игрок | party `CharacterStateData` | `NextCharacterId` (> 0) | копия в session; в сейв — итог после боя |
+| Противник / NPC | `CreatureDef` → `CreatureCombatantFactory.CreateFromCreature` | **отрицательный** | session-only (в `Characters` профиля не пишется) |
+
+`Ancestry` / `Class` / `Background` у NPC необязательны. `Name` ← `CreatureDef.Title`, `Avatar` ← `Icon`.  
+`BattleActionIds` остаются на `CreatureDef`; session резолвит действия по source creature id.
+
+Практическое руководство: [Creatures.md](Creatures.md).
+
+**Пример подготовки сторон:**
+
+```csharp
+// Party → session copies
+CharacterStateData hero = CreatureCombatantFactory.CloneForBattle(
+    state.Characters.Characters[heroId]);
+
+// Opponents → negative session ids
+int nextNpcId = -1;
+CharacterStateData goblin = CreatureCombatantFactory.CreateFromCreature(
+    definitionsManager.Creatures["_GoblinWarrior"],
+    nextNpcId--,
+    definitionsManager);
+CharacterStateData wolf = CreatureCombatantFactory.CreateFromCreature(
+    definitionsManager.Creatures["_Wolf"],
+    nextNpcId--,
+    definitionsManager);
+
+// Statuses work the same on both sides
+CharacterParametersOperator.ApplyFeat(goblin, "_ConditionFrightened", definitionsManager);
+```
+
+Открытый вопрос Encounter (состав пачки) — отдельно от статблока; см. Phase 3.
 
 ## Базовые упрощения относительно PF2e / D&D
 
@@ -211,6 +249,7 @@
 | Компонент | Модуль | Задача |
 |---|---|---|
 | `BattleActionDef` / JSON | Definitions | Каталог действий — **готово** (resolver — нет) |
+| `CreatureDef` + factory | Definitions + State | Статблок + materialize в `CharacterStateData` — **готово** |
 | Расширение `BattleRuleDef` | Definitions | Economy / MAP scope |
 | `CharacterParams` restriction | Restrictions | Доступность по параметрам персонажа — **готово** |
 | `BattleSession` / resolver | новый слой в RPG (или отдельный Combat-модуль) | Оркестрация раунда, выбор действий, применение эффектов |
@@ -242,6 +281,7 @@
 ## Открытые вопросы прототипа
 
 1. Encounter как отдельная коллекция дефов или inline в adventure scene/choice?
+   - **Статблок** уже отдельно (`CreatureDef`); Encounter (состав / награды) — следующий контракт.
 2. Смерть / нокдаун / dying — упростить до `IsDead` или ввести промежуточные статусы?
 3. Писать ли временные боевые статусы сразу в `CharacterStateData.StatusEffects` или держать только в session до конца боя?
    - **Решение (MVP):** timed Condition пишутся в `StatusEffects` (ключ = feat id, value = оставшиеся ходы) через `ApplyFeat`; декремент — `EndCharacterTurnStateAction`. Session-only копии по-прежнему допустимы для чисто эфемерного боя без сейва — см. [Feats.md](Feats.md).

@@ -1,0 +1,43 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"animal",
+		"beast"
+	],
+	"Icon": "",
+	"Title": "Волк",
+	"Description": "Тестовый зверь без экипировки; атаки задаются BattleActionIds.",
+	"Level": 1,
+	"ChallengeRating": 1,
+	"Size": "Medium",
+	"Speed": 35,
+	"ArmorClass": 14,
+	"HitPoints": 24,
+	"Abilities": {
+		"STR": 2,
+		"DEX": 2,
+		"CON": 1,
+		"INT": -4,
+		"WIS": 1,
+		"CHA": -2
+	},
+	"Perception": 6,
+	"Saves": {
+		"Fortitude": 5,
+		"Reflex": 7,
+		"Will": 3
+	},
+	"Skills": {
+		"Stealth": 6,
+		"Survival": 5
+	},
+	"Features": [],
+	"BattleActionIds": [],
+	"EquippedItems": [],
+	"Spells": {},
+	"Parameters": {},
+	"Ancestry": "",
+	"Class": "",
+	"Background": "",
+	"Gender": "Male"
+}

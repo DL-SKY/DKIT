@@ -1,0 +1,54 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"humanoid",
+		"goblin"
+	],
+	"Icon": "",
+	"Title": "Гоблин-воин",
+	"Description": "Тестовый гуманоидный противник с коротким мечом.",
+	"Level": 1,
+	"ChallengeRating": 1,
+	"Size": "Small",
+	"Speed": 25,
+	"ArmorClass": 16,
+	"HitPoints": 6,
+	"Abilities": {
+		"STR": 0,
+		"DEX": 2,
+		"CON": 1,
+		"INT": 0,
+		"WIS": 0,
+		"CHA": -1
+	},
+	"Perception": 5,
+	"Saves": {
+		"Fortitude": 5,
+		"Reflex": 7,
+		"Will": 3
+	},
+	"Skills": {
+		"Stealth": 7,
+		"Acrobatics": 5
+	},
+	"Features": [],
+	"BattleActionIds": [
+		"_Strike"
+	],
+	"EquippedItems": [
+		{
+			"Slot": "Hand",
+			"ItemId": "_Shortsword"
+		},
+		{
+			"Slot": "Body",
+			"ItemId": "_HideArmor"
+		}
+	],
+	"Spells": {},
+	"Parameters": {},
+	"Ancestry": "",
+	"Class": "",
+	"Background": "",
+	"Gender": "Male"
+}

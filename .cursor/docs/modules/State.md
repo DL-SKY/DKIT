@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-27 18:12:08 (+03:00)
+**Последнее обновление:** 2026-07-28 16:40:00 (+03:00)
 
 ## Назначение
 
@@ -60,6 +60,7 @@ Implementation/Adventure/
   CharacterParametersProxy.cs     ← Read API: GetRawValue / GetTotalValue
   CharacterParametersOperator.cs  ← Write API: Apply/Unapply patch + Feat (+ StatusEffects timer for Condition); CreateCharacterRequestSnapshot
   CharacterItemFeaturesOperator.cs ← ItemDef.Features Apply/Unapply с правилом Bag (GrantsItemFeatures)
+  CreatureCombatantFactory.cs     ← CreatureDef → CharacterStateData (+ CloneForBattle для копий партии)
   WeaponProxy.cs                  ← attack/damage modifiers по ItemDef формулам
   Actions/
     EndCharacterTurnStateAction.cs ← декремент таймеров Condition / Unapply при 0
@@ -111,6 +112,9 @@ Implementation/Wallet/
 
 - `CharacterItemFeaturesOperator`  
   Apply / Unapply `ItemDef.Features` с правилом Bag (`Glossary.Items.GrantsItemFeatures`). Используется из equip/unequip/move/remove state-actions.
+
+- `CreatureCombatantFactory`  
+  `CreatureDef` → валидный `CharacterStateData` для боя (`CreateFromCreature`: отрицательный session id, запекание статблока, `ApplyFeat` / item Features). `CloneForBattle` — копии party в session. Не пишет в профиль. Практика: [Creatures.md](Creatures.md); также [Battle.md](Battle.md).
 
 - `WeaponProxy`  
   Прокси модификаторов оружия по формулам `ItemDef.AttackModifierFormula` / `DamageModifierFormula`.  
@@ -274,7 +278,8 @@ Implementation/Wallet/
 - Move между двумя носимыми слотами → Features не трогать (предмет остаётся «надет»).
 
 **Соглашения по id:**
-- runtime-сущности, создаваемые игрой (персонажи) — `int`, выдаются через `NextCharacterId`;
+- runtime-сущности party — `int` > 0 через `NextCharacterId`;
+- session NPC / противники в бою — `int` < 0 (не инкрементят `NextCharacterId`, не пишутся в профиль);
 - ссылки на контент из дефов — `string` (имя дефа / id из `Definitions`; типы дефов — в [Definitions.md](Definitions.md)).
 
 **`Parameters` (сырое хранилище):**
@@ -414,6 +419,45 @@ stateLogic.ProcessAction(new EndCharacterTurnStateAction(
 = max(`AbilityDependencies`) + prof(`Type`) + item attack bonus + group attack bonus.
 
 Контракт полей оружия и стартовые JSON — в [Definitions.md](Definitions.md) (`ItemDef`).
+
+### Adventure: `CreatureCombatantFactory`
+
+Файл: `Implementation/Adventure/CreatureCombatantFactory.cs`.
+
+Materialize статблока противника в тот же shape, что у игрока (`CharacterStateData`), чтобы Apply/Unapply статусов и proxies работали одинаково для обеих сторон.
+
+Практическое руководство с полным walkthrough: [Creatures.md](Creatures.md).
+
+| Метод | Поведение |
+|-------|-----------|
+| `CreateFromCreature(def, instanceId, definitionsManager)` | Собирает combatant: `Name`←`Title`, `Avatar`←`Icon`; запекает `Level` / `ChallengeRating` / `AC` / `Speed` / abilities / HP / Perception / saves / skills; мержит escape-hatch `Parameters`; `ApplyFeat` по `Features`; Apply item Features на носимых слотах. `instanceId` должен быть **&lt; 0**. |
+| `CloneForBattle(source, overrideId?)` | Копия party-персонажа для session |
+
+Запекание итогов статблока:
+- `MaxHitPoints`: без Class/Ancestry формула даёт `(CON)*Level + Bonus` → factory ставит `MaxHitPoints.Bonus` так, чтобы `GetTotalValue(MaxHitPoints)` = `HitPoints`;
+- Perception / skills: `*.ItemsBonus = final − ability`, чтобы `GetTotalValue` совпал с числом в статблоке (Untrained);
+- saves (`Fortitude` / `Reflex` / `Will`) и `AC` — сырые ключи (формул в `GeneralRule` пока нет).
+
+`BattleActionIds` на `CharacterStateData` не копируются — остаются на `CreatureDef`.
+
+**Пример:**
+
+```csharp
+CreatureDef goblinDef = definitionsManager.Creatures["_GoblinWarrior"];
+CharacterStateData goblin = CreatureCombatantFactory.CreateFromCreature(
+    goblinDef,
+    instanceId: -1,
+    definitionsManager);
+
+CharacterStateData heroCopy = CreatureCombatantFactory.CloneForBattle(
+    state.Characters.Characters[heroId]);
+
+// Один Write API статусов для обеих сторон
+CharacterParametersOperator.ApplyFeat(goblin, "_ConditionFrightened", definitionsManager);
+CharacterParametersOperator.ApplyFeat(heroCopy, "_ConditionFrightened", definitionsManager);
+
+List<string> actions = goblinDef.BattleActionIds; // e.g. "_Strike"
+```
 
 ### Adventure: `InventoryStateData`
 

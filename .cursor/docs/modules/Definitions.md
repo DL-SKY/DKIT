@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-27 18:12:08 (+03:00)
+**Последнее обновление:** 2026-07-28 16:40:00 (+03:00)
 
 ## Назначение
 
@@ -33,7 +33,7 @@
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
   - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`), `Avatars` (`AvatarsDef`);
-  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`.  
+  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`.  
   Используется и `CharacterParametersProxy` (модуль `State`) для резолва `ANCESTRY_HP` / `CLASS_HP` из `Ancestries` / `Classes`.
 
 - `Glossary` (`Implementation/Adventures/Constants/Glossary.cs`)  
@@ -41,6 +41,8 @@
   - abilities: `STR`, `DEX`, `CON`, `INT`, `WIS`, `CHA`;
   - прогресс: `LEVEL` (`"Level"`), `EXPERIENCE`;
   - HP: `MAX_HIT_POINTS` (`"MaxHitPoints"`, **вычисляемый**), `HIT_POINTS` (`"HitPoints"`, текущие);
+  - `SPEED` (`"Speed"`), `CHALLENGE_RATING` (`"ChallengeRating"` — класс опасности, в основном для creatures);
+  - сейвы: `FORTITUDE` / `REFLEX` / `WILL` (сырые итоги статблока; формул в `GeneralRule` пока нет);
   - навыки / `Perception` — имена как в `SkillDependencies`;
   - суффиксы сырых составляющих: `PROFICIENCY_SUFFIX` (`.ProfRank`), `ITEMS_SUFFIX` (`.ItemsBonus`), `PER_LEVEL_SUFFIX` (`.PerLevel`), `BONUS_SUFFIX` (`.Bonus`).
 
@@ -72,6 +74,7 @@
 | `AncestryDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Ancestries` |
 | `BackgroundDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Backgrounds` |
 | `PregeneratedCharacterDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/PregeneratedCharacters` |
+| `CreatureDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Creatures` |
 | `CharacterParamsPatchData` | POCO (не def) | вложен в JSON `FeatDef.Apply` |
 | `FeatDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Feats` |
 | `ItemDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Items` |
@@ -270,6 +273,21 @@
   Заготовленный персонаж (шаблон для быстрого старта / выбора готового героя). Поля: `Avatar`, `Name`, `Gender`, `Ancestry`, `Class`, `Background`, `Parameters`, `EquippedItems`, `Spells`.  
   `EquippedItems` — слоты и стартовая экипировка прегена (`Slot` из `Glossary.Items`, `ItemId` — id `ItemDef` или пусто для свободного слота).  
   Загрузка: `DefinitionsManager.PregeneratedCharacters` из `_ADVENTURES_/PregeneratedCharacters` (между Backgrounds и Feats в `LoadAll()`).
+
+- `CreatureDef`  
+  Статблок противника / боевого NPC (отдельный авторский шаблон, не преген). Поля: `Disabled`, `Tags`, `Icon`, `Title`, `Description`, `Level`, `ChallengeRating` (класс опасности), `Size` (`AncestrySize`), `Speed`, `ArmorClass`, `HitPoints`, `Abilities` (модификаторы `STR`…`CHA`), `Perception` (итоговый модификатор), `Saves` (`Fortitude` / `Reflex` / `Will`), `Skills` (id навыка → итоговый модификатор), `Features` (id `FeatDef`), `BattleActionIds` (id `BattleActionDef`), `EquippedItems`, `Spells`, опциональный escape-hatch `Parameters`, опциональные flavor `Ancestry` / `Class` / `Background` / `Gender`.  
+  В бою обе стороны — `CharacterStateData`; materialize через `CreatureCombatantFactory.CreateFromCreature` (модуль `State`): отрицательный session id, запекание статов в `Parameters`, `ApplyFeat` по `Features`, Apply `ItemDef.Features` на носимых слотах. `BattleActionIds` остаются на дефе (session резолвит по source creature id).  
+  Загрузка: `DefinitionsManager.Creatures` из `_ADVENTURES_/Creatures` (после PregeneratedCharacters). Стартовый контент: `_GoblinWarrior`, `_Wolf`.  
+  Практика и примеры: [Creatures.md](Creatures.md).
+
+  Пример spawn:
+
+  ```csharp
+  CharacterStateData npc = CreatureCombatantFactory.CreateFromCreature(
+      definitionsManager.Creatures["_Wolf"],
+      instanceId: -1,
+      definitionsManager);
+  ```
 
 - `FeatDef`  
   Черта/способность. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Type` (`FeatType`), `Level`, `Apply` (`CharacterParamsPatchData`), `Options` (`List<string>` — id дочерних feat при выборе), `AdditionalSlots` (`List<string>` — дополнительные типы слотов из `Glossary.Items`).  
@@ -480,6 +498,7 @@ Adventure-choice params (`ChoiceActionData.Params`) остаются отдел�
 | `Ancestries` | `_ADVENTURES_/Ancestries` | — | 8 ancestries |
 | `Backgrounds` | `_ADVENTURES_/Backgrounds` | — | 2 тестовые (`_Farmhand`, `_Scholar`) |
 | `PregeneratedCharacters` | `_ADVENTURES_/PregeneratedCharacters` | — | 1 тестовый (`_TestFighter`) |
+| `Creatures` | `_ADVENTURES_/Creatures` | — | 2 тестовых (`_GoblinWarrior`, `_Wolf`) |
 | `Feats` | `_ADVENTURES_/Feats` | `General`, `Ancestry`, `Class`, `ClassFeature`, `Skill` | 15 черт |
 | `Spells` | `_ADVENTURES_/Spells` | `Cantrips`, `Arcane`, `Divine` | 13 заклинаний |
 | `Items` | `_ADVENTURES_/Items` | `Weapons`, `Armor`, `Shields`, `Consumables`, `Equipment` | 18 предметов |
@@ -516,7 +535,7 @@ Single-def:
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Оба менеджера сейчас загружают `LocalizationSettingsDef` (пути: `Definitions/LocalizationSettings/LocalizationSettings` и `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings`).
-- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Avatars`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Avatars`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
 - `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost`, `RuleDef.SkillDependencies` и `RuleDef.ParameterFormulas` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет / сырое чтение параметра) на стороне runtime. Для навыков в `GeneralRule` набор ключей skill-формул совпадает с `SkillDependencies`; отдельно задана формула `MaxHitPoints`.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Background`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)). `ANCESTRY_HP` / `CLASS_HP` в формулах резолвятся через эти id в `AncestryDef.HitPoints` / `ClassDef.HitPointsPerLevel`.
 - `AncestryDef.Names` индексируется по `CharacterGender`; id ancestry — в `CharacterStateData.Ancestry`. Текущие JSON ancestries ещё могут содержать legacy `MaleNames`/`FemaleNames` — их нужно мигрировать на `Names`.
@@ -530,7 +549,7 @@ Single-def:
 - `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.
 - Оружейные `ItemDef` в `_ADVENTURES_/Items/Weapons` содержат `Type` / `Group` / формулы / `DamageDice`; модификаторы атаки и урона считает `WeaponProxy` (модуль `State`), кости урона — только метаданные для будущего броска.
 - `Restrictions` на class/ancestry/background/feat может быть пустым или отсутствовать в JSON; при добавлении ограничений JSON-ключи совпадают с полями `Restriction` (см. [Restrictions.md](Restrictions.md)).
-- В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds` и `PregeneratedCharacters` (между Ancestries и Feats), а также id single-def `Avatars`.
+- В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds`, `PregeneratedCharacters`, `Creatures` (между PregeneratedCharacters и Feats), а также id single-def `Avatars`.
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.
 - `LoadCollection()` загружает JSON из указанной папки и всех вложенных подпапок; `Id` — только имя файла, без пути.
 - Для коллекций id должен быть уникален в рамках всего дерева папки; при совпадении имён побеждает первый загруженный деф, дубликат пишется в `LogWarning`.
