@@ -26,5 +26,6 @@ namespace Modules.State.Scripts.Actions.Models
         RemoveInventoryItems = 17,
         AddCharacterItem = 18,
         RemoveCharacterEquippedItem = 19,
+        EndCharacterTurn = 20,
     }
 }

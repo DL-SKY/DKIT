@@ -86,6 +86,11 @@ namespace Modules.Cheats.Scripts.Editor.Implementation.Definitions
             DrawDefinitionIds(definitionsManager.Feats);
             EditorGUI.indentLevel--;
 
+            EditorGUILayout.LabelField("Conditions:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.Conditions);
+            EditorGUI.indentLevel--;
+
             EditorGUILayout.LabelField("Items:");
             EditorGUI.indentLevel++;
             DrawDefinitionIds(definitionsManager.Items);

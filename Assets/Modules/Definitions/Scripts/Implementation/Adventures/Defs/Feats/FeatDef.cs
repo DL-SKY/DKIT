@@ -13,6 +13,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats
         ClassFeat = 4,
         ClassFeature = 5,
         Boost = 6,
+        Condition = 7,
     }
 
 

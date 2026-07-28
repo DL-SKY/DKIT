@@ -1,0 +1,21 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"condition",
+		"ongoing-damage",
+		"fire"
+	],
+	"Title": "Горение",
+	"Description": "Наносит периодический урон огнем в конце хода.",
+	"Tick": {
+		"Disabled": false,
+		"FlatDamage": 3,
+		"DamageDice": [
+			{
+				"Count": 1,
+				"DiceType": "D4"
+			}
+		],
+		"DamageType": "Fire"
+	}
+}

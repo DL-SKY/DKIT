@@ -5,6 +5,7 @@ using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Adventures;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Backgrounds;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Conditions;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.PregeneratedCharacters;
@@ -42,6 +43,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         public Dictionary<string, BackgroundDef> Backgrounds;
         public Dictionary<string, PregeneratedCharacterDef> PregeneratedCharacters;
         public Dictionary<string, FeatDef> Feats;
+        public Dictionary<string, ConditionDef> Conditions;
         public Dictionary<string, ItemDef> Items;
         public Dictionary<string, SpellDef> Spells;
         public Dictionary<string, RuleDef> Rules;
@@ -82,6 +84,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
                 LoadBackgrounds,
                 LoadPregeneratedCharacters,
                 LoadFeats,
+                LoadConditions,
                 LoadItems,
                 LoadSpells,
                 LoadBattleActions,
@@ -137,6 +140,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         private void LoadFeats()
         {
             Feats = _loader.LoadCollection<FeatDef>("Definitions/_ADVENTURES_/Feats");
+        }
+
+        private void LoadConditions()
+        {
+            Conditions = _loader.LoadCollection<ConditionDef>("Definitions/_ADVENTURES_/Conditions");
         }
 
         private void LoadItems()

@@ -15,7 +15,7 @@
 | Модуль | Роль в бое |
 |---|---|
 | [Definitions](Definitions.md) | Статический контент: `BattleRuleDef`, планируемая коллекция `BattleActionDef`, оружие/заклинания/черты |
-| [State](State.md) | Персистентные итоги боя (HP, постоянные эффекты); runtime-прокси `WeaponProxy` / `CharacterParametersProxy`; Apply/Unapply condition-feats — [Feats.md](Feats.md) |
+| [State](State.md) | Персистентные итоги боя (HP, постоянные эффекты); runtime-прокси `WeaponProxy` / `CharacterParametersProxy`; Apply/Unapply condition-feats + `EndCharacterTurn` — [Feats.md](Feats.md) |
 | [Restrictions](Restrictions.md) | Доступность боевых действий (нужен планируемый `CharacterParams`) |
 | [RPG](RPG.md) | Точка входа в бой из adventure (например, будущий `StartCombat` choice-action) |
 | `Dices` | Броски d20 / кости урона |
@@ -70,7 +70,7 @@
 | Слой | Что хранит | Персистентность |
 |---|---|---|
 | **Runtime battle session** | Очередь хода, `RemainingActions`, счётчики MAP, кулдауны раунда, временные статусы боя | Нет (не в сейв профиля) |
-| **State (`CharacterStateData`)** | `HitPoints`, устойчивые параметры, экипировка, `StatusEffects` после боя | Да |
+| **State (`CharacterStateData`)** | `HitPoints`, устойчивые параметры, экипировка, `StatusEffects` (таймеры Condition: feat id → ходы) | Да |
 | **Defs** | Правила, каталог действий, оружие, черты | Статика |
 
 Технические счётчики боя **не** пишутся в `StateData`, чтобы не раздувать сейвы.
@@ -244,6 +244,7 @@
 1. Encounter как отдельная коллекция дефов или inline в adventure scene/choice?
 2. Смерть / нокдаун / dying — упростить до `IsDead` или ввести промежуточные статусы?
 3. Писать ли временные боевые статусы сразу в `CharacterStateData.StatusEffects` или держать только в session до конца боя?
+   - **Решение (MVP):** timed Condition пишутся в `StatusEffects` (ключ = feat id, value = оставшиеся ходы) через `ApplyFeat`; декремент — `EndCharacterTurnStateAction`. Session-only копии по-прежнему допустимы для чисто эфемерного боя без сейва — см. [Feats.md](Feats.md).
 4. Стоимость переключения исполнителя: 0 (гибкий отряд) или 1 (жёстче баланс)?
 
 Решения по этим пунктам не зафиксированы; при реализации MVP их нужно явно выбрать и обновить этот документ.

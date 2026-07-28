@@ -58,9 +58,12 @@ Implementation/Adventure/
   StateData.cs                    ← корень: поля-секции
   AdventureStateManager.cs
   CharacterParametersProxy.cs     ← Read API: GetRawValue / GetTotalValue
-  CharacterParametersOperator.cs  ← Write API: Apply/Unapply patch + Feat; CreateCharacterRequestSnapshot
+  CharacterParametersOperator.cs  ← Write API: Apply/Unapply patch + Feat (+ StatusEffects timer for Condition); CreateCharacterRequestSnapshot
   CharacterItemFeaturesOperator.cs ← ItemDef.Features Apply/Unapply с правилом Bag (GrantsItemFeatures)
   WeaponProxy.cs                  ← attack/damage modifiers по ItemDef формулам
+  Actions/
+    EndCharacterTurnStateAction.cs ← декремент таймеров Condition / Unapply при 0
+    Models/EndCharacterTurnRequestData.cs
   Factories/
     IAdventureStateDataFactory.cs
     AdventureStateDataFactory.cs  ← создание нового профиля
@@ -147,6 +150,7 @@ Implementation/Wallet/
 | `RemoveInventoryItems` | `RemoveInventoryItemsStateAction` (Adventure) |
 | `AddCharacterItem` | `AddCharacterItemStateAction` (Adventure) |
 | `RemoveCharacterEquippedItem` | `RemoveCharacterEquippedItemStateAction` (Adventure) |
+| `EndCharacterTurn` | `EndCharacterTurnStateAction` (Adventure) |
 
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
@@ -156,7 +160,11 @@ Implementation/Wallet/
 
 - `CharacterRequestData`  
   Переиспользуемый блок изменяемых данных персонажа: `Parameters`, `EquippedItems`, `Spells`, `StatusEffects`. Используется в `CreateCharacterRequestData` и `UpdateCharacterRequestData`.  
-  Методы `ApplyFeat` / `UnapplyFeat` / `ApplyPatch` / `UnapplyPatch` делегируют в `CharacterParametersOperator`.
+  Методы `ApplyFeat` / `UnapplyFeat` / `ApplyPatch` / `UnapplyPatch` делегируют в `CharacterParametersOperator`.  
+  `ApplyFeat` / `UnapplyFeat` на DTO передают и `Parameters`, и `StatusEffects` (нужно для timed Condition).
+
+- `EndCharacterTurnRequestData`  
+  DTO для `EndCharacterTurnStateAction`: `CharacterId`. Декремент таймеров Condition в `StatusEffects`, тик ongoing damage, `UnapplyFeat` при `0` (см. [Feats.md](Feats.md)).
 
 - `UpdateCharacterRequestData`  
   DTO для `UpdateCharacterStateAction`: `CharacterId` и `CharacterData` (`CharacterRequestData`).  
@@ -248,7 +256,7 @@ Implementation/Wallet/
 | `Parameters` | `Dictionary<string, int>` | Сырое хранилище: abilities, level/experience, proficiency ranks, item/per-level/flat bonuses, текущие HP, speed, feat-флаги и т.д. Итоги (`MaxHitPoints`, навыки) **не** хранятся — `CharacterParametersProxy.GetTotalValue`. Чтение — через proxy; запись — через Write API (Apply / Unapply) |
 | `EquippedItems` | `List<EquippedItemStateData>` | Надетая экипировка |
 | `Spells` | `Dictionary<string, int>` | Заклинания |
-| `StatusEffects` | `Dictionary<string, int>` | Статусные эффекты: id эффекта → значение |
+| `StatusEffects` | `Dictionary<string, int>` | Таймеры timed Condition-feats: **ключ = id `FeatDef`**, **value = оставшиеся ходы**. Пишется `CharacterParametersOperator` при Apply Condition с `ConditionDuration > 0`; декремент — `EndCharacterTurnStateAction` |
 
 `EquippedItemStateData` — одна запись экипировки (в том же файле):
 
@@ -281,8 +289,9 @@ Implementation/Wallet/
 **Defs → State (планируемый поток):**
 - дефы (`ClassDef`, `AncestryDef`, `BackgroundDef`, `FeatDef`, `ItemDef`, `SpellDef`) описывают статический контент;
 - `AncestryDef.HitPoints` и `ClassDef.HitPointsPerLevel` — константы для формулы Max HP (не копируются в `Parameters`);
-- для черт механика задаётся в `FeatDef.Apply` (`CharacterParamsPatchData`: `Add`, `Set`, `AlsoApplyFeatIds`; см. [Definitions.md](Definitions.md));
+- для черт механика задаётся в `FeatDef.Apply` (`CharacterParamsPatchData`: `Add`, `Set`, `AlsoApplyFeatIds`, `ConditionDuration`; см. [Definitions.md](Definitions.md));
 - при создании/прокачке / экипировке runtime применяет патчи в **сырые** ключи `Parameters` (и связанные поля) через Write API;
+- для `FeatType.Condition` с `ConditionDuration > 0` дополнительно пишется таймер в `StatusEffects[featId]`;
 - `UpdateCharacter` — батч прокачки (слепок + последовательный Apply feats/ручных правок нового уровня), не произвольный edit.
 
 ### Adventure: `CharacterParametersProxy` (Read API)
@@ -318,26 +327,35 @@ Implementation/Wallet/
 
 Файл: `Implementation/Adventure/CharacterParametersOperator.cs`.
 
-Единая точка **записи** в `CharacterStateData.Parameters` (и в слепок `CharacterRequestData.Parameters`). Вход — `CharacterParamsPatchData` из дефов (`FeatDef.Apply`) либо опосредованно через `CharacterItemFeaturesOperator` (`ItemDef.Features` → feat ids).
+Единая точка **записи** в `CharacterStateData.Parameters` (и в слепок `CharacterRequestData.Parameters`). Для timed Condition также пишет/снимает таймер в `StatusEffects`. Вход — `CharacterParamsPatchData` из дефов (`FeatDef.Apply`) либо опосредованно через `CharacterItemFeaturesOperator` (`ItemDef.Features` → feat ids).
 
 | Метод | Поведение |
 |-------|-----------|
 | `ApplyPatch` / `UnapplyPatch` | патч `Add` / `Set` / `AlsoApplyFeatIds` |
-| `ApplyFeat` / `UnapplyFeat` | резолв `FeatDef` по id → Apply/Unapply его `Apply` |
+| `ApplyFeat` / `UnapplyFeat` | резолв `FeatDef` по id → Apply/Unapply его `Apply`; для Condition + `ConditionDuration > 0` — регистрация / refresh / снятие таймера в `StatusEffects`; `AdditionalSlots` — добавление/удаление слотов в `EquippedItems` с переносом предмета в `Bag`/инвентарь при снятии слота |
 | `CreateCharacterRequestSnapshot` | полный слепок mutable-блока для прокачки |
-| Overloads на `CharacterStateData` | `Parameters ??= new()`, делегируют в словарь |
+| Overloads на `CharacterStateData` | `Parameters` / `StatusEffects ??= new()`, делегируют в словари |
 
 | Операция патча | Apply | Unapply |
 |----------------|-------|---------|
 | `Add` | `current += value` | `current += -value` |
 | `Set` | `current = value` | если патч ставил **≠ 0** → `0`; если патч ставил **0** → `1` (инверсия флага) |
 | `AlsoApplyFeatIds` | каскадный Apply (прямой порядок) | каскадный Unapply (обратный порядок) |
+| `ConditionDuration` | Condition + `> 0` → `StatusEffects[featId] = Duration` (повторный Apply = refresh без повторного Add) | удалить `StatusEffects[featId]` |
 
 Циклы / дубликаты feat id в каскаде — warning и skip. Нет feat / `Apply == null` — warning и no-op.
 
 Итоги (`MaxHitPoints`, навыки) отдельно не пересчитываются: меняются только сырые ключи; итог даёт Read API.
 
 Обёртки на DTO: `CharacterRequestData` / `UpdateCharacterRequestData` — методы `ApplyFeat` / `UnapplyFeat` / `ApplyPatch` / `UnapplyPatch`.
+
+FAQ по `AdditionalSlots`:
+
+- **Если снимается дополнительный слот и он занят:** оператор сначала пытается перенести предмет в свободный `Bag` этого персонажа.
+- **Если свободного `Bag` нет:** при наличии `inventoryItems` предмет переносится в общий инвентарь.
+- **Если нет и `Bag`, и `inventoryItems`:** слот не удаляется, пишется warning (защита от потери предмета).
+- **Если удаляемый слот сам `Bag`:** сначала ищется другой свободный `Bag`, иначе предмет уходит в общий инвентарь.
+- **Фичи предмета (`ItemDef.Features`):** при уходе из носимого слота снимаются автоматически; при `Bag` → `Bag` не меняются.
 
 Практические сценарии (создание, уровень, экипировка, бой/статусы): [Feats.md](Feats.md) («Как использовать Feats»).
 
@@ -356,9 +374,17 @@ stateLogic.ProcessAction(new UpdateCharacterStateAction(request));
 
 `UpdateCharacterStateAction` персистит готовый слепок wholesale (не крутит Apply сам).
 
+Пример конца хода (таймеры Condition):
+
+```csharp
+stateLogic.ProcessAction(new EndCharacterTurnStateAction(
+    new EndCharacterTurnRequestData { CharacterId = characterId },
+    definitionsManager));
+```
+
 Планируемые следующие вызывающие сценарии:
 - UI создания / прокачки персонажа (Apply feats на слепке до Create/Update).
-- Бой / проверки: condition-feats + `StatusEffects` (см. [Feats.md](Feats.md)).
+- Turn-loop боя: вызов `EndCharacterTurn` для актёра (см. [Feats.md](Feats.md) / [Battle.md](Battle.md)).
 
 **`ItemDef.Features` в inventory state-actions:** сделано. Конструктор Equip/Unequip/Move/Remove принимает `DefinitionsManager`. `AddCharacterItem` кладёт только в `Bag` / общий инвентарь — Features не применяет.
 
@@ -789,6 +815,7 @@ stateLogic.StateChanged += source =>
 - `RemoveInventoryItemsStateAction` — удалить до `Count` предметов `ItemId` из `Inventory.Items` с clamp до 0; валидация требует наличие хотя бы 1 шт. (Adventure).
 - `AddCharacterItemStateAction` — выдать 1 предмет в свободный `Bag` или общий инвентарь; Features **не** применяет (Adventure).
 - `RemoveCharacterEquippedItemStateAction` — удалить из слота без возврата в инвентарь + Unapply Features если слот носимый; `SlotIndex = -1` ищет по `ItemId` (Adventure).
+- `EndCharacterTurnStateAction` — конец хода персонажа: декремент `StatusEffects` для timed Condition-feats, запуск tick-обработчиков из `ConditionDef`, `UnapplyFeat` при `0` (конструктор: request + `DefinitionsManager`) (Adventure).
 
 ## Как добавить новый state-action
 

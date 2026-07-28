@@ -175,6 +175,7 @@
 | `CharacterParamsPatchData` | `Add` | `Dictionary<string, int>` | `Add` | нет (опционально) |
 | | `Set` | `Dictionary<string, int>` | `Set` | нет (опционально) |
 | | `AlsoApplyFeatIds` | `List<string>` | `AlsoApplyFeatIds` | нет (опционально; id `FeatDef`) |
+| | `ConditionDuration` | `int` | `ConditionDuration` | нет (опционально; ходы для `FeatType.Condition`) |
 | `FeatDef` | `Disabled` | `bool` | `Disabled` | да |
 | | `Restrictions` | `List<Restriction>` | `Restrictions` | да, но везде `[]` |
 | | `Tags` | `List<string>` | `Tags` | да (часто пустой) |
@@ -218,7 +219,7 @@
 |---|---|
 | `AncestrySize` | `Small`, `Medium`, `Large` |
 | `CharacterGender` (модуль `State`) | `Male`, `Female` — ключи словаря `AncestryDef.Names` |
-| `FeatType` | `AncestryFeat`, `BackgroundSkillFeat`, `SkillFeat`, `GeneralFeat`, `ClassFeat`, `ClassFeature`, `Boost` |
+| `FeatType` | `AncestryFeat`, `BackgroundSkillFeat`, `SkillFeat`, `GeneralFeat`, `ClassFeat`, `ClassFeature`, `Boost`, `Condition` |
 | `ItemCategory` | `Weapon`, `Armor`, `Shield`, `Consumable`, `Equipment` |
 | `SpellType` | `Cantrip`, `Spell`, `Focus`, `Ritual` |
 | `AdventureType` | `Adventure`, `Chapter`, `Location` |
@@ -272,7 +273,8 @@
 
 - `FeatDef`  
   Черта/способность. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Type` (`FeatType`), `Level`, `Apply` (`CharacterParamsPatchData`), `Options` (`List<string>` — id дочерних feat при выборе), `AdditionalSlots` (`List<string>` — дополнительные типы слотов из `Glossary.Items`).  
-  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Apply` — статический эффект при выдаче / снятии черты; runtime Apply / Unapply — через `CharacterParametersOperator` в модуле `State` (см. [State.md](State.md#adventure-write-api-параметров-apply--unapply)). Практика применения: [Feats.md](Feats.md). `AlsoApplyFeatIds` внутри патча — каскад. `AdditionalSlots` расширяет набор слотов персонажа (например две дополнительные `Hand` для четырёхрукого существа). `Restrictions` — структурированные требования (prerequisites); формат `Restriction` — см. [Restrictions.md](Restrictions.md). JSON с `Apply`/`Options` уже есть в стартовом контенте.
+  `Level` — минимальный уровень персонажа для взятия черты (PF2e-style). `Apply` — статический эффект при выдаче / снятии черты; runtime Apply / Unapply — через `CharacterParametersOperator` в модуле `State` (см. [State.md](State.md#adventure-write-api-параметров-apply--unapply)). Практика применения: [Feats.md](Feats.md). `AlsoApplyFeatIds` внутри патча — каскад. `AdditionalSlots` расширяет набор слотов персонажа (например две дополнительные `Hand` для четырёхрукого существа); при Unapply оператор удаляет эти слоты и, если слот занят, переносит предмет в свободный `Bag`/общий инвентарь. `Restrictions` — структурированные требования (prerequisites); формат `Restriction` — см. [Restrictions.md](Restrictions.md).  
+  `Type = Condition` — статусный / временный эффект (не брать в level-up). При `Apply.ConditionDuration > 0` оператор пишет таймер в `CharacterStateData.StatusEffects[featId]`; декремент — `EndCharacterTurnStateAction` (см. [Feats.md](Feats.md)). Сложная tick-логика (урон, per-tick patch и т.д.) задаётся опциональным `ConditionDef` с тем же id. JSON с `Apply`/`Options` уже есть в стартовом контенте.
 
 - `CharacterParamsPatchData`  
   Общий POCO патча параметров персонажа (`Assets/Modules/Definitions/Scripts/Implementation/Adventures/Defs/CharacterParamsPatchData.cs`). Не наследует `AbstractDefinition`, не загружается отдельно. Сейчас используется в `FeatDef.Apply`; позже может переиспользоваться в других adventure-дефах (ancestry, background, предметы / `ItemDef.Features`). Ключи — `Glossary.Characters` и согласованные id (в т.ч. id feat для флага «черта взята»).
@@ -284,6 +286,7 @@
   | `Add` | `current += value` | `current += -value` |
   | `Set` | `current = value` | патч ставил **≠ 0** → `0`; патч ставил **0** → `1` (инверсия флага) |
   | `AlsoApplyFeatIds` | каскадный Apply | каскадный Unapply (обычно обратный порядок) |
+  | `ConditionDuration` | если feat `Type=Condition` и `> 0` → `StatusEffects[featId] = Duration` (повторный Apply только refresh) | удалить `StatusEffects[featId]` |
 
   Пример JSON (`Apply` внутри feat):
 
@@ -294,6 +297,17 @@
     "AlsoApplyFeatIds": ["_SomeLinkedFeat"]
   },
   "Options": ["_FightingStyleArchery", "_FightingStyleSword"]
+  ```
+
+  Пример timed Condition:
+
+  ```json
+  "Type": "Condition",
+  "Apply": {
+    "Add": { "Perception.Bonus": -1 },
+    "Set": { "_ConditionFrightened": 1 },
+    "ConditionDuration": 3
+  }
   ```
 
   Для Max HP не пишите итог в `MaxHitPoints`: бонусы за уровень кладите в `MaxHitPoints.PerLevel`, flat — в `MaxHitPoints.Bonus` (чтение итога — `CharacterParametersProxy.GetTotalValue`).
@@ -426,9 +440,9 @@
 | Слой | Что хранит |
 |---|---|
 | **Defs** | Статический контент: что даёт класс, ancestry, предыстория, черта, предмет или заклинание; формулы в `RuleDef.ParameterFormulas` и оружейные формулы в `ItemDef`; патчи в `FeatDef.Apply` |
-| **State** | Сырой прогресс персонажа: `CharacterStateData.Parameters` (abilities, ranks, bonuses, текущие HP…), `Spells`, `StatusEffects`, экипировка |
+| **State** | Сырой прогресс персонажа: `CharacterStateData.Parameters` (abilities, ranks, bonuses, текущие HP…), `Spells`, `StatusEffects` (таймеры Condition-feats: feat id → оставшиеся ходы), экипировка |
 | **Read API** | `CharacterParametersProxy` — raw/total; конвенция закреплена в доках/комментариях |
-| **Write API** | `CharacterParametersOperator` — Apply / Unapply feats/патчей; `CharacterItemFeaturesOperator` — `ItemDef.Features` в equip-экшенах (правило Bag); слепок для прокачки |
+| **Write API** | `CharacterParametersOperator` — Apply / Unapply feats/патчей (+ таймер Condition в `StatusEffects`); `CharacterItemFeaturesOperator` — `ItemDef.Features` в equip-экшенах (правило Bag); `EndCharacterTurnStateAction` — декремент таймеров; слепок для прокачки |
 | **Weapon proxy** | Модификаторы оружия через `WeaponProxy` |
 
 ### Планируемое расширение (механики)
@@ -438,9 +452,10 @@
 - HP ancestry/class в полях дефов;
 - контракт `FeatDef.Apply` и runtime `CharacterParametersOperator`;
 - `ItemDef.Features` + `CharacterItemFeaturesOperator` в Equip/Unequip/Move/Remove;
-- контракт прокачки: `UpdateCharacter` = слепок + последовательный Apply (см. [State.md](State.md) / [Feats.md](Feats.md)).
+- контракт прокачки: `UpdateCharacter` = слепок + последовательный Apply (см. [State.md](State.md) / [Feats.md](Feats.md));
+- `FeatType.Condition` + `Apply.ConditionDuration` + `StatusEffects` таймеры + `EndCharacterTurnStateAction` (см. [Feats.md](Feats.md)).
 
-Следующий этап — UI прокачки / создания персонажа (и бой/condition-feats).
+Следующий этап — UI прокачки / создания персонажа и turn-loop боя.
 
 По мере разработки тот же формат патча может появиться в других дефах (ancestry, background, предметы):
 

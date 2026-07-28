@@ -22,14 +22,26 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions.Models
 
         public void ApplyFeat(string featId, DefinitionsManager definitionsManager)
         {
-            EnsureParameters();
-            CharacterParametersOperator.ApplyFeat(Parameters, featId, definitionsManager);
+            EnsureParametersStatusEffectsAndSlots();
+            CharacterParametersOperator.ApplyFeat(
+                Parameters,
+                StatusEffects,
+                EquippedItems,
+                null,
+                featId,
+                definitionsManager);
         }
 
         public void UnapplyFeat(string featId, DefinitionsManager definitionsManager)
         {
-            EnsureParameters();
-            CharacterParametersOperator.UnapplyFeat(Parameters, featId, definitionsManager);
+            EnsureParametersStatusEffectsAndSlots();
+            CharacterParametersOperator.UnapplyFeat(
+                Parameters,
+                StatusEffects,
+                EquippedItems,
+                null,
+                featId,
+                definitionsManager);
         }
 
         public void ApplyPatch(CharacterParamsPatchData patch, DefinitionsManager definitionsManager)
@@ -47,6 +59,13 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions.Models
         private void EnsureParameters()
         {
             Parameters ??= new Dictionary<string, int>();
+        }
+
+        private void EnsureParametersStatusEffectsAndSlots()
+        {
+            EnsureParameters();
+            StatusEffects ??= new Dictionary<string, int>();
+            EquippedItems ??= new List<EquippedItemStateData>();
         }
     }
 }

@@ -63,7 +63,10 @@ namespace Modules.State.Scripts.Implementation.Adventure.StateDatas
         public Dictionary<string, int> Spells;
 
         /// <summary>
-        /// <Effect, Value>
+        /// Таймеры timed Condition: id feat → оставшиеся ходы.
+        /// Пишется CharacterParametersOperator при Apply Condition с ConditionDuration &gt; 0.
+        /// Повторный Apply того же feat только обновляет значение до ConditionDuration (без удвоения механики/урона).
+        /// Декремент — EndCharacterTurnStateAction.
         /// </summary>
         public Dictionary<string, int> StatusEffects;
     }

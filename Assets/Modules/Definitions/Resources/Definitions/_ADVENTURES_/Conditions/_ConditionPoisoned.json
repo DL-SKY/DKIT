@@ -1,0 +1,26 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"condition",
+		"ongoing-damage",
+		"poison"
+	],
+	"Title": "Отравление",
+	"Description": "Наносит периодический урон ядом и поддерживает флаг тика.",
+	"Tick": {
+		"Disabled": false,
+		"FlatDamage": 2,
+		"DamageDice": [
+			{
+				"Count": 1,
+				"DiceType": "D6"
+			}
+		],
+		"DamageType": "Poison",
+		"TickPatch": {
+			"Set": {
+				"_ConditionPoisonedTick": 1
+			}
+		}
+	}
+}

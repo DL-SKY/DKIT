@@ -14,6 +14,8 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs
     /// <item><see cref="Add"/> — для каждого ключа прибавить значение к текущему сырому параметру (<c>+=</c>).</item>
     /// <item><see cref="Set"/> — для каждого ключа присвоить значение (<c>=</c>). Bool-флаги: <c>0</c> / ненулевое.</item>
     /// <item><see cref="AlsoApplyFeatIds"/> — каскадный Apply связанных <see cref="Feats.FeatDef"/> (те же правила).</item>
+    /// <item><see cref="ConditionDuration"/> — для <c>FeatType.Condition</c> при значении &gt; 0 регистрирует/обновляет таймер
+    /// в <c>CharacterStateData.StatusEffects[featId]</c> (семантика в Write API State, не в JSON-патче чисел).</item>
     /// </list>
     /// </para>
     /// <para>
@@ -23,6 +25,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs
     /// <item><see cref="Set"/> — инверсия флага: если патч ставил <b>ненулевое</b> значение — записать <c>0</c>;
     /// если патч ставил <c>0</c> — записать <c>1</c>. Предыдущее произвольное целое не восстанавливается.</item>
     /// <item><see cref="AlsoApplyFeatIds"/> — каскадный Unapply связанных feat id (обычно в обратном порядке).</item>
+    /// <item><see cref="ConditionDuration"/> — удаляет таймер <c>StatusEffects[featId]</c> для timed Condition.</item>
     /// </list>
     /// </para>
     /// <para>
@@ -49,5 +52,14 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs
         /// (цепочки background → feat и т.п.).
         /// </summary>
         public List<string> AlsoApplyFeatIds;
+
+        /// <summary>
+        /// Длительность Condition в ходах.
+        /// Если &gt; 0 и FeatType = Condition: при Apply пишется/обновляется StatusEffects[featId].
+        /// Повторный Apply того же активного Condition только обновляет таймер до этого значения
+        /// (штрафы Add/Set и ongoing damage не удваиваются).
+        /// При Unapply таймер удаляется.
+        /// </summary>
+        public int ConditionDuration;
     }
 }
