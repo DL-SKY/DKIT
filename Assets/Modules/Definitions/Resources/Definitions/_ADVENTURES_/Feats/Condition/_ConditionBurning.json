@@ -1,0 +1,19 @@
+{
+	"Disabled": false,
+	"Type": "Condition",
+	"Level": 0,
+	"Tags": [
+		"condition",
+		"ongoing-damage",
+		"fire"
+	],
+	"Title": "Горение",
+	"Description": "Наносит периодический урон огнём в конце хода, пока активен таймер Condition.",
+	"Restrictions": [],
+	"Apply": {
+		"Set": {
+			"_ConditionBurning": 1
+		},
+		"ConditionDuration": 3
+	}
+}

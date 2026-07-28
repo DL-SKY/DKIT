@@ -1,0 +1,22 @@
+{
+	"Disabled": false,
+	"Type": "Condition",
+	"Level": 0,
+	"Tags": [
+		"condition",
+		"mental",
+		"fear"
+	],
+	"Title": "Испуган",
+	"Description": "Штраф к проверкам Perception. Снимается по истечении ConditionDuration или через UnapplyFeat. Отдельный ConditionDef не нужен.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"Perception.Bonus": -1
+		},
+		"Set": {
+			"_ConditionFrightened": 1
+		},
+		"ConditionDuration": 3
+	}
+}
