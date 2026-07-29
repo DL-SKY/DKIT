@@ -74,6 +74,7 @@ GameObject:
   - component: {fileID: 6432804788417272667}
   - component: {fileID: 1549491952268374406}
   - component: {fileID: 4502403302391175595}
+  - component: {fileID: 7846209424371381203}
   m_Layer: 0
   m_Name: TextContentView
   m_TagString: Untagged
@@ -140,6 +141,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Text.AdventureTextContentView
   _text: {fileID: 5417195034341545639}
+--- !u!114 &7846209424371381203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5047188643372516974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e38f55ae6a8f484c876d5c21f465b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Animation.TypewriterContentAnimator
+  _text: {fileID: 5417195034341545639}
+  _charsPerSecond: 40
 --- !u!1 &5747123187143118059
 GameObject:
   m_ObjectHideFlags: 0

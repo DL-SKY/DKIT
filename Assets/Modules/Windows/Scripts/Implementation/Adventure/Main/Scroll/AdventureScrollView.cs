@@ -9,17 +9,19 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 {
     /// <summary>
     /// Sub-view for adventure scroll content; attach to a child object inside <c>AdventureMainView</c> prefab.
-    /// Spawns content prefabs from <see cref="AdventureScrollViewModel.ContentItems"/> and plays
-    /// appearance animations sequentially. Assign Text / Image / Item prefabs in the inspector.
+    /// Spawns content prefabs for newly appended <see cref="AdventureScrollViewModel.ContentItems"/> and plays
+    /// appearance animations sequentially. Existing panels are removed only on <c>ON_CLEAR_CONTENT</c>.
+    /// Assign Text / Image / Splitter / Item prefabs in the inspector.
     /// </summary>
     public class AdventureScrollView : MonoBehaviour
     {
         [Header("Links")]
         [SerializeField] private Transform _contentRoot;
-        
+
         [Header("Prefabs")]
         [SerializeField] private AdventureContentViewBase _textContentPrefab;
         [SerializeField] private AdventureContentViewBase _imageContentPrefab;
+        [SerializeField] private AdventureContentViewBase _splitterContentPrefab;
         [SerializeField] private AdventureContentViewBase _itemContentPrefab;
 
         private readonly List<AdventureContentViewBase> _spawnedViews = new List<AdventureContentViewBase>();
@@ -35,7 +37,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
             _viewModel = viewModel ?? throw new System.ArgumentNullException(nameof(viewModel));
             Subscribe();
-            RebuildFromViewModel();
+            AppendPendingFromViewModel();
         }
 
         /// <summary>
@@ -73,9 +75,9 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
                 return;
             }
 
-            if (tag == AdventureScrollViewModel.ON_CHANGE_CONTENT)
+            if (tag == AdventureScrollViewModel.ON_APPEND_CONTENT)
             {
-                RebuildFromViewModel();
+                AppendPendingFromViewModel();
                 return;
             }
 
@@ -83,25 +85,46 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
                 SkipAllShowAnimation();
         }
 
-        private void RebuildFromViewModel()
+        /// <summary>
+        /// Spawns and animates content items that do not yet have a view.
+        /// Does not remove already spawned panels.
+        /// </summary>
+        private void AppendPendingFromViewModel()
         {
-            StopSequence();
-            ClearSpawnedViews();
+            if (!HasPendingItems())
+                return;
 
-            if (_viewModel == null || _viewModel.ContentItems == null || _viewModel.ContentItems.Count == 0)
+            EnsureSequenceRunning();
+        }
+
+        private bool HasPendingItems()
+        {
+            if (_viewModel?.ContentItems == null)
+                return false;
+
+            return _spawnedViews.Count < _viewModel.ContentItems.Count;
+        }
+
+        private void EnsureSequenceRunning()
+        {
+            if (_sequenceCoroutine != null)
                 return;
 
             _skipAll = false;
-            _sequenceCoroutine = StartCoroutine(PlaySequenceCoroutine(_viewModel.ContentItems));
+            _sequenceCoroutine = StartCoroutine(PlayPendingSequenceCoroutine());
         }
 
-        private IEnumerator PlaySequenceCoroutine(IReadOnlyList<AdventureContentViewModelBase> items)
+        private IEnumerator PlayPendingSequenceCoroutine()
         {
-            for (int i = 0; i < items.Count; i++)
+            while (HasPendingItems())
             {
-                var contentViewModel = items[i];
+                var contentViewModel = _viewModel.ContentItems[_spawnedViews.Count];
                 if (contentViewModel == null || contentViewModel.IsDisposed)
+                {
+                    // Keep list indices aligned with spawned views.
+                    _spawnedViews.Add(null);
                     continue;
+                }
 
                 var view = SpawnView(contentViewModel);
                 if (view == null)
@@ -126,6 +149,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
             _currentAnimator = null;
             _sequenceCoroutine = null;
+
+            // Items may have been appended after the last HasPendingItems check.
+            if (HasPendingItems())
+                EnsureSequenceRunning();
         }
 
         private IEnumerator WaitUntilContentReady(AdventureContentViewModelBase contentViewModel)
@@ -196,6 +223,8 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
                 UnityEngine.Debug.LogWarning(
                     $"[{nameof(AdventureScrollView)}] Prefab is not assigned for {contentViewModel.ContentType}.",
                     this);
+                // Placeholder keeps ContentItems index aligned with _spawnedViews.
+                _spawnedViews.Add(null);
                 return null;
             }
 
@@ -216,8 +245,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
                 case SceneContentType.Image:
                 case SceneContentType.RandomImage:
                 case SceneContentType.Slideshow:
-                case SceneContentType.Splitter:
                     return _imageContentPrefab;
+
+                case SceneContentType.Splitter:
+                    return _splitterContentPrefab;
 
                 case SceneContentType.Item:
                     return _itemContentPrefab;

@@ -11,12 +11,13 @@ using Zenject;
 namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 {
     /// <summary>
-    /// ViewModel for adventure scroll: builds content item VMs from <see cref="AdventuresManager"/>
+    /// ViewModel for adventure scroll: appends content item VMs from <see cref="AdventuresManager"/>
     /// and notifies <see cref="AdventureScrollView"/> to spawn / sequence them.
+    /// Existing items are removed only via <see cref="ClearContent"/>.
     /// </summary>
     public class AdventureScrollViewModel : ViewModelBase
     {
-        public const string ON_CHANGE_CONTENT = "ON_CHANGE_CONTENT";
+        public const string ON_APPEND_CONTENT = "ON_APPEND_CONTENT";
         public const string ON_CLEAR_CONTENT = "ON_CLEAR_CONTENT";
         public const string ON_SKIP_ALL_SHOW_ANIMATION = "ON_SKIP_ALL_SHOW_ANIMATION";
 
@@ -36,7 +37,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
             _isInitialized = true;
             Subscribe();
-            RebuildContent();
+            AppendContent();
         }
 
         /// <summary>
@@ -48,10 +49,20 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             SendOnChange(ON_SKIP_ALL_SHOW_ANIMATION);
         }
 
+        /// <summary>
+        /// Removes all content item VMs and asks the view to destroy spawned panels.
+        /// </summary>
+        public void ClearContent()
+        {
+            // Tear down visuals first so views unsubscribe while VMs are still alive.
+            SendOnChange(ON_CLEAR_CONTENT);
+            DisposeContentItems();
+        }
+
         public override void Dispose()
         {
             Unsubscribe();
-            ClearContentItems();
+            ClearContent();
             _isInitialized = false;
         }
 
@@ -68,15 +79,11 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
         private void OnChangedContentHandler()
         {
-            RebuildContent();
+            AppendContent();
         }
 
-        private void RebuildContent()
+        private void AppendContent()
         {
-            // Tear down visuals first so views unsubscribe while VMs are still alive.
-            SendOnChange(ON_CLEAR_CONTENT);
-            ClearContentItems();
-
             var contentData = _adventuresManager.GetCurrentContent();
             if (contentData != null)
             {
@@ -92,10 +99,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
                 }
             }
 
-            SendOnChange(ON_CHANGE_CONTENT);
+            SendOnChange(ON_APPEND_CONTENT);
         }
 
-        private void ClearContentItems()
+        private void DisposeContentItems()
         {
             for (int i = 0; i < _contentItems.Count; i++)
                 _contentItems[i]?.Dispose();

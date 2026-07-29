@@ -68,6 +68,9 @@ namespace Modules.RPG.Scripts.Adventure
                     result.Add(content);
             }
 
+            // Обязательные визуализаторы окончания контента сцены
+            result.Add(CreateSplitterData());
+
             return result;
         }
 
@@ -337,6 +340,14 @@ namespace Modules.RPG.Scripts.Adventure
             {
                 _isSyncingState = false;
             }
+        }
+
+        private SceneContentData CreateSplitterData()
+        {
+            return new SceneContentData()
+            {
+                Type = SceneContentType.Splitter
+            };
         }
     }
 }

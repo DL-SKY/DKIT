@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7731596818878107678}
   - component: {fileID: 9212895679731326812}
+  - component: {fileID: 5219654872937228838}
   m_Layer: 0
   m_Name: Content
   m_TagString: Untagged
@@ -58,6 +59,18 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!225 &5219654872937228838
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603106786599932458}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &1819045644583240565
 GameObject:
   m_ObjectHideFlags: 0
@@ -235,6 +248,7 @@ GameObject:
   - component: {fileID: 1298320233825785963}
   - component: {fileID: 1338820337919991292}
   - component: {fileID: 2832626068304343279}
+  - component: {fileID: 7723850657285551809}
   m_Layer: 0
   m_Name: ImageContentView
   m_TagString: Untagged
@@ -301,3 +315,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Image.AdventureImageContentView
   _cachedPathImage: {fileID: 2659121837908529748}
+--- !u!114 &7723850657285551809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7926950610417430850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a42f906614c5d64d8e8b193a195a005, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Animation.FadeInContentAnimator
+  _canvasGroup: {fileID: 5219654872937228838}
+  _duration: 0.5

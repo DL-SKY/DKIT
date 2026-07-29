@@ -27,7 +27,7 @@
 
 > Оркестрация «клик choice → прогон списка `Actions` через фабрику executors» со стороны UI пока может быть не полностью замкнута; переход по сцене и запись params через executors уже реализованы.
 
-> **UI (Windows):** `AdventureScrollViewModel` подписан на `ChangedContent` / `GetCurrentContent()`, создаёт content VM и через `AdventureScrollView` секвенциально показывает item’ы (`IContentAnimator`, `SkipAllShowAnimation`). Choices UI — ещё впереди. Подробности: [Windows.md](Windows.md) (секция Adventure runtime UI).
+> **UI (Windows):** `AdventureScrollViewModel` подписан на `ChangedContent` / `GetCurrentContent()`, **дописывает** content VM в конец списка и через `AdventureScrollView` секвенциально показывает новые item’ы (`IContentAnimator`, `SkipAllShowAnimation`). Очистка плашек — только `ClearContent`. Choices UI — ещё впереди. Подробности: [Windows.md](Windows.md) (секция Adventure runtime UI).
 
 ## Ключевые классы и роли
 

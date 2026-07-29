@@ -68,10 +68,11 @@ VM создаются через DiContainer (`Instantiate` + `Init(data)`), з�
 
 1. `AdventureMainViewModel.Init()` → `ViewModelFactory.Create<AdventureScrollViewModel>()` → `Scroll.Init()`.
 2. `AdventureScrollViewModel` подписан на `AdventuresManager.ChangedContent`, читает `GetCurrentContent()`.
-3. На изменение: `ON_CLEAR_CONTENT` (View чистит children) → dispose старых content VM → factory новых по `SceneContentType` → `ON_CHANGE_CONTENT`.
-4. `AdventureScrollView` держит prefab’ы Text / Image / Item (`AdventureContentViewBase`), `_contentRoot`; по `ON_CHANGE_CONTENT` запускает sequencer.
-5. Sequencer: spawn → ждать `IsContentReady` → `Animator.Play` → `Completed` → следующий.
-6. `SkipAllShowAnimation()` (на VM или View): `Skip` текущего аниматора + остальные item’ы сразу с `Skip` (без ожидания анимации). Подписка на tap/клик — снаружи.
+3. На `ChangedContent` / стартовый `Init`: `AppendContent` — factory новых VM по `SceneContentType` **в конец** списка → `ON_APPEND_CONTENT`. Уже показанные плашки не трогаются.
+4. Очистка только явно: `ClearContent()` → `ON_CLEAR_CONTENT` (View уничтожает children) → dispose content VM. Также из `Dispose`.
+5. `AdventureScrollView` держит prefab’ы Text / Image / Splitter / Item (`AdventureContentViewBase`), `_contentRoot`; по `ON_APPEND_CONTENT` спавнит только ещё не созданные item’ы и продолжает sequencer.
+6. Sequencer: spawn pending → ждать `IsContentReady` → `Animator.Play` → `Completed` → следующий pending.
+7. `SkipAllShowAnimation()` (на VM или View): `Skip` текущего аниматора + остальные pending сразу с `Skip`. Подписка на tap/клик — снаружи.
 
 `Initializer` после загрузки вызывает `adventureMainViewModel.Init()` перед `OpenView`.
 

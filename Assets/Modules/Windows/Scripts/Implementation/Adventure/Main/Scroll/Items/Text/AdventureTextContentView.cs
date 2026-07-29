@@ -22,7 +22,8 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Tex
 
             _text.text = _viewModel.Text;
             // Hide until TypewriterContentAnimator.Play reveals characters.
-            _text.maxVisibleCharacters = 0;
+            if (Animator != null)
+                _text.maxVisibleCharacters = 0;
         }
 
         protected override void Subscribe()
