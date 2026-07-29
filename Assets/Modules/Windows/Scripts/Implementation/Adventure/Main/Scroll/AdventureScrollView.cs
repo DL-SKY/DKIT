@@ -14,7 +14,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
     /// </summary>
     public class AdventureScrollView : MonoBehaviour
     {
+        [Header("Links")]
         [SerializeField] private Transform _contentRoot;
+        
+        [Header("Prefabs")]
         [SerializeField] private AdventureContentViewBase _textContentPrefab;
         [SerializeField] private AdventureContentViewBase _imageContentPrefab;
         [SerializeField] private AdventureContentViewBase _itemContentPrefab;
