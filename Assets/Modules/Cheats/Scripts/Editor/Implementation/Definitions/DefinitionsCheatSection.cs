@@ -56,6 +56,11 @@ namespace Modules.Cheats.Scripts.Editor.Implementation.Definitions
                 : "—";
             EditorGUILayout.LabelField("Avatars: " + avatarsId);
 
+            string visualSettingsId = definitionsManager.VisualSettings != null
+                ? definitionsManager.VisualSettings.Id
+                : "—";
+            EditorGUILayout.LabelField("VisualSettings: " + visualSettingsId);
+
             EditorGUILayout.LabelField("Adventures:");
             EditorGUI.indentLevel++;
             DrawDefinitionIds(definitionsManager.Adventures);

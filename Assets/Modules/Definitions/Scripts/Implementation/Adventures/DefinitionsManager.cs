@@ -38,6 +38,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         public LocalizationSettingsDef LocalizationSettings;
         public RuleSettingsDef RuleSettings;
         public AvatarsDef Avatars;
+        public VisualSettingsDef VisualSettings;
         public Dictionary<string, AdventureDef> Adventures;
         public Dictionary<string, ClassDef> Classes;
         public Dictionary<string, AncestryDef> Ancestries;
@@ -78,6 +79,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
                 LoadBattleRules,
                 LoadRuleSettings,
                 LoadAvatars,
+                LoadVisualSettings,
 
                 LoadAdventures,
 
@@ -188,6 +190,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         private void LoadAvatars()
         {
             Avatars = _loader.LoadSingle<AvatarsDef>("Definitions/_ADVENTURES_/Avatars/Avatars");
+        }
+
+        private void LoadVisualSettings()
+        {
+            VisualSettings = _loader.LoadSingle<VisualSettingsDef>("Definitions/_ADVENTURES_/VisualSettings/VisualSettings");
         }
     }
 }
