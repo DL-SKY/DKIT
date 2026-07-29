@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Image
 {
     /// <summary>
-    /// Shared view for Image / RandomImage / Slideshow / Splitter content.
+    /// Shared view for Image / RandomImage / Slideshow content.
     /// Pair with <see cref="Animation.FadeInContentAnimator"/> on the same GameObject.
     /// Forwards <see cref="AdventureImageContentViewModelBase.CurrentPath"/> to <see cref="CachedPathImage"/>.
     /// </summary>

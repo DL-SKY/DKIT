@@ -51,28 +51,33 @@ Prefab главного окна: `Resources/Prefabs/Views/Adventure/AdventureMa
 | Слой | Тип | Назначение |
 |---|---|---|
 | `AdventureMainView` / `AdventureMainViewModel` | `ViewBase` / `ViewModelBase` | Главный экран; `Init()` создаёт и инициализирует Scroll VM |
-| `AdventureScrollView` / `AdventureScrollViewModel` | MonoBehaviour sub-view | Скролл контента сцены: подписка на `AdventuresManager`, factory VM, spawn prefab’ов, sequencer |
+| `AdventureScrollView` / `AdventureScrollViewModel` | MonoBehaviour sub-view | Скролл контента сцены + плашки choices: подписка на `AdventuresManager`, factory VM, spawn prefab’ов, sequencer |
 | Content items | MonoBehaviour + VM | Элементы `SceneContentType` в скролле |
+| Choice items | MonoBehaviour + VM | Плашки `ChoiceData` внизу скролла |
 
-Content item View **не** наследуют `ViewBase`: паттерн как у `AdventureScrollView` — `Init(vm)`, `Subscribe`/`Unsubscribe`. Lifetime VM владеет `AdventureScrollViewModel` (`Dispose` идемпотентен).
+Content / Choice item View **не** наследуют `ViewBase`: паттерн как у `AdventureScrollView` — `Init(vm)`, `Subscribe`/`Unsubscribe`. Lifetime VM владеет `AdventureScrollViewModel` (`Dispose` идемпотентен).
 
 База:
 
 - `AdventureContentViewModelBase` — `Init(SceneContentData)`, `Data`, `IsContentReady` / `ContentReady`, `Dispose` / `DisposeImplementation`
 - `AdventureContentViewBase` (non-generic) — prefab refs, `Animator`, `Init(AdventureContentViewModelBase)`
 - `AdventureContentViewBase<TViewModel>` — typed `_viewModel`, `Subscribe` / `InitImplementation`
+- `AdventureChoiceViewModelBase` — `Init(ChoiceData)`, `Text` / `Description`, `Select()`, `Dispose`
+- `AdventureChoiceViewBase` / `AdventureChoiceViewBase<TViewModel>` — тот же паттерн, что у content
 
 VM создаются через DiContainer (`Instantiate` + `Init(data)`), зависимости — `[Inject]`.
 
 ### Scroll ↔ AdventuresManager
 
 1. `AdventureMainViewModel.Init()` → `ViewModelFactory.Create<AdventureScrollViewModel>()` → `Scroll.Init()`.
-2. `AdventureScrollViewModel` подписан на `AdventuresManager.ChangedContent`, читает `GetCurrentContent()`.
-3. На `ChangedContent` / стартовый `Init`: `AppendContent` — factory новых VM по `SceneContentType` **в конец** списка → `ON_APPEND_CONTENT`. Уже показанные плашки не трогаются.
-4. Очистка только явно: `ClearContent()` → `ON_CLEAR_CONTENT` (View уничтожает children) → dispose content VM. Также из `Dispose`.
-5. `AdventureScrollView` держит prefab’ы Text / Image / Splitter / Item (`AdventureContentViewBase`), `_contentRoot`; по `ON_APPEND_CONTENT` спавнит только ещё не созданные item’ы и продолжает sequencer.
-6. Sequencer: spawn pending → ждать `IsContentReady` → `Animator.Play` → `Completed` → следующий pending.
-7. `SkipAllShowAnimation()` (на VM или View): `Skip` текущего аниматора + остальные pending сразу с `Skip`. Подписка на tap/клик — снаружи.
+2. `AdventureScrollViewModel` подписан на `AdventuresManager.ChangedContent` и `ChangedChoices`.
+3. На `ChangedContent` / стартовый `Init`: `AppendContent` — factory новых content VM по `SceneContentType` **в конец** списка → `ON_APPEND_CONTENT`. Уже показанные content-плашки не трогаются; **choice-плашки уничтожаются** и появятся снова после sequencer.
+4. На `ChangedChoices` / стартовый `Init`: `RebuildChoices` — `ON_CLEAR_CHOICES` (View уничтожает choice panels) → dispose старых choice VM → factory новых из `GetCurrentChoices()` → `ON_REFRESH_CHOICES`.
+5. Очистка только явно: `ClearContent()` → `ON_CLEAR_CONTENT` (View уничтожает content **и** choice children) → dispose content + choice VM. Также из `Dispose`.
+6. `AdventureScrollView` держит prefab’ы Text / Image / Splitter / Item / Choice, `_contentRoot`.
+7. Sequencer контента: spawn pending → ждать `IsContentReady` → `Animator.Play` → `Completed` → следующий pending. После последнего контента (или если pending нет) — `PresentChoices`: все плашки создаются сразу, у каждой свой `Animator.Play` **параллельно**.
+8. `ON_REFRESH_CHOICES` во время sequencer — откладывает показ до конца контента; если sequencer не бежит — сразу parallel present (после `ON_CLEAR_CHOICES`).
+9. `SkipAllShowAnimation()`: `Skip` текущего content-аниматора + остальные pending content сразу с `Skip` + choice-плашки появляются с `Skip` (без анимации). Подписка на tap/клик skip — снаружи.
 
 `Initializer` после загрузки вызывает `adventureMainViewModel.Init()` перед `OpenView`.
 
@@ -83,15 +88,27 @@ VM создаются через DiContainer (`Instantiate` + `Init(data)`), з�
 | View | `SceneContentType` | VM |
 |---|---|---|
 | `AdventureTextContentView` | `Text` | `AdventureTextContentViewModel` |
-| `AdventureImageContentView` | `Image`, `RandomImage`, `Slideshow`, `Splitter` | `AdventureImageContentViewModel`, `AdventureRandomImageContentViewModel`, `AdventureSlideshowContentViewModel`, `AdventureSplitterContentViewModel` |
+| `AdventureImageContentView` | `Image`, `RandomImage`, `Slideshow` | `AdventureImageContentViewModel`, `AdventureRandomImageContentViewModel`, `AdventureSlideshowContentViewModel` |
+| `AdventureSplitterContentView` | `Splitter` | `AdventureSplitterContentViewModel` (статика в prefab, без path) |
 | `AdventureItemContentView` | `Item` | `AdventureItemContentViewModel` (`DefinitionsManager` → `ItemDef` по `Value`) |
+
+### Choice items (View + VM)
+
+| View | Данные | VM |
+|---|---|---|
+| `AdventureChoiceView` | `ChoiceData` (`Default` / `DiceCheck`) | `AdventureChoiceViewModel` |
+
+- Prefab: `ChoiceContentView` (слот `_choiceContentPrefab` на `AdventureScrollView`) + `FadeInContentAnimator`.
+- UI: `Text` / `Description` / `Button` → `Select()`.
+- `ChoiceType.Default`: прогон `Actions` через `ChoiceActionExecutorFactory`.
+- `ChoiceType.DiceCheck`: runtime outcome пока stub (warning log).
 
 Image-группа:
 
 - VM держит только **path/URL** (`CurrentPath`, `ON_CHANGE_PATH`), без `Sprite`.
 - View прокидывает path в `CachedPathImage`.
-- `Splitter` — декоративная картинка-разделитель (тот же пайплайн, что `Image`).
 - `Slideshow` — цикл `Values` раз в **1 с** через подписку VM на `Updater` (не `Update` во View).
+- `Splitter` — отдельный View/VM; картинка статична в prefab, анимация через `FadeInContentAnimator` + `CanvasGroup`, без path.
 
 ### Анимация появления (`IContentAnimator`)
 
@@ -100,14 +117,14 @@ Image-группа:
 Контракт:
 
 - `Play()` / `Skip()` / `IsPlaying` / `event Completed` (один раз — естественный конец или Skip).
-- Оркестрация последовательности и global skip — в `AdventureScrollView` (`SkipAllShowAnimation`).
+- Оркестрация последовательности контента, parallel choices и global skip — в `AdventureScrollView` (`SkipAllShowAnimation`).
 
 Реализации:
 
 - `FadeInContentAnimator` — `CanvasGroup.alpha` 0→1 за `_duration`.
 - `TypewriterContentAnimator` — TMP `maxVisibleCharacters`, скорость `_charsPerSecond`; RTF-теги не считаются (`textInfo.characterCount` после `ForceMeshUpdate`), `\n` учитывается.
 
-Ожидаемая связка на префабах: Text + Typewriter; Image/Item + FadeIn.
+Ожидаемая связка на префабах: Text + Typewriter; Image/Item/Splitter/Choice + FadeIn.
 
 ### `CachedPathImage` + `IImageCache`
 

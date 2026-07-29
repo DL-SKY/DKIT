@@ -1,7 +1,9 @@
 using Modules.RPG.Scripts.Adventure;
+using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Data;
 using Modules.Windows.Scripts.Base;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items;
+using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Choice;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Image;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Item;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Text;
@@ -12,23 +14,29 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 {
     /// <summary>
     /// ViewModel for adventure scroll: appends content item VMs from <see cref="AdventuresManager"/>
-    /// and notifies <see cref="AdventureScrollView"/> to spawn / sequence them.
-    /// Existing items are removed only via <see cref="ClearContent"/>.
+    /// and maintains choice panel VMs from <see cref="AdventuresManager.GetCurrentChoices"/>.
+    /// Notifies <see cref="AdventureScrollView"/> to spawn / sequence content and present choices.
+    /// Existing content panels are removed only via <see cref="ClearContent"/>.
     /// </summary>
     public class AdventureScrollViewModel : ViewModelBase
     {
         public const string ON_APPEND_CONTENT = "ON_APPEND_CONTENT";
         public const string ON_CLEAR_CONTENT = "ON_CLEAR_CONTENT";
         public const string ON_SKIP_ALL_SHOW_ANIMATION = "ON_SKIP_ALL_SHOW_ANIMATION";
+        public const string ON_CLEAR_CHOICES = "ON_CLEAR_CHOICES";
+        public const string ON_REFRESH_CHOICES = "ON_REFRESH_CHOICES";
 
         [Inject] private readonly AdventuresManager _adventuresManager;
         [Inject] private readonly DiContainer _container;
 
         private readonly List<AdventureContentViewModelBase> _contentItems = new List<AdventureContentViewModelBase>();
+        private readonly List<AdventureChoiceViewModelBase> _choiceItems = new List<AdventureChoiceViewModelBase>();
 
         private bool _isInitialized;
 
         public IReadOnlyList<AdventureContentViewModelBase> ContentItems => _contentItems;
+
+        public IReadOnlyList<AdventureChoiceViewModelBase> ChoiceItems => _choiceItems;
 
         public void Init()
         {
@@ -38,6 +46,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             _isInitialized = true;
             Subscribe();
             AppendContent();
+            RebuildChoices();
         }
 
         /// <summary>
@@ -50,13 +59,14 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
         }
 
         /// <summary>
-        /// Removes all content item VMs and asks the view to destroy spawned panels.
+        /// Removes all content and choice item VMs and asks the view to destroy spawned panels.
         /// </summary>
         public void ClearContent()
         {
             // Tear down visuals first so views unsubscribe while VMs are still alive.
             SendOnChange(ON_CLEAR_CONTENT);
             DisposeContentItems();
+            DisposeChoiceItems();
         }
 
         public override void Dispose()
@@ -69,17 +79,26 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
         private void Subscribe()
         {
             _adventuresManager.ChangedContent += OnChangedContentHandler;
+            _adventuresManager.ChangedChoices += OnChangedChoicesHandler;
         }
 
         private void Unsubscribe()
         {
-            if (_adventuresManager != null)
-                _adventuresManager.ChangedContent -= OnChangedContentHandler;
+            if (_adventuresManager == null)
+                return;
+
+            _adventuresManager.ChangedContent -= OnChangedContentHandler;
+            _adventuresManager.ChangedChoices -= OnChangedChoicesHandler;
         }
 
         private void OnChangedContentHandler()
         {
             AppendContent();
+        }
+
+        private void OnChangedChoicesHandler()
+        {
+            RebuildChoices();
         }
 
         private void AppendContent()
@@ -102,12 +121,44 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             SendOnChange(ON_APPEND_CONTENT);
         }
 
+        private void RebuildChoices()
+        {
+            // Tear down choice visuals first so views unsubscribe while VMs are still alive.
+            SendOnChange(ON_CLEAR_CHOICES);
+            DisposeChoiceItems();
+
+            var choicesData = _adventuresManager.GetCurrentChoices();
+            if (choicesData != null)
+            {
+                for (int i = 0; i < choicesData.Count; i++)
+                {
+                    var data = choicesData[i];
+                    if (data == null)
+                        continue;
+
+                    var viewModel = CreateChoiceViewModel(data);
+                    if (viewModel != null)
+                        _choiceItems.Add(viewModel);
+                }
+            }
+
+            SendOnChange(ON_REFRESH_CHOICES);
+        }
+
         private void DisposeContentItems()
         {
             for (int i = 0; i < _contentItems.Count; i++)
                 _contentItems[i]?.Dispose();
 
             _contentItems.Clear();
+        }
+
+        private void DisposeChoiceItems()
+        {
+            for (int i = 0; i < _choiceItems.Count; i++)
+                _choiceItems[i]?.Dispose();
+
+            _choiceItems.Clear();
         }
 
         private AdventureContentViewModelBase CreateContentViewModel(SceneContentData data)
@@ -146,6 +197,13 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
                     return null;
             }
 
+            viewModel.Init(data);
+            return viewModel;
+        }
+
+        private AdventureChoiceViewModelBase CreateChoiceViewModel(ChoiceData data)
+        {
+            var viewModel = _container.Instantiate<AdventureChoiceViewModel>();
             viewModel.Init(data);
             return viewModel;
         }

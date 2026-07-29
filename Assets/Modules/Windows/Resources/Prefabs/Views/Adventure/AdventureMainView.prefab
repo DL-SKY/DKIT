@@ -293,8 +293,8 @@ MonoBehaviour:
   m_Padding:
     m_Left: 0
     m_Right: 0
-    m_Top: 48
-    m_Bottom: 200
+    m_Top: 64
+    m_Bottom: 256
   m_ChildAlignment: 1
   m_Spacing: 24
   m_ChildForceExpandWidth: 1
@@ -446,7 +446,9 @@ MonoBehaviour:
   _contentRoot: {fileID: 6042498470608977514}
   _textContentPrefab: {fileID: 4502403302391175595, guid: 52a9376d5512cf8409de93e9874d0414, type: 3}
   _imageContentPrefab: {fileID: 2832626068304343279, guid: e39fbc4fc0764db469dc93a7a1944d90, type: 3}
+  _splitterContentPrefab: {fileID: 8034569921832210568, guid: 5945abc14427f6a4eb3df819b9ae240f, type: 3}
   _itemContentPrefab: {fileID: 0}
+  _choiceContentPrefab: {fileID: 0}
 --- !u!114 &1917145860534915017
 MonoBehaviour:
   m_ObjectHideFlags: 0

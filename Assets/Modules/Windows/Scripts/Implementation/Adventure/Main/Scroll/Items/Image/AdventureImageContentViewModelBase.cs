@@ -4,8 +4,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ima
 {
     /// <summary>
     /// Shared ViewModel state for image-like content (<see cref="SceneContentType.Image"/>,
-    /// <see cref="SceneContentType.RandomImage"/>, <see cref="SceneContentType.Slideshow"/>,
-    /// <see cref="SceneContentType.Splitter"/>).
+    /// <see cref="SceneContentType.RandomImage"/>, <see cref="SceneContentType.Slideshow"/>).
     /// Holds only the image path/URL — sprite loading is the View's responsibility.
     /// </summary>
     public abstract class AdventureImageContentViewModelBase : AdventureContentViewModelBase

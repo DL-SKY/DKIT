@@ -1,6 +1,7 @@
 using Modules.RPG.Scripts.Adventure.Data;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Animation;
+using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Choice;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,26 +11,34 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
     /// <summary>
     /// Sub-view for adventure scroll content; attach to a child object inside <c>AdventureMainView</c> prefab.
     /// Spawns content prefabs for newly appended <see cref="AdventureScrollViewModel.ContentItems"/> and plays
-    /// appearance animations sequentially. Existing panels are removed only on <c>ON_CLEAR_CONTENT</c>.
-    /// Assign Text / Image / Splitter / Item prefabs in the inspector.
+    /// appearance animations sequentially. After the content sequence finishes (or on skip), spawns choice panels
+    /// and plays their appearance animations in parallel.
+    /// Existing content panels are removed only on <c>ON_CLEAR_CONTENT</c>.
+    /// Choice panels are cleared on <c>ON_CLEAR_CONTENT</c>, <c>ON_APPEND_CONTENT</c>, and <c>ON_CLEAR_CHOICES</c>.
+    /// Assign Text / Image / Splitter / Item / Choice prefabs in the inspector.
     /// </summary>
     public class AdventureScrollView : MonoBehaviour
     {
         [Header("Links")]
         [SerializeField] private Transform _contentRoot;
 
-        [Header("Prefabs")]
+        [Header("Content Prefabs")]
         [SerializeField] private AdventureContentViewBase _textContentPrefab;
         [SerializeField] private AdventureContentViewBase _imageContentPrefab;
         [SerializeField] private AdventureContentViewBase _splitterContentPrefab;
         [SerializeField] private AdventureContentViewBase _itemContentPrefab;
 
+        [Header("Choice Prefabs")]
+        [SerializeField] private AdventureChoiceViewBase _choicePrefab;
+
         private readonly List<AdventureContentViewBase> _spawnedViews = new List<AdventureContentViewBase>();
+        private readonly List<AdventureChoiceViewBase> _spawnedChoiceViews = new List<AdventureChoiceViewBase>();
 
         private AdventureScrollViewModel _viewModel;
         private Coroutine _sequenceCoroutine;
         private IContentAnimator _currentAnimator;
         private bool _skipAll;
+        private bool _choicesPending;
 
         public void Init(AdventureScrollViewModel viewModel)
         {
@@ -41,7 +50,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
         }
 
         /// <summary>
-        /// Skips the current appearance animation and shows all remaining content immediately.
+        /// Skips the current appearance animation and shows all remaining content / choices immediately.
         /// </summary>
         public void SkipAllShowAnimation()
         {
@@ -50,6 +59,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
             _skipAll = true;
             _currentAnimator?.Skip();
+            SkipChoiceAnimators();
         }
 
         private void Subscribe()
@@ -72,12 +82,29 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             {
                 StopSequence();
                 ClearSpawnedViews();
+                ClearSpawnedChoiceViews();
+                _choicesPending = false;
                 return;
             }
 
             if (tag == AdventureScrollViewModel.ON_APPEND_CONTENT)
             {
+                // New content replaces any previously shown choice panels until the sequence finishes.
+                ClearSpawnedChoiceViews();
+                _choicesPending = true;
                 AppendPendingFromViewModel();
+                return;
+            }
+
+            if (tag == AdventureScrollViewModel.ON_CLEAR_CHOICES)
+            {
+                ClearSpawnedChoiceViews();
+                return;
+            }
+
+            if (tag == AdventureScrollViewModel.ON_REFRESH_CHOICES)
+            {
+                OnRefreshChoices();
                 return;
             }
 
@@ -85,16 +112,33 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
                 SkipAllShowAnimation();
         }
 
+        private void OnRefreshChoices()
+        {
+            if (IsSequenceRunning)
+            {
+                // Present after the current content sequence finishes.
+                _choicesPending = true;
+                return;
+            }
+
+            PresentChoices();
+        }
+
         /// <summary>
         /// Spawns and animates content items that do not yet have a view.
-        /// Does not remove already spawned panels.
+        /// Does not remove already spawned content panels.
         /// </summary>
         private void AppendPendingFromViewModel()
         {
-            if (!HasPendingItems())
+            if (HasPendingItems())
+            {
+                EnsureSequenceRunning();
                 return;
+            }
 
-            EnsureSequenceRunning();
+            // No new content to animate — show choices if they were marked pending (e.g. after clear/rebuild).
+            if (_choicesPending || _spawnedChoiceViews.Count == 0)
+                PresentChoices();
         }
 
         private bool HasPendingItems()
@@ -104,6 +148,8 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
             return _spawnedViews.Count < _viewModel.ContentItems.Count;
         }
+
+        private bool IsSequenceRunning => _sequenceCoroutine != null;
 
         private void EnsureSequenceRunning()
         {
@@ -152,7 +198,48 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
             // Items may have been appended after the last HasPendingItems check.
             if (HasPendingItems())
+            {
                 EnsureSequenceRunning();
+                yield break;
+            }
+
+            PresentChoices();
+        }
+
+        private void PresentChoices()
+        {
+            _choicesPending = false;
+
+            if (_viewModel?.ChoiceItems == null || _viewModel.ChoiceItems.Count == 0)
+                return;
+
+            if (_spawnedChoiceViews.Count > 0)
+                return;
+
+            for (int i = 0; i < _viewModel.ChoiceItems.Count; i++)
+            {
+                var choiceViewModel = _viewModel.ChoiceItems[i];
+                if (choiceViewModel == null || choiceViewModel.IsDisposed)
+                {
+                    _spawnedChoiceViews.Add(null);
+                    continue;
+                }
+
+                var view = SpawnChoiceView(choiceViewModel);
+                if (view == null)
+                    continue;
+
+                if (_skipAll)
+                    view.Animator?.Skip();
+                else
+                    view.Animator?.Play();
+            }
+        }
+
+        private void SkipChoiceAnimators()
+        {
+            for (int i = 0; i < _spawnedChoiceViews.Count; i++)
+                _spawnedChoiceViews[i]?.Animator?.Skip();
         }
 
         private IEnumerator WaitUntilContentReady(AdventureContentViewModelBase contentViewModel)
@@ -235,6 +322,24 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             return instance;
         }
 
+        private AdventureChoiceViewBase SpawnChoiceView(AdventureChoiceViewModelBase choiceViewModel)
+        {
+            if (_choicePrefab == null)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[{nameof(AdventureScrollView)}] Choice prefab is not assigned.",
+                    this);
+                _spawnedChoiceViews.Add(null);
+                return null;
+            }
+
+            var parent = _contentRoot != null ? _contentRoot : transform;
+            var instance = Instantiate(_choicePrefab, parent);
+            instance.Init(choiceViewModel);
+            _spawnedChoiceViews.Add(instance);
+            return instance;
+        }
+
         private AdventureContentViewBase ResolvePrefab(AdventureContentViewModelBase contentViewModel)
         {
             switch (contentViewModel.ContentType)
@@ -282,11 +387,24 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             _spawnedViews.Clear();
         }
 
+        private void ClearSpawnedChoiceViews()
+        {
+            for (int i = 0; i < _spawnedChoiceViews.Count; i++)
+            {
+                var view = _spawnedChoiceViews[i];
+                if (view != null)
+                    Destroy(view.gameObject);
+            }
+
+            _spawnedChoiceViews.Clear();
+        }
+
         private void OnDestroy()
         {
             StopSequence();
             Unsubscribe();
             ClearSpawnedViews();
+            ClearSpawnedChoiceViews();
             _viewModel = null;
         }
     }
