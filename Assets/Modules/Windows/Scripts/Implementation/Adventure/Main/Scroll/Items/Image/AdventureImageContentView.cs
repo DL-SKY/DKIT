@@ -36,14 +36,6 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ima
 
         private void ApplyCurrentPath()
         {
-            if (_cachedPathImage == null)
-            {
-                UnityEngine.Debug.LogWarning(
-                    $"[{nameof(AdventureImageContentView)}] {nameof(CachedPathImage)} is not assigned on '{name}'.",
-                    this);
-                return;
-            }
-
             _cachedPathImage.SetPath(_viewModel.CurrentPath);
         }
     }

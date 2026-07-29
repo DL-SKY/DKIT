@@ -55,7 +55,8 @@ namespace Modules.Localization.Scripts.Core
             }
 
             UnityEngine.Debug.LogWarning($"[LocalizationManager] GetString({key}) -> not contains key: {key}!");
-            return string.Empty;
+            return key;
+            //return string.Empty;
         }
 
         protected abstract SystemLanguage GetCurrentLanguage();

@@ -84,7 +84,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ani
             {
                 // Ensure layout/count are current even if Play was skipped before a mesh update.
                 _text.ForceMeshUpdate();
-                _text.maxVisibleCharacters = _text.textInfo.characterCount;
+                _text.maxVisibleCharacters = int.MaxValue;
             }
 
             Completed?.Invoke();

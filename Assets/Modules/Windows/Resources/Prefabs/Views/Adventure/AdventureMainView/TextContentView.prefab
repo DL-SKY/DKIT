@@ -141,6 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Text.AdventureTextContentView
   _text: {fileID: 5417195034341545639}
+  _localText: {fileID: 654762439508282105}
 --- !u!114 &7846209424371381203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,6 +167,7 @@ GameObject:
   - component: {fileID: 4266794821258353127}
   - component: {fileID: 7388593891441863099}
   - component: {fileID: 5417195034341545639}
+  - component: {fileID: 654762439508282105}
   m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -295,3 +297,15 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &654762439508282105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5747123187143118059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6792607b47df10b4ca672b0028d1ddfd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Modules.Localization.Scripts.Components.LocalizationText

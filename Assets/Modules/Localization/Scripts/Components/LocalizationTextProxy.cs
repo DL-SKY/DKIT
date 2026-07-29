@@ -24,18 +24,12 @@ namespace Modules.Localization.Scripts.Components
 
         private void OnEnable()
         {
-            if (!_isInit)
-                return;
-
-            _manager.OnChangeLanguage += OnChangeLanguageHandler;
+            Subscribe();
         }
 
         private void OnDisable()
         {
-            if (!_isInit)
-                return;
-
-            _manager.OnChangeLanguage -= OnChangeLanguageHandler;
+            Unsubscribe();
         }
 
         public void SetText(string key, params object[] args)
@@ -87,5 +81,21 @@ namespace Modules.Localization.Scripts.Components
         }
 
         protected abstract void Init(); //_localization = ProjectContext.Instance.Container.Resolve<Localization>();
+
+        protected void Subscribe()
+        {
+            if (!_isInit)
+                return;
+
+            _manager.OnChangeLanguage += OnChangeLanguageHandler;
+        }
+
+        protected void Unsubscribe()
+        {
+            if (!_isInit)
+                return;
+
+            _manager.OnChangeLanguage -= OnChangeLanguageHandler;
+        }
     }
 }

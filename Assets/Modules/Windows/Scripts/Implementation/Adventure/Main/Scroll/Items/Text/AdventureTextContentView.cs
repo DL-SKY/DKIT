@@ -1,3 +1,4 @@
+using Modules.Localization.Scripts.Components;
 using TMPro;
 using UnityEngine;
 
@@ -9,18 +10,12 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Tex
     public sealed class AdventureTextContentView : AdventureContentViewBase<AdventureTextContentViewModel>
     {
         [SerializeField] private TextMeshProUGUI _text;
+        [SerializeField] private LocalizationText _localText;
 
         protected override void InitImplementation()
         {
-            if (_text == null)
-            {
-                UnityEngine.Debug.LogWarning(
-                    $"[{nameof(AdventureTextContentView)}] TextMeshProUGUI is not assigned on '{name}'.",
-                    this);
-                return;
-            }
+            _localText.SetText(_viewModel.Text);
 
-            _text.text = _viewModel.Text;
             // Hide until TypewriterContentAnimator.Play reveals characters.
             if (Animator != null)
                 _text.maxVisibleCharacters = 0;
