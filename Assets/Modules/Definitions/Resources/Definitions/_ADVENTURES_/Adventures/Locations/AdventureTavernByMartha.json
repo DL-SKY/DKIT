@@ -308,9 +308,6 @@
           "AlwaysShow": false,
           "Restrictions": [],
           "DiceCheck": null,
-		  "VisualOptions": {
-			  "ParameterOverrideDescription": "STR"
-		  },
           "Actions": [
             {
               "Type": "GoToScene",
@@ -335,9 +332,6 @@
           "AlwaysShow": false,
           "Restrictions": [],
           "DiceCheck": null,
-		  "VisualOptions": {
-			  "MainIcon": "Adventures/Icons/C_015"
-		  },
           "Actions": [
             {
               "Type": "OpenWindow",
