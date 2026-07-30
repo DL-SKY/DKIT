@@ -101,8 +101,6 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
         private void OnScreenInputHandler(ScreenInputType inputType)
         {
-            UnityEngine.Debug.LogError($"    >> {inputType}");
-
             if (inputType == ScreenInputType.PointerDown)
                 SkipAllShowAnimation();
         }
