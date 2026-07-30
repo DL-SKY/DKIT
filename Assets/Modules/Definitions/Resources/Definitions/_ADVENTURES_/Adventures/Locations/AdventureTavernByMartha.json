@@ -308,6 +308,9 @@
           "AlwaysShow": false,
           "Restrictions": [],
           "DiceCheck": null,
+		  "VisualOptions": {
+			  "ParameterOverrideDescription": "STR"
+		  },
           "Actions": [
             {
               "Type": "GoToScene",

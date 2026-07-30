@@ -226,6 +226,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         Id = "new_choice",
                         Tags = new List<string>(),
                         Type = ChoiceType.Default,
+                        VisualOptions = new VisualOptions
+                        {
+                            MainIcon = string.Empty,
+                            DescriptionIcon = string.Empty,
+                            ParameterOverrideDescription = string.Empty,
+                        },
                         Text = string.Empty,
                         Description = string.Empty,
                         AlwaysShow = false,
@@ -245,6 +251,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         Id = "new_choice",
                         Tags = new List<string>(),
                         Type = ChoiceType.DiceCheck,
+                        VisualOptions = new VisualOptions
+                        {
+                            MainIcon = string.Empty,
+                            DescriptionIcon = string.Empty,
+                            ParameterOverrideDescription = string.Empty,
+                        },
                         Text = string.Empty,
                         Description = string.Empty,
                         AlwaysShow = false,

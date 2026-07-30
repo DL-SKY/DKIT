@@ -823,8 +823,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 553f12bd08d58da4882b4944145b5f02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Choice.AdventureChoiceView
-  _text: {fileID: 6496752873563959560}
-  _description: {fileID: 8620181803209962780}
+  _localText: {fileID: 2762806510470203242}
+  _mainIcon: {fileID: 1789880523057754792}
+  _descriptionHolder: {fileID: 999778636760302237}
+  _localDescription: {fileID: 4044175656958071569}
+  _descriptionIcon: {fileID: 4855192969887538653}
   _button: {fileID: 6318896451359917192}
 --- !u!114 &4271106180823386635
 MonoBehaviour:

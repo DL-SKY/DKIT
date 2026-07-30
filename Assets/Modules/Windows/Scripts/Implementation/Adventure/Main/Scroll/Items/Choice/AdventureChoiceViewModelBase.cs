@@ -17,16 +17,23 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Cho
         public ChoiceType ChoiceType => Data.Type;
 
         public string Text { get; private set; }
-
         public string Description { get; private set; }
+        public string MainIcon { get; private set; }
+        public bool EnabledDescription { get; private set; }
+        public string DescriptionIcon { get; private set; }
 
         public bool IsDisposed => _isDisposed;
 
         public virtual void Init(ChoiceData data)
         {
             Data = data ?? throw new ArgumentNullException(nameof(data));
-            Text = data.Text ?? string.Empty;
-            Description = data.Description ?? string.Empty;
+
+            MainIcon = GetMainIcon();
+            Text = GetText();
+            Description = GetDescription();
+            DescriptionIcon = GetDescriptionIcon();
+
+            EnabledDescription = !string.IsNullOrEmpty(Description);
         }
 
         /// <summary>
@@ -48,6 +55,26 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Cho
         /// </summary>
         protected virtual void DisposeImplementation()
         {
+        }
+
+        private string GetMainIcon()
+        {
+            return Data.VisualOptions?.MainIcon ?? string.Empty;
+        }
+
+        private string GetText()
+        {
+            return Data.Text ?? string.Empty;
+        }
+
+        private string GetDescription()
+        {
+            return Data.Description ?? string.Empty;
+        }
+
+        private string GetDescriptionIcon()
+        {
+            return Data.VisualOptions?.DescriptionIcon ?? string.Empty;
         }
     }
 }

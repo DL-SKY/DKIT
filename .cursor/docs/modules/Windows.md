@@ -50,12 +50,15 @@ Prefab главного окна: `Resources/Prefabs/Views/Adventure/AdventureMa
 
 | Слой | Тип | Назначение |
 |---|---|---|
-| `AdventureMainView` / `AdventureMainViewModel` | `ViewBase` / `ViewModelBase` | Главный экран; `Init()` создаёт и инициализирует Scroll VM |
+| `AdventureMainView` / `AdventureMainViewModel` | `ViewBase` / `ViewModelBase` | Главный экран; `Init()` создаёт и инициализирует Scroll / TopPanel / BottomPanel VM |
 | `AdventureScrollView` / `AdventureScrollViewModel` | MonoBehaviour sub-view | Скролл контента сцены + плашки choices: подписка на `AdventuresManager`, factory VM, spawn prefab’ов, sequencer |
+| `AdventureTopPanelView` / `AdventureTopPanelViewModel` | MonoBehaviour sub-view | Верхняя панель (character / abilities / menu); `Init` создаёт Parameter VM на каждый слот `_parameterViews` |
+| `AdventureParameterView` / `AdventureParameterViewModel` | MonoBehaviour sub-view | Слот параметра в TopPanel; View вызывает `VM.Init(_parameterName)` |
+| `AdventureBottomPanelView` / `AdventureBottomPanelViewModel` | MonoBehaviour sub-view | Нижняя панель; каркас `Init` / `Subscribe` |
 | Content items | MonoBehaviour + VM | Элементы `SceneContentType` в скролле |
 | Choice items | MonoBehaviour + VM | Плашки `ChoiceData` внизу скролла |
 
-Content / Choice item View **не** наследуют `ViewBase`: паттерн как у `AdventureScrollView` — `Init(vm)`, `Subscribe`/`Unsubscribe`. Lifetime VM владеет `AdventureScrollViewModel` (`Dispose` идемпотентен).
+Sub-views (Scroll / TopPanel / BottomPanel / Parameter) и Content / Choice item View **не** наследуют `ViewBase`: паттерн `Init(vm)`, `Subscribe`/`Unsubscribe`. Lifetime panel VM владеет `AdventureMainViewModel`; lifetime parameter VM — `AdventureTopPanelViewModel`; lifetime content/choice VM — `AdventureScrollViewModel` (`Dispose` идемпотентен).
 
 База:
 
@@ -69,7 +72,7 @@ VM создаются через DiContainer (`Instantiate` + `Init(data)`), з�
 
 ### Scroll ↔ AdventuresManager
 
-1. `AdventureMainViewModel.Init()` → `ViewModelFactory.Create<AdventureScrollViewModel>()` → `Scroll.Init()`.
+1. `AdventureMainViewModel.Init()` → factory + `Init()` для `Scroll`, `TopPanel`, `BottomPanel`; `AdventureMainView` прокидывает VM в соответствующие sub-view.
 2. `AdventureScrollViewModel` подписан на `AdventuresManager.ChangedContent` и `ChangedChoices`.
 3. На `ChangedContent` / стартовый `Init`: `AppendContent` — factory новых content VM по `SceneContentType` **в конец** списка → `ON_APPEND_CONTENT`. Уже показанные content-плашки не трогаются; **choice-плашки уничтожаются** и появятся снова после sequencer.
 4. На `ChangedChoices` / стартовый `Init`: `RebuildChoices` — `ON_CLEAR_CHOICES` (View уничтожает choice panels) → dispose старых choice VM → factory новых из `GetCurrentChoices()` → `ON_REFRESH_CHOICES`.

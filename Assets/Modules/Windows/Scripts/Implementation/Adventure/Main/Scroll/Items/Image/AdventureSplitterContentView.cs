@@ -1,3 +1,6 @@
+using TMPro;
+using UnityEngine;
+
 namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Image
 {
     /// <summary>
@@ -6,8 +9,12 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Ima
     /// </summary>
     public sealed class AdventureSplitterContentView : AdventureContentViewBase<AdventureSplitterContentViewModel>
     {
+        [SerializeField] private TextMeshProUGUI _debugText;
+
         protected override void InitImplementation()
         {
+            if (_debugText != null)
+                _debugText.text = _viewModel.DebugText;
         }
 
         protected override void Subscribe()

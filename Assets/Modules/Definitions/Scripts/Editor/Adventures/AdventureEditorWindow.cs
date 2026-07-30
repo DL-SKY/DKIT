@@ -692,6 +692,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             DrawField(() => choiceData.Description = EditorGUILayout.TextField("Description", choiceData.Description ?? string.Empty));
             DrawField(() => choiceData.AlwaysShow = EditorGUILayout.Toggle("Always Show", choiceData.AlwaysShow));
             DrawField(() => choiceData.Tags = ParseCsv(EditorGUILayout.TextField("Tags (csv)", JoinCsv(choiceData.Tags))));
+            DrawVisualOptionsEditor(choiceData);
             choiceData.Restrictions ??= new List<Restriction>();
             DrawRestrictionsSection(choiceData.Restrictions, "Restrictions");
             if (choiceData.Type == ChoiceType.DiceCheck)
@@ -932,6 +933,27 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 int nextIndex = EditorGUILayout.Popup("Window Id", selectedIndex, options.ToArray());
                 actionData.Params.Strings[ChoiceActions.WINDOW_ID] = options[nextIndex];
             });
+        }
+
+        private void DrawVisualOptionsEditor(ChoiceData choiceData)
+        {
+            choiceData.VisualOptions ??= new VisualOptions
+            {
+                MainIcon = string.Empty,
+                DescriptionIcon = string.Empty,
+                ParameterOverrideDescription = string.Empty,
+            };
+            choiceData.VisualOptions.MainIcon ??= string.Empty;
+            choiceData.VisualOptions.DescriptionIcon ??= string.Empty;
+            choiceData.VisualOptions.ParameterOverrideDescription ??= string.Empty;
+
+            EditorGUILayout.Space(2f);
+            EditorGUILayout.LabelField("Visual Options", EditorStyles.boldLabel);
+            DrawField(() => choiceData.VisualOptions.MainIcon = EditorGUILayout.TextField("Main Icon", choiceData.VisualOptions.MainIcon));
+            DrawField(() => choiceData.VisualOptions.DescriptionIcon = EditorGUILayout.TextField("Description Icon", choiceData.VisualOptions.DescriptionIcon));
+            DrawField(() => choiceData.VisualOptions.ParameterOverrideDescription = EditorGUILayout.TextField(
+                "Parameter Override Description",
+                choiceData.VisualOptions.ParameterOverrideDescription));
         }
 
         private void DrawDiceCheckEditor(ChoiceData choiceData)
@@ -1614,6 +1636,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     scene.Choices[choiceIndex] ??= new ChoiceData();
                     scene.Choices[choiceIndex].Tags ??= new List<string>();
                     scene.Choices[choiceIndex].Restrictions ??= new List<Modules.Restrictions.Scripts.Core.Restriction>();
+                    if (scene.Choices[choiceIndex].VisualOptions != null)
+                    {
+                        scene.Choices[choiceIndex].VisualOptions.MainIcon ??= string.Empty;
+                        scene.Choices[choiceIndex].VisualOptions.DescriptionIcon ??= string.Empty;
+                        scene.Choices[choiceIndex].VisualOptions.ParameterOverrideDescription ??= string.Empty;
+                    }
                     if (scene.Choices[choiceIndex].Type == ChoiceType.DiceCheck)
                     {
                         scene.Choices[choiceIndex].DiceCheck ??= new ChoiceDiceCheckData
@@ -1742,6 +1770,14 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         Id = sourceChoice?.Id ?? string.Empty,
                         Tags = new List<string>(sourceChoice?.Tags ?? new List<string>()),
                         Type = sourceChoice?.Type ?? ChoiceType.Default,
+                        VisualOptions = sourceChoice?.VisualOptions == null
+                            ? null
+                            : new VisualOptions
+                            {
+                                MainIcon = sourceChoice.VisualOptions.MainIcon ?? string.Empty,
+                                DescriptionIcon = sourceChoice.VisualOptions.DescriptionIcon ?? string.Empty,
+                                ParameterOverrideDescription = sourceChoice.VisualOptions.ParameterOverrideDescription ?? string.Empty,
+                            },
                         Text = sourceChoice?.Text ?? string.Empty,
                         Description = sourceChoice?.Description ?? string.Empty,
                         AlwaysShow = sourceChoice?.AlwaysShow ?? false,

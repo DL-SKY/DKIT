@@ -1,6 +1,7 @@
 using Modules.Windows.Scripts.Base;
-using Modules.Windows.Scripts.Components;
+using Modules.Windows.Scripts.Implementation.Adventure.Main.BottomPanel;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll;
+using Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel;
 using UnityEngine;
 
 namespace Modules.Windows.Scripts.Implementation.Adventure.Main
@@ -12,7 +13,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main
     {
         public static string Path = "Prefabs/Views/Adventure/AdventureMainView";
 
-        [SerializeField] private AdventureScrollView _scrollView;        
+        [Header("Subviews")]
+        [SerializeField] private AdventureScrollView _scrollView;
+        [SerializeField] private AdventureTopPanelView _topPanelView;
+        [SerializeField] private AdventureBottomPanelView _bottomPanelView;
 
         protected override void InitImplementation()
         {
@@ -23,16 +27,19 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main
                     $"[{nameof(AdventureMainView)}] {nameof(AdventureScrollView)} is not assigned on '{name}'.",
                     this);
 
-            //TODO: test
-            //https://i.pinimg.com/originals/92/b7/e1/92b7e1ef89260809295c10012f833acd.jpg
-            //[SerializeField] private CachedPathImage _image;
-            //if (_image != null)
-            //{
-            //    _image.SetPath(@"https://static.vecteezy.com/system/resources/thumbnails/020/617/592/large/loading-circle-animation-on-black-transparent-background-with-alpha-channel-element-animation-for-web-interface-or-application-interface-and-more-searching-updating-and-buffering-circle-icon-free-video.jpg");
-            //    _image.SetPath(@"https://i.pinimg.com/originals/33/93/41/339341a3ebc61e65624eb522a19a1722.jpg");
-            //    _image.SetPath(@"https://i.pinimg.com/originals/92/b7/e1/92b7e1ef89260809295c10012f833acd.jpg");
-            //    _image.SetPath(@"DEBUG/testImg");
-            //}
+            if (_topPanelView != null && _viewModel.TopPanel != null)
+                _topPanelView.Init(_viewModel.TopPanel);
+            else if (_topPanelView == null)
+                UnityEngine.Debug.LogWarning(
+                    $"[{nameof(AdventureMainView)}] {nameof(AdventureTopPanelView)} is not assigned on '{name}'.",
+                    this);
+
+            if (_bottomPanelView != null && _viewModel.BottomPanel != null)
+                _bottomPanelView.Init(_viewModel.BottomPanel);
+            else if (_bottomPanelView == null)
+                UnityEngine.Debug.LogWarning(
+                    $"[{nameof(AdventureMainView)}] {nameof(AdventureBottomPanelView)} is not assigned on '{name}'.",
+                    this);
         }
 
         protected override void Subscribe()

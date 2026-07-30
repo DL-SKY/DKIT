@@ -1,4 +1,5 @@
-using TMPro;
+using Modules.Localization.Scripts.Components;
+using Modules.Windows.Scripts.Components;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,28 +11,25 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Cho
     public sealed class AdventureChoiceView : AdventureChoiceViewBase<AdventureChoiceViewModel>
     {
         [Header("Title")]
-        [SerializeField] private TextMeshProUGUI _text;
+        [SerializeField] private LocalizationText _localText;
+        [SerializeField] private CachedPathImage _mainIcon;
 
         [Header("Description")]
-        [SerializeField] private TextMeshProUGUI _description;
+        [SerializeField] private GameObject _descriptionHolder;
+        [SerializeField] private LocalizationText _localDescription;
+        [SerializeField] private CachedPathImage _descriptionIcon;
 
         [Header("Button")]
         [SerializeField] private Button _button;
 
         protected override void InitImplementation()
         {
-            if (_text != null)
-                _text.text = _viewModel.Text;
-            else
-                UnityEngine.Debug.LogWarning(
-                    $"[{nameof(AdventureChoiceView)}] Text TextMeshProUGUI is not assigned on '{name}'.",
-                    this);
+            _localText?.SetText(_viewModel.Text);
+            _mainIcon?.SetPath(_viewModel.MainIcon);
 
-            if (_description != null)
-            {
-                _description.text = _viewModel.Description;
-                _description.gameObject.SetActive(!string.IsNullOrEmpty(_viewModel.Description));
-            }
+            _descriptionHolder?.SetActive(_viewModel.EnabledDescription);
+            _localDescription?.SetText(_viewModel.Description, _viewModel.DescriptionParam);
+            _descriptionIcon?.SetPath(_viewModel.DescriptionIcon);
 
             if (_button == null)
             {

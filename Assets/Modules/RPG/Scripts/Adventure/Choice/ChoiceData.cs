@@ -23,6 +23,12 @@ namespace Modules.RPG.Scripts.Adventure.Choice
         public List<ChoiceActionData> OnCriticalFailure;
     }
 
+    public class VisualOptions
+    {
+        public string MainIcon;
+        public string DescriptionIcon;
+        public string ParameterOverrideDescription;
+    }
 
     public class ChoiceData
     {
@@ -31,9 +37,7 @@ namespace Modules.RPG.Scripts.Adventure.Choice
 
         public ChoiceType Type;
 
-        //public object ViewOptions;                          //*options... Animation, effects, icons, etc
-        //public string Icon;                                 //*options... if EMPTY - use default
-
+        public VisualOptions VisualOptions;
 
         public string Text;
         public string Description;

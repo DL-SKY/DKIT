@@ -264,6 +264,12 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                     ChoiceData choiceData = sceneData.Choices[i] ?? new ChoiceData();
                     choiceData.Tags ??= new List<string>();
                     choiceData.Restrictions ??= new List<Modules.Restrictions.Scripts.Core.Restriction>();
+                    if (choiceData.VisualOptions != null)
+                    {
+                        choiceData.VisualOptions.MainIcon ??= string.Empty;
+                        choiceData.VisualOptions.DescriptionIcon ??= string.Empty;
+                        choiceData.VisualOptions.ParameterOverrideDescription ??= string.Empty;
+                    }
                     if (choiceData.Type == ChoiceType.DiceCheck)
                     {
                         choiceData.DiceCheck ??= new ChoiceDiceCheckData

@@ -212,6 +212,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                     CollectFromText(choice.Text, keys);
                     CollectFromText(choice.Description, keys);
+                    CollectFromText(choice.VisualOptions?.ParameterOverrideDescription, keys);
 
                     if (choice.Actions == null)
                         continue;
@@ -364,6 +365,16 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                             textToGeneratedKey,
                             usedKeys,
                             result);
+
+                        if (choice.VisualOptions != null)
+                        {
+                            ProcessField(
+                                ref choice.VisualOptions.ParameterOverrideDescription,
+                                $"{choiceBase}_PARAM_OVERRIDE_DESCR",
+                                textToGeneratedKey,
+                                usedKeys,
+                                result);
+                        }
                     }
                 }
             }
@@ -437,6 +448,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                     CollectKey(choice.Text, result);
                     CollectKey(choice.Description, result);
+                    CollectKey(choice.VisualOptions?.ParameterOverrideDescription, result);
                 }
             }
 
@@ -780,6 +792,15 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                             $"Choice '{choiceId}' in scene '{sceneId}' Description",
                             () => choice.Description,
                             value => choice.Description = value);
+
+                        if (choice.VisualOptions != null)
+                        {
+                            ValidateLocalizedTextField(
+                                issues,
+                                $"Choice '{choiceId}' in scene '{sceneId}' VisualOptions.ParameterOverrideDescription",
+                                () => choice.VisualOptions.ParameterOverrideDescription,
+                                value => choice.VisualOptions.ParameterOverrideDescription = value);
+                        }
 
                         if (choice.Type == ChoiceType.Default)
                         {

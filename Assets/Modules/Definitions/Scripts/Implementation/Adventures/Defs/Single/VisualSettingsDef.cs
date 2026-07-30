@@ -1,4 +1,5 @@
 using Modules.Definitions.Scripts.Defs;
+using System.Collections.Generic;
 
 namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Single
 {
@@ -7,5 +8,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Single
     /// </summary>
     public class VisualSettingsDef : AbstractDefinition
     {
+        public Dictionary<string, string> ParameterIcons;
+        public Dictionary<string, string> ParameterLocalizations;
     }
 }
