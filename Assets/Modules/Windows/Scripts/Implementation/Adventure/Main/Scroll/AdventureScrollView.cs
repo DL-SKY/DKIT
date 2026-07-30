@@ -24,7 +24,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
     public class AdventureScrollView : MonoBehaviour
     {
         private const float SPACE_PREP_SCROLL_DURATION = 0.5f;
-        private const float SPACE_PREP_BOTTOM_PADDING_VIEWPORT_FRACTION = 9f / 10f;
+        private const float SPACE_PREP_BOTTOM_PADDING_VIEWPORT_FRACTION = 3f / 4f;      //9f / 10f;
 
         [Header("Links")]
         [SerializeField] private Transform _contentRoot;
@@ -283,6 +283,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             if (!_hasDefaultBottomPadding)
                 return;
 
+            // Revert
             SetBottomPadding(_defaultBottomPadding);
         }
 

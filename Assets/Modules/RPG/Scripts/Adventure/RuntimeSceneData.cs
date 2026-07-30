@@ -169,7 +169,8 @@ namespace Modules.RPG.Scripts.Adventure
             if (!string.Equals(oldAdventureId, _adventureId, StringComparison.Ordinal))
                 ChangedAdventure?.Invoke(_adventureId);
 
-            if (!string.Equals(oldSceneId, _sceneId, StringComparison.Ordinal))
+            if (!string.Equals(oldSceneId, _sceneId, StringComparison.Ordinal)
+                || !string.Equals(oldAdventureId, _adventureId, StringComparison.Ordinal))
                 ChangedScene?.Invoke(_sceneId);
 
             // Params-only changes also need UI refresh (restrictions on content/choices).
