@@ -53,6 +53,14 @@ namespace Modules.RPG.Scripts.Adventure
             return _runtimeSceneData.GetCurrentChoices();
         }
 
+        public bool ShouldClearContent()
+        {
+            if (_runtimeSceneData == null)
+                return true;
+
+            return _runtimeSceneData.ShouldClearContent();
+        }
+
         private void Subscribe()
         {
             if (_runtimeSceneData == null)

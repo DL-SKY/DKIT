@@ -139,7 +139,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "look_a_back",
@@ -180,7 +180,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "look_b_back",
@@ -221,7 +221,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "look_c_back",

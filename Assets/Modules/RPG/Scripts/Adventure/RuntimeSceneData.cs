@@ -94,6 +94,18 @@ namespace Modules.RPG.Scripts.Adventure
             return result;
         }
 
+        /// <summary>
+        /// Returns true when the current scene should clear existing scroll visuals
+        /// (<see cref="SceneData.NotClearScene"/> is false).
+        /// </summary>
+        public bool ShouldClearContent()
+        {
+            if (!TryGetCurrentSceneData(out var sceneData))
+                return true;
+
+            return !sceneData.NotClearScene;
+        }
+
         private bool PassesRestrictions(List<Restriction> restrictions)
         {
             if (restrictions == null || restrictions.Count == 0)

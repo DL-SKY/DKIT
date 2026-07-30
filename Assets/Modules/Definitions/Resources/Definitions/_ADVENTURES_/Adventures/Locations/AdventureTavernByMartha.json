@@ -135,7 +135,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s02_select_character",
@@ -295,7 +295,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s03_board",
@@ -459,7 +459,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s04_adventure_list",
@@ -597,7 +597,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s05_next",
@@ -679,7 +679,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s06_next",
@@ -777,7 +777,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s07_next",
@@ -876,7 +876,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s08_next",
@@ -975,7 +975,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s09_next",
@@ -1080,7 +1080,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s10_next",
@@ -1184,7 +1184,7 @@
           "Values": null
         }
       ],
-      "NotClearScene": false,
+      "NotClearScene": true,
       "Choices": [
         {
           "Id": "s11_restart",

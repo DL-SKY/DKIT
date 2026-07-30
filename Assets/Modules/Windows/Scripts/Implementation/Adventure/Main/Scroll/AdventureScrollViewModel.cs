@@ -78,6 +78,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
         private void Subscribe()
         {
+            _adventuresManager.ChangedScene += OnChangedSceneHandler;
             _adventuresManager.ChangedContent += OnChangedContentHandler;
             _adventuresManager.ChangedChoices += OnChangedChoicesHandler;
         }
@@ -87,8 +88,15 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             if (_adventuresManager == null)
                 return;
 
+            _adventuresManager.ChangedScene -= OnChangedSceneHandler;
             _adventuresManager.ChangedContent -= OnChangedContentHandler;
             _adventuresManager.ChangedChoices -= OnChangedChoicesHandler;
+        }
+
+        private void OnChangedSceneHandler(string sceneId)
+        {
+            if (_adventuresManager.ShouldClearContent())
+                ClearContent();
         }
 
         private void OnChangedContentHandler()
