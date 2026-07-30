@@ -25,7 +25,7 @@
 - сцены (`SceneData`),
 - контент сцены (`SceneContentData`),
 - выборы (`ChoiceData`): `ChoiceType.Default` и `ChoiceType.DiceCheck`,
-- визуальные настройки выбора (`ChoiceData.VisualOptions`): `MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription`,
+- визуальные настройки выбора (`ChoiceData.VisualOptions`): `MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription` (id параметра для override через `VisualSettingsDef`),
 - action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.GoToAdventure` (`Params.Strings["AdventureId"]`), `ChoiceActionType.GoToRandomAdventure`, `ChoiceActionType.GoToRandomScene` (`Params.Strings["SceneId"]` через `;`), `ChoiceActionType.OpenWindow` (`Params.Strings["WindowId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams` (см. `.cursor/docs/modules/RPG.md`),
 - для `ChoiceType.DiceCheck` — блок `ChoiceData.DiceCheck` с параметрами броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`) и action-списками исходов (`OnCriticalSuccess`, `OnSuccess`, `OnFailure`, `OnCriticalFailure`).
 
@@ -351,7 +351,7 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
   - `ChoiceActionType.SetAdventureParams` + словари `Params.Strings/Ints/Bools`;
   - `ChoiceActionType.SetGlobalParams` + словари `Params.Strings/Ints/Bools`.
 - Редактор `Selected Choice`:
-  - блок `Visual Options` (`MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription`) для любого `ChoiceType`;
+  - блок `Visual Options` (`MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription` — id параметра персонажа, не локализуемый текст) для любого `ChoiceType`;
   - для `ChoiceType.Default` — блок `Actions`;
   - для `ChoiceType.DiceCheck` — блок `Dice Check` + action-редакторы исходов (`OnCriticalSuccess/OnSuccess/OnFailure/OnCriticalFailure`) без общего блока `Actions`.
 - Редактор `Selected Content`: `Value` или список `Values` (для `RandomImage` / `Slideshow`).
@@ -379,10 +379,11 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
 - Валидация и автокоррекция тегов:
   - `Adventure.Tags`, `Adventure.IgnoredTags`, `Scene.Tags`, `Choice.Tags` проверяются на `UPPER_SNAKE_CASE`;
   - для некорректных тегов доступен `Fix`, который нормализует значение в `UPPER_SNAKE_CASE`.
-- Валидация локализуемых текстовых полей (`Title`, `Description`, `Choice.Text`, `Choice.Description`, `Choice.VisualOptions.ParameterOverrideDescription`, `SceneContentData.Value`):
+- Валидация локализуемых текстовых полей (`Title`, `Description`, `Choice.Text`, `Choice.Description`, `SceneContentData.Value`):
   - предупреждение, если поле похоже на ключ локализации (например, `loc:SOME_KEY` или `SOME_KEY_NAME`);
   - переносы строк (`\n`) в тексте допустимы (в JSON это escaped `\n`, в памяти — обычный line break);
   - при переносе текстов из авторского шаблона в JSON **нельзя** выкидывать `\n` и маркеры прямой речи (`-` / `—` / `–` в начале реплики или после `\n`) — это часть отображаемого текста и последующей локализации (пример: `- Дорогуша!`).
+  - `VisualOptions.ParameterOverrideDescription` — **не** локализуемое поле: это id параметра (`Thievery`, `STR`, …); ключи локализации описания берутся из `VisualSettingsDef.ParameterLocalizations` в runtime.
 - Валидация стиля id внутри сценария:
   - предупреждение, если id сцены/выбора не в `lower_snake_case` и не в `CamelCase/PascalCase`;
   - предупреждение, если стили id смешаны внутри одного adventure.
@@ -420,7 +421,8 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
 | `SceneContentData.Value` | только если `Type == Text` |
 | `ChoiceData.Text` | всегда |
 | `ChoiceData.Description` | всегда |
-| `ChoiceData.VisualOptions.ParameterOverrideDescription` | только если `VisualOptions != null` |
+
+> `VisualOptions.ParameterOverrideDescription` **не** входит в генерацию: это id параметра. Локализация override-описания — в `VisualSettingsDef.ParameterLocalizations` (`{param}.TextParams`).
 
 ### Ключ vs текст
 
@@ -452,7 +454,6 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
 | Content (Text) | `{ADV}_{SCENE}_CNT_{N}_TEXT` |
 | Choice Text | `{ADV}_{SCENE}_CH_{N}_TEXT` |
 | Choice Description | `{ADV}_{SCENE}_CH_{N}_DESCR` |
-| Choice Parameter Override Description | `{ADV}_{SCENE}_CH_{N}_PARAM_OVERRIDE_DESCR` |
 
 - `{ADV}` — префикс приключения (например, `ADVENTURETAVERNBYMARTHA` → `ADVENTURETAVERNBYMART`).
 - `{SCENE}` — токен сцены (из id сцены).

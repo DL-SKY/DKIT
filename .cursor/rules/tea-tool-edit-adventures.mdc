@@ -24,7 +24,7 @@ alwaysApply: true
 
 | Компонент | Файл | Назначение |
 |---|---|---|
-| Главное окно | `AdventureEditorWindow.cs` | CRUD приключений, сцен, контента, выборов, actions; для choice — блок `VisualOptions` (`MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription`); для `ChoiceType.DiceCheck` — редактор `DiceCheck` (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`) и outcome action-списков |
+| Главное окно | `AdventureEditorWindow.cs` | CRUD приключений, сцен, контента, выборов, actions; для choice — блок `VisualOptions` (`MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription` — id параметра для override через `VisualSettingsDef`); для `ChoiceType.DiceCheck` — редактор `DiceCheck` (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`) и outcome action-списков |
 | Граф сцен | `AdventureGraphPreviewWindow.cs` | Визуальный canvas-граф переходов |
 | Валидация | `AdventureValidationWindow.cs` | Окно проверки консистентности |
 | Локализация | `AdventureLocalizationExportWindow.cs` | Генерация ключей и экспорт `.txt` для Google Sheets |

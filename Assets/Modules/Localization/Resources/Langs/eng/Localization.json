@@ -7,6 +7,6 @@
     "loading.title": "Loading...",
     "adventure.main.title": "Adventure",
 	"KEY_1": "You find yourself in front of a tavern. The two-story dark-wood house stands slightly off the road, as if it had chosen its own quiet spot. A sign swings above the door: \"Adventure Tavern.\" Smoke billows from the chimney, and a muffled hum of voices can be heard from beneath the threshold—not threatening, but homely.",
-	"STR_TEXT_PARAMS": "STENGHT: {0}"
+	"STR_TEXT_PARAMS": "STRENGHT: {0}"
   }
 }

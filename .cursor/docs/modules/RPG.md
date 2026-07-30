@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-27 18:12:08 (+03:00)
+**Последнее обновление:** 2026-07-30 12:37:00 (+03:00)
 
 ## Назначение
 
@@ -100,8 +100,8 @@
 - `Id` — идентификатор выбора.
 - `Tags` — теги для аналитики/фильтрации/UI.
 - `Type` — тип выбора (`ChoiceType`): `Default` (`0`) или `DiceCheck` (`1`).
-- `VisualOptions` — опциональный блок визуальных настроек (`VisualOptions`): иконки и override-описание параметра.
-- `Text`, `Description` — основной и дополнительный тексты выбора.
+- `VisualOptions` — опциональный блок визуальных настроек (`VisualOptions`): иконки и override описания через id параметра.
+- `Text`, `Description` — основной и дополнительный тексты выбора (локализационные ключи / текст).
 - `AlwaysShow` — всегда включать выбор в `GetCurrentChoices()`, даже если `Restrictions` не прошли. В TEA при создании нового choice по умолчанию `false`.
 - `Restrictions` — список ограничений доступности выбора; проверяются в `RuntimeSceneData.GetCurrentChoices()` через `RestrictionsChecker`.
 - `DiceCheck` — опциональный блок параметров броска и outcome actions (используется при `Type == DiceCheck`).
@@ -111,11 +111,14 @@
 
 Опциональный блок визуальных настроек выбора (`ChoiceData.VisualOptions`):
 
-- `MainIcon` — id/ключ основной иконки выбора; пустая строка — дефолт UI.
-- `DescriptionIcon` — id/ключ иконки для описания; пустая строка — дефолт UI.
-- `ParameterOverrideDescription` — локализуемый override-текст описания параметра (например, для DiceCheck); пустая строка — без override.
+- `MainIcon` — Resources-path основной иконки выбора; пустая строка — дефолт UI по `ChoiceType` (см. `AdventureChoiceViewModelBase`).
+- `DescriptionIcon` — Resources-path иконки описания; используется, если `ParameterOverrideDescription` пуст.
+- `ParameterOverrideDescription` — **id параметра** персонажа (например `"Thievery"`, `"STR"`, `"Perception"`), не локализуемый текст. Если задан:
+  - описание и иконка берутся из `VisualSettingsDef` (`ParameterLocalizations["{param}.TextParams"]`, `ParameterIcons[param]`);
+  - числовое значение параметра активного персонажа (через `CharacterParametersProxy`) уходит в UI как format-arg (`DescriptionParam`).
+  Пустая строка — без override: UI использует `ChoiceData.Description` и `DescriptionIcon`.
 
-В TEA блок редактируется в секции `Visual Options` у `Selected Choice`. Шаблоны `choice.default` / `choice.dice_check` создают пустой блок. При duplicate сцены блок копируется.
+В TEA блок редактируется в секции `Visual Options` у `Selected Choice`. Шаблоны `choice.default` / `choice.dice_check` создают пустой блок. При duplicate сцены блок копируется. Runtime-резолв: [Windows.md](Windows.md) (секция Choice items).
 
 ### `ChoiceType`
 
@@ -149,9 +152,9 @@
   "Type": "DiceCheck",
   "Text": "Взломать замок",
   "VisualOptions": {
-    "MainIcon": "icon_lockpick",
-    "DescriptionIcon": "icon_thievery",
-    "ParameterOverrideDescription": "Проверка Взлом"
+    "MainIcon": "Adventures/Icons/T_086",
+    "DescriptionIcon": "",
+    "ParameterOverrideDescription": "Thievery"
   },
   "DiceCheck": {
     "DifficultyClass": 18,
@@ -429,7 +432,8 @@ RPG-контент (сцены, выборы, действия) описывае
 
 - Реализованы доменные DTO/POCO-модели для adventure-данных (`AdventureData`, `SceneData`, `ChoiceData` и связанные типы).
 - `ChoiceType` расширен значением `DiceCheck`; в `ChoiceData` добавлен опциональный блок `DiceCheck` (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`, outcome action-списки).
-- В `ChoiceData` добавлен опциональный блок `VisualOptions` (`MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription`).
+- В `ChoiceData` добавлен опциональный блок `VisualOptions` (`MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription` — id параметра для override описания/иконки через `VisualSettingsDef`).
+- Runtime UI choice (`AdventureChoiceViewModelBase`) резолвит иконки/описание/`DescriptionParam` из `VisualOptions` + `VisualSettingsDef` + `CharacterParametersProxy` (см. [Windows.md](Windows.md)).
 - В TEA (`AdventureEditorWindow`) для `ChoiceType.DiceCheck` доступен редактор полей `DiceCheck` (включая `DiceCheckParam`) и outcome action-списков; для `Default` — редактор `Actions`; для любого choice — секция `Visual Options`. Валидация TEA обеспечивает взаимную исключительность `DiceCheck` и `Actions` по типу choice (см. `Assets/Modules/Definitions/Scripts/Editor/Adventures/README.md`).
 - В `Modules.Definitions` добавлены adventure-дефы персонажа и контента: `ClassDef`, `AncestryDef`, `FeatDef`, `ItemDef`, `SpellDef` (наследуют `AbstractDefinition`); `AdventureDef` наследует `AdventureData`. Загружен стартовый PF2e-ориентированный набор JSON (классы, ancestries, черты, заклинания, предметы).
 - Write API параметров персонажа (`CharacterParametersOperator`) и item Features в equip-экшенах (`CharacterItemFeaturesOperator`) реализованы; UI прокачки/создания — следующий этап. Практика: [Feats.md](Feats.md). `WeaponProxy` — инфраструктура оружия.

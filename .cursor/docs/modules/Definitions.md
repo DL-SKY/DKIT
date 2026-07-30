@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-28 16:40:00 (+03:00)
+**Последнее обновление:** 2026-07-30 12:37:00 (+03:00)
 
 ## Назначение
 
@@ -32,9 +32,9 @@
 
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
-  - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`), `Avatars` (`AvatarsDef`);
+  - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`), `Avatars` (`AvatarsDef`), `VisualSettings` (`VisualSettingsDef`);
   - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`.  
-  Используется и `CharacterParametersProxy` (модуль `State`) для резолва `ANCESTRY_HP` / `CLASS_HP` из `Ancestries` / `Classes`.
+  Используется и `CharacterParametersProxy` (модуль `State`) для резолва `ANCESTRY_HP` / `CLASS_HP` из `Ancestries` / `Classes`. Choice UI читает `VisualSettings` для иконок/локализации параметров (см. [Windows.md](Windows.md)).
 
 - `Glossary` (`Implementation/Adventures/Constants/Glossary.cs`)  
   Константы id/ключей adventure-контента. Для параметров персонажа — `Glossary.Characters`:
@@ -84,6 +84,7 @@
 | `BattleRuleDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/BattleRules` |
 | `RuleSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/RuleSettings/RuleSettings` (single) |
 | `AvatarsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Avatars/Avatars` (single) |
+| `VisualSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/VisualSettings/VisualSettings` (single) |
 | `ProjectGlobalSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/GlobalSettings/GlobalSettings` (single) |
 | `LocalizationSettingsDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings` (single) |
 
@@ -108,6 +109,8 @@
 | | `StartAdventure` | `string` | `StartAdventure` | да, id `AdventureDef` (`"AdventureTavernByMartha"`) |
 | `AvatarsDef` | `Free` | `Dictionary<string, List<string>>` | `Free` | да; ключ — id `AncestryDef`, значение — список avatar id |
 | | `Packs` | `Dictionary<string, AvatarPackData>` | `Packs` | да; ключ — pack id |
+| `VisualSettingsDef` | `ParameterIcons` | `Dictionary<string, string>` | `ParameterIcons` | да; ключ — id параметра (`STR`, `Thievery`, …), значение — Resources-path иконки |
+| | `ParameterLocalizations` | `Dictionary<string, string>` | `ParameterLocalizations` | да; ключ — id параметра или `{param}.TextParams`, значение — ключ локализации |
 | `AvatarPackData` | `ProductId` | `string` | `ProductId` | да (IAP / store key; может быть `""`) |
 | | `Price` | `int` | `Price` | да (soft-currency; `0` если не используется) |
 | | `Avatars` | `Dictionary<string, List<string>>` | `Avatars` | да; ключ — id `AncestryDef`, значение — список avatar id |
@@ -244,7 +247,7 @@
   | `StartScenes` | `List<string>` | да |
   | `Scenes` | `Dictionary<string, SceneData>` | да |
 
-  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`, `ChoiceDiceCheckData`, `VisualOptions`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). В `ChoiceType` доступны `Default` и `DiceCheck`; для `DiceCheck` используется блок `ChoiceData.DiceCheck` с полями броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam` — ключ атрибута/скилла) и outcome action-списками (`OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure`); для `Default` блок `DiceCheck` должен отсутствовать, а `Actions` — использоваться вместо outcome-списков (TEA-валидация с `Fix`). У `ChoiceData` есть опциональный блок `VisualOptions` (`MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription`). Choice-actions в runtime: `GoToScene` (`SceneId`), `GoToAdventure` (`AdventureId`), `GoToRandomAdventure`, `GoToRandomScene` (`SceneId` через `;`), `OpenWindow` (`WindowId`, stub), `SetWorldParams`, `SetAdventureParams`, `SetGlobalParams`; ключи — `Glossary.ChoiceActions.*`, ids окон хаба — `Glossary.Windows.*`. Executors пишут в `State` через соответствующие state-actions (см. [RPG.md](RPG.md)).
+  Вложенные типы сцены (`SceneData`, `SceneContentData`, `ChoiceData`, `ChoiceActionData`, `ChoiceDiceCheckData`, `VisualOptions`) — в модуле `RPG`; подробнее в [RPG.md](RPG.md#модель-данных-adventure). Контент сцены поддерживает `RandomImage` и `Slideshow` (поле `Values`). В `ChoiceType` доступны `Default` и `DiceCheck`; для `DiceCheck` используется блок `ChoiceData.DiceCheck` с полями броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam` — ключ атрибута/скилла) и outcome action-списками (`OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure`); для `Default` блок `DiceCheck` должен отсутствовать, а `Actions` — использоваться вместо outcome-списков (TEA-валидация с `Fix`). У `ChoiceData` есть опциональный блок `VisualOptions` (`MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription` — id параметра для override описания/иконки через `VisualSettingsDef`). Choice-actions в runtime: `GoToScene` (`SceneId`), `GoToAdventure` (`AdventureId`), `GoToRandomAdventure`, `GoToRandomScene` (`SceneId` через `;`), `OpenWindow` (`WindowId`, stub), `SetWorldParams`, `SetAdventureParams`, `SetGlobalParams`; ключи — `Glossary.ChoiceActions.*`, ids окон хаба — `Glossary.Windows.*`. Executors пишут в `State` через соответствующие state-actions (см. [RPG.md](RPG.md)).
 
 - `ClassDef`  
   Класс персонажа. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `HitPointsPerLevel`, `Features` (`Dictionary<int, List<string>>` — уровень → список id фич/черт), `EquippedItems` (`List<EquippedItemStateData>` — базовый набор слотов класса и стартовая экипировка: оружие/броня/`Bag` и т.п.).  
@@ -264,6 +267,12 @@
   `AvatarPackData`: `ProductId` (store/IAP key), `Price` (soft-currency), `Avatars` (ancestry id → avatar id пака).  
   Разблокировка задаётся местом id: `Free` = всегда доступен для ancestry; id внутри `Packs[packId].Avatars` = через владение паком. Путь арта по конвенции от avatar id (например `Resources/Adventures/Avatars/{id}`).  
   Загрузка: `DefinitionsManager.Avatars` через `LoadSingle` (рядом с `RuleSettings` в `LoadAll()`).
+
+- `VisualSettingsDef`  
+  Single-def визуальных настроек adventure UI (`Definitions/_ADVENTURES_/VisualSettings/VisualSettings`). Поля:
+  - `ParameterIcons` — id параметра → Resources-path иконки (TopPanel parameter slots, choice `DescriptionIcon` при parameter override);
+  - `ParameterLocalizations` — id параметра → ключ локализации имени; ключ `{param}.TextParams` → ключ локализации текста с format-arg (для choice `Description` при `VisualOptions.ParameterOverrideDescription`).
+  Загрузка: `DefinitionsManager.VisualSettings` через `LoadSingle`. Потребители: `AdventureParameterViewModel`, `AdventureChoiceViewModelBase` (см. [Windows.md](Windows.md)).
 
 - `BackgroundDef`  
   Предыстория персонажа (PF2e Background). Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Features` (`List<string>` — id связанных feat/feature).  
@@ -414,7 +423,7 @@
   Редактор JSON-приключений (`AdventureData` и вложенные сущности). Меню: `Tools/Definitions/Adventures/Adventure Editor`.  
   Код: `Assets/Modules/Definitions/Scripts/Editor/Adventures/`. Документация: `Assets/Modules/Definitions/Scripts/Editor/Adventures/README.md`.  
   Состав: `AdventureEditorWindow` (главное окно с адаптивной раскладкой `Scenes`/`Content`/`Choices`), `AdventureGraphPreviewWindow`, `AdventureValidationWindow`, `AdventureLocalizationExportWindow`, `IdentifierPromptWindow`, `CreateOptionPickerWindow`, `AdventureEditorFileRepository`, `AdventureEditorServices` (в т.ч. `AdventureLocalizationGenerationService`), create-option реестры в `CreateOptions/`.  
-  Локализация: кнопка `Localization` в toolbar → генерация ключей в `Title`, `Description`, `SceneContentData.Value` (только `Text`), `ChoiceData.Text`/`Description`/`VisualOptions.ParameterOverrideDescription` + экспорт tab-separated `.txt` для Google Sheets.
+  Локализация: кнопка `Localization` в toolbar → генерация ключей в `Title`, `Description`, `SceneContentData.Value` (только `Text`), `ChoiceData.Text`/`Description` + экспорт tab-separated `.txt` для Google Sheets. Override-описание choice по параметру (`VisualOptions.ParameterOverrideDescription`) — id параметра; ключи локализации для него живут в `VisualSettingsDef.ParameterLocalizations`, не в adventure JSON.
 
 ## Adventure-дефы правил: текущий контракт
 
@@ -510,6 +519,8 @@ Single-def:
 - `RuleSettings` — `_ADVENTURES_/RuleSettings/RuleSettings.json`
 - `GlobalSettings` — `_ADVENTURES_/GlobalSettings/GlobalSettings.json`
 - `LocalizationSettings` — `_ADVENTURES_/LocalizationSettings/LocalizationSettings.json`
+- `VisualSettings` — `_ADVENTURES_/VisualSettings/VisualSettings.json`
+- `Avatars` — `_ADVENTURES_/Avatars/Avatars.json`
 
 ## Добавление нового def (явный чек-лист)
 
@@ -535,7 +546,7 @@ Single-def:
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Оба менеджера сейчас загружают `LocalizationSettingsDef` (пути: `Definitions/LocalizationSettings/LocalizationSettings` и `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings`).
-- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Avatars`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Avatars`, `VisualSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
 - `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost`, `RuleDef.SkillDependencies` и `RuleDef.ParameterFormulas` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет / сырое чтение параметра) на стороне runtime. Для навыков в `GeneralRule` набор ключей skill-формул совпадает с `SkillDependencies`; отдельно задана формула `MaxHitPoints`.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Background`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)). `ANCESTRY_HP` / `CLASS_HP` в формулах резолвятся через эти id в `AncestryDef.HitPoints` / `ClassDef.HitPointsPerLevel`.
 - `AncestryDef.Names` индексируется по `CharacterGender`; id ancestry — в `CharacterStateData.Ancestry`. Текущие JSON ancestries ещё могут содержать legacy `MaleNames`/`FemaleNames` — их нужно мигрировать на `Names`.

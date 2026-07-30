@@ -1,6 +1,6 @@
 # Модуль Windows
 
-**Последнее обновление:** 2026-07-22 17:47:15 (+03:00)
+**Последнее обновление:** 2026-07-30 12:37:00 (+03:00)
 
 ## Назначение
 
@@ -65,7 +65,7 @@ Sub-views (Scroll / TopPanel / BottomPanel / Parameter) и Content / Choice item
 - `AdventureContentViewModelBase` — `Init(SceneContentData)`, `Data`, `IsContentReady` / `ContentReady`, `Dispose` / `DisposeImplementation`
 - `AdventureContentViewBase` (non-generic) — prefab refs, `Animator`, `Init(AdventureContentViewModelBase)`
 - `AdventureContentViewBase<TViewModel>` — typed `_viewModel`, `Subscribe` / `InitImplementation`
-- `AdventureChoiceViewModelBase` — `Init(ChoiceData)`, `Text` / `Description`, `Select()`, `Dispose`
+- `AdventureChoiceViewModelBase` — `Init(ChoiceData)`; резолв `MainIcon` / `Text` / `Description` / `DescriptionParam` / `DescriptionIcon` из `VisualOptions` + `VisualSettingsDef` / стейта персонажа; `Select()`, `Dispose`
 - `AdventureChoiceViewBase` / `AdventureChoiceViewBase<TViewModel>` — тот же паттерн, что у content
 
 VM создаются через DiContainer (`Instantiate` + `Init(data)`), зависимости — `[Inject]`.
@@ -102,9 +102,24 @@ VM создаются через DiContainer (`Instantiate` + `Init(data)`), з�
 | `AdventureChoiceView` | `ChoiceData` (`Default` / `DiceCheck`) | `AdventureChoiceViewModel` |
 
 - Prefab: `ChoiceContentView` (слот `_choiceContentPrefab` на `AdventureScrollView`) + `FadeInContentAnimator`.
-- UI: `Text` / `Description` / `Button` → `Select()`.
+- UI: `Text` / `Description` (+ `DescriptionParam`) / иконки / `Button` → `Select()`.
 - `ChoiceType.Default`: прогон `Actions` через `ChoiceActionExecutorFactory`.
 - `ChoiceType.DiceCheck`: runtime outcome пока stub (warning log).
+
+#### Резолв полей в `AdventureChoiceViewModelBase`
+
+`Init(ChoiceData)` выставляет свойства через приватные `Get*()` (`DefinitionsManager`, `AdventureStateManager` — `[Inject]`):
+
+| Свойство | Логика |
+|---|---|
+| `MainIcon` | `VisualOptions.MainIcon`, если не пусто; иначе константа по `ChoiceType`: `DEFAULT_TYPE_MAIN_ICON` (`Adventures/Icons/click`) / `DICE_CHECK_TYPE_MAIN_ICON` (`Adventures/Icons/dice_20`) |
+| `Text` | `ChoiceData.Text` |
+| `Description` | если `VisualOptions.ParameterOverrideDescription` не пусто — ключ локализации из `VisualSettingsDef.ParameterLocalizations` по `{param}.TextParams`; иначе `ChoiceData.Description` |
+| `DescriptionParam` | при parameter override — значение параметра активного персонажа через `CharacterParametersProxy.GetTotalValue` (формат `"+N"` / `"0"` / `"-N"`); иначе `""` |
+| `DescriptionIcon` | если parameter override не пусто — путь из `VisualSettingsDef.ParameterIcons` по ключу параметра; иначе `VisualOptions.DescriptionIcon` |
+| `EnabledDescription` | `!string.IsNullOrEmpty(Description)` |
+
+`ParameterOverrideDescription` — **id параметра** (например `"Thievery"`, `"STR"`), не локализуемый текст. View: `_localDescription.SetText(Description, DescriptionParam)`.
 
 Image-группа:
 
