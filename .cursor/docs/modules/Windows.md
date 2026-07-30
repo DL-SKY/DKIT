@@ -80,7 +80,7 @@ VM создаются через DiContainer (`Instantiate` + `Init(data)`), з�
 6. `AdventureScrollView` держит prefab’ы Text / Image / Splitter / Item / Choice, `_contentRoot`.
 7. Sequencer контента: spawn pending → ждать `IsContentReady` → `Animator.Play` → `Completed` → следующий pending. После последнего контента (или если pending нет) — `PresentChoices`: все плашки создаются сразу, у каждой свой `Animator.Play` **параллельно**.
 8. `ON_REFRESH_CHOICES` во время sequencer — откладывает показ до конца контента; если sequencer не бежит — сразу parallel present (после `ON_CLEAR_CHOICES`).
-9. `SkipAllShowAnimation()`: `Skip` текущего content-аниматора + остальные pending content сразу с `Skip` + choice-плашки появляются с `Skip` (без анимации). Подписка на tap/клик skip — снаружи.
+9. `SkipAllShowAnimation()`: `Skip` текущего content-аниматора + остальные pending content сразу с `Skip` + choice-плашки появляются с `Skip` (без анимации). Триггер: `ScreenInputService.OnInput` (`ScreenInputType.PointerDown`) — любой pointer down по экрану.
 
 `Initializer` после загрузки вызывает `adventureMainViewModel.Init()` перед `OpenView`.
 
@@ -126,6 +126,7 @@ Image-группа:
 - VM держит только **path/URL** (`CurrentPath`, `ON_CHANGE_PATH`), без `Sprite`.
 - View прокидывает path в `CachedPathImage`.
 - `Slideshow` — цикл `Values` раз в **1 с** через подписку VM на `Updater` (не `Update` во View).
+- Skip show-анимаций скролла — через project-wide `ScreenInputService` (`Modules.Utils.Scripts.Input`, бинд в `ProjectInstaller`).
 - `Splitter` — отдельный View/VM; картинка статична в prefab, анимация через `FadeInContentAnimator` + `CanvasGroup`, без path.
 
 ### Анимация появления (`IContentAnimator`)

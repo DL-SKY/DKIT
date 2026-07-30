@@ -5,6 +5,7 @@ using Modules.Restrictions.Scripts.Core;
 using Modules.State.Scripts.Implementation.Match3;
 using Modules.State.Scripts.Implementation.Match3.Logic;
 using Modules.Utils.Scripts.Components;
+using Modules.Utils.Scripts.Input;
 using Modules.Windows.Scripts.Managers;
 using Modules.Windows.Scripts.Services;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace Zenject.Scripts.Installers
             //Utils
             Container.Bind<Updater>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<CoroutineHolder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<ScreenInputService>().AsSingle().NonLazy();
             Container.Bind<RestrictionsChecker>().AsSingle().NonLazy();
             Container.Bind<IImageCache>().To<CachedPathImageService>().AsSingle().NonLazy();
             //...

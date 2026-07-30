@@ -1,6 +1,7 @@
 using Modules.RPG.Scripts.Adventure;
 using Modules.RPG.Scripts.Adventure.Choice;
 using Modules.RPG.Scripts.Adventure.Data;
+using Modules.Utils.Scripts.Input;
 using Modules.Windows.Scripts.Base;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Choice;
@@ -27,6 +28,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
         public const string ON_REFRESH_CHOICES = "ON_REFRESH_CHOICES";
 
         [Inject] private readonly AdventuresManager _adventuresManager;
+        [Inject] private readonly ScreenInputService _screenInput;
         [Inject] private readonly DiContainer _container;
 
         private readonly List<AdventureContentViewModelBase> _contentItems = new List<AdventureContentViewModelBase>();
@@ -51,7 +53,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
 
         /// <summary>
         /// Skips the current appearance animation and reveals all remaining content instantly.
-        /// Tap / click wiring is handled outside — call this when a skip is requested.
+        /// Also invoked automatically on any <see cref="ScreenInputType.PointerDown"/>.
         /// </summary>
         public void SkipAllShowAnimation()
         {
@@ -81,16 +83,28 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             _adventuresManager.ChangedScene += OnChangedSceneHandler;
             _adventuresManager.ChangedContent += OnChangedContentHandler;
             _adventuresManager.ChangedChoices += OnChangedChoicesHandler;
+            _screenInput.OnInput += OnScreenInputHandler;
         }
 
         private void Unsubscribe()
         {
-            if (_adventuresManager == null)
-                return;
+            if (_adventuresManager != null)
+            {
+                _adventuresManager.ChangedScene -= OnChangedSceneHandler;
+                _adventuresManager.ChangedContent -= OnChangedContentHandler;
+                _adventuresManager.ChangedChoices -= OnChangedChoicesHandler;
+            }
 
-            _adventuresManager.ChangedScene -= OnChangedSceneHandler;
-            _adventuresManager.ChangedContent -= OnChangedContentHandler;
-            _adventuresManager.ChangedChoices -= OnChangedChoicesHandler;
+            if (_screenInput != null)
+                _screenInput.OnInput -= OnScreenInputHandler;
+        }
+
+        private void OnScreenInputHandler(ScreenInputType inputType)
+        {
+            UnityEngine.Debug.LogError($"    >> {inputType}");
+
+            if (inputType == ScreenInputType.PointerDown)
+                SkipAllShowAnimation();
         }
 
         private void OnChangedSceneHandler(string sceneId)

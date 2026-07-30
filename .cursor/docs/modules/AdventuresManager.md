@@ -27,7 +27,7 @@
 
 > Оркестрация «клик choice → прогон списка `Actions` через фабрику executors» со стороны UI пока может быть не полностью замкнута; переход по сцене и запись params через executors уже реализованы.
 
-> **UI (Windows):** `AdventureScrollViewModel` подписан на `ChangedContent` / `GetCurrentContent()` и `ChangedChoices` / `GetCurrentChoices()`. Content VM **дописываются** в конец списка; `AdventureScrollView` секвенциально анимирует новые item’ы (`IContentAnimator`, `SkipAllShowAnimation`). Choice-плашки уничтожаются на `ON_CLEAR_CONTENT` / `ON_APPEND_CONTENT` / refresh и после конца content-sequence появляются **все сразу** (parallel `Animator.Play`). Клик choice → `AdventureChoiceViewModel.Select()` → `ChoiceActionExecutorFactory` (DiceCheck runtime — ещё stub). Очистка content — только `ClearContent`. Подробности: [Windows.md](Windows.md) (секция Adventure runtime UI).
+> **UI (Windows):** `AdventureScrollViewModel` подписан на `ChangedContent` / `GetCurrentContent()` и `ChangedChoices` / `GetCurrentChoices()`. Content VM **дописываются** в конец списка; `AdventureScrollView` секвенциально анимирует новые item’ы (`IContentAnimator`, `SkipAllShowAnimation` по `ScreenInputService.OnInput` / `PointerDown`). Choice-плашки уничтожаются на `ON_CLEAR_CONTENT` / `ON_APPEND_CONTENT` / refresh и после конца content-sequence появляются **все сразу** (parallel `Animator.Play`). Клик choice → `AdventureChoiceViewModel.Select()` → `ChoiceActionExecutorFactory` (DiceCheck runtime — ещё stub). Очистка content — только `ClearContent`. Подробности: [Windows.md](Windows.md) (секция Adventure runtime UI).
 
 ## Ключевые классы и роли
 
