@@ -174,7 +174,7 @@
 | `adventure.chapter` | Chapter | `Chapter` | `TextAsset Icon` (как у Text Scene) | `false` |
 | `adventure.location` | Location | `Location` | `wireframe-globe` | `true` |
 
-Все три шаблона создают приключение со стартовой сценой `start` и одним текстовым блоком контента. После нажатия кнопки открывается `IdentifierPromptWindow` для ввода id файла.
+Все три шаблона создают приключение со стартовой сценой `start` (`NotClearScene = true`) и одним текстовым блоком контента. После нажатия кнопки открывается `IdentifierPromptWindow` для ввода id файла.
 
 Добавить новый шаблон — новый `CreateOptionDescriptor<AdventureData>` в `_options` и при необходимости расширить `BuildAdventureTemplate(AdventureType type)`.
 
@@ -185,6 +185,8 @@
 
 Класс:
 - `SceneCreateOptionsRegistry`
+
+Шаблоны `scene.empty` и `scene.text` создают сцену с `NotClearScene = true`.
 
 Добавить новый descriptor в `_options`, например:
 - `Id = "scene.combat_start"`
@@ -234,8 +236,8 @@
 > - `DiceCheck.DiceCheckParam` — строковый ключ проверяемого атрибута/скилла.
 > - `DiceCheck.OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure` — списки `ChoiceActionData` для исходов броска.
 
-Шаблон `choice.default` создаёт choice с пустым списком `Actions` (без автоматического `GoToScene`).
-Шаблон `choice.dice_check` создаёт choice типа `DiceCheck` с иконкой `dice-twenty-faces-twenty` и предзаполненным блоком `DiceCheck` (включая пустые outcome action-списки).
+Шаблон `choice.default` создаёт choice с пустым списком `Actions` (без автоматического `GoToScene`) и `AlwaysShow = false`.
+Шаблон `choice.dice_check` создаёт choice типа `DiceCheck` с иконкой `dice-twenty-faces-twenty`, предзаполненным блоком `DiceCheck` (включая пустые outcome action-списки) и `AlwaysShow = false`.
 
 Пример JSON для `ChoiceType.DiceCheck`:
 
@@ -244,7 +246,7 @@
   "Id": "pick_lock",
   "Type": "DiceCheck",
   "Text": "Взломать замок",
-  "AlwaysShow": true,
+  "AlwaysShow": false,
   "Restrictions": [],
   "DiceCheck": {
     "DifficultyClass": 18,

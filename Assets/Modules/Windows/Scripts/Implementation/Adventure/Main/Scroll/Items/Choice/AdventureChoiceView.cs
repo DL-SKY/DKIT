@@ -9,8 +9,13 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll.Items.Cho
     /// </summary>
     public sealed class AdventureChoiceView : AdventureChoiceViewBase<AdventureChoiceViewModel>
     {
+        [Header("Title")]
         [SerializeField] private TextMeshProUGUI _text;
+
+        [Header("Description")]
         [SerializeField] private TextMeshProUGUI _description;
+
+        [Header("Button")]
         [SerializeField] private Button _button;
 
         protected override void InitImplementation()

@@ -66,7 +66,7 @@
 - `Id` — идентификатор сцены.
 - `Tags` — служебные/геймдизайнерские теги сцены.
 - `Content` — последовательность контент-элементов (`SceneContentData`).
-- `NotClearScene` — флаг особого поведения после показа/прохождения (из названия следует сценарий "не очищать сцену").
+- `NotClearScene` — флаг особого поведения после показа/прохождения (из названия следует сценарий "не очищать сцену"). В TEA при создании новой сцены (и стартовой сцены в шаблоне adventure) по умолчанию `true`.
 - `Choices` — список доступных выборов (`ChoiceData`) для перехода/действий.
 
 ### `SceneContentData` и `SceneContentType`
@@ -101,7 +101,7 @@
 - `Tags` — теги для аналитики/фильтрации/UI.
 - `Type` — тип выбора (`ChoiceType`): `Default` (`0`) или `DiceCheck` (`1`).
 - `Text`, `Description` — основной и дополнительный тексты выбора.
-- `AlwaysShow` — всегда включать выбор в `GetCurrentChoices()`, даже если `Restrictions` не прошли.
+- `AlwaysShow` — всегда включать выбор в `GetCurrentChoices()`, даже если `Restrictions` не прошли. В TEA при создании нового choice по умолчанию `false`.
 - `Restrictions` — список ограничений доступности выбора; проверяются в `RuntimeSceneData.GetCurrentChoices()` через `RestrictionsChecker`.
 - `DiceCheck` — опциональный блок параметров броска и outcome actions (используется при `Type == DiceCheck`).
 - `Actions` — список действий (`ChoiceActionData`), выполняемых при выборе (используется при `Type == Default`).

@@ -9,7 +9,7 @@ namespace Modules.Cheats.Scripts.Editor.Implementation.Save
 {
     public sealed class SaveCheatSection : CheatSectionBase
     {
-        private const string GLOBAL_SETTINGS_RELATIVE_PATH = "Modules/Definitions/Resources/Definitions/GlobalSettings/GlobalSettings.json";
+        private const string GLOBAL_SETTINGS_RELATIVE_PATH = "Modules/Definitions/Resources/Definitions/_ADVENTURES_/GlobalSettings/GlobalSettings.json";
         private const string DEFAULT_SAVE_NAME = "NA";
         private const string DEFAULT_SAVE_FOLDER = SaveManager.DEFAULT_FILE_FOLDER;
         private const string DEFAULT_FILE_EXTENSION = SaveManager.DEFAULT_FILE_EXTENSION;

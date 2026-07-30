@@ -62,6 +62,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
             {
                 Id = START_SCENE_ID,
                 Tags = new List<string>(),
+                NotClearScene = true,
                 Content = new List<SceneContentData>
                 {
                     new SceneContentData
@@ -112,6 +113,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     {
                         Id = "new_scene",
                         Tags = new List<string>(),
+                        NotClearScene = true,
                         Content = new List<SceneContentData>(),
                         Choices = new List<ChoiceData>(),
                     },
@@ -126,6 +128,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                     {
                         Id = "new_scene",
                         Tags = new List<string>(),
+                        NotClearScene = true,
                         Content = new List<SceneContentData>
                         {
                             new SceneContentData
@@ -225,7 +228,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         Type = ChoiceType.Default,
                         Text = string.Empty,
                         Description = string.Empty,
-                        AlwaysShow = true,
+                        AlwaysShow = false,
                         Restrictions = new List<Modules.Restrictions.Scripts.Core.Restriction>(),
                         Actions = new List<ChoiceActionData>(),
                     },
@@ -244,7 +247,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         Type = ChoiceType.DiceCheck,
                         Text = string.Empty,
                         Description = string.Empty,
-                        AlwaysShow = true,
+                        AlwaysShow = false,
                         Restrictions = new List<Modules.Restrictions.Scripts.Core.Restriction>(),
                         DiceCheck = new ChoiceDiceCheckData
                         {

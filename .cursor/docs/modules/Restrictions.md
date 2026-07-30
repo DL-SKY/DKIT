@@ -90,6 +90,8 @@
 - Иначе если задан `BoolValues[0]` — сравнивается `Parameters.Bools[key]` (поддерживаются `Equal` / `NotEqual`).
 - Иначе строковый режим: `StringValues[1]` сравнивается с `Parameters.Strings[key]` (поддерживаются `Equal` / `NotEqual`).
 
+Отсутствующий ключ (или `null`/пустой словарь параметров) трактуется как значение по умолчанию: `int` → `0`, `bool` → `false`, `string` → `""`.
+
 Примеры JSON:
 
 ```json

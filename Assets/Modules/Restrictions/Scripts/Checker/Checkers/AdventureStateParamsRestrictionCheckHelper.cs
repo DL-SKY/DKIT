@@ -7,7 +7,7 @@ namespace Modules.Restrictions.Scripts.Checker.Checkers
     {
         public static bool Check(AdventureStateParamsData parameters, Restriction restriction)
         {
-            if (parameters == null || restriction == null)
+            if (restriction == null)
                 return false;
 
             if (restriction.StringValues == null || restriction.StringValues.Count == 0)
@@ -19,8 +19,10 @@ namespace Modules.Restrictions.Scripts.Checker.Checkers
 
             if (restriction.IntValues != null && restriction.IntValues.Count > 0)
             {
-                if (parameters.Ints == null || !parameters.Ints.TryGetValue(parameterKey, out int actualInt))
-                    return false;
+                // Missing key is treated as 0.
+                int actualInt = 0;
+                if (parameters?.Ints != null)
+                    parameters.Ints.TryGetValue(parameterKey, out actualInt);
 
                 int requiredInt = restriction.IntValues[0];
                 return CompareRestrictionStaticChecker.Check(actualInt, requiredInt, restriction.CompareOptions);
@@ -28,8 +30,10 @@ namespace Modules.Restrictions.Scripts.Checker.Checkers
 
             if (restriction.BoolValues != null && restriction.BoolValues.Count > 0)
             {
-                if (parameters.Bools == null || !parameters.Bools.TryGetValue(parameterKey, out bool actualBool))
-                    return false;
+                // Missing key is treated as false.
+                bool actualBool = false;
+                if (parameters?.Bools != null)
+                    parameters.Bools.TryGetValue(parameterKey, out actualBool);
 
                 bool requiredBool = restriction.BoolValues[0];
                 return restriction.CompareOptions switch
@@ -43,8 +47,14 @@ namespace Modules.Restrictions.Scripts.Checker.Checkers
             if (restriction.StringValues.Count < 2)
                 return false;
 
-            if (parameters.Strings == null || !parameters.Strings.TryGetValue(parameterKey, out string actualString))
-                return false;
+            // Missing key is treated as empty string.
+            string actualString = string.Empty;
+            if (parameters?.Strings != null
+                && parameters.Strings.TryGetValue(parameterKey, out string storedString)
+                && storedString != null)
+            {
+                actualString = storedString;
+            }
 
             string requiredString = restriction.StringValues[1];
             return CompareRestrictionStaticChecker.Check(actualString, requiredString, restriction.CompareOptions);

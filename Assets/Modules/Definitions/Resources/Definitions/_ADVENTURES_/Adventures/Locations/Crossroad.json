@@ -61,7 +61,7 @@
           "Type": "Default",
           "Text": "Отправиться в таверну",
           "Description": "",
-          "AlwaysShow": true,
+          "AlwaysShow": false,
           "Restrictions": [],
           "DiceCheck": null,
           "Actions": [
@@ -85,7 +85,7 @@
           "Type": "Default",
           "Text": "Осмотреться",
           "Description": "",
-          "AlwaysShow": true,
+          "AlwaysShow": false,
           "Restrictions": [],
           "DiceCheck": null,
           "Actions": [
@@ -110,7 +110,7 @@
           "Type": "Default",
           "Text": "Отправиться навстречу новым приключениям",
           "Description": "",
-          "AlwaysShow": true,
+          "AlwaysShow": false,
           "Restrictions": [],
           "DiceCheck": null,
           "Actions": [
@@ -149,7 +149,7 @@
           "Type": "Default",
           "Text": "Вернуться к перепутью",
           "Description": "",
-          "AlwaysShow": true,
+          "AlwaysShow": false,
           "Restrictions": [],
           "DiceCheck": null,
           "Actions": [
@@ -190,7 +190,7 @@
           "Type": "Default",
           "Text": "Вернуться к перепутью",
           "Description": "",
-          "AlwaysShow": true,
+          "AlwaysShow": false,
           "Restrictions": [],
           "DiceCheck": null,
           "Actions": [
@@ -231,7 +231,7 @@
           "Type": "Default",
           "Text": "Вернуться к перепутью",
           "Description": "",
-          "AlwaysShow": true,
+          "AlwaysShow": false,
           "Restrictions": [],
           "DiceCheck": null,
           "Actions": [
