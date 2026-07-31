@@ -7,7 +7,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class SetGlobalParamsStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.SetGlobalParams;
+        public override StateChangeSource Source => StateChangeSource.AdventuresParams;
 
         private readonly ChoiceActionParamsData _params;
 

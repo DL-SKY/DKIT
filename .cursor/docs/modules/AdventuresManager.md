@@ -74,11 +74,10 @@
 
 | `StateChangeSource` | Помечает dirty |
 |---|---|
-| `SetCurrentAdventureId` | да |
-| `SetCurrentAdventureSceneId` | да |
+| `AdventuresNavigation` | да |
 | остальные | нет (пока) |
 
-> `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` пока **не** входят в whitelist. После их записи UI не получит `ChangedContent`/`ChangedChoices` автоматически, пока не сменится adventure/scene id. Расширение whitelist — ожидаемый следующий шаг, когда UI должен реагировать на params без смены сцены.
+> `AdventuresParams` пока **не** входит в whitelist. После записи World/Adventure/Global params UI не получит `ChangedContent`/`ChangedChoices` автоматически, пока не сменится adventure/scene id. Расширение whitelist — ожидаемый следующий шаг, когда UI должен реагировать на params без смены сцены.
 
 ### Поведение `SyncFromStateAndNotify`
 
@@ -129,10 +128,9 @@
 - `SetCurrentAdventureIdStateAction`
 - `SetCurrentAdventureSceneIdStateAction`
 
-И отдельные источники изменений:
+И источник изменений секции навигации:
 
-- `StateChangeSource.SetCurrentAdventureId`
-- `StateChangeSource.SetCurrentAdventureSceneId`
+- `StateChangeSource.AdventuresNavigation` (`SetCurrentAdventureId` / `SetCurrentAdventureSceneId`)
 
 Также есть защита от реэнтрантности при внутренней синхронизации state (`_isSyncingState`), чтобы избежать циклического вызова собственного обработчика `StateChanged`.
 

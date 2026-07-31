@@ -8,7 +8,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class AddInventoryItemsStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.AddInventoryItems;
+        public override StateChangeSource Source => StateChangeSource.Inventory;
 
         private readonly AddInventoryItemsRequestData _request;
 

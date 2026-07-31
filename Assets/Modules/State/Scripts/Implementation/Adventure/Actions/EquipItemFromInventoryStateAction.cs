@@ -9,7 +9,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class EquipItemFromInventoryStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.EquipItemFromInventory;
+        public override StateChangeSource Source => StateChangeSource.CharactersAndInventory;
 
         private readonly EquipItemFromInventoryRequestData _request;
         private readonly DefinitionsManager _definitionsManager;

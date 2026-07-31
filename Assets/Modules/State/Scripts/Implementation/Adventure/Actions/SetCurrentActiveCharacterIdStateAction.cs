@@ -6,7 +6,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class SetCurrentActiveCharacterIdStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.SetCurrentActiveCharacterId;
+        public override StateChangeSource Source => StateChangeSource.Characters;
 
         private readonly int _characterId;
 

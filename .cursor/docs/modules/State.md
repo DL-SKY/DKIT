@@ -133,36 +133,19 @@ Implementation/Wallet/
   Контракт logic: `ProcessAction(...)` и событие `StateChanged`.
 
 - `StateChangeSource`  
-  Enum источника изменения состояния (контекст: какой тип экшена изменил state).  
-  Каждый state-action объявляет своё значение через `IStateAction.Source`.
+  Enum категорий областей стейта, которые мутировал экшен (не имя конкретного action).  
+  Потребители фильтруют по категории. Multi-section экшены (equip и т.п.) используют `CharactersAndInventory`.
 
-  | Значение | Экшен |
-  |----------|-------|
-  | `ChangeWalletResource` | `ChangeWalletResourceStateAction<TStateData>` |
-  | `SetWalletResource` | `SetWalletResourceStateAction<TStateData>` |
-  | `SetProfileUpdateTime` | `SetProfileUpdateTimeStateAction` (Match-3 и Adventure) |
-  | `SetCurrentAdventureId` | `SetCurrentAdventureIdStateAction` (Adventure) |
-  | `SetCurrentAdventureSceneId` | `SetCurrentAdventureSceneIdStateAction` (Adventure) |
-  | `SetLocalizationLanguage` | `SetLocalizationLanguageStateAction<TStateData>` |
-  | `SetWorldParams` | `SetWorldParamsStateAction` (Adventure) |
-  | `SetAdventureParams` | `SetAdventureParamsStateAction` (Adventure) |
-  | `SetGlobalParams` | `SetGlobalParamsStateAction` (Adventure) |
-| `CreateCharacter` | `CreateCharacterStateAction` (Adventure) |
-| `UpdateCharacter` | `UpdateCharacterStateAction` (Adventure) |
-| `EquipItemFromInventory` | `EquipItemFromInventoryStateAction` (Adventure) |
-| `UnequipItemToInventory` | `UnequipItemToInventoryStateAction` (Adventure) |
-| `MoveEquippedItemBetweenSlots` | `MoveEquippedItemBetweenSlotsStateAction` (Adventure) |
-| `AddInventoryItems` | `AddInventoryItemsStateAction` (Adventure) |
-| `RemoveInventoryItems` | `RemoveInventoryItemsStateAction` (Adventure) |
-| `AddCharacterItem` | `AddCharacterItemStateAction` (Adventure) |
-| `RemoveCharacterEquippedItem` | `RemoveCharacterEquippedItemStateAction` (Adventure) |
-| `EndCharacterTurn` | `EndCharacterTurnStateAction` (Adventure) |
-| `ChangeHeroPoints` | `ChangeHeroPointsStateAction` (Adventure) |
-| `SetCurrentActiveCharacterId` | `SetCurrentActiveCharacterIdStateAction` (Adventure) |
-| `AddCharacterToActiveParty` | `AddCharacterToActivePartyStateAction` (Adventure) |
-| `RemoveCharacterFromActiveParty` | `RemoveCharacterFromActivePartyStateAction` (Adventure) |
-| `AddProfileParameter` | `AddProfileParameterStateAction` (Adventure) |
-| `SetProfileParameter` | `SetProfileParameterStateAction` (Adventure) |
+  | Категория | Секция / смысл | Типичные экшены |
+  |---|---|---|
+  | `Profile` | `Profile` (UpdateTime, Parameters) | `SetProfileUpdateTime*`, `Add/SetProfileParameter` |
+  | `Wallet` | `Wallet` | `Change/SetWalletResource` |
+  | `Localization` | `Localization` | `SetLocalizationLanguage` |
+  | `Characters` | `Characters` (sheet, party, active, HP, turn, slots) | `Create/UpdateCharacter`, party/active, `EndCharacterTurn`, `ChangeHeroPoints`, `RemoveCharacterEquippedItem` |
+  | `Inventory` | `Inventory.Items` | `Add/RemoveInventoryItems` |
+  | `CharactersAndInventory` | обе секции | `Equip/Unequip/MoveEquipped*`, `AddCharacterItem` |
+  | `AdventuresNavigation` | `CurrentAdventureId` / `CurrentAdventureSceneId` | `SetCurrentAdventureId/SceneId` |
+  | `AdventuresParams` | World / Adventure / Global params | `SetWorld/Adventure/GlobalParams` |
 
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
@@ -861,7 +844,7 @@ stateLogic.ProcessAction(new SetProfileUpdateTimeStateAction(updateTime), forceB
 // Подписка на изменения state (после успешного Execute)
 stateLogic.StateChanged += source =>
 {
-    if (source == StateChangeSource.ChangeWalletResource)
+    if (source == StateChangeSource.Wallet)
         RefreshWalletUi();
 };
 ```
@@ -896,14 +879,13 @@ stateLogic.StateChanged += source =>
 
 ## Как добавить новый state-action
 
-1. Добавить значение в `StateChangeSource` (`Actions/Models/StateChangeSource.cs`).
-2. Создать класс в `Implementation/<Mode>/Actions/` (или в `Implementation/Wallet/Actions/` для общих секций).
-3. Унаследовать от `StateActionBase<TStateData>`.
-4. Переопределить `Source` — вернуть новое значение enum.
-5. Принять в конструктор только данные, нужные для изменения.
-6. Переопределить `Validate(state)` при необходимости.
-7. Реализовать `Execute(state)` — единственное место мутации соответствующей секции состояния.
-8. Вызывать через `stateLogic.ProcessAction(new YourAction(...))`.
+1. Создать класс в `Implementation/<Mode>/Actions/` (или в `Implementation/Wallet/Actions/` для общих секций).
+2. Унаследовать от `StateActionBase<TStateData>`.
+3. Переопределить `Source` — вернуть категорию затронутой секции из `StateChangeSource` (`Profile`, `Wallet`, `Characters`, `CharactersAndInventory`, …). Новый enum-value добавлять только если появилась **новая область** стейта, а не новый экшен.
+4. Принять в конструктор только данные, нужные для изменения.
+5. Переопределить `Validate(state)` при необходимости.
+6. Реализовать `Execute(state)` — единственное место мутации соответствующей секции состояния.
+7. Вызывать через `stateLogic.ProcessAction(new YourAction(...))`.
 
 Для общих секций (например, wallet) можно использовать marker-интерфейс вроде `IWalletStateDataOwner` и generic-экшен с ограничением `where TStateData : IWalletStateDataOwner`.
 

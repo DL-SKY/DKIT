@@ -5,7 +5,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class SetCurrentAdventureIdStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.SetCurrentAdventureId;
+        public override StateChangeSource Source => StateChangeSource.AdventuresNavigation;
 
         private readonly string _adventureId;
 

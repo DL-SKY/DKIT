@@ -100,7 +100,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
             if (_isDisposed)
                 return;
 
-            // TODO: use StateChangeSource
+            if (source != StateChangeSource.Characters &&
+                source != StateChangeSource.CharactersAndInventory)
+                return;
+
             RefreshValue(notify: true);
         }
 

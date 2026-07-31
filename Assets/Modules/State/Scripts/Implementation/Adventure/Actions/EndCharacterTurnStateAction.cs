@@ -20,7 +20,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
     /// </remarks>
     public class EndCharacterTurnStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.EndCharacterTurn;
+        public override StateChangeSource Source => StateChangeSource.Characters;
 
         private readonly EndCharacterTurnRequestData _request;
         private readonly DefinitionsManager _definitionsManager;

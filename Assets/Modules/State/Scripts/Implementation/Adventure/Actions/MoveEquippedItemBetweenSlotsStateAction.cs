@@ -8,7 +8,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class MoveEquippedItemBetweenSlotsStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.MoveEquippedItemBetweenSlots;
+        public override StateChangeSource Source => StateChangeSource.CharactersAndInventory;
 
         private readonly MoveEquippedItemBetweenSlotsRequestData _request;
         private readonly DefinitionsManager _definitionsManager;

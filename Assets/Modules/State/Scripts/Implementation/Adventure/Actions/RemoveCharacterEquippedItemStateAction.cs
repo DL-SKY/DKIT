@@ -8,7 +8,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class RemoveCharacterEquippedItemStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.RemoveCharacterEquippedItem;
+        public override StateChangeSource Source => StateChangeSource.Characters;
 
         private readonly RemoveCharacterEquippedItemRequestData _request;
         private readonly DefinitionsManager _definitionsManager;

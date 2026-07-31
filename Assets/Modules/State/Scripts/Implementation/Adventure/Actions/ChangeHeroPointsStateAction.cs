@@ -5,7 +5,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class ChangeHeroPointsStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.ChangeHeroPoints;
+        public override StateChangeSource Source => StateChangeSource.Characters;
 
         private readonly int _deltaPoints;
 

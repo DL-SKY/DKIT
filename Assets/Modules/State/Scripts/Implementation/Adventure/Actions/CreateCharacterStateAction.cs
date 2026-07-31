@@ -10,7 +10,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class CreateCharacterStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.CreateCharacter;
+        public override StateChangeSource Source => StateChangeSource.Characters;
 
         private readonly CreateCharacterRequestData _request;
 

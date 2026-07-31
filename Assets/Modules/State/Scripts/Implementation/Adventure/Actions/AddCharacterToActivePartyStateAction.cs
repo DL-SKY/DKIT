@@ -8,7 +8,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class AddCharacterToActivePartyStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.AddCharacterToActiveParty;
+        public override StateChangeSource Source => StateChangeSource.Characters;
 
         private readonly int _characterId;
 

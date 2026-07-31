@@ -68,7 +68,7 @@ namespace Modules.RPG.Scripts.Adventure
                     result.Add(content);
             }
 
-            // Îáÿçàòåëüíûå âèçóàëèçàòîğû îêîí÷àíèÿ êîíòåíòà ñöåíû
+            // ˜˜˜˜˜˜˜˜˜˜˜˜ ˜˜˜˜˜˜˜˜˜˜˜˜˜ ˜˜˜˜˜˜˜˜˜ ˜˜˜˜˜˜˜˜ ˜˜˜˜˜
             result.Add(CreateSplitterData());
 
             return result;
@@ -131,17 +131,8 @@ namespace Modules.RPG.Scripts.Adventure
             if (_isSyncingState)
                 return;
 
-            switch (source)
-            {
-                case StateChangeSource.SetCurrentAdventureId:
-                case StateChangeSource.SetCurrentAdventureSceneId:
-                    _isDirty = true;
-                    break;
-
-                //default:
-                //    _isDirty = true;
-                //    break;
-            }
+            if (source == StateChangeSource.AdventuresNavigation)
+                _isDirty = true;
         }
 
         private void OnUpdateHandler(float deltaTime)

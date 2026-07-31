@@ -9,7 +9,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
     public class SetLocalizationLanguageStateAction<TStateData> : StateActionBase<TStateData>
         where TStateData : class, IStateData, ILocalizationStateDataOwner, new()
     {
-        public override StateChangeSource Source => StateChangeSource.SetLocalizationLanguage;
+        public override StateChangeSource Source => StateChangeSource.Localization;
 
         private readonly SystemLanguage _language;
 

@@ -17,7 +17,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
     /// </remarks>
     public class UpdateCharacterStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.UpdateCharacter;
+        public override StateChangeSource Source => StateChangeSource.Characters;
 
         private readonly UpdateCharacterRequestData _request;
 

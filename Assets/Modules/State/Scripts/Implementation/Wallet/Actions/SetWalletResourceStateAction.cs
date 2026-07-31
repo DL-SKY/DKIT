@@ -10,7 +10,7 @@ namespace Modules.State.Scripts.Implementation.Wallet.Actions
     public class SetWalletResourceStateAction<TStateData> : StateActionBase<TStateData>
         where TStateData : class, IStateData, IWalletStateDataOwner, new()
     {
-        public override StateChangeSource Source => StateChangeSource.SetWalletResource;
+        public override StateChangeSource Source => StateChangeSource.Wallet;
 
         private readonly WalletResourceType _resourceType;
         private readonly int _amount;

@@ -8,7 +8,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class RemoveInventoryItemsStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.RemoveInventoryItems;
+        public override StateChangeSource Source => StateChangeSource.Inventory;
 
         private readonly RemoveInventoryItemsRequestData _request;
 

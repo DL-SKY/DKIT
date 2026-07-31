@@ -8,7 +8,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class SetAdventureParamsStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.SetAdventureParams;
+        public override StateChangeSource Source => StateChangeSource.AdventuresParams;
 
         private readonly ChoiceActionParamsData _params;
 

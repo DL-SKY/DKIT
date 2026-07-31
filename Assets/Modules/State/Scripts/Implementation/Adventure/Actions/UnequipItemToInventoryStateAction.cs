@@ -9,7 +9,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class UnequipItemToInventoryStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.UnequipItemToInventory;
+        public override StateChangeSource Source => StateChangeSource.CharactersAndInventory;
 
         private readonly UnequipItemToInventoryRequestData _request;
         private readonly DefinitionsManager _definitionsManager;

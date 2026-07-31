@@ -6,7 +6,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class RemoveCharacterFromActivePartyStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.RemoveCharacterFromActiveParty;
+        public override StateChangeSource Source => StateChangeSource.Characters;
 
         private readonly int _characterId;
 

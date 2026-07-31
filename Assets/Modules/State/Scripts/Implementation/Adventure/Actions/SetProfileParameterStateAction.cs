@@ -6,7 +6,7 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class SetProfileParameterStateAction : StateActionBase<StateData>
     {
-        public override StateChangeSource Source => StateChangeSource.SetProfileParameter;
+        public override StateChangeSource Source => StateChangeSource.Profile;
 
         private readonly string _key;
         private readonly int _value;
