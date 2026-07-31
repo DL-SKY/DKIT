@@ -11,7 +11,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
     public class AdventureTopPanelView : MonoBehaviour
     {
         [Header("Buttons")]
-        [SerializeField] private Button _characterButton;
+        [SerializeField] private AdventureCharacterButtonView _characterButtonView;
         [SerializeField] private Button _menuButton;
 
         [Header("Abilities")]
@@ -24,8 +24,15 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
             Unsubscribe();
 
             _viewModel = viewModel ?? throw new System.ArgumentNullException(nameof(viewModel));
+            InitCharacterButtonView();
             InitParameterViews();
             Subscribe();
+        }
+
+        private void InitCharacterButtonView()
+        {
+            var characterButtonViewModel = _viewModel.CreateCharacterButton();
+            _characterButtonView.Init(characterButtonViewModel);
         }
 
         private void InitParameterViews()
@@ -47,16 +54,25 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
                 return;
 
             _viewModel.OnChangeCustom += OnChangeCustomHandler;
+
+            _menuButton.onClick.AddListener(OnMenuButtonClick);
         }
 
         private void Unsubscribe()
         {
             if (_viewModel != null)
                 _viewModel.OnChangeCustom -= OnChangeCustomHandler;
+
+            _menuButton.onClick.RemoveListener(OnMenuButtonClick);
         }
 
         private void OnChangeCustomHandler(string tag)
         {
+        }
+
+        private void OnMenuButtonClick()
+        {
+            _viewModel?.OnMenuClick();
         }
 
         private void OnDestroy()

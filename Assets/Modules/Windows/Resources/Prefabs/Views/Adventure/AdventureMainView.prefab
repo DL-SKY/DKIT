@@ -317,8 +317,10 @@ GameObject:
   m_Component:
   - component: {fileID: 3928496081274551022}
   - component: {fileID: 446980291898446728}
+  - component: {fileID: 9019446362823244019}
   - component: {fileID: 14405780411667033}
   - component: {fileID: 4142680803818352586}
+  - component: {fileID: 7400440609884677969}
   m_Layer: 0
   m_Name: CharacterButton
   m_TagString: Untagged
@@ -354,6 +356,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3891176890299108742}
   m_CullTransparentMesh: 1
+--- !u!114 &9019446362823244019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3891176890299108742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5e3f869cab0f3b4dbb9274a6319ba2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel.AdventureCharacterButtonView
+  _button: {fileID: 4142680803818352586}
+  _icon: {fileID: 7400440609884677969}
 --- !u!114 &14405780411667033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -428,6 +444,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7400440609884677969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3891176890299108742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 561ea6e3d1a98ac4f996064d904cfa13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Components.CachedPathImage
+  _image: {fileID: 14405780411667033}
+  _placeholder: {fileID: 0}
+  _throbber: {fileID: 0}
 --- !u!1 &4064500489689977295
 GameObject:
   m_ObjectHideFlags: 0
@@ -770,7 +801,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4006e28eb7d95af4d88d102ae19d091d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel.AdventureTopPanelView
-  _characterButton: {fileID: 4142680803818352586}
+  _characterButtonView: {fileID: 9019446362823244019}
   _menuButton: {fileID: 4194953237954106259}
   _parameterViews:
   - {fileID: 1685899423040804381}

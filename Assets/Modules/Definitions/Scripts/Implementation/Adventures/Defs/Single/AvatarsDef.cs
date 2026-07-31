@@ -10,7 +10,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Single
     public class AvatarsDef : AbstractDefinition
     {
         /// <summary>
-        /// Free / starter avatars. Key — ancestry def id, value — avatar ids.
+        /// Free / starter avatars. Key — ancestry def id, value — avatar ids/path.
         /// </summary>
         public Dictionary<string, List<string>> Free;
 
@@ -37,7 +37,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Single
         public int Price;
 
         /// <summary>
-        /// Avatars unlocked by this pack. Key — ancestry def id, value — avatar ids.
+        /// Avatars unlocked by this pack. Key — ancestry def id, value — avatar ids/paths.
         /// </summary>
         public Dictionary<string, List<string>> Avatars;
     }

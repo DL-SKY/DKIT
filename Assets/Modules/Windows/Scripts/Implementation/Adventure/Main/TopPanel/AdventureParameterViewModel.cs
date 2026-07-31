@@ -62,6 +62,9 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
         {
             if (_isDisposed)
                 return;
+
+            //TODO: ...
+            UnityEngine.Debug.LogError($"AdventureParameterViewModel.OnClick()");
         }
 
         public override void Dispose()

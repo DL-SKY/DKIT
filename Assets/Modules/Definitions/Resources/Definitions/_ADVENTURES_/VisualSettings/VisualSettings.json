@@ -74,5 +74,6 @@
 		"Survival.TextParams": "SURVIVAL_TEXT_PARAMS",
 		"Thievery": "THIEVERY",
 		"Thievery.TextParams": "THIEVERY_TEXT_PARAMS"
-	}
+	},
+	"UnknownCharacterAvatar": "Adventures/Ancestries/R_005"
 }

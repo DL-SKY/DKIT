@@ -7,7 +7,8 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
 {
     /// <summary>
     /// ViewModel for the adventure top panel (character, abilities, menu).
-    /// Owns <see cref="AdventureParameterViewModel"/> instances.
+    /// Owns <see cref="AdventureCharacterButtonViewModel"/> and
+    /// <see cref="AdventureParameterViewModel"/> instances.
     /// Owned by <see cref="AdventureMainViewModel"/>.
     /// </summary>
     public class AdventureTopPanelViewModel : ViewModelBase
@@ -18,6 +19,8 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
 
         private bool _isInitialized;
 
+        public AdventureCharacterButtonViewModel CharacterButton { get; private set; }
+
         public IReadOnlyList<AdventureParameterViewModel> Parameters => _parameters;
 
         public void Init()
@@ -27,6 +30,19 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
 
             _isInitialized = true;
             Subscribe();
+        }
+
+        /// <summary>
+        /// Creates the character-button VM owned by this panel. Call from the view once;
+        /// the view then calls <see cref="AdventureCharacterButtonViewModel.Init"/>.
+        /// </summary>
+        public AdventureCharacterButtonViewModel CreateCharacterButton()
+        {
+            if (CharacterButton != null)
+                return CharacterButton;
+
+            CharacterButton = _viewModelFactory.Create<AdventureCharacterButtonViewModel>();
+            return CharacterButton;
         }
 
         /// <summary>
@@ -41,11 +57,27 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
             return viewModel;
         }
 
+        /// <summary>
+        /// Player clicked the menu button.
+        /// </summary>
+        public void OnMenuClick()
+        {
+            //TODO: ...
+            UnityEngine.Debug.LogError($"AdventureTopPanelViewModel.OnMenuClick()");
+        }
+
         public override void Dispose()
         {
             Unsubscribe();
+            DisposeCharacterButton();
             DisposeParameters();
             _isInitialized = false;
+        }
+
+        private void DisposeCharacterButton()
+        {
+            CharacterButton?.Dispose();
+            CharacterButton = null;
         }
 
         private void DisposeParameters()

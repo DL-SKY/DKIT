@@ -10,5 +10,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Single
     {
         public Dictionary<string, string> ParameterIcons;
         public Dictionary<string, string> ParameterLocalizations;
+
+        public string UnknownCharacterAvatar;
     }
 }
