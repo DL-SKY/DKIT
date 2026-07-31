@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Adventures;
 using Modules.State.Scripts.Implementation.Adventure;
 using Modules.State.Scripts.Implementation.Adventure.StateDatas;
 using Modules.State.Scripts.Implementation.Wallet.StateDatas;
@@ -5,11 +6,14 @@ using Modules.Utils.Scripts.Extensions;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace Modules.State.Scripts.Implementation.Adventure.Factories
 {
     public class AdventureStateDataFactory : IAdventureStateDataFactory
     {
+        [Inject] private readonly DefinitionsManager _definitionsManager;
+
         public StateData Create(string profileId)
         {
             return new StateData
@@ -30,7 +34,16 @@ namespace Modules.State.Scripts.Implementation.Adventure.Factories
             {
                 CreateTime = now,
                 UpdateTime = now,
+                Parameters = CreateDefaultProfileParameters(),
             };
+        }
+
+        private Dictionary<string, int> CreateDefaultProfileParameters()
+        {
+            var defaults = _definitionsManager?.ProfileStateSettings?.DefaultParameters;
+            return defaults != null
+                ? new Dictionary<string, int>(defaults)
+                : new Dictionary<string, int>();
         }
 
         private WalletStateData CreateNewWalletState()

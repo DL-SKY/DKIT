@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-28 16:40:00 (+03:00)
+**Последнее обновление:** 2026-07-31 12:45:00 (+03:00)
 
 ## Назначение
 
@@ -9,6 +9,8 @@
 Все изменения прогресса игрока в runtime должны проходить через **state-actions** и исполняться через `StateLogic<TStateData>.ProcessAction(...)`.
 
 > **Бой (план):** персистентные итоги боя (HP, устойчивые статусы) остаются в `CharacterStateData`; эфемерные счётчики раунда (MAP, AP) — в runtime session, не в сейве. См. [Battle.md](Battle.md).
+>
+> **Choice-actions (Adventure):** executors выборов игрока в приключениях могут мутировать только секции **`Characters` / `Inventory` / `Adventures`**. `Profile` / `Wallet` / `Localization` — вне choice-pipeline (UI, init, cheats, meta). См. [RPG.md — Инвариант секций State для choice-actions](RPG.md#инвариант-секций-state-для-choice-actions).
 
 ## Краткая логика работы
 
@@ -159,6 +161,8 @@ Implementation/Wallet/
 | `SetCurrentActiveCharacterId` | `SetCurrentActiveCharacterIdStateAction` (Adventure) |
 | `AddCharacterToActiveParty` | `AddCharacterToActivePartyStateAction` (Adventure) |
 | `RemoveCharacterFromActiveParty` | `RemoveCharacterFromActivePartyStateAction` (Adventure) |
+| `AddProfileParameter` | `AddProfileParameterStateAction` (Adventure) |
+| `SetProfileParameter` | `SetProfileParameterStateAction` (Adventure) |
 
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
@@ -218,6 +222,24 @@ Implementation/Wallet/
   Поле: `Language` (`SystemLanguage`, по умолчанию `Unknown`).  
   Сериализация в save выполняется строковым именем enum (`"Russian"`, `"English"`), а не числовым кодом.
 
+### Adventure: `ProfileStateData`
+
+Файл: `Implementation/Adventure/StateDatas/ProfileStateData.cs`.
+
+| Поле | Тип | Назначение |
+|------|-----|------------|
+| `CreateTime` / `UpdateTime` | `long` | Unix ms UTC |
+| `Parameters` | `Dictionary<string, int>` | Счётчики/флаги/лимиты профиля; нет ключа → `0` |
+
+Ключи `Parameters` — `Glossary.ProfileState` (`Modules.Definitions`):
+
+| Константа | Значение | Назначение |
+|-----------|----------|------------|
+| `MAX_PARTY_SLOTS` | `"MaxPartySlots"` | Макс. слотов активной партии (`AddCharacterToActivePartyStateAction`) |
+| `MAX_INVENTORY_SLOTS` | `"MaxInventorySlots"` | Макс. слотов общего инвентаря |
+
+Дефолты при создании профиля — из `ProfileStateSettingsDef.DefaultParameters` (`Definitions/_ADVENTURES_/ProfileStateSettings/ProfileStateSettings.json`; сейчас `MaxPartySlots: 4`, `MaxInventorySlots: 20`). Мутация runtime — `SetProfileParameterStateAction` / `AddProfileParameterStateAction` (**не** из adventure choice-executors).
+
 ### Adventure: `CharactersStateData` и `CharacterStateData`
 
 Файл: `Implementation/Adventure/StateDatas/CharactersStateData.cs`.
@@ -230,7 +252,7 @@ Implementation/Wallet/
 | `HeroPoints` | `int` | Очки героя на уровне профиля (ресурс кампании); мутация через `ChangeHeroPointsStateAction` |
 | `Characters` | `Dictionary<int, CharacterStateData>` | Все персонажи профиля (живые и погибшие) |
 | `CurrentActiveCharacterId` | `int` | Текущий выбранный персонаж UI/геймплея; `0` — не выбран; мутация через `SetCurrentActiveCharacterIdStateAction` |
-| `ActivePartyCharacterIds` | `List<int>` | Текущий отряд (до 4): упорядоченный список id; `AddCharacterToActiveParty` / `RemoveCharacterFromActiveParty` |
+| `ActivePartyCharacterIds` | `List<int>` | Текущий отряд: упорядоченный список id; лимит — `Profile.Parameters[MAX_PARTY_SLOTS]`; `AddCharacterToActiveParty` / `RemoveCharacterFromActiveParty` |
 
 `CharacterGender` — пол персонажа (в том же файле):
 
@@ -788,7 +810,7 @@ protected override StateData CreateNewState(string profileId)
 
 | Секция | Дефолты при создании |
 |--------|----------------------|
-| `Profile` | `CreateTime`, `UpdateTime` = текущее Unix ms UTC |
+| `Profile` | `CreateTime`, `UpdateTime` = текущее Unix ms UTC; `Parameters` — копия `ProfileStateSettings.DefaultParameters` (`MaxPartySlots`, `MaxInventorySlots`, …) |
 | `Wallet` | пустой `Resources` |
 | `Localization` | `Language = SystemLanguage.Unknown` |
 | `Characters` | `NextCharacterId = 1`, `HeroPoints = 0`, пустые `Characters`, `ActivePartyCharacterIds` |
@@ -867,8 +889,10 @@ stateLogic.StateChanged += source =>
 - `EndCharacterTurnStateAction` — конец хода персонажа: декремент `StatusEffects` для timed Condition-feats, запуск tick-обработчиков из `ConditionDef`, `UnapplyFeat` при `0` (конструктор: request + `DefinitionsManager`) (Adventure).
 - `ChangeHeroPointsStateAction` — `HeroPoints += delta`; валидация: результат не отрицательный (Adventure).
 - `SetCurrentActiveCharacterIdStateAction` — установка `CurrentActiveCharacterId`; персонаж должен существовать в `Characters` (Adventure).
-- `AddCharacterToActivePartyStateAction` — добавить id в `ActivePartyCharacterIds` (лимит `MAX_ACTIVE_PARTY_SIZE = 4`, без дублей) (Adventure).
-- `RemoveCharacterFromActivePartyStateAction` — убрать id из `ActivePartyCharacterIds`; если это `CurrentActiveCharacterId` — сброс в `0` (Adventure).
+- `AddCharacterToActivePartyStateAction` — добавить id в `ActivePartyCharacterIds` (лимит из `Profile.Parameters[Glossary.ProfileState.MAX_PARTY_SLOTS]`, без дублей) (Adventure).
+- `RemoveCharacterFromActivePartyStateAction` — убрать id из `ActivePartyCharacterIds`; нельзя удалить текущего (`CurrentActiveCharacterId`) (Adventure).
+- `SetProfileParameterStateAction` — `Profile.Parameters[key] = value` (`value >= 0`) (Adventure; **не** для choice-pipeline).
+- `AddProfileParameterStateAction` — `Profile.Parameters[key] += delta` (Adventure; **не** для choice-pipeline).
 
 ## Как добавить новый state-action
 

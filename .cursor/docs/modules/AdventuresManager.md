@@ -1,6 +1,6 @@
 # AdventuresManager
 
-**Последнее обновление:** 2026-07-22 17:47:15 (+03:00)
+**Последнее обновление:** 2026-07-31 12:45:00 (+03:00)
 
 ## Назначение
 
@@ -17,6 +17,7 @@
 
 1. UI вызывает `IChoiceActionExecutor` для выбранного игроком действия.
 2. Executor меняет состояние через state-action (`StateActionBase<TStateData>`) и `AdventureStateLogic.ProcessAction(...)`.
+   Допустимые секции мутации из choice-pipeline: только **`Characters` / `Inventory` / `Adventures`** (не `Profile` / `Wallet` / `Localization`). Подробнее — [RPG.md — Инвариант секций State для choice-actions](RPG.md#инвариант-секций-state-для-choice-actions).
 3. После успешного `Execute` logic публикует `AdventureStateLogic.StateChanged`.
 4. `RuntimeSceneData` помечает runtime как dirty (см. ниже) и на следующем кадре синхронизирует контекст, поднимая события контента/сцены.
 5. `AdventuresManager` ретранслирует эти события наружу (`ChangedAdventure`, `ChangedScene`, `ChangedContent`, `ChangedChoices`).
@@ -25,7 +26,7 @@
 
 Так формируется runtime-loop: `Choice -> StateAction -> StateChanged -> (dirty) -> next frame Sync -> AdventuresManager -> UI -> Choice`.
 
-> Оркестрация «клик choice → прогон списка `Actions` через фабрику executors» со стороны UI пока может быть не полностью замкнута; переход по сцене и запись params через executors уже реализованы.
+> Оркестрация «клик choice → прогон списка `Actions` через фабрику executors» уже идёт из `AdventureChoiceViewModel.Select()` для `ChoiceType.Default`; `DiceCheck` runtime — ещё stub. Переход по сцене и запись params через executors реализованы.
 
 > **UI (Windows):** `AdventureScrollViewModel` подписан на `ChangedContent` / `GetCurrentContent()` и `ChangedChoices` / `GetCurrentChoices()`. Content VM **дописываются** в конец списка; `AdventureScrollView` секвенциально анимирует новые item’ы (`IContentAnimator`, `SkipAllShowAnimation` по `ScreenInputService.OnInput` / `PointerDown`). Choice-плашки уничтожаются на `ON_CLEAR_CONTENT` / `ON_APPEND_CONTENT` / refresh и после конца content-sequence появляются **все сразу** (parallel `Animator.Play`). Клик choice → `AdventureChoiceViewModel.Select()` → `ChoiceActionExecutorFactory` (DiceCheck runtime — ещё stub). Очистка content — только `ClearContent`. Подробности: [Windows.md](Windows.md) (секция Adventure runtime UI).
 

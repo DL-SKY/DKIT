@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-30 12:37:00 (+03:00)
+**Последнее обновление:** 2026-07-31 12:45:00 (+03:00)
 
 ## Назначение
 
@@ -16,6 +16,8 @@
 > **Связь с `Modules.Definitions`:** JSON-дефы adventure-проекта загружаются через `DefinitionsManager` (Adventures). `AdventureDef` — единственный деф, который наследует RPG-модель (`AdventureData`); классы, ancestry, предыстории, черты, предметы и заклинания описаны как `ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` / `ItemDef` / `SpellDef` и наследуют `AbstractDefinition` напрямую. Контракт дефов расширяется (`Restrictions`, `Icon`, `Features`, `AncestryDef.Names`, single-каталог `AvatarsDef` и др.); применение механик в state — в планах. Подробности — в [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция).
 >
 > **Связь с `Modules.State`:** персистентный прогресс игрока (сейв профиля) живёт в модуле `State` (`AdventureStateManager`, `AdventureStateLogic`, state-actions). Изменения прогресса из choice-executors проходят через `AdventureStateLogic.ProcessAction(...)`, а не напрямую в `StateData`.
+>
+> **Инвариант choice → state:** действия из выборов игрока в приключениях (`IChoiceActionExecutor`) могут вызывать только state-actions, мутирующие секции **`Characters` / `Inventory` / `Adventures`**. Секции `Profile`, `Wallet`, `Localization` через choice-pipeline **запрещены** (их меняют UI/init/cheats и отдельные meta-экшены вне adventure-choices). См. ниже «Инвариант секций State для choice-actions».
 >
 > Персонажи, отряд, инвентарь и прогресс приключений хранятся в `Modules.State` (`CharactersStateData`, `InventoryStateData`, `AdventuresStateData`). Подробности — в [документации модуля State](State.md).
 >
@@ -277,6 +279,23 @@
 | `SetAdventureParams` | `SetAdventureParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetAdventureParamsStateAction)` → merge в `AdventuresStateData.Adventures[currentAdventureId].Parameters` |
 | `SetGlobalParams` | `SetGlobalParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetGlobalParamsStateAction)` → merge в `AdventuresStateData.Global.Parameters` |
 
+### Инвариант секций State для choice-actions
+
+Выбор игрока в приключении (`ChoiceData.Actions` / DiceCheck outcomes → `IChoiceActionExecutor`) — **не** произвольный доступ к профилю. Разрешены только мутации:
+
+| Секция `StateData` | Через choice-actions | Комментарий |
+|---|---|---|
+| `Adventures` | ✅ разрешено | Навигация (`CurrentAdventureId` / `CurrentAdventureSceneId`) и `World` / `Adventure` / `Global` params — уже подключено |
+| `Characters` | ✅ разрешено | Будущие `GrantItem` / damage / heal / party и т.п.; сейчас choice-executors Characters не трогают |
+| `Inventory` | ✅ разрешено | Будущие выдачи/изъятия предметов; сейчас choice-executors Inventory не трогают |
+| `Profile` | ❌ запрещено | В т.ч. `Profile.Parameters` (`MaxPartySlots`, `MaxInventorySlots`) — не через adventure-choices |
+| `Wallet` | ❌ запрещено | Meta/UI/cheats, не choice-контент |
+| `Localization` | ❌ запрещено | Init / settings |
+
+`OpenWindow` state не меняет (stub UI). `Set*Params` пишут только в `Adventures.*Parameters`, не в `Profile.Parameters`.
+
+При добавлении нового `ChoiceActionType` / executor: вызывать только state-actions из разрешённых секций; иначе — отдельный UI/meta-путь вне choice-pipeline.
+
 Legacy (не используется фабрикой):
 
 | Executor | `Params` | Куда писал |
@@ -290,7 +309,7 @@ Legacy (не используется фабрикой):
 Целевой цикл работы adventure-runtime:
 
 1. Игрок выбирает действие в UI (choice).
-2. `IChoiceActionExecutor` обрабатывает выбор и изменяет профиль только через state-actions (`StateActionBase<TStateData>`), а не прямой мутацией `StateData`.
+2. `IChoiceActionExecutor` обрабатывает выбор только через state-actions (`StateActionBase<TStateData>`), без прямой мутации `StateData`; целевые секции — только `Characters` / `Inventory` / `Adventures` (см. инвариант выше).
 3. `AdventureStateLogic.ProcessAction(...)` выполняет `Validate -> Execute` и публикует `StateChanged` с `StateChangeSource`.
 4. `RuntimeSceneData` помечает dirty по `StateChanged`, на следующем кадре (`Updater.OnUpdate`) вызывает `SyncFromStateAndNotify` и уведомляет `AdventuresManager`.
 5. `AdventuresManager` публикует собственные события (`ChangedAdventure`, `ChangedScene`, `ChangedContent`, `ChangedChoices`) для UI-слоя; UI читает уже отфильтрованные content/choices.
@@ -362,7 +381,8 @@ RPG-контент (сцены, выборы, действия) описывае
 
 - `HeroPoints` — очки героя на уровне профиля (ресурс кампании; дефолт `0` при создании профиля).
 - `Characters` — `Dictionary<int, CharacterStateData>`: весь ростер профиля.
-- `ActivePartyCharacterIds` — `List<int>`: текущий отряд (до 4 персонажей).
+- `ActivePartyCharacterIds` — `List<int>`: текущий отряд; лимит — `Profile.Parameters[Glossary.ProfileState.MAX_PARTY_SLOTS]`.
+- `CurrentActiveCharacterId` — текущий выбранный персонаж (`0` — не выбран).
 - `CharacterStateData`: `CreateTime`, `Name`, `Gender`, `Ancestry`, `Class`, `Background`, `IsDead`, `DeathTime`, `Parameters`, `Spells`, `StatusEffects`, `EquippedItems`. Уровень/опыт и abilities хранятся в `Parameters` (`Glossary.Characters.LEVEL` / `EXPERIENCE`, `STR`, `CON`, …). Итоговые навыки и `MaxHitPoints` читаются через `CharacterParametersProxy.GetTotalValue` по `RuleDef.ParameterFormulas` (см. [State.md](State.md#adventure-characterparametersproxy-read-api)). Мутации сырых `Parameters` — через `CharacterParametersOperator` (Apply / Unapply). `StatusEffects` — таймеры timed Condition-feats (`featId` → оставшиеся ходы); см. [Feats.md](Feats.md).
   - `Gender` — `CharacterGender` (`Male` / `Female`); при генерации имени — вместе с `AncestryDef.Names`; пул аватаров — в `AvatarsDef` по `Ancestry`;
   - `Ancestry`, `Class`, `Background` — id дефов `AncestryDef` / `ClassDef` / `BackgroundDef`;
@@ -426,7 +446,7 @@ RPG-контент (сцены, выборы, действия) описывае
    - `DiceCheck` — открыть окно броска, взять модификатор по `DiceCheck.DiceCheckParam`, рассчитать исход по `DiceCheck.DifficultyClass`, выполнить actions из соответствующего outcome-списка (`OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure`).
 7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
-Полный runtime-поток еще не замкнут: `AdventuresManager`/`RuntimeSceneData` синхронизируют сцену, фильтруют content/choices и шлют события UI, но оркестрация «клик choice → фабрика executors» из UI пока может быть не подключена. Переход по сцене через `GoToSceneChoiceActionExecutor` уже идёт через state-action (`SetCurrentAdventureSceneIdStateAction`); legacy-путь (`ObsoleteGoToSceneChoiceActionExecutor` + `IAdventureFlowController`) помечен `[Obsolete]` и не используется фабрикой.
+Runtime-поток для `ChoiceType.Default` замкнут из UI (`AdventureChoiceViewModel.Select()` → фабрика executors). `DiceCheck` runtime ещё stub. Choice-executors мутируют только `Adventures` (Characters/Inventory — по инварианту разрешены, пока не подключены). Legacy-путь (`ObsoleteGoToSceneChoiceActionExecutor` + `IAdventureFlowController`) помечен `[Obsolete]` и не используется фабрикой.
 
 ## Текущее состояние реализации
 
@@ -444,6 +464,7 @@ RPG-контент (сцены, выборы, действия) описывае
 - `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`), `SetGlobalParams` (`4`), `GoToAdventure` (`5`), `OpenWindow` (`6`, stub), `GoToRandomAdventure` (`7`), `GoToRandomScene` (`8`).
 - Ключи `Params.Strings`: `Glossary.ChoiceActions.SCENE_ID` / `ADVENTURE_ID` / `WINDOW_ID`; ids окон хаба — `Glossary.Windows.*`.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
+- Зафиксирован инвариант: choice-executors могут мутировать только `Characters` / `Inventory` / `Adventures` (не `Profile` / `Wallet` / `Localization`).
 - Реализованы executors:
   - `GoToSceneChoiceActionExecutor` → `SetCurrentAdventureSceneIdStateAction`;
   - `GoToAdventureChoiceActionExecutor` → `SetCurrentAdventureIdStateAction` (очищает `CurrentAdventureSceneId`);
@@ -468,11 +489,10 @@ RPG-контент (сцены, выборы, действия) описывае
 3. Реализовать runtime-flow для `ChoiceType.DiceCheck` (окно броска, расчёт исхода, выполнение outcome actions через существующую фабрику executors).
 4. Зарегистрировать в Zenject installer:
    - `IChoiceActionExecutorFactory -> ChoiceActionExecutorFactory`.
-5. Замкнуть оркестрацию выбора в UI: клик → прогон `Actions` через фабрику executors.
-6. Подключить остальные `ChoiceActionType` к state-actions в `Modules.State` (`StartCombat`, `GrantItem` и т.д.).
-7. Добавить state-actions для персонажей (`char.*`) и инвентаря; сервис применения механик из дефов в `CharacterStateData`.
-8. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions` и `DiceCheck` outcome actions).
-9. Добавить unit-тесты на:
+5. Довести оркестрацию выбора: `DiceCheck` outcomes через ту же фабрику executors (Default уже гоняется из `AdventureChoiceViewModel`).
+6. Подключить остальные `ChoiceActionType` к state-actions секций `Characters` / `Inventory` / `Adventures` (`GrantItem`, damage/heal и т.д.); не выводить choice-pipeline на `Profile` / `Wallet` / `Localization`.
+7. Добавить валидацию целостности adventure-данных (`StartScenes`, наличие ссылок в `Scenes`, корректность `Actions` и `DiceCheck` outcome actions).
+8. Добавить unit-тесты на:
    - фабрику executors и валидацию `Params`;
    - проверку ограничений и фильтрацию content/choices (в т.ч. `ActivePartyCount`);
    - `GoToAdventure` → резолв стартовой сцены;

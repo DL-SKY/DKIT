@@ -7,6 +7,23 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
     public static class Glossary
     {
+        public static class ProfileState
+        {
+            // --- Parameters ---
+
+            /// <summary>
+            /// Max number of character slots available in the active party.
+            /// Key for <c>ProfileStateData.Parameters</c>.
+            /// </summary>
+            public const string MAX_PARTY_SLOTS = "MaxPartySlots";
+
+            /// <summary>
+            /// Max number of slots in the shared party inventory.
+            /// Key for <c>ProfileStateData.Parameters</c>.
+            /// </summary>
+            public const string MAX_INVENTORY_SLOTS = "MaxInventorySlots";
+        }
+
         public static class Rules
         {
             // --- Tags ---

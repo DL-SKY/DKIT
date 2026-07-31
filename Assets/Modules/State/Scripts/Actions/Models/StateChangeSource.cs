@@ -34,5 +34,9 @@ namespace Modules.State.Scripts.Actions.Models
         SetCurrentActiveCharacterId = 22,
         AddCharacterToActiveParty = 23,
         RemoveCharacterFromActiveParty = 24,
+
+        AddProfileParameter = 25,
+        SetProfileParameter = 26,
     }
 }
+

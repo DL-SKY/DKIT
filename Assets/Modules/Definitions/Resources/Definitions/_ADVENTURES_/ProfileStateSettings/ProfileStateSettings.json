@@ -1,0 +1,6 @@
+{
+	"DefaultParameters": {
+		"MaxPartySlots": 1,
+		"MaxInventorySlots": 20
+	}
+}

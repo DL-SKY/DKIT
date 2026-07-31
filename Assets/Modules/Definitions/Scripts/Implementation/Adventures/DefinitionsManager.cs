@@ -39,6 +39,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         public RuleSettingsDef RuleSettings;
         public AvatarsDef Avatars;
         public VisualSettingsDef VisualSettings;
+        public ProfileStateSettingsDef ProfileStateSettings;
         public Dictionary<string, AdventureDef> Adventures;
         public Dictionary<string, ClassDef> Classes;
         public Dictionary<string, AncestryDef> Ancestries;
@@ -80,6 +81,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
                 LoadRuleSettings,
                 LoadAvatars,
                 LoadVisualSettings,
+                LoadProfileStateSettings,
 
                 LoadAdventures,
 
@@ -196,5 +198,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         {
             VisualSettings = _loader.LoadSingle<VisualSettingsDef>("Definitions/_ADVENTURES_/VisualSettings/VisualSettings");
         }
+
+        private void LoadProfileStateSettings()
+        {
+            ProfileStateSettings = _loader.LoadSingle<ProfileStateSettingsDef>("Definitions/_ADVENTURES_/ProfileStateSettings/ProfileStateSettings");
+        }
     }
 }
+

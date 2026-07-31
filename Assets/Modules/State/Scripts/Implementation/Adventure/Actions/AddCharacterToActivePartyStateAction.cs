@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Adventures.Constants;
 using Modules.State.Scripts.Actions.Core;
 using Modules.State.Scripts.Actions.Models;
 using Modules.State.Scripts.Implementation.Adventure.StateDatas;
@@ -7,8 +8,6 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
 {
     public class AddCharacterToActivePartyStateAction : StateActionBase<StateData>
     {
-        public const int MAX_ACTIVE_PARTY_SIZE = 4;
-
         public override StateChangeSource Source => StateChangeSource.AddCharacterToActiveParty;
 
         private readonly int _characterId;
@@ -23,6 +22,9 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
             if (state?.Characters?.Characters == null)
                 return StateActionValidationResult.Fail("Characters dictionary is null.", 156);
 
+            if (state.Profile?.Parameters == null)
+                return StateActionValidationResult.Fail("Profile parameters are null.", 164);
+
             if (_characterId <= 0)
                 return StateActionValidationResult.Fail("Character id must be greater than zero.", 157);
 
@@ -33,8 +35,9 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
             if (partyIds != null && partyIds.Contains(_characterId))
                 return StateActionValidationResult.Fail("Character is already in the active party.", 159);
 
+            state.Profile.Parameters.TryGetValue(Glossary.ProfileState.MAX_PARTY_SLOTS, out int maxPartySlots);
             int partyCount = partyIds?.Count ?? 0;
-            if (partyCount >= MAX_ACTIVE_PARTY_SIZE)
+            if (partyCount >= maxPartySlots)
                 return StateActionValidationResult.Fail("Active party is already full.", 160);
 
             return StateActionValidationResult.Ok;

@@ -27,15 +27,15 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions
             if (partyIds == null || !partyIds.Contains(_characterId))
                 return StateActionValidationResult.Fail("Character is not in the active party.", 163);
 
+            if (state.Characters.CurrentActiveCharacterId == _characterId)
+                return StateActionValidationResult.Fail("Cannot remove the current active character from the party.", 165);
+
             return StateActionValidationResult.Ok;
         }
 
         public override void Execute(StateData state)
         {
             state.Characters.ActivePartyCharacterIds.Remove(_characterId);
-
-            if (state.Characters.CurrentActiveCharacterId == _characterId)
-                state.Characters.CurrentActiveCharacterId = 0;
         }
     }
 }
