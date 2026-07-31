@@ -14,9 +14,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
     /// Spawns content prefabs for newly appended <see cref="AdventureScrollViewModel.ContentItems"/> and plays
     /// appearance animations sequentially. After the content sequence finishes (or on skip), spawns choice panels
     /// and plays their appearance animations in parallel.
-    /// Before appending onto existing content, reserves bottom viewport space (9/10 of viewport height)
+    /// Before appending onto existing content, reserves bottom viewport space (3/4 of viewport height)
     /// and scrolls to the bottom so new items appear in the freed area (skippable with the rest of the
-    /// show sequence). Bottom padding is restored to the window baseline after choices are presented.
+    /// show sequence). After choices are presented, only the unused reserved padding is kept
+    /// (<c>default + max(0, reservedDelta - filledByNew)</c>); fully filled prep restores to baseline.
     /// Existing content panels are removed only on <c>ON_CLEAR_CONTENT</c>.
     /// Choice panels are cleared on <c>ON_CLEAR_CONTENT</c>, <c>ON_APPEND_CONTENT</c>, and <c>ON_CLEAR_CHOICES</c>.
     /// Assign Text / Image / Splitter / Item / Choice prefabs in the inspector.
@@ -51,6 +52,9 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
         private bool _skipAll;
         private bool _choicesPending;
         private bool _needsSpacePrep;
+        private bool _spacePrepActive;
+        private int _prepBottomPadding;
+        private float _contentHeightAfterSpacePrep;
 
         private void Awake()
         {
@@ -119,6 +123,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
                 ClearSpawnedChoiceViews();
                 _choicesPending = false;
                 _needsSpacePrep = false;
+                ClearSpacePrepState();
                 RestoreDefaultBottomPadding();
                 return;
             }
@@ -254,9 +259,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
         }
 
         /// <summary>
-        /// Sets bottom padding to 9/10 of the viewport height and scrolls to the bottom so the last
-        /// existing content sits in the top tenth, leaving free space for newly appended items.
-        /// Padding is restored to the window baseline after choices are presented.
+        /// Sets bottom padding to a fraction of the viewport height and scrolls to the bottom so the last
+        /// existing content sits near the top of the viewport, leaving free space for newly appended items.
+        /// After choices are presented, <see cref="RestoreBottomPaddingAfterPresent"/> keeps only the
+        /// unused reserved tail so short appends do not collapse empty space with a reverse scroll jump.
         /// </summary>
         private IEnumerator PrepareSpaceForNewContentCoroutine()
         {
@@ -275,6 +281,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             int bottomPadding = Mathf.RoundToInt(viewport.rect.height * SPACE_PREP_BOTTOM_PADDING_VIEWPORT_FRACTION);
             SetBottomPadding(bottomPadding);
 
+            _prepBottomPadding = bottomPadding;
+            _spacePrepActive = true;
+            _contentHeightAfterSpacePrep = GetContentHeight();
+
             yield return ScrollToBottomCoroutine(SPACE_PREP_SCROLL_DURATION);
         }
 
@@ -283,8 +293,48 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             if (!_hasDefaultBottomPadding)
                 return;
 
-            // Revert
             SetBottomPadding(_defaultBottomPadding);
+        }
+
+        /// <summary>
+        /// After new content and choices have been laid out, reduces reserved bottom padding only by the
+        /// height that was actually filled. Unused reserved space remains as padding:
+        /// <c>final = default + max(0, reservedDelta - filledByNew)</c>.
+        /// Without an active space prep, falls back to the window baseline padding.
+        /// </summary>
+        private void RestoreBottomPaddingAfterPresent()
+        {
+            if (!_spacePrepActive || !_hasDefaultBottomPadding)
+            {
+                ClearSpacePrepState();
+                RestoreDefaultBottomPadding();
+                return;
+            }
+
+            float filledByNew = Mathf.Max(0f, GetContentHeight() - _contentHeightAfterSpacePrep);
+            int reservedDelta = Mathf.Max(0, _prepBottomPadding - _defaultBottomPadding);
+            int unusedTail = Mathf.Max(0, reservedDelta - Mathf.RoundToInt(filledByNew));
+            int finalPadding = _defaultBottomPadding + unusedTail;
+
+            ClearSpacePrepState();
+            SetBottomPadding(finalPadding);
+        }
+
+        private void ClearSpacePrepState()
+        {
+            _spacePrepActive = false;
+            _prepBottomPadding = 0;
+            _contentHeightAfterSpacePrep = 0f;
+        }
+
+        private float GetContentHeight()
+        {
+            if (!(_contentRoot is RectTransform contentRect))
+                return 0f;
+
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+            return contentRect.rect.height;
         }
 
         private void SetBottomPadding(int bottom)
@@ -373,8 +423,8 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll
             }
             finally
             {
-                // Return reserved prep space after choices are created (or when there are none).
-                RestoreDefaultBottomPadding();
+                // Collapse only the filled portion of reserved prep space; keep the unused tail.
+                RestoreBottomPaddingAfterPresent();
             }
         }
 
