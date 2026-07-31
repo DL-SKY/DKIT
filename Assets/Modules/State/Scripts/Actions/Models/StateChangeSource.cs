@@ -1,5 +1,7 @@
 namespace Modules.State.Scripts.Actions.Models
 {
+    // TODO:
+    // значительно сократить список, оставить только понятные категории
     public enum StateChangeSource
     {
         ChangeWalletResource = 2,
@@ -27,5 +29,10 @@ namespace Modules.State.Scripts.Actions.Models
         AddCharacterItem = 18,
         RemoveCharacterEquippedItem = 19,
         EndCharacterTurn = 20,
+
+        ChangeHeroPoints = 21,
+        SetCurrentActiveCharacterId = 22,
+        AddCharacterToActiveParty = 23,
+        RemoveCharacterFromActiveParty = 24,
     }
 }

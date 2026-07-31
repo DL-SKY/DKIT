@@ -54,7 +54,9 @@ namespace Modules.State.Scripts.Implementation.Adventure.Factories
             return new CharactersStateData
             {
                 NextCharacterId = 1,
+                HeroPoints = 0,
                 Characters = new Dictionary<int, CharacterStateData>(),
+                CurrentActiveCharacterId = 0,
                 ActivePartyCharacterIds = new List<int>(),
             };
         }

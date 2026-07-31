@@ -155,6 +155,10 @@ Implementation/Wallet/
 | `AddCharacterItem` | `AddCharacterItemStateAction` (Adventure) |
 | `RemoveCharacterEquippedItem` | `RemoveCharacterEquippedItemStateAction` (Adventure) |
 | `EndCharacterTurn` | `EndCharacterTurnStateAction` (Adventure) |
+| `ChangeHeroPoints` | `ChangeHeroPointsStateAction` (Adventure) |
+| `SetCurrentActiveCharacterId` | `SetCurrentActiveCharacterIdStateAction` (Adventure) |
+| `AddCharacterToActiveParty` | `AddCharacterToActivePartyStateAction` (Adventure) |
+| `RemoveCharacterFromActiveParty` | `RemoveCharacterFromActivePartyStateAction` (Adventure) |
 
 - `IStateAction<TStateData>` / `StateActionBase<TStateData>`  
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
@@ -223,9 +227,10 @@ Implementation/Wallet/
 | Поле | Тип | Назначение |
 |------|-----|------------|
 | `NextCharacterId` | `int` | Счётчик для выдачи новых runtime-id персонажей |
-| `HeroPoints` | `int` | Очки героя на уровне профиля (ресурс кампании) |
+| `HeroPoints` | `int` | Очки героя на уровне профиля (ресурс кампании); мутация через `ChangeHeroPointsStateAction` |
 | `Characters` | `Dictionary<int, CharacterStateData>` | Все персонажи профиля (живые и погибшие) |
-| `ActivePartyCharacterIds` | `List<int>` | Текущий отряд: упорядоченный список id персонажей |
+| `CurrentActiveCharacterId` | `int` | Текущий выбранный персонаж UI/геймплея; `0` — не выбран; мутация через `SetCurrentActiveCharacterIdStateAction` |
+| `ActivePartyCharacterIds` | `List<int>` | Текущий отряд (до 4): упорядоченный список id; `AddCharacterToActiveParty` / `RemoveCharacterFromActiveParty` |
 
 `CharacterGender` — пол персонажа (в том же файле):
 
@@ -860,6 +865,10 @@ stateLogic.StateChanged += source =>
 - `AddCharacterItemStateAction` — выдать 1 предмет в свободный `Bag` или общий инвентарь; Features **не** применяет (Adventure).
 - `RemoveCharacterEquippedItemStateAction` — удалить из слота без возврата в инвентарь + Unapply Features если слот носимый; `SlotIndex = -1` ищет по `ItemId` (Adventure).
 - `EndCharacterTurnStateAction` — конец хода персонажа: декремент `StatusEffects` для timed Condition-feats, запуск tick-обработчиков из `ConditionDef`, `UnapplyFeat` при `0` (конструктор: request + `DefinitionsManager`) (Adventure).
+- `ChangeHeroPointsStateAction` — `HeroPoints += delta`; валидация: результат не отрицательный (Adventure).
+- `SetCurrentActiveCharacterIdStateAction` — установка `CurrentActiveCharacterId`; персонаж должен существовать в `Characters` (Adventure).
+- `AddCharacterToActivePartyStateAction` — добавить id в `ActivePartyCharacterIds` (лимит `MAX_ACTIVE_PARTY_SIZE = 4`, без дублей) (Adventure).
+- `RemoveCharacterFromActivePartyStateAction` — убрать id из `ActivePartyCharacterIds`; если это `CurrentActiveCharacterId` — сброс в `0` (Adventure).
 
 ## Как добавить новый state-action
 
