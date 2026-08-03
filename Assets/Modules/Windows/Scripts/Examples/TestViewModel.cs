@@ -8,7 +8,7 @@ namespace Modules.Windows.Scripts.Examples
     {
         public void OnClick()
         {
-            Example.Manager.CloseView(_viewHandle);
+            Example.Manager.CloseView(ViewHandle);
         }
 
         public void OnRoll()

@@ -29,6 +29,7 @@
 
 См. также ранний прототип боевой системы: [modules/Battle.md](modules/Battle.md) (runtime боя ещё не начат; статблоки `CreatureDef` + factory уже есть).  
 Практическое руководство по чертам: [modules/Feats.md](modules/Feats.md) («Как использовать Feats»).  
+Как заполнять дефы создания персонажа: [modules/CharacterCreationDefs.md](modules/CharacterCreationDefs.md) (`ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` / `ConditionDef`).  
 Практическое руководство по противникам: [modules/Creatures.md](modules/Creatures.md) (`CreatureDef` → `CharacterStateData`).
 - `Utils` — общие утилиты, вспомогательные компоненты и инструменты.
 - `Windows` — базовая UI-архитектура окон и view/viewmodel-слой.

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4764019017814538559}
   - component: {fileID: 4569174806329748606}
   m_Layer: 0
-  m_Name: MainLoadView
+  m_Name: AdventureApplicationLoadView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -90,9 +90,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5859685587794568430}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97121721ec1693a41832e007a4a4687d, type: 3}
+  m_Script: {fileID: 11500000, guid: 00000000000000000000000000000000, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Loading.MainLoadView
+  m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Adventure.Preloaders.AdventureApplicationLoadView
   _progressBar: {fileID: 2331780059486421649}
 --- !u!1 &7469881342225593063
 GameObject:

@@ -74,7 +74,7 @@ namespace Modules.Initializer.Scripts.Implementation.Adventure
 
         private void OnCompletedCallback()
         {
-            UnityEngine.Debug.LogError($"OnCompletedCallback() => ");
+            UnityEngine.Debug.LogError($"OnCompletedCallback() => ...");
 
             var adventureMainViewModel = _viewModelFactory.Create<AdventureMainViewModel>();
             adventureMainViewModel.Init();
@@ -83,7 +83,7 @@ namespace Modules.Initializer.Scripts.Implementation.Adventure
 
         private void OnFailedCallback(int error)
         {
-            UnityEngine.Debug.LogError($"OnFailedCallback({error}) => ");
+            UnityEngine.Debug.LogError($"OnFailedCallback({error}) => ...");
         }
     }
 }

@@ -68,6 +68,9 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             // --- Parameters ---
         }
 
+        /// TODO: в дальнейшем потребуется система защиты, 
+        /// чтобы через Choice-actions нельзя было менять некоторые значения по ключам в Parameters
+        /// Н-р, BOOST_POINTS / Abilities / Skills / etc
         public static class Characters
         {
             // --- Tags ---
@@ -76,6 +79,8 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
             public const string LEVEL = "Level";
             public const string EXPERIENCE = "Experience";
+
+            public const string BOOST_POINTS = "BoostPoints";
 
             public const string STR = "STR";    // Сила
             public const string DEX = "DEX";    // Ловкость
@@ -93,9 +98,9 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
 
             public const string CHALLENGE_RATING = "ChallengeRating"; // Класс опасности (encounter budget)
 
-            public const string FORTITUDE = "Fortitude";
-            public const string REFLEX = "Reflex";
-            public const string WILL = "Will";
+            public const string SAVING_FORTITUDE = "Fortitude";
+            public const string SAVING_REFLEX = "Reflex";
+            public const string SAVING_WILL = "Will";
 
             public const string PERCEPTION = "Perception";  // Восприятие
 
@@ -123,6 +128,15 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             public const string ITEMS_SUFFIX = ".ItemsBonus";  // Item bonus for a skill/parameter
             public const string PER_LEVEL_SUFFIX = ".PerLevel";  // Extra value applied each level (e.g. MaxHitPoints.PerLevel)
             public const string BONUS_SUFFIX = ".Bonus";  // Flat bonus for a computed parameter (e.g. MaxHitPoints.Bonus)
+
+            // --- Formula Keywords ---
+
+            public const string PROFICIENCY_KEYWORD = "PROFICIENCY";
+            public const string ITEMS_KEYWORD = "ITEMS";
+            public const string ANCESTRY_HP_KEYWORD = "ANCESTRY_HP";
+            public const string CLASS_HP_KEYWORD = "CLASS_HP";
+            public const string PER_LEVEL_KEYWORD = "PER_LEVEL";
+            public const string BONUS_KEYWORD = "BONUS";
         }
 
         public static class Classes
@@ -263,6 +277,16 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             public const string AGILE = "AGILE";  // Быстрое (сниженный Multiple Attack Penalty)
 
             // --- Parameters ---
+
+            // --- Formula Keywords ---
+
+            public const string PROFICIENCY_KEYWORD = "PROFICIENCY";
+            public const string ITEMS_KEYWORD = "ITEMS";
+            public const string GROUP_ATTACK_BONUS_KEYWORD = "GROUP_ATTACK_BONUS";
+            public const string GROUP_DAMAGE_BONUS_KEYWORD = "GROUP_DAMAGE_BONUS";
+            public const string ABILITY_BEST_KEYWORD = "ABILITY_BEST";
+            public const string ATTACK_ABILITY_BEST_KEYWORD = "ATTACK_ABILITY_BEST";
+            public const string DAMAGE_ABILITY_BEST_KEYWORD = "DAMAGE_ABILITY_BEST";
         }
 
         public static class Spells

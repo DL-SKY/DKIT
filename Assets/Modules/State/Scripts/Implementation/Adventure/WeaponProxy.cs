@@ -8,24 +8,16 @@ namespace Modules.State.Scripts.Implementation.Adventure
 {
     public class WeaponProxy
     {
-        private const string PROFICIENCY_KEYWORD = "PROFICIENCY";
-        private const string ITEMS_KEYWORD = "ITEMS";
-        private const string GROUP_ATTACK_BONUS_KEYWORD = "GROUP_ATTACK_BONUS";
-        private const string GROUP_DAMAGE_BONUS_KEYWORD = "GROUP_DAMAGE_BONUS";
-        private const string ABILITY_BEST_KEYWORD = "ABILITY_BEST";
-        private const string ATTACK_ABILITY_BEST_KEYWORD = "ATTACK_ABILITY_BEST";
-        private const string DAMAGE_ABILITY_BEST_KEYWORD = "DAMAGE_ABILITY_BEST";
-
         private readonly CharacterStateData _characterState;
         private readonly HashSet<string> _formulaKeywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            PROFICIENCY_KEYWORD,
-            ITEMS_KEYWORD,
-            GROUP_ATTACK_BONUS_KEYWORD,
-            GROUP_DAMAGE_BONUS_KEYWORD,
-            ABILITY_BEST_KEYWORD,
-            ATTACK_ABILITY_BEST_KEYWORD,
-            DAMAGE_ABILITY_BEST_KEYWORD,
+            Glossary.Weapons.PROFICIENCY_KEYWORD,
+            Glossary.Weapons.ITEMS_KEYWORD,
+            Glossary.Weapons.GROUP_ATTACK_BONUS_KEYWORD,
+            Glossary.Weapons.GROUP_DAMAGE_BONUS_KEYWORD,
+            Glossary.Weapons.ABILITY_BEST_KEYWORD,
+            Glossary.Weapons.ATTACK_ABILITY_BEST_KEYWORD,
+            Glossary.Weapons.DAMAGE_ABILITY_BEST_KEYWORD,
         };
 
         public WeaponProxy(CharacterStateData characterState)
@@ -67,21 +59,21 @@ namespace Modules.State.Scripts.Implementation.Adventure
         {
             if (_formulaKeywords.Contains(token))
             {
-                if (string.Equals(token, PROFICIENCY_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Weapons.PROFICIENCY_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return EvaluateProficiency(itemDef);
 
-                if (string.Equals(token, ITEMS_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Weapons.ITEMS_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return EvaluateItemsBonus(itemDef, context);
 
-                if (string.Equals(token, GROUP_ATTACK_BONUS_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Weapons.GROUP_ATTACK_BONUS_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return EvaluateGroupAttackBonus(itemDef);
 
-                if (string.Equals(token, GROUP_DAMAGE_BONUS_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Weapons.GROUP_DAMAGE_BONUS_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return EvaluateGroupDamageBonus(itemDef);
 
-                if (string.Equals(token, ABILITY_BEST_KEYWORD, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(token, ATTACK_ABILITY_BEST_KEYWORD, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(token, DAMAGE_ABILITY_BEST_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Weapons.ABILITY_BEST_KEYWORD, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(token, Glossary.Weapons.ATTACK_ABILITY_BEST_KEYWORD, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(token, Glossary.Weapons.DAMAGE_ABILITY_BEST_KEYWORD, StringComparison.OrdinalIgnoreCase))
                 {
                     return EvaluateBestAbility(itemDef);
                 }

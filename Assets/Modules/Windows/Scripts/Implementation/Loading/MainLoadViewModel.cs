@@ -1,6 +1,7 @@
 ﻿using Modules.Initializer.Scripts.Core;
 using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Base;
+using Modules.Windows.Scripts.Settings;
 using Zenject;
 
 namespace Modules.Windows.Scripts.Implementation.Loading
@@ -22,6 +23,11 @@ namespace Modules.Windows.Scripts.Implementation.Loading
             Subscribe();
 
             Progress = 0.0f;
+        }
+
+        protected override Options CreateOptions()
+        {
+            return new Options(canCloseOnEsc: false, hideInHistory: false, sortingLayer: SortingOrderLayer.PRELOADER);
         }
 
         private void Subscribe()

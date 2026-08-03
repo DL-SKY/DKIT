@@ -22,24 +22,17 @@ namespace Modules.State.Scripts.Implementation.Adventure
     /// </remarks>
     public class CharacterParametersProxy
     {
-        private const string PROFICIENCY_KEYWORD = "PROFICIENCY";
-        private const string ITEMS_KEYWORD = "ITEMS";
-        private const string ANCESTRY_HP_KEYWORD = "ANCESTRY_HP";
-        private const string CLASS_HP_KEYWORD = "CLASS_HP";
-        private const string PER_LEVEL_KEYWORD = "PER_LEVEL";
-        private const string BONUS_KEYWORD = "BONUS";
-
         private readonly CharacterStateData _characterState;
         private readonly RuleDef _ruleDef;
         private readonly DefinitionsManager _definitionsManager;
         private readonly HashSet<string> _formulaKeywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            PROFICIENCY_KEYWORD,
-            ITEMS_KEYWORD,
-            ANCESTRY_HP_KEYWORD,
-            CLASS_HP_KEYWORD,
-            PER_LEVEL_KEYWORD,
-            BONUS_KEYWORD,
+            Glossary.Characters.PROFICIENCY_KEYWORD,
+            Glossary.Characters.ITEMS_KEYWORD,
+            Glossary.Characters.ANCESTRY_HP_KEYWORD,
+            Glossary.Characters.CLASS_HP_KEYWORD,
+            Glossary.Characters.PER_LEVEL_KEYWORD,
+            Glossary.Characters.BONUS_KEYWORD,
         };
 
         public CharacterParametersProxy(
@@ -93,22 +86,22 @@ namespace Modules.State.Scripts.Implementation.Adventure
         {
             if (_formulaKeywords.Contains(token))
             {
-                if (string.Equals(token, PROFICIENCY_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Characters.PROFICIENCY_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return EvaluateProficiency(requestedKey);
 
-                if (string.Equals(token, ITEMS_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Characters.ITEMS_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return EvaluateItemsBonus(requestedKey);
 
-                if (string.Equals(token, ANCESTRY_HP_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Characters.ANCESTRY_HP_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return EvaluateAncestryHitPoints();
 
-                if (string.Equals(token, CLASS_HP_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Characters.CLASS_HP_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return EvaluateClassHitPointsPerLevel();
 
-                if (string.Equals(token, PER_LEVEL_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Characters.PER_LEVEL_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return GetRawValue(requestedKey + Glossary.Characters.PER_LEVEL_SUFFIX);
 
-                if (string.Equals(token, BONUS_KEYWORD, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(token, Glossary.Characters.BONUS_KEYWORD, StringComparison.OrdinalIgnoreCase))
                     return GetRawValue(requestedKey + Glossary.Characters.BONUS_SUFFIX);
             }
 
