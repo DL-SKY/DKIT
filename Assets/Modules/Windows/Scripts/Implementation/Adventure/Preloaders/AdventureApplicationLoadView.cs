@@ -7,7 +7,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Preloaders
 {
     public class AdventureApplicationLoadView : ViewBase<AdventureApplicationLoadViewModel>
     {
-        public static string Path = "";
+        public static string Path = "Prefabs/Views/Adventure/Preloaders/AdventureApplicationLoadView";
 
         [Header("Main")]
         [SerializeField] private CachedPathImage _background;

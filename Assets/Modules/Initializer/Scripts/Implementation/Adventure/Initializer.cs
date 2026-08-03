@@ -3,7 +3,7 @@ using Modules.Initializer.Scripts.Implementation.Tasks.Core;
 using Modules.Initializer.Scripts.Tasks;
 using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Implementation.Adventure.Main;
-using Modules.Windows.Scripts.Implementation.Loading;
+using Modules.Windows.Scripts.Implementation.Adventure.Preloaders;
 using Modules.Windows.Scripts.Managers;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,7 +34,7 @@ namespace Modules.Initializer.Scripts.Implementation.Adventure
             UnityEngine.Debug.LogError($"Initializer.Start() => _updater: {_updater != null}");
             UnityEngine.Debug.LogError($"                       _viewModelFactory: {_viewModelFactory != null}");
 
-            var loaderViewModel = _viewModelFactory.Create<MainLoadViewModel>();
+            var loaderViewModel = _viewModelFactory.Create<AdventureApplicationLoadViewModel>();
 
             var tasks = new List<TaskBase>()
             {
@@ -58,14 +58,14 @@ namespace Modules.Initializer.Scripts.Implementation.Adventure
 
                 //Show progress 100% pause / filler
                 new PauseTask(_updater, 0.25f, 0),
-                new CloseViewTask(_windowsManager, loaderViewModel, 0),
+                //new CloseViewTask(_windowsManager, loaderViewModel, 0),
             };
 
             //DebugMethod01();
 
             var tasker = new InitializeTasker(tasks);
             loaderViewModel.Init(tasker);
-            var loaderView = _windowsManager.OpenView<MainLoadView, MainLoadViewModel>(MainLoadView.Path, loaderViewModel);
+            var loaderView = _windowsManager.OpenView<AdventureApplicationLoadView, AdventureApplicationLoadViewModel>(AdventureApplicationLoadView.Path, loaderViewModel);
 
             //TODO: subscribe and callbacks
             tasker.OnProgressChange += (x, y) => UnityEngine.Debug.LogError($"...LOADING PROGRESS {x}/{y}...");
@@ -76,9 +76,9 @@ namespace Modules.Initializer.Scripts.Implementation.Adventure
         {
             UnityEngine.Debug.LogError($"OnCompletedCallback() => ...");
 
-            var adventureMainViewModel = _viewModelFactory.Create<AdventureMainViewModel>();
-            adventureMainViewModel.Init();
-            _windowsManager.OpenView<AdventureMainView, AdventureMainViewModel>(AdventureMainView.Path, adventureMainViewModel);
+            //var adventureMainViewModel = _viewModelFactory.Create<AdventureMainViewModel>();
+            //adventureMainViewModel.Init();
+            //_windowsManager.OpenView<AdventureMainView, AdventureMainViewModel>(AdventureMainView.Path, adventureMainViewModel);
         }
 
         private void OnFailedCallback(int error)
