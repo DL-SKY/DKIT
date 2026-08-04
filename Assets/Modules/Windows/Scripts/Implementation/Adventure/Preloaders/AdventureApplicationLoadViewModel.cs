@@ -15,7 +15,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Preloaders
         public const string ON_CHANGE_INTERACTABLE = "ON_CHANGE_INTERACTABLE";
 
         public const string KNOCK_TO_CONTINUE = "KNOCK_TO_CONTINUE";
-        public const int MAX_KNOCKS = 3;
+        public const int MAX_KNOCKS = 1;
 
         [Inject] private readonly WindowsManager _windowsManager;
         [Inject] private readonly ScreenInputService _screenInput;
