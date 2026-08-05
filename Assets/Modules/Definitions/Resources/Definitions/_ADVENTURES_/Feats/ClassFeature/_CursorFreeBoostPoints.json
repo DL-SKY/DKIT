@@ -1,0 +1,22 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 1,
+	"Tags": [
+		"player-core",
+		"cursor",
+		"boost-free",
+		"boost-points"
+	],
+	"Title": "Свободное очко характеристики",
+	"Description": "Получите 1 свободное очко для повышения любой характеристики (BoostPoints).",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"BoostPoints": 1
+		},
+		"Set": {
+			"_CursorFreeBoostPoints": 1
+		}
+	}
+}

@@ -1,0 +1,22 @@
+{
+	"Disabled": false,
+	"Type": "Boost",
+	"Level": 5,
+	"Tags": [
+		"player-core",
+		"cursor",
+		"attribute-boosts",
+		"boost-points"
+	],
+	"Title": "Очки повышений характеристик",
+	"Description": "Получите 4 свободных очка для повышения характеристик (BoostPoints). Обычно выдаются на 5 уровне.",
+	"Restrictions": [],
+	"Apply": {
+		"Add": {
+			"BoostPoints": 4
+		},
+		"Set": {
+			"_CursorAttributeBoostPoints": 1
+		}
+	}
+}
