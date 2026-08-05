@@ -1,4 +1,5 @@
 using Modules.State.Scripts.Implementation.Adventure.StateDatas;
+using System;
 
 namespace Modules.State.Scripts.Implementation.Adventure.Actions.Models
 {
@@ -8,6 +9,8 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions.Models
     /// </summary>
     public class CreateCharacterRequestData
     {
+        public event Action OnUpdate;
+
         public string Avatar;
         public string Name;
         public CharacterGender Gender;

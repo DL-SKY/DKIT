@@ -15,6 +15,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
     /// </summary>
     public class CreateCharacterViewModel : ViewModelBase
     {
+        public const string ON_CHANGE_CHARACTER = "ON_CHANGE_CHARACTER";
         public const string ON_CHANGE_CAN_CREATE = "ON_CHANGE_CAN_CREATE";
 
         [Inject] private readonly WindowsManager _windowsManager;
@@ -29,12 +30,27 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
         /// </summary>
         private CreateCharacterRequestData _request { get; set; }
 
-        /// <summary>
-        /// When true, the active Create button is shown; otherwise the disabled Create button.
-        /// </summary>
+        public string Name { get; private set; }
+        public string Avatar { get; private set; }
+        public string HitPointsTitle { get; private set; }
+        public int HitPoints { get; private set; }
+        public string LevelTitle { get; private set; }
+        public int Level { get; private set; }
+        public string AncestryTitle { get; private set; }
+        public string Ancestry { get; private set; }                // checkpoint
+        public string ClassTitle { get; private set; }
+        public string Class { get; private set; }                   // checkpoint
+        public string BackgroundTitle { get; private set; }
+        public string Background { get; private set; }              // checkpoint
+        public string AbilityScoresTitle { get; private set; }
+        public string AbilityBoostPointsTitle { get; private set; }
+        public int AbilityBoostPoints { get; private set; }         // checkpoint
+        public string SkillsTitle { get; private set; }
+        public string SkillsBoostPointsTitle { get; private set; }
+        public int SkillsBoostPoints { get; private set; }          // checkpoint
         public bool CanCreate { get; private set; }
 
-        public void Init()
+        public void Init(bool addToActiveParty)
         {
             if (_isInitialized)
                 return;
@@ -44,17 +60,22 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
 
             _request = new CreateCharacterRequestData
             {
-                AddToActiveParty = true,
+                AddToActiveParty = addToActiveParty,
                 CharacterData = new CharacterRequestData(),
             };
 
+            UpdateCharacterRequestData();
             SetCanCreate(false);
         }
 
-        /// <summary>
-        /// Updates Create button visibility (active vs disabled).
-        /// </summary>
-        public void SetCanCreate(bool value)
+        private void UpdateCharacterRequestData()
+        {
+            //...
+
+            SendOnChange(ON_CHANGE_CHARACTER);
+        }
+
+        private void SetCanCreate(bool value)
         {
             if (CanCreate == value)
                 return;
@@ -140,6 +161,48 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
             //...
         }
 
+        private void Close()
+        {
+            _windowsManager.CloseView(ViewHandle);
+        }
+
+
+        public void OnEditName()
+        {
+
+        }
+
+        public void OnEditAvatar()
+        {
+
+        }
+
+        public void OnEditAncestry()
+        {
+
+        }
+
+        public void OnEditClass()
+        {
+
+        }
+
+        public void OnEditBackground()
+        {
+
+        }
+
+        public void OnEditAbilities()
+        {
+
+        }
+
+        public void OnEditSkills()
+        {
+
+        }
+
+
         public override void Dispose()
         {
             if (_isDisposed)
@@ -149,11 +212,6 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
             _isInitialized = false;
             _request = null;
             CanCreate = false;
-        }
-
-        private void Close()
-        {
-            _windowsManager.CloseView(ViewHandle);
         }
     }
 }

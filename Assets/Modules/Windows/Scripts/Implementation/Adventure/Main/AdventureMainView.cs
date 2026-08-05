@@ -52,10 +52,5 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main
         {
             // Remove all subscriptions from Subscribe
         }
-
-        public override void Show()
-        {
-            base.Show();
-        }
     }
 }

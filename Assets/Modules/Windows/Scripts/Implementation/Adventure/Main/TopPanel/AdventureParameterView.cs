@@ -20,9 +20,9 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
         [SerializeField] private CachedPathImage _icon;
         [SerializeField] private TextMeshProUGUI _value;
 
-        private AdventureParameterViewModel _viewModel;
+        private AdventureParameterViewModelBase _viewModel;
 
-        public void Init(AdventureParameterViewModel viewModel)
+        public void Init(AdventureParameterViewModelBase viewModel)
         {
             Unsubscribe();
 
@@ -59,10 +59,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel
 
         private void OnChangeCustomHandler(string tag)
         {
-            if (tag == AdventureParameterViewModel.ON_CHANGE_ICON)
+            if (tag == AdventureParameterViewModelBase.ON_CHANGE_ICON)
                 ApplyIcon();
 
-            if (tag == AdventureParameterViewModel.ON_CHANGE_VALUE)
+            if (tag == AdventureParameterViewModelBase.ON_CHANGE_VALUE)
                 ApplyValue();
         }
 
