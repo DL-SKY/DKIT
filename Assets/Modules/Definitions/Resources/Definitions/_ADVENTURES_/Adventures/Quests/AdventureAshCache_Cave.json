@@ -1,0 +1,1512 @@
+{
+  "Disabled": false,
+  "Tags": [
+    "QUEST",
+    "CAVE",
+    "GIANTS",
+    "LEVEL_1",
+    "ASH_CACHE"
+  ],
+  "IgnoredTags": [],
+  "IsRepeatable": false,
+  "Type": "Adventure",
+  "AdventureLinks": [],
+  "Title": "Пещера под холмами",
+  "Description": "Ориентировочный минимальный уровень: 1–2.\n\nСинопсис: по записям убитой охотницы Мереллы Кест вы спускаетесь в пещеру южного отрога Хребта Туманных Зубцов — к первому тайнику Круга Угасшей Чешуи. Внутри гоблины, обвал и странное проклятие, сделавшее холмового гиганта… крошечным.",
+  "Restrictions": [],
+  "StartScenes": [
+    "start"
+  ],
+  "Scenes": {
+    "start": {
+      "Id": "start",
+      "Tags": [
+        "START",
+        "ENTRY"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Записки убитой охотницы за реликвиями Мереллы Кест привели вас к пещере у подножия южного отрога Хребта Туманных Зубцов. На земле — следы гоблинов, кого-то огромного… и, кажется, медведя.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Мерелла искала тайники Круга Угасшей Чешуи — богатства, спрятанные после краха их культа. Гиганты тоже охотятся за этими кладами. Первый тайник — здесь.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "enter",
+          "Tags": [
+            "ENTER"
+          ],
+          "Type": "Default",
+          "Text": "Войти в пещеру",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_entry"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "track",
+          "Tags": [
+            "EXPLORE"
+          ],
+          "Type": "DiceCheck",
+          "Text": "Изучить следы",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 14,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Nature",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_TRACKS": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_tracks"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_TRACKS": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_tracks"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_entry"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_entry"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "cave_tracks": {
+      "Id": "cave_tracks",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Следы подтверждают: много гоблинов, двое холмовых гигантов и крупный медведь. Восточный проход внутри, судя по осыпи снаружи, уже мог обвалиться.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "go",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Войти",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_entry"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_entry": {
+      "Id": "cave_entry",
+      "Tags": [
+        "HUB",
+        "DUNGEON"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Большая пещера освещена фонарями. Кучи булыжника. Южный тоннель свободен, восточный завален — из-под камней торчат гигантские ноги.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "GOBLINS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "За завалами кто-то шевелится.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "battle_goblins",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Атаковать затаившихся гоблинов",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "GOBLINS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_goblin_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "perc",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Осмотреться внимательнее",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "GOBLINS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_ambush_spotted"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_ambush_spotted"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_goblin_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_goblin_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "south",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Идти на юг",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "GOBLINS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_swarm"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "east",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Осмотреть обвал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "GOBLINS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_collapse"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_ambush_spotted": {
+      "Id": "cave_ambush_spotted",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы замечаете гоблинов за кучами камней до того, как они встанут. Засада сорвана — но бой всё равно неизбежен.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "fight",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Вступить в бой",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_goblin_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_goblin_battle": {
+      "Id": "cave_goblin_battle",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Бой с гоблинами у входа (угроза ~1 уровня PF2e). Пленники расскажут: экспедиция гигантов ушла глубже; один холмовой погиб в обвале; с юга слышали крики.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "GOBLINS_RESOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_entry"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "capture",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Взять пленного и допросить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "GOBLINS_RESOLVED": true,
+                  "GOT_INTEL": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_intel"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_intel": {
+      "Id": "cave_intel",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Гоблин визжит: «Большие пришли за сундуком! Потом крики — и всё! Мы только сторожим!» Он боится обрушения и не хочет жечь алхимический огонь под сводами.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в пещеру",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_entry"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_collapse": {
+      "Id": "cave_collapse",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Ноги гиганта торчат из завала. Тоннель превратили в ловушку — конструкция была слабой. Расчистка займёт часы. Живой путь — только на юг.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "south",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Идти на юг",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_swarm"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Назад",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_entry"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_swarm": {
+      "Id": "cave_swarm",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Из южного тоннеля — цокот и писк. На вас несётся стая сердитых гоблинов… размером с мышь. Фонари гаснут.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Сражаться со стаей уменьшенных гоблинов",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_swarm_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "arcana",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Понять природу проклятия",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Arcana",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_CURSE": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_swarm_understood"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_CURSE": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_swarm_understood"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_swarm_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_swarm_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "cave_swarm_understood": {
+      "Id": "cave_swarm_understood",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Это сильное, но временное проклятие уменьшения. Смерть или около часа — и эффект спадёт. Если впереди ещё уменьшенные враги — медлить опасно.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "fight",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Разобраться со стаей",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_swarm_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_swarm_battle": {
+      "Id": "cave_swarm_battle",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Стая проклятых крошечных гоблинов в темноте. Трупы вырастают до нормального размера, загромождая пол.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить и идти дальше",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "SWARM_RESOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_giant"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_giant": {
+      "Id": "cave_giant",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "В освещённом зале крохотное существо в шкурах с дубиной орёт у каменного сундука: «Крошка-Громила разорвёт вас и скормит Кроволапу!» Это холмовой гигант… размером с гоблина.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "В нише прячется медведица размером с кота — на ошейнике руны «Кроволап».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Сразиться с Крошкой-Громилой",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_giant_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "cow",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Попытаться взять верх словами",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 16,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Deception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_giant_cowed"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_giant_cowed"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_giant_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_giant_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "cave_giant_battle": {
+      "Id": "cave_giant_battle",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Бой с проклятым холмовым гигантом (уменьшённым). Он дерётся насмерть. Если медлить после победы — проклятие начнёт спадать, и он вырастет.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "GIANT_RESOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_after_giant"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_giant_cowed": {
+      "Id": "cave_giant_cowed",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Громила на миг теряется — но ярость сильнее страха. Он всё равно бросается вперёд. Хотя бы вы готовы.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "fight",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Добить бой",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_giant_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_after_giant": {
+      "Id": "cave_after_giant",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Гигант повержен. Медведица мечется в конвульсиях: проклятие для неё стало смертельным.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "save_med",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Спасти Кроволапа (Природа)",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Nature",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "BEAR_SAVED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_bear_saved"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "BEAR_SAVED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_bear_saved"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_bear_dead"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_bear_dead"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "save_arc",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Стабилизировать проклятие (Мистицизм)",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Arcana",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "BEAR_SAVED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_bear_saved"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "BEAR_SAVED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_bear_saved"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_bear_dead"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_bear_dead"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "ignore",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Оставить медведицу и осмотреть сундук",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_chest"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_bear_saved": {
+      "Id": "cave_bear_saved",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Кроволап выживает — крошечный, свирепо-миловидный. Проверкой Природы можно завоевать доверие; он следует за вами как питомец (в бою бесполезен).",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "tame",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Приручить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Nature",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "BEAR_TAMED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_chest"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "BEAR_TAMED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_chest"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_chest"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cave_chest"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "chest",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "К сундуку",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_chest"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_bear_dead": {
+      "Id": "cave_bear_dead",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Медведица затихает. Проклятие забрало её.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "chest",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Осмотреть сундук",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cave_chest"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cave_chest": {
+      "Id": "cave_chest",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Каменный сундук пуст, кроме смятой записки: «Тупые холмовые коротышки! Сокровище наше. Клан Ясного Венца». Руны на полу — часть проклятия уменьшения.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Среди трофеев — медное ожерелье, алхимический огонь и зелье лечения. Тайник Круга Угасшей Чешуи уже ограбили облачные великаны.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "end",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Завершить вылазку",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ending": {
+      "Id": "ending",
+      "Tags": [
+        "ENDING"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Первый тайник пуст, но вы живы и кое-что узнали: гиганты разных кланов рвут друг друга за клады культа. Впереди ещё четыре точки из записей Мереллы.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Конец мини-приключения «Пещера под холмами».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "exit_crossroad",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться на Перепутье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "Crossroad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

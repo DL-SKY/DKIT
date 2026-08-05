@@ -1,0 +1,1490 @@
+{
+  "Disabled": false,
+  "Tags": [
+    "QUEST",
+    "FROST",
+    "CURSE",
+    "LEVEL_1",
+    "ASH_CACHE"
+  ],
+  "IgnoredTags": [],
+  "IsRepeatable": false,
+  "Type": "Adventure",
+  "AdventureLinks": [],
+  "Title": "Зелёная гора",
+  "Description": "Ориентировочный минимальный уровень: 1–2.\n\nСинопсис: третий тайник спрятан за потайной дверью в зеленокаменной горе. Ложные входы, ямы и проклятый бриллиант жадности ждут тех, кто пришёл за золотом Круга Угасшей Чешуи.",
+  "Restrictions": [],
+  "StartScenes": [
+    "start"
+  ],
+  "Scenes": {
+    "start": {
+      "Id": "start",
+      "Tags": [
+        "START"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Третий тайник — в горе с зеленоватым камнем на северном склоне хребта. Узкий карниз: справа пропасть, слева стена. Входа не видно.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "search",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Искать потайную дверь",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ledge"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ledge": {
+      "Id": "ledge",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Стена молчит. Культисты любили ложные двери.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "perc10",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Быстрый поиск",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "fake_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "fake_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "rockslide"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "rockslide"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "perc15",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Тщательный поиск",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "both_doors"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "both_doors"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "fake_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "fake_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "rockslide": {
+      "Id": "rockslide",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Неуклюжий осмотр срывает мелкий оползень (заглушка урона)! Камни обнажают контур поддельной двери.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "go",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "К дверям",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "fake_door"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "fake_door": {
+      "Id": "fake_door",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы находите подозрительную створку. Рядом, чуть лучше скрытая, может быть ещё одна — если смотреть внимательнее.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "open_fake",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Открыть первую дверь",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "thunder_trap"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "find_real",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Искать вторую дверь",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 14,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "real_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "real_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "thunder_trap"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "thunder_trap"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "invest",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Проверить ловушку на первой",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "trap_spotted"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "trap_spotted"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "thunder_trap"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "thunder_trap"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "both_doors": {
+      "Id": "both_doors",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Две двери: грубая ложная и почти невидимая настоящая. Ложная наверняка с глифом.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "real",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Открыть настоящую",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "corridors"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "fake",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Открыть ложную",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "thunder_trap"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "trap_spotted": {
+      "Id": "trap_spotted",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "На ложной двери — громовой глиф.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "disarm",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Обезвредить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 13,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Thievery",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "real_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "real_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "thunder_trap"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "thunder_trap"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "real",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Игнорировать и искать настоящую",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "real_door"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "thunder_trap": {
+      "Id": "thunder_trap",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Громовой взрыв! (заглушка урона) Оползень продолжается — нужно срочно внутрь. Настоящая дверь теперь видна.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "in",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Войти в настоящую дверь",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "corridors"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "real_door": {
+      "Id": "real_door",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Настоящая дверь открывается без ловушки. Карниз осыпается — все должны быстро внутрь.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "in",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Войти",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "corridors"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "corridors": {
+      "Id": "corridors",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Тёмный коридор налево и направо. В развилках — плиты ям.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "careful",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Искать ловушки",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "corridor_safe"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "corridor_safe"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pit_trap"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pit_trap"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "left",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Идти налево наудачу",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pit_trap"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "right",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Идти направо наудачу",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pit_trap"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "corridor_safe": {
+      "Id": "corridor_safe",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы замечаете все плиты-ямы и обходите их.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "room",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "К дальней комнате",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "AVOIDED_PITS": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ice_room"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pit_trap": {
+      "Id": "pit_trap",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Пол проваливается! (заглушка) В яме — гигантские крысы.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Крысы в яме",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "rat_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "rat_battle": {
+      "Id": "rat_battle",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Бой с гигантскими крысами. Ямы соединены.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "up",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Выбраться и идти дальше",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ice_room"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ice_room": {
+      "Id": "ice_room",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Пол покрыт льдом. Два морозных гиганта лежат мёртвые с секирами — убили друг друга. На пьедестале мерцает огромный бриллиант.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "approach",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Подойти к бриллианту",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "greed"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "study",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Изучить издалека",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 14,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Arcana",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "greed_warned"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "greed_warned"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "greed"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "greed"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "greed_warned": {
+      "Id": "greed_warned",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Камень проклят жадностью. Связан с вызываемыми сущностями. Бриллиант — сердце ловушки: его нужно разбить.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "go",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Войти в зону проклятия",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "KNOW_GREED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "greed"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "greed": {
+      "Id": "greed",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Бриллиант взмывает, заливая зал зелёным светом. Волна жадности бьёт по разуму. Три семени алчности материализуются.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "battle_motes",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Сражаться с семенами жадности",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "greed_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "smash",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Бить по бриллианту",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "KNOW_GREED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "greed_smash"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "smash_guess",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Атаковать парящий камень",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "greed_smash"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "greed_battle": {
+      "Id": "greed_battle",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Семена жадности на ледяном полу. Они не умирают, пока жив бриллиант (КД ~13, ~15 HP).",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "smash",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Сосредоточиться на бриллианте",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "greed_smash"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "win_temp",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Сбить семена до 1 HP и бить камень",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "greed_smash"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "greed_smash": {
+      "Id": "greed_smash",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Бриллиант рассыпается в пыль. Семена гаснут. Призрак шёпотом: «Друзья хотят убить тебя…»",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "resist",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Помочь товарищам стряхнуть галлюцинации",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Diplomacy",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "CLEARED_GREED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "ending"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "CLEARED_GREED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "ending"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "greed_haunt"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "greed_haunt"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "med",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Привести в чувство (Природа)",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Nature",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "CLEARED_GREED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "ending"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "CLEARED_GREED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "ending"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "greed_haunt"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "greed_haunt"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "end",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Собрать пыль и уйти",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "greed_haunt": {
+      "Id": "greed_haunt",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Галлюцинации ещё держатся (сюжетный след «Жертва жадности»), но выжившие вытаскивают вас из зала. На трупах гигантов — зелья и монеты; пыль стоит денег.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "end",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Завершить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ending": {
+      "Id": "ending",
+      "Tags": [
+        "ENDING"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Третий тайник оказался проклятием, а не сундуком. Морозные гиганты уже истребили друг друга. Конец мини-приключения «Зелёная гора».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "exit_crossroad",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться на Перепутье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "Crossroad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

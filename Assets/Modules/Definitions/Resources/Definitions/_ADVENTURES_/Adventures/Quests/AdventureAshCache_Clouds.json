@@ -1,0 +1,1274 @@
+{
+  "Disabled": false,
+  "Tags": [
+    "QUEST",
+    "CLOUDS",
+    "GIANTS",
+    "LEVEL_1",
+    "ASH_CACHE"
+  ],
+  "IgnoredTags": [],
+  "IsRepeatable": false,
+  "Type": "Adventure",
+  "AdventureLinks": [],
+  "Title": "Над облаками",
+  "Description": "Ориентировочный минимальный уровень: 1–2.\n\nСинопсис: пятый тайник лежит в древнем святилище Всеотца Каменных Небес на пике хребта. Совы, загадка колокола, ледяные стражи и штормовой гигант Торрвак решат, унесёте ли вы клад — или проклятие.",
+  "Restrictions": [],
+  "StartScenes": [
+    "start"
+  ],
+  "Scenes": {
+    "start": {
+      "Id": "start",
+      "Tags": [
+        "START"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Пятый тайник — на самой высокой вершине хребта, в древнем святилище Всеотца Каменных Небес. На тропе — мантры о знании на языке гигантов. Вы поднимаетесь выше облаков.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "climb",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Продолжить подъём к колоколу",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "summit"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "summit": {
+      "Id": "summit",
+      "Tags": [
+        "HUB"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Латунный колокол с колотушкой. Проём в скалу закрыт невидимой стеной силы. С неба пикируют огромные совы.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Гигантские совы",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "OWLS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "owl_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "bell",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Изучить колокол",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "OWLS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "bell"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "force_door",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Сунуться в проём",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "OWLS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "force_wall"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "owl_battle": {
+      "Id": "owl_battle",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Бой с гигантскими совами над облаками. Падение с горы почти смертельно — держитесь тропы.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "OWLS_RESOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "summit"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "force_wall": {
+      "Id": "force_wall",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Невидимая сила отбрасывает вас (заглушка урона). Нужен колокол.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "bell",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "К колоколу",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "bell"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "bell": {
+      "Id": "bell",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "На колоколе вопрос: «Что удваивается, если поделиться им; невидимо, но даёт силу; бесполезно, если им не пользоваться?» Удар без ответа — звуковая волна.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "knowledge",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Ударить и ответить: «Знание»",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "BELL_SOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "shrine"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "magic",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Ответить: «Магия»",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "BELL_SOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "shrine"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "wrong",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Ударить молча / ответить «Золото»",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "bell_wrong"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "think",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Подумать логически",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Arcana",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "bell_hint"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "bell_hint"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "bell"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "bell"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "bell_hint": {
+      "Id": "bell_hint",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Святилище Всеотца славит знание, магию, плодородность и философию. Ответ близок к «знанию».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "К колоколу",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "bell"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "bell_wrong": {
+      "Id": "bell_wrong",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Колокол бьёт болью по ушам (заглушка звукового урона). Стена силы стоит.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "retry",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Попробовать снова",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "bell"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "shrine": {
+      "Id": "shrine",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Огромный зал, медные жаровни с символом сложенных рук Всеотца, северная плита 15 футов высотой. Жаровни вспыхивают — из них выходят живые сосульки.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Ледяные мефиты",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "mephit_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "religion",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Вспомнить культ Всеотца",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Arcana",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "shrine_lore"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "shrine_lore"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "mephit_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "mephit_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "shrine_lore": {
+      "Id": "shrine_lore",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Жаровни жгут огнём тех, кто рядом — мефиты их избегают. Можно использовать это.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "fight",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: С учётом жаровен",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "mephit_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "mephit_battle": {
+      "Id": "mephit_battle",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Ледяные мефиты; после гибели их останки у жаровен становятся паровыми мефитами.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить всех мефитов",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "MEPHITS_RESOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "altar"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "altar": {
+      "Id": "altar",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "На плите — четыре золотых блюда Всеотца. За плитой — трупы людей в робах Круга Угасшей Чешуи и их сокровища (~200 зм).",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "take_loot",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Забрать только сокровища культа",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "TOOK_CULT_LOOT": true,
+                  "RESPECT_TEMPLE": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "giant"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "take_plates",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Взять и блюда, и сокровища",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "TOOK_CULT_LOOT": true,
+                  "TOOK_PLATES": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "giant"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "leave_plates",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Оставить священные блюда, взять клад культа",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "TOOK_CULT_LOOT": true,
+                  "RESPECT_TEMPLE": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "giant"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "giant": {
+      "Id": "giant",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "В зал входит штормовой гигант Торрвак Громовой. «Всеотец Каменных Небес не в настроении шуток. Что привело вас сюда?»",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "honest",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Честно рассказать про Мереллу и тайники",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 14,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Diplomacy",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "giant_friend"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "giant_friend"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "giant_tense"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "giant_tense"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "humble",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Показать уважение и не трогать блюда",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "TOOK_PLATES"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "giant_friend"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "plates_bad",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Спрятать блюда за спиной",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "TOOK_PLATES"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "giant_curse"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "attack",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Атаковать штормового гиганта",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "giant_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "giant_friend": {
+      "Id": "giant_friend",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Торрвак кивает: война гигантов уже идёт; эпоха драконов кончилась. Клад культа можете взять. Блюда — нет. Он даёт несколько зелий лечения и запоминает ваши имена.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "end",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Спуститься с горы",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "FRIEND_TORRVAK": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "giant_tense": {
+      "Id": "giant_tense",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Он хмурится, но отпускает вас с кладом культа, предупредив не осквернять святилище.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "end",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Уйти",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "giant_curse": {
+      "Id": "giant_curse",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Взгляд Торрвака тяжелеет. «Вы обидели Всеотца.» Вы уходите с блюдами — и с проклятием ненависти гигантов.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "end",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Спуститься",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "GIANT_CURSE": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "giant_battle": {
+      "Id": "giant_battle",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Бой со штормовым гигантом на 1–2 уровне почти самоубийственен. Возможны бегство или чудо.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "flee",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Бежать",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending_bad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "miracle",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Чудом победить / прогнать",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ending": {
+      "Id": "ending",
+      "Tags": [
+        "ENDING"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Пятый тайник закрыт. Святилище снова дышит ветром над облаками. Конец мини-приключения «Над облаками» — и цикла записей Мереллы Кест.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "exit_crossroad",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться на Перепутье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "Crossroad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ending_bad": {
+      "Id": "ending_bad",
+      "Tags": [
+        "ENDING"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы бежите вниз по тропе под громом. Святилище остаётся за спиной. Конец — горький.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "exit_crossroad",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться на Перепутье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "Crossroad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

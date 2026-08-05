@@ -1,0 +1,5228 @@
+{
+  "Disabled": false,
+  "Tags": [
+    "QUEST",
+    "INN",
+    "TOWER",
+    "DRAGON",
+    "INVESTIGATION",
+    "LEVEL_5"
+  ],
+  "IgnoredTags": [],
+  "IsRepeatable": false,
+  "Type": "Adventure",
+  "AdventureLinks": [],
+  "Title": "Уголёк у Башни Стражей",
+  "Description": "Ориентировочный минимальный уровень: 5.\n\nСинопсис: у пыльного тракта стоит трактир «Уголёк», пристроенный к руинам старой сторожевой башни. Хозяин слишком радушен, зал пуст, а в воздухе висит запах перца и чужой лжи. Кто-то уже украл яйцо красной драконихи Золакрыл — и теперь гнев матери может обрушиться на любого, кто окажется рядом с добычей.",
+  "Restrictions": [],
+  "StartScenes": [
+    "start"
+  ],
+  "Scenes": {
+    "start": {
+      "Id": "start",
+      "Tags": [
+        "START",
+        "ENTRY",
+        "INTRO"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "После долгого дня пути вы выходите к придорожному трактиру, пристроенному к обвалившейся каменной башне. Вывеска качается на ржавой цепи: «Уголёк».",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Говорят, здешний хозяин Таррик Янтарная Чешуя готовит дымящиеся рёбрышки в перце только на заказ. Сейчас из приоткрытой двери тянет острым ароматом — но двор подозрительно тих, а окна второго этажа темны.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "start_enter",
+          "Tags": [
+            "ENTER"
+          ],
+          "Type": "Default",
+          "Text": "Войти в трактир",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "start_look_outside",
+          "Tags": [
+            "EXPLORE"
+          ],
+          "Type": "Default",
+          "Text": "Сначала обойти вокруг",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "inn": {
+      "Id": "inn",
+      "Tags": [
+        "HUB",
+        "INN",
+        "SOCIAL"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Зал пуст. Столы вытерты, но пыль на подоконниках говорит, что гостей здесь давно не ждали. За стойкой звякает крышка котла — оттуда выглядывает широко улыбающийся человек в фартуке.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«О, боюсь, вы не вовремя! Мы на ремонте. Но чтобы помочь путникам, я с радостью угощу вас дымящимися рёбрышками», — говорит он и представляется Бравым Хорном, новым хозяином «Уголька».",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "FREED_INNKEEPER"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "Стойка уже не пустует так зловеще: где-то на кухне слышен голос Таррика, а запах перца кажется роднее и честнее.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "inn_talk",
+          "Tags": [
+            "SOCIAL"
+          ],
+          "Type": "Default",
+          "Text": "Расспросить Бравого Хорна",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "SORCERER_FLED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn_talk"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "inn_meal",
+          "Tags": [
+            "SOCIAL"
+          ],
+          "Type": "Default",
+          "Text": "Согласиться на рёбрышки",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "SORCERER_FLED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn_meal"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "inn_search_bar",
+          "Tags": [
+            "EXPLORE"
+          ],
+          "Type": "DiceCheck",
+          "Text": "Обыскать бар",
+          "Description": "Заметки, объявления, ящики с перцем",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_clues"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_clues"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_clues_partial"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_clues_partial"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "inn_kitchen",
+          "Tags": [
+            "EXPLORE"
+          ],
+          "Type": "DiceCheck",
+          "Text": "Подглядеть на кухне",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "SORCERER_FLED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": {
+            "DifficultyClass": 16,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Stealth",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "HAS_PEPPER_OIL": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_kitchen"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "HAS_PEPPER_OIL": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_kitchen"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_kitchen_caught"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_kitchen_caught"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "inn_upstairs",
+          "Tags": [
+            "EXPLORE"
+          ],
+          "Type": "Default",
+          "Text": "Подняться на верхний этаж",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "upstairs"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "inn_to_meadow",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Выйти на луг у башни",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "inn_talk": {
+      "Id": "inn_talk",
+      "Tags": [
+        "SOCIAL"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Хорн сыплет шутками и жалобно вздыхает о «ремонте». Он клянётся, что купил трактир у прежнего хозяина Таррика Янтарная Чешуя, который «уехал к родственникам». Признаков стройки нет нигде.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Если на него надавить, он охотно предлагает осмотреться — слишком охотно. Кажется, он хочет, чтобы вы ушли наверх или вовсе убрались с глаз долой.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "inn_talk_sense",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Проверить, лжёт ли он",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 18,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "SENSE_DISGUISE": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_talk_insight"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "SENSE_DISGUISE": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn_talk_insight"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "inn"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "inn_talk_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в зал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "inn_talk_insight": {
+      "Id": "inn_talk_insight",
+      "Tags": [
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Улыбка Хорна чуть запаздывает. Взгляд скользит мимо вас, словно он слушает не вас, а что-то за стеной. Фартук чист, руки не похожи на руки повара — ногти ровные, без ожогов и следов перца.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы уверены: этот человек играет роль. И играет плохо — для тех, кто умеет смотреть.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "inn_talk_insight_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в зал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "inn_meal": {
+      "Id": "inn_meal",
+      "Tags": [
+        "SOCIAL"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Рёбрышки и правда обжигающе вкусны: дым, перец, сладковатая корочка. Хорн сияет, будто сам их придумал. Пока он отходит «добавить соуса», вы замечаете, что на кухне ничего не шипит — только тихо щёлкает крышка уже готового горшка.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Еда сытная. Но ощущение, что вас кормят, чтобы вы скорее ушли — или чтобы кто-то другой успел занять ваше внимание.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "inn_meal_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в зал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "inn_meal_upstairs",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Пока он занят — подняться наверх",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "upstairs"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "inn_clues": {
+      "Id": "inn_clues",
+      "Tags": [
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "На стойке вырезаны две фразы: «Путь прячется за древом» и «Зло улыбается, пока добро спит». В ящиках снаружи — сушёные перцы для соуса, но ни одного рецепта.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "На стене — объявление о пропаже: «Пропал крупный тёмный зверь с ложной тенью. Отзывается на Клубок. Любит молоко. Ищите Таррика Янтарная Чешуя». Рядом приколот набросок драконьей морды и подпись «знак Круга Пепельных Когтей».",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Табличка «Авантюристы недели» хвалит отряд «Рваный Шов»: будто бы они «вернулись живыми из логова Золакрыл». Чернила свежие. Улыбка на портретах — нет.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "inn_clues_take_oil",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Взять банку перцового масла",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "HAS_PEPPER_OIL": true,
+                  "FOUND_CLUES": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "inn_clues_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Запомнить находки и вернуться",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "FOUND_CLUES": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "inn_clues_partial": {
+      "Id": "inn_clues_partial",
+      "Tags": [
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы находите объявление о пропавшем звере по кличке Клубок и странную табличку про отряд «Рваный Шов». Остальное кажется обычным хламом пустого трактира — или вы просто смотрите недостаточно внимательно.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "inn_clues_partial_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в зал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "FOUND_CLUES": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "inn_kitchen": {
+      "Id": "inn_kitchen",
+      "Tags": [
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Кухня почти не используется. Хорн лишь разогревает уже готовые рёбрышки и разливает чужой соус. На полке — банки с перцовым маслом; рядом свалены чужие вещи: лютня, рапира, походный топор — будто хозяева этих предметов сюда не вернулись.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы незаметно берёте одну банку масла. Оно жжёт даже через стекло.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "inn_kitchen_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в зал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "inn_kitchen_caught": {
+      "Id": "inn_kitchen_caught",
+      "Tags": [
+        "SOCIAL"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Хорн ловит ваш взгляд у дверного проёма и смеётся слишком громко: «Любопытство — хорошая приправа! Но кухня не для гостей». Он вежливо, но твёрдо выпроваживает вас обратно в зал.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "inn_kitchen_caught_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в зал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "upstairs": {
+      "Id": "upstairs",
+      "Tags": [
+        "EXPLORE",
+        "DANGER"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "В спальне — кровать, закрытый сундук и несколько картин. На одной — арфа между рогами полумесяца; на другой — горный хребет с подписью «Хребет Пепла»; над кроватью — семейный портрет двух драконорождённых с невылупившимся яйцом.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Воздух здесь густой и сладковатый, будто комната слишком долго ждала касания. Кровать и сундук кажутся… слишком тихими.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "upstairs_touch",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Тронуть кровать или сундук",
+          "Description": "Два мимика",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "MIMICS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "upstairs_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "upstairs_feed",
+          "Tags": [
+            "SOCIAL"
+          ],
+          "Type": "Default",
+          "Text": "Бросить мимикам остатки рёбрышек",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "MIMICS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "MIMICS_RESOLVED": true,
+                  "FED_MIMICS": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "upstairs_fed"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "upstairs_pictures",
+          "Tags": [
+            "CLUE"
+          ],
+          "Type": "Default",
+          "Text": "Осмотреть картины",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "upstairs_pictures"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "upstairs_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Спуститься в зал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "upstairs_battle": {
+      "Id": "upstairs_battle",
+      "Tags": [
+        "BATTLE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Кровать и сундук вспыхивают зубастыми улыбками. Два мимика бросаются вперёд, голодные и ленивые одновременно.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Бой с двумя мимиками. После победы шум наверху заставляет Бравого Хорна исчезнуть вспышкой магии — он телепортируется в башню.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "upstairs_battle_win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить мимиков",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "MIMICS_RESOLVED": true,
+                  "SORCERER_FLED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "upstairs_after_noise"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "upstairs_fed": {
+      "Id": "upstairs_fed",
+      "Tags": [
+        "SOCIAL",
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Мимики чавкают и становятся почти дружелюбными. Бурчащими голосами они сообщают: несколько недель назад «Весёлый хозяин» пригласил их остаться и подкармливает перчёной едой. Недавно здесь была группа «Рваный Шов» — Хорн нанял их «за яйцом из гор».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "upstairs_fed_pictures",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Осмотреть картины",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "upstairs_pictures"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "upstairs_fed_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Спуститься в зал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "upstairs_after_noise": {
+      "Id": "upstairs_after_noise",
+      "Tags": [
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Когда стихает грохот, снизу уже никого нет. На полу у стойки остаётся только фартук и запах озона — след переносящей магии. Бравый Хорн сбежал в башню.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "upstairs_after_pictures",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Осмотреть картины",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "upstairs_pictures"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "upstairs_after_meadow",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Выбежать на луг у башни",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "upstairs_pictures": {
+      "Id": "upstairs_pictures",
+      "Tags": [
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Семейный портрет скрывает узкую трещину в стене: внизу виднеется тусклый свет подземелья, но пролезть невозможно. Картина с арфой намекает на старый орден защитников; пейзаж указывает на Хребет Пепла — гнездовье красных драконов.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "upstairs_pictures_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Остаться в спальне",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "upstairs"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "upstairs_pictures_meadow",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Выйти на луг",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meadow": {
+      "Id": "meadow",
+      "Tags": [
+        "HUB",
+        "OUTDOOR",
+        "EXPLORE"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вокруг разрушенной башни раскинулся густой луг. Огромный дуб шелестит листвой слишком осмысленно. Под каменным мостом с высеченной драконьей мордой темнеет грибная тень. По плющу на стенах можно взобраться.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "WILDLIFE_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "В высокой траве охотится совомед, а три огромных паука пытаются от него ускользнуть. Воздух напряжён, как тетива.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "meadow_wildlife_battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Вмешаться в охоту",
+          "Description": "Совомед и гигантские пауки",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "WILDLIFE_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "meadow_wildlife_nature",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Успокоить зверей",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "WILDLIFE_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": {
+            "DifficultyClass": 16,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Nature",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "WILDLIFE_RESOLVED": true,
+                    "HAS_GOLD_KEY": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow_wildlife_calm"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "WILDLIFE_RESOLVED": true,
+                    "HAS_GOLD_KEY": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow_wildlife_calm"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "meadow_search",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Обыскать траву у паучьих нор",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_GOLD_KEY"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "HAS_GOLD_KEY": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow_key"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "HAS_GOLD_KEY": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow_key"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "meadow_tree",
+          "Tags": [
+            "SOCIAL"
+          ],
+          "Type": "Default",
+          "Text": "Подойти к дубу",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow_tree"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "meadow_mushrooms",
+          "Tags": [
+            "SOCIAL"
+          ],
+          "Type": "Default",
+          "Text": "Заглянуть под мост к грибам",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow_mushrooms"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "meadow_climb",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Взобраться по плющу",
+          "Description": "Можно попасть сразу в башню",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 18,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Athletics",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "tower_shrine"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "tower_shrine"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow_climb_fail"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cellar"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "meadow_dungeon",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Войти в дверь за дубом",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "TREE_REVEALED_DOOR"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon_door"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "meadow_to_inn",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в трактир",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "inn"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meadow_battle": {
+      "Id": "meadow_battle",
+      "Tags": [
+        "BATTLE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Схватка с совомедом и/или гигантскими пауками. После боя в паучьей норе блестит золотой ключ.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "meadow_battle_win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить и обыскать норы",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "WILDLIFE_RESOLVED": true,
+                  "HAS_GOLD_KEY": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow_key"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meadow_wildlife_calm": {
+      "Id": "meadow_wildlife_calm",
+      "Tags": [
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы даёте совомеду уйти с добычей, а пауков отгоняете дымом и голосом. В опустевшей норе находите россыпь монет и тяжёлый золотой ключ с рунами замка.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "meadow_wildlife_calm_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться на луг",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meadow_key": {
+      "Id": "meadow_key",
+      "Tags": [
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Золотой ключ холодит ладонь. На бородке выбита крошечная башенка — он явно от здешних дверей.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "meadow_key_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться на луг",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meadow_climb_fail": {
+      "Id": "meadow_climb_fail",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Плющ предательски рвётся. Вы соскальзываете вниз, ободрав руки, но без серьёзных травм. Башня насмешливо смотрит сверху.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "meadow_climb_fail_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Остаться на лугу",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meadow_tree": {
+      "Id": "meadow_tree",
+      "Tags": [
+        "SOCIAL"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Ветви расступаются, открывая улыбающееся древесное лицо. Дуб Шептун говорит медленно — о сезонах, белках и «чародее в башне, который пахнет ложью».",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Если попросить тайну, дуб сдвигает камень: за ним — дверь с магическим замком. Ручка слабо светится.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "meadow_tree_ask",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Попросить показать тайну",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "TREE_REVEALED_DOOR": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon_door"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "meadow_tree_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Поблагодарить и отойти",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meadow_mushrooms": {
+      "Id": "meadow_mushrooms",
+      "Tags": [
+        "SOCIAL",
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Под мостом живут двое споровиков. Они не атакуют первыми; их споры шепчут прямо в мысли.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Бравый Хорн — маска. Настоящее имя — Варен Черножар. Настоящий хозяин Таррик томится в подземелье. Мы закопали вещи по приказу чародея… хотите — отдадим».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "meadow_mushrooms_accept",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Вежливо попросить отдать закопанное",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 14,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Diplomacy",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_TRUE_NAME": true,
+                    "HAS_MUSHROOM_GIFTS": true,
+                    "HAS_MILK": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow_mushrooms_gift"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_TRUE_NAME": true,
+                    "HAS_MUSHROOM_GIFTS": true,
+                    "HAS_MILK": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow_mushrooms_gift"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_TRUE_NAME": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_TRUE_NAME": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "meadow"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "meadow_mushrooms_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Запомнить имена и уйти",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "KNOW_TRUE_NAME": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "meadow_mushrooms_gift": {
+      "Id": "meadow_mushrooms_gift",
+      "Tags": [
+        "REWARD"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Споровики достают из земли пузырёк лечения, флакон сопротивления кислоте и щит с руной бдительности. В придачу — глиняный кувшин молока «для зверя с ложной тенью».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "meadow_mushrooms_gift_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Поблагодарить и вернуться на луг",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dungeon_door": {
+      "Id": "dungeon_door",
+      "Tags": [
+        "DUNGEON"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Дверь в подземелье закрыта волшебным замком. Ручка мерцает. Здесь пригодятся золотой ключ, воровские инструменты, грубая сила — или магия открытия.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "dungeon_door_key",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Открыть золотым ключом",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_GOLD_KEY"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "dungeon_door_thievery",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Взломать замок",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 18,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Thievery",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "dungeon_door_athletics",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Выбить дверь",
+          "Description": "Шумно",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 18,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Athletics",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "dungeon_door_arcana",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Рассеять волшебный замок",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 17,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Arcana",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_door"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "dungeon_door_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться на луг",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dungeon": {
+      "Id": "dungeon",
+      "Tags": [
+        "DUNGEON",
+        "HUB",
+        "DANGER"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Затхлое подземелье освещено факелами. У стены — безголовый скелет со скимитаром. В воздухе «парят» череп, топаз и посеребрённая сковорода — признаки прозрачной слизи. По полу ползут чёрные сгустки.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "OOZE_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "Пока слизь жива, пройти дальше опасно.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "FREED_INNKEEPER"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "За решёткой камеры слышен хриплый, но живой голос.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "dungeon_ooze_battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Сразиться со слизью",
+          "Description": "Чёрные пудинги и желатиновый куб",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "OOZE_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon_ooze_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "dungeon_ooze_distract",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вылить перцовое масло на пол",
+          "Description": "Слизь отвлекается",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_PEPPER_OIL"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            },
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "OOZE_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "OOZE_RESOLVED": true,
+                  "HAS_SILVER_PAN": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon_ooze_distract"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "dungeon_free",
+          "Tags": [
+            "SOCIAL"
+          ],
+          "Type": "Default",
+          "Text": "Подойти к камере",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "OOZE_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            },
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "FREED_INNKEEPER"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon_cell"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "dungeon_to_cellar",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Идти к двери в подвал башни",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "OOZE_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar_trap"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "dungeon_back_meadow",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Выйти на луг",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "meadow"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dungeon_ooze_battle": {
+      "Id": "dungeon_ooze_battle",
+      "Tags": [
+        "BATTLE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Бой со слизью. Холодное оружие почти бесполезно против чёрных пудингов; огонь и кислота работают лучше. После победы вы забираете посеребрённую сковороду — семейную реликвию Таррика.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "dungeon_ooze_battle_win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить слизь",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "OOZE_RESOLVED": true,
+                  "HAS_SILVER_PAN": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dungeon_ooze_distract": {
+      "Id": "dungeon_ooze_distract",
+      "Tags": [
+        "CLUE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Слизь жадно стекается к луже перцового масла. Пока чудовища «обедают», вы вытаскиваете из куба посеребрённую сковороду и обходите опасную зону.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "dungeon_ooze_distract_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Продолжить исследование подземелья",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dungeon_cell": {
+      "Id": "dungeon_cell",
+      "Tags": [
+        "SOCIAL"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "За решёткой — драконорождённый с янтарной чешуёй. Таррик Янтарная Чешуя измождён, но глаза живые. «Если вы не слуги Черножара — освободите меня. Он украл яйцо Золакрыл, убил «Рваный Шов» и спрятал добычу в башне».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "dungeon_cell_thievery",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Взломать замок камеры",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 16,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Thievery",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "FREED_INNKEEPER": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_freed"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "FREED_INNKEEPER": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_freed"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_cell"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_cell"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "dungeon_cell_athletics",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Выломать решётку",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 17,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Athletics",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "FREED_INNKEEPER": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_freed"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "FREED_INNKEEPER": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_freed"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_cell"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "dungeon_cell"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "dungeon_cell_key",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Открыть большим ключом из башни",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_CELL_KEY"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "FREED_INNKEEPER": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon_freed"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "dungeon_cell_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Отойти",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dungeon_freed": {
+      "Id": "dungeon_freed",
+      "Tags": [
+        "SOCIAL"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Таррик благодарит вас хрипло и обещает гору рёбрышек, когда Черножар перестанет быть угрозой. Он хочет вернуть сковороду и найти Клубка — своего питомца, превращённого магией в многоглазое чудовище.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Яйцо в башне. Варен ждёт вылупления. Золакрыл уже ищет воров — не дайте ей принять вас за „Рваный Шов“».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "dungeon_freed_companion",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Попросить Таррика идти с вами",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "INNKEEPER_COMPANION": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "dungeon_freed_alone",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Отправить его в трактир ждать",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cellar_trap": {
+      "Id": "cellar_trap",
+      "Tags": [
+        "DANGER",
+        "TRAP"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Дверь из подземелья в подвал башни подозрительно чистая. Над косяком блестит лезвие секиры — ловушка на открытие.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "cellar_trap_disable",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Обезвредить ловушку",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 17,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Thievery",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cellar"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cellar"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cellar_trap_hit"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cellar_trap_hit"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "cellar_trap_force",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Открыть дверь наудачу",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar_trap_hit"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "cellar_trap_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в подземелье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cellar_trap_hit": {
+      "Id": "cellar_trap_hit",
+      "Tags": [
+        "TRAP"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Секира свистит вниз! Вы успеваете отпрянуть — или нет: заглушка урона (в PF2e это был бы спасбросок Рефлекса Сл 17). Дверь всё же открыта.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "cellar_trap_hit_enter",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Войти в подвал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cellar": {
+      "Id": "cellar",
+      "Tags": [
+        "HUB",
+        "DANGER"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Подножие башни. Каменная лестница уходит вверх. В центре парит сферическое чудовище с зубастой пастью и глазами на стебельках. В углу — три скелета в обносках искателей приключений. Яркие растения у стены подозрительно красивы.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "INNKEEPER_COMPANION"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            },
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "PET_RESTORED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "Чудовище вдруг виляет «стебельками» и несётся к Таррику, лижа ему лицо. Это Клубок — питомец под чужой шкурой.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "cellar_skeletons",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Сразиться со скелетами «Рваного Шва»",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "SKELETONS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar_skeletons"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "cellar_pet",
+          "Tags": [
+            "SOCIAL"
+          ],
+          "Type": "Default",
+          "Text": "Разобраться с многоглазым чудовищем",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "PET_RESTORED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar_pet"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "cellar_up",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Подняться по лестнице в башню",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "tower_shrine"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "cellar_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вернуться в подземелье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "dungeon"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cellar_skeletons": {
+      "Id": "cellar_skeletons",
+      "Tags": [
+        "BATTLE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Три скелета — останки «Рваного Шва», поднятые магией Черножара. После боя можно понять: их наняли украсть яйцо, а потом предали.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "cellar_skeletons_win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить нежить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "SKELETONS_RESOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cellar_pet": {
+      "Id": "cellar_pet",
+      "Tags": [
+        "SOCIAL",
+        "PUZZLE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Это не истинный ужас Бездны — а Клубок под мощным превращением. Он рычит, если его пугать, но может узнать голос, молоко или блеск посеребрённой сковороды, отразившей антимагический конус.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "cellar_pet_milk",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Предложить молоко и назвать по имени",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_MILK"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "PET_RESTORED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar_pet_ok"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "cellar_pet_pan",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Отразить конус посеребрённой сковородой",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_SILVER_PAN"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "PET_RESTORED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar_pet_ok"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "cellar_pet_arcana",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Рассеять превращение",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 18,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Arcana",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "PET_RESTORED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cellar_pet_ok"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "PET_RESTORED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cellar_pet_ok"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cellar_pet_fail"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "cellar_pet_fail"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "cellar_pet_battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Атаковать чудовище",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar_pet_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "cellar_pet_leave",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Отойти, не трогая",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cellar_pet_ok": {
+      "Id": "cellar_pet_ok",
+      "Tags": [
+        "REWARD"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Превращение спадает. Перед вами — крупный тёмный зверь с дрожащей ложной тенью. Клубок мурлычет так громко, что дрожат свечи. Если Таррик рядом, оба возвращаются в трактир — или остаются помочь, если вы попросите.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "cellar_pet_ok_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Продолжить в подвале",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cellar_pet_fail": {
+      "Id": "cellar_pet_fail",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Магия держится крепко. Чудовище отступает к потолку, угрожающе вращая глазами, но пока не атакует без провокации.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "cellar_pet_fail_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Отступить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "cellar_pet_battle": {
+      "Id": "cellar_pet_battle",
+      "Tags": [
+        "BATTLE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Жестокая схватка с превращённым Клубком. Победа возможна, но Таррик этого не простит — и вы теряете союзника.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "cellar_pet_battle_win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить (питомец повержен)",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "PET_RESTORED": true,
+                  "PET_SLAIN": true,
+                  "INNKEEPER_COMPANION": false
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "tower_shrine": {
+      "Id": "tower_shrine",
+      "Tags": [
+        "TOWER",
+        "HUB",
+        "DANGER"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Первый этаж башни. У стены — алтарь Круга Пепельных Когтей: пять каменных драконьих голов и блестящий янтарный шар — Око Зовущего Пепла. На подставке лежит большой железный ключ. Пол перед подставкой подозрительно ровный.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "tower_shrine_key",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Взять большой ключ",
+          "Description": "Может сработать люк",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_CELL_KEY"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "tower_hatch"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "tower_shrine_key_safe",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Осторожно взять ключ, обойдя люк",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_CELL_KEY"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "HAS_CELL_KEY": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "tower_shrine"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "HAS_CELL_KEY": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "tower_shrine"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "tower_hatch"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "tower_hatch"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "tower_orb_use",
+          "Tags": [
+            "DANGER"
+          ],
+          "Type": "Default",
+          "Text": "Активировать Око Зовущего Пепла",
+          "Description": "Призовёт дракониху",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "USED_ORB": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "tower_egg"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "tower_orb_take",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Попытаться взять Око с алтаря",
+          "Description": "Каменные головы кусают",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "tower_orb_bite"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "tower_to_workshop",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Подняться в мастерскую",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "tower_workshop"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "tower_shrine_down",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Спуститься в подвал",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "tower_hatch": {
+      "Id": "tower_hatch",
+      "Tags": [
+        "TRAP"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Люк под ногами распахивается! Вы падаете обратно в подвал (заглушка урона падением). Зато большой ключ от камеры теперь у вас в руке.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "tower_hatch_continue",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Осмотреться в подвале",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "HAS_CELL_KEY": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "cellar"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "tower_orb_bite": {
+      "Id": "tower_orb_bite",
+      "Tags": [
+        "TRAP"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Каменные головы оживают и кусают! (Заглушка атаки: в PF2e — опасный урон колющий.) Око остаётся на алтаре, будто насмехаясь.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "tower_orb_bite_back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Отступить от алтаря",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "tower_shrine"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "tower_workshop": {
+      "Id": "tower_workshop",
+      "Tags": [
+        "TOWER",
+        "SOCIAL"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Мастерская пахнет реагентами и горелой костью. Котёл, свитки, жаровня из черепа. Из тени выступает Бравый Хорн — и маска тает: перед вами Варен Черножар в багровой робе.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Опять вы! Идите докучайте кому-нибудь другому!» — он хватает свиток и исчезает вспышкой переноса, уносясь к вершине башни.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "tower_workshop_loot",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Быстро обыскать столы и идти выше",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "SORCERER_FLED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "tower_egg"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "tower_workshop_chase",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Сразу гнаться наверх",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "SORCERER_FLED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "tower_egg"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "tower_egg": {
+      "Id": "tower_egg",
+      "Tags": [
+        "TOWER",
+        "CLIMAX"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "На уцелевшем этаже среди свечей лежит огромное красное яйцо. Оно удивительно прочное: ни огонь, ни падение его не берут. Сверху, на обломанном карнизе, стоит Варен Черножар со свитком.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Это моё яйцо!» — орёт он ветру.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "USED_ORB"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "Око Зовущего Пепла уже отозвалось. Небо темнеет от крыльев.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "tower_egg_take",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Взять яйцо под защиту",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "HAS_EGG": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "tower_egg_confront",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вызвать Черножара на разговор",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "tower_egg_wait_dragon",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Ждать — небо уже гудит",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "climax": {
+      "Id": "climax",
+      "Tags": [
+        "CLIMAX",
+        "DRAGON"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Рёв сотрясает башню. Взрослая красная дракониха Золакрыл пикирует к руинам. Варен бледнеет и разворачивает свиток удержания чудовища.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Золакрыл видит яйцо — и вас рядом. «Воры! Верните потомство, или я сожгу вас до угля!» Черножар уже целится свитком в неё, надеясь схватить яйцо и бежать.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "climax_redirect",
+          "Tags": [
+            "SOCIAL"
+          ],
+          "Type": "DiceCheck",
+          "Text": "Перенаправить ярость на Черножара",
+          "Description": "Дипломатия или Обман, Сл 23",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 23,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Diplomacy",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "climax_redirect_ok"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "climax_redirect_ok"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "climax_redirect_fail"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "climax_redirect_fail"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "climax_deception",
+          "Tags": [
+            "SOCIAL"
+          ],
+          "Type": "DiceCheck",
+          "Text": "Обманом выставить Черножара единственным вором",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 23,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Deception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "climax_redirect_ok"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "climax_redirect_ok"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "climax_redirect_fail"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "climax_redirect_fail"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "climax_return_egg",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Немедленно вернуть яйцо Золакрыл",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_EGG"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax_return_egg"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "climax_battle_both",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Сражаться с драконихой и чародеем",
+          "Description": "Двойной босс; для 5 ур. почти самоубийство без хитрости",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "climax_battle_sorcerer",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Напасть только на Черножара, пока дракониха отвлечена",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax_battle_sorcerer"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "climax_redirect_ok": {
+      "Id": "climax_redirect_ok",
+      "Tags": [
+        "CLIMAX"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Золакрыл слышит правду в вашем голосе — или достаточно правдоподобную ложь. Её ярость сметает Черножара: свиток рассыпается в пыль, чародей едва успевает закричать.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Дракониха требует яйцо. Если отдать — она может уйти. Если удерживать — начнётся бой, которого лучше не было бы на 5 уровне.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "climax_redirect_give",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Отдать яйцо и отступить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "DRAGON_APPEASED": true,
+                  "SORCERER_DEFEATED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending_good"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "climax_redirect_finish_mage",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Добить ослабленного Черножара",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "DRAGON_APPEASED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax_battle_sorcerer"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "climax_redirect_fail": {
+      "Id": "climax_redirect_fail",
+      "Tags": [
+        "CLIMAX"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Золакрыл не верит. Пламя уже собирается в пасти. Черножар тоже не дремлет. Придётся драться — или отдать яйцо немедленно, если оно у вас.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "climax_fail_give",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Бросить яйцо к лапам драконихи",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "HAS_EGG"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax_return_egg"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "climax_fail_battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Принять бой",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "climax_return_egg": {
+      "Id": "climax_return_egg",
+      "Tags": [
+        "CLIMAX"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Яйцо возвращается к матери. Золакрыл прижимает его крылом — и её взгляд смещается на Черножара. Чародей пытается бежать; дракониха не даёт.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "climax_return_help",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Помочь добить Черножара",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "DRAGON_APPEASED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "climax_battle_sorcerer"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "climax_return_leave",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Отступить и дать драконихе самой вершить суд",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "DRAGON_APPEASED": true,
+                  "SORCERER_DEFEATED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending_good"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "climax_battle": {
+      "Id": "climax_battle",
+      "Tags": [
+        "BATTLE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Двойной бой: Золакрыл (взрослый красный дракон, в PF2e это встреча далеко выше 5 уровня) и Варен Черножар. Умные партии натравливают их друг на друга; прямая победа — эпический исход.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "climax_battle_win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить обоих",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "SORCERER_DEFEATED": true,
+                  "DRAGON_DEFEATED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending_triumph"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "climax_battle_lose",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Проиграть / отступить с тяжёлыми потерями",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending_bad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "climax_battle_sorcerer": {
+      "Id": "climax_battle_sorcerer",
+      "Tags": [
+        "BATTLE"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Бой с Вареном Черножаром (примерно угроза уровня 5–7 в терминах PF2e: чародей с переносами, кислотными эффектами и обманом). Дракониха пока не цель — или уже уходит с яйцом.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "climax_battle_sorcerer_win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить Черножара",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "SORCERER_DEFEATED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending_good"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ending_good": {
+      "Id": "ending_good",
+      "Tags": [
+        "ENDING"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Ветер уносит запах серы. Золакрыл — если осталась жива и удовлетворена — уносит яйцо к Хребту Пепла, бросив последнее предупреждение: «Не приближайтесь к моим скалам».",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "В «Угольке» Таррик Янтарная Чешуя (если жив) ставит на стол дымящиеся рёбрышки без всякой маски. Трактир снова пахнет домом — пусть и с лёгким привкусом драконьего пепла.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Конец главы. Вы можете вернуться на Перепутье.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "ending_good_crossroad",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться на Перепутье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "Crossroad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ending_triumph": {
+      "Id": "ending_triumph",
+      "Tags": [
+        "ENDING"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Невозможное случилось: и чародей, и дракониха повержены. Яйцо остаётся вашей ответственностью — проклятием или сокровищем. Таррик смотрит на вас со смесью благодарности и ужаса.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Уголёк» снова открыт. Но Хребет Пепла запомнит этот день.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "ending_triumph_crossroad",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться на Перепутье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "Crossroad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ending_bad": {
+      "Id": "ending_bad",
+      "Tags": [
+        "ENDING"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Пламя и кислота делят руины между собой. Вы отступаете — раненые, без яйца, возможно без части отряда. «Уголёк» снова пустеет. Где-то в горе Золакрыл ещё ищет воров, а Черножар, если выжил, уже плетёт новую маску.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "ending_bad_crossroad",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Отступить на Перепутье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "Crossroad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

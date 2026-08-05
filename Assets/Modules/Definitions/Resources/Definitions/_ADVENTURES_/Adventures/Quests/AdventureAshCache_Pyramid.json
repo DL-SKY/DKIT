@@ -1,0 +1,1591 @@
+{
+  "Disabled": false,
+  "Tags": [
+    "QUEST",
+    "PYRAMID",
+    "GIANTS",
+    "LEVEL_1",
+    "ASH_CACHE"
+  ],
+  "IgnoredTags": [],
+  "IsRepeatable": false,
+  "Type": "Adventure",
+  "AdventureLinks": [],
+  "Title": "Пирамида валунов",
+  "Description": "Ориентировочный минимальный уровень: 1–2.\n\nСинопсис: второй тайник Круга Угасшей Чешуи спрятан в пирамиде из камней на плато Хребта Туманных Зубцов. Барсуки в расщелинах, каменные стражи и рунический пароль отделяют вас от того, что, возможно, уже украли другие.",
+  "Restrictions": [],
+  "StartScenes": [
+    "start"
+  ],
+  "Scenes": {
+    "start": {
+      "Id": "start",
+      "Tags": [
+        "START"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Второй тайник Мереллы — пирамида из валунов на каменном плато между двумя вершинами Хребта Туманных Зубцов. Плато иссечено узкими расщелинами.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "approach",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Идти к пирамиде",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "field"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "field": {
+      "Id": "field",
+      "Tags": [
+        "HUB"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "BADGERS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "Между вами и основанием пирамиды — гладкое плато с трещинами. В расщелинах кто-то дышит.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "BADGERS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "Value": "Плато тихо. Путь к пирамиде открыт.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Пересечь плато с боем",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "BADGERS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "field_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "perc",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Высмотреть засаду",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "BADGERS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                false
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": {
+            "DifficultyClass": 13,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "field_spotted"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "field_spotted"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "field_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "field_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "climb",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Подойти к пирамиде",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "BADGERS_RESOLVED"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_base"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "field_spotted": {
+      "Id": "field_spotted",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы замечаете гигантских барсуков в ошейниках — стража погибшего каменного гиганта.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "battle",
+          "Tags": [
+            "BATTLE"
+          ],
+          "Type": "Default",
+          "Text": "BATTLE: Сразиться",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "field_battle"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "animal",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Успокоить барсуков",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 18,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Nature",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "BADGERS_RESOLVED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "field_calm"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "BADGERS_RESOLVED": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "field_calm"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "field_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "field_battle"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "field_battle": {
+      "Id": "field_battle",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "[BATTLE — заглушка] Бой с гигантскими барсуками на расщеплённом плато (при движении по трещинам — Athletics/Acrobatics).",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "win",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Победить",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "BADGERS_RESOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_base"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "field_calm": {
+      "Id": "field_calm",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Пара барсуков замирает и уходит в трещины. Путь к пирамиде свободен.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "go",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "К пирамиде",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_base"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_base": {
+      "Id": "pyramid_base",
+      "Tags": [
+        "HUB"
+      ],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Пирамида высотой около 60 футов. Нижние валуны сплавлены элементальной магией; выше — сложены вручную. На камнях руны.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "climb",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Взобраться",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Athletics",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_mid"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_mid"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_fall"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_fall"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "arcana",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Изучить руны",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Arcana",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_RUNES": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_runes"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "KNOW_RUNES": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_runes"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_base"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_base"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        }
+      ]
+    },
+    "pyramid_fall": {
+      "Id": "pyramid_fall",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Срыв! Вы падаете и получаете ушибы (заглушка урона). Можно попробовать снова.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "retry",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Снова лезть",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_base"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_runes": {
+      "Id": "pyramid_runes",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Нижние камни сплавили элементальной магией. Руны держали конструкцию. Кто-то очень сильный — или очень магичный — строил это место.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Продолжить подъём",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_base"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_mid": {
+      "Id": "pyramid_mid",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«Эй, поаккуратнее. Может не стоит так за чужие лица хвататься?» — трещиной открывается глаз каменного существа. Это Ггорк, галеб-дур, встроенный в пирамиду вместе с братьями Ххффт и Прррт.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "talk",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Поговорить с каменной семьёй",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "galeb_talk"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "climb_on",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Лезть выше",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_top"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "galeb_talk": {
+      "Id": "galeb_talk",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Год назад люди с помощью дракона построили пирамиду и спрятали сундуки. Недавно гиганты дрались здесь. Прррт мучается от жуков-камнеедов в «ногах».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "help",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Сделать мазь от жуков",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Nature",
+            "OnCriticalSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "HELPED_PRRRT": true,
+                    "GOT_RIDDLE_HINT": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "galeb_helped"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "SetAdventureParams",
+                "Params": {
+                  "Strings": {},
+                  "Ints": {},
+                  "Bools": {
+                    "HELPED_PRRRT": true,
+                    "GOT_RIDDLE_HINT": true
+                  }
+                }
+              },
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "galeb_helped"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "galeb_talk"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "galeb_talk"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "top",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Подняться на вершину",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_top"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "galeb_helped": {
+      "Id": "galeb_helped",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Прррт облегчённо гудит. Подсказка: «Гигант забрался наверх, прокричал что-то про короля гигантов — и заорал от боли».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "top",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "На вершину",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_top"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_top": {
+      "Id": "pyramid_top",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вершины нет — отверстие между валунами заткнуто телом каменного гиганта. Руны на камнях светятся. Нужна фраза восхваления, иначе вход жжёт некротикой.",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "«ЧТОБЫ ПРОЙТИ, СКАЖИ ФРАЗУ: первое добыто в бою, второе — матриарх земли и народа, третье — величайшее из существ».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": true,
+      "Choices": [
+        {
+          "Id": "solve",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Сказать: «Слава Владычице Чешуи»",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "RIDDLE_SOLVED": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_inside"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "wrong",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Сказать: «Победа королю гигантов»",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_wrong"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "hint",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вспомнить подсказку Прррта",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [
+            {
+              "Type": "AdventureParams",
+              "StringValues": [
+                "GOT_RIDDLE_HINT"
+              ],
+              "IntValues": [],
+              "LongValues": [],
+              "BoolValues": [
+                true
+              ],
+              "CompareOptions": "Equal"
+            }
+          ],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_hint"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "pull",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Вытащить тело гиганта",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_loot_giant"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_hint": {
+      "Id": "pyramid_hint",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Гигант ошибся паролем культа. Нужна хвала не королю гигантов, а владычице драконьей крови — титулу, которого требовал Круг Угасшей Чешуи.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "К рунам",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_top"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_wrong": {
+      "Id": "pyramid_wrong",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Некротическая вспышка отбрасывает вас (заглушка урона). Руны мигают насмешливо.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Попробовать снова",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_top"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_loot_giant": {
+      "Id": "pyramid_loot_giant",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы вытаскиваете труп. В носу — серебряное кольцо, в кошеле — свиток понимания языков. Отверстие открыто, но защита рун всё ещё активна без пароля.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "back",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "К загадке",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "HAS_GIANT_LOOT": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_top"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "force",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Пролезть силой",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_wrong"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_inside": {
+      "Id": "pyramid_inside",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Внизу — пустые сундуки и трупы кобольдов. Они прокопали ход наружу. Записка: служить «лорду Тхириму» (божество морозных гигантов), не говорить каменнокожим братьям.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "search",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Обыскать тщательно",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 12,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Perception",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_secret"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_secret"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_empty"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_empty"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "leave",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Уйти ни с чем",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_secret": {
+      "Id": "pyramid_secret",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "У сундука двойное дно и кислотная ловушка.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "disarm",
+          "Tags": [],
+          "Type": "DiceCheck",
+          "Text": "Обезвредить ловушку",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": {
+            "DifficultyClass": 14,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "Thievery",
+            "OnCriticalSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_ledger"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_ledger"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_acid"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnCriticalFailure": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": {
+                    "SceneId": "pyramid_acid"
+                  },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ]
+          },
+          "Actions": []
+        },
+        {
+          "Id": "force",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Открыть силой",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "pyramid_acid"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_acid": {
+      "Id": "pyramid_acid",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Кислота брызжет (заглушка урона)! Гроссбух культа частично обгорел, но ещё чего-то стоит.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "end",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Забрать остатки и уйти",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "GOT_LEDGER": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_ledger": {
+      "Id": "pyramid_ledger",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "В тайнике — гроссбух с именами тайных членов Круга Угасшей Чешуи. Золота почти нет: кобольды уже всё вынесли морозным хозяевам.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "end",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Завершить вылазку",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "SetAdventureParams",
+              "Params": {
+                "Strings": {},
+                "Ints": {},
+                "Bools": {
+                  "GOT_LEDGER": true
+                }
+              }
+            },
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "pyramid_empty": {
+      "Id": "pyramid_empty",
+      "Tags": [],
+      "Content": [
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Вы ничего ценного не находите. Тайник пуст.",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "end",
+          "Tags": [],
+          "Type": "Default",
+          "Text": "Уйти",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": {
+                  "SceneId": "ending"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "ending": {
+      "Id": "ending",
+      "Tags": [
+        "ENDING"
+      ],
+      "Content": [
+        {
+          "Type": "Image",
+          "Restrictions": [],
+          "Value": "",
+          "Values": null
+        },
+        {
+          "Type": "Text",
+          "Restrictions": [],
+          "Value": "Второй тайник разорён. Но записка про Тхирима и гроссбух (если добыт) — нити к войне гигантов. Конец мини-приключения «Пирамида валунов».",
+          "Values": null
+        }
+      ],
+      "NotClearScene": false,
+      "Choices": [
+        {
+          "Id": "exit_crossroad",
+          "Tags": [
+            "EXIT"
+          ],
+          "Type": "Default",
+          "Text": "Вернуться на Перепутье",
+          "Description": "",
+          "AlwaysShow": false,
+          "Restrictions": [],
+          "DiceCheck": null,
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": {
+                  "AdventureId": "Crossroad"
+                },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
