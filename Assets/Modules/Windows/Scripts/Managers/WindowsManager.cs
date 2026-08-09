@@ -14,6 +14,8 @@ namespace Modules.Windows.Scripts.Managers
         private Dictionary<int, IView> _views = new Dictionary<int, IView>();
         private List<int> _history = new List<int>();
 
+        private short _viewSortingLayerIncrement;
+
         private void Update()
         {
             //Back button
@@ -32,7 +34,8 @@ namespace Modules.Windows.Scripts.Managers
                 _history.Add(instance.Handle);
             _views.Add(instance.Handle, instance);
 
-            instance.SetSortingOrder(_views.Count + (int)instance.Options.SortingLayer);
+            _viewSortingLayerIncrement++;
+            instance.SetSortingOrder(_viewSortingLayerIncrement + (int)instance.Options.SortingLayer);
             instance.Show();
 
             UnityEngine.Debug.Log($"[WindowsManager] Open window {instance.GetType().Name}({instance.Handle} / 0x{instance.Handle:X8}).");

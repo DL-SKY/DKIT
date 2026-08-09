@@ -2,6 +2,7 @@ using Modules.Windows.Scripts.Base;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.BottomPanel;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.Scroll;
 using Modules.Windows.Scripts.Implementation.Adventure.Main.TopPanel;
+using Modules.Windows.Scripts.Settings;
 using Zenject;
 using Zenject.Scripts.Factories;
 
@@ -30,6 +31,11 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Main
 
             BottomPanel = _viewModelFactory.Create<AdventureBottomPanelViewModel>();
             BottomPanel.Init();
+        }
+
+        protected override Options CreateOptions()
+        {
+            return new Options(canCloseOnEsc: false, hideInHistory: false, sortingLayer: SortingOrderLayer.COMMON);
         }
 
         public override void Dispose()
