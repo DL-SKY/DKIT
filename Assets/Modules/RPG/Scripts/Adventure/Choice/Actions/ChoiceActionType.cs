@@ -12,6 +12,8 @@
         OpenWindow = 6,
         GoToRandomAdventure = 7,
         GoToRandomScene = 8,
+        SetCharacterParameter = 9,
+        AddCharacterParameter = 10,
 
 
         //TODO: rework

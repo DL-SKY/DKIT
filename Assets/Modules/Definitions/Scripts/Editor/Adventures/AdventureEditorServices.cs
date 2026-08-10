@@ -1279,6 +1279,18 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                         allowAnyIntKeys: true,
                         allowAnyBoolKeys: true,
                         requireAnyParam: true);
+                case ChoiceActionType.SetCharacterParameter:
+                    return new ChoiceActionValidationContract(
+                        type,
+                        new List<string> { ChoiceActions.PARAMETER_KEY },
+                        new List<string> { ChoiceActions.PARAMETER_VALUE },
+                        new List<string>());
+                case ChoiceActionType.AddCharacterParameter:
+                    return new ChoiceActionValidationContract(
+                        type,
+                        new List<string> { ChoiceActions.PARAMETER_KEY },
+                        new List<string> { ChoiceActions.PARAMETER_DELTA },
+                        new List<string>());
 
                 default:
                     return null;

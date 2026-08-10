@@ -301,6 +301,9 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Constants
             public const string SCENE_ID = "SceneId";
             public const string ADVENTURE_ID = "AdventureId";
             public const string WINDOW_ID = "WindowId";
+            public const string PARAMETER_KEY = "ParameterKey";
+            public const string PARAMETER_VALUE = "ParameterValue";
+            public const string PARAMETER_DELTA = "ParameterDelta";
 
             /// <summary>
             /// Separator for multiple scene ids in

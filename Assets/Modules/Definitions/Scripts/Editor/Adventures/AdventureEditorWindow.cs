@@ -832,6 +832,14 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             {
                 DrawChoiceActionParamsEditor(actionData.Params);
             }
+            else if (actionData.Type == ChoiceActionType.SetCharacterParameter)
+            {
+                DrawSetCharacterParameterActionEditor(actionData);
+            }
+            else if (actionData.Type == ChoiceActionType.AddCharacterParameter)
+            {
+                DrawAddCharacterParameterActionEditor(actionData);
+            }
             else if (actionData.Type == ChoiceActionType.GoToAdventure)
             {
                 DrawField(() =>
@@ -932,6 +940,40 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 
                 int nextIndex = EditorGUILayout.Popup("Window Id", selectedIndex, options.ToArray());
                 actionData.Params.Strings[ChoiceActions.WINDOW_ID] = options[nextIndex];
+            });
+        }
+
+        private void DrawSetCharacterParameterActionEditor(ChoiceActionData actionData)
+        {
+            DrawField(() =>
+            {
+                actionData.Params.Strings.TryGetValue(ChoiceActions.PARAMETER_KEY, out string parameterKey);
+                string nextKey = EditorGUILayout.TextField("Parameter Key", parameterKey ?? string.Empty);
+                actionData.Params.Strings[ChoiceActions.PARAMETER_KEY] = nextKey ?? string.Empty;
+            });
+
+            DrawField(() =>
+            {
+                actionData.Params.Ints.TryGetValue(ChoiceActions.PARAMETER_VALUE, out int parameterValue);
+                int nextValue = EditorGUILayout.IntField("Parameter Value", parameterValue);
+                actionData.Params.Ints[ChoiceActions.PARAMETER_VALUE] = nextValue;
+            });
+        }
+
+        private void DrawAddCharacterParameterActionEditor(ChoiceActionData actionData)
+        {
+            DrawField(() =>
+            {
+                actionData.Params.Strings.TryGetValue(ChoiceActions.PARAMETER_KEY, out string parameterKey);
+                string nextKey = EditorGUILayout.TextField("Parameter Key", parameterKey ?? string.Empty);
+                actionData.Params.Strings[ChoiceActions.PARAMETER_KEY] = nextKey ?? string.Empty;
+            });
+
+            DrawField(() =>
+            {
+                actionData.Params.Ints.TryGetValue(ChoiceActions.PARAMETER_DELTA, out int parameterDelta);
+                int nextDelta = EditorGUILayout.IntField("Parameter Delta", parameterDelta);
+                actionData.Params.Ints[ChoiceActions.PARAMETER_DELTA] = nextDelta;
             });
         }
 

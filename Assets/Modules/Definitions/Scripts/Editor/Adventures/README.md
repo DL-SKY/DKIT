@@ -26,7 +26,7 @@
 - контент сцены (`SceneContentData`),
 - выборы (`ChoiceData`): `ChoiceType.Default` и `ChoiceType.DiceCheck`,
 - визуальные настройки выбора (`ChoiceData.VisualOptions`): `MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription` (id параметра для override через `VisualSettingsDef`),
-- action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.GoToAdventure` (`Params.Strings["AdventureId"]`), `ChoiceActionType.GoToRandomAdventure`, `ChoiceActionType.GoToRandomScene` (`Params.Strings["SceneId"]` через `;`), `ChoiceActionType.OpenWindow` (`Params.Strings["WindowId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams` (см. `.cursor/docs/modules/RPG.md`),
+- action-ы выборов (`ChoiceActionData`): `ChoiceActionType.GoToScene` (`Params.Strings["SceneId"]`), `ChoiceActionType.GoToAdventure` (`Params.Strings["AdventureId"]`), `ChoiceActionType.GoToRandomAdventure`, `ChoiceActionType.GoToRandomScene` (`Params.Strings["SceneId"]` через `;`), `ChoiceActionType.OpenWindow` (`Params.Strings["WindowId"]`), `ChoiceActionType.SetWorldParams`, `ChoiceActionType.SetAdventureParams`, `ChoiceActionType.SetGlobalParams`, `ChoiceActionType.SetCharacterParameter` (`Strings.ParameterKey`, `Ints.ParameterValue`), `ChoiceActionType.AddCharacterParameter` (`Strings.ParameterKey`, `Ints.ParameterDelta`) (см. `.cursor/docs/modules/RPG.md`),
 - для `ChoiceType.DiceCheck` — блок `ChoiceData.DiceCheck` с параметрами броска (`DifficultyClass`, `DiceType`, `DiceOptions`, `DiceCheckParam`) и action-списками исходов (`OnCriticalSuccess`, `OnSuccess`, `OnFailure`, `OnCriticalFailure`).
 
 Инструмент доступен через меню:
@@ -50,6 +50,25 @@
 | Identifier Prompt | `IdentifierPromptWindow` | Модальный ввод id при create/rename |
 | Create Option Picker | `CreateOptionPickerWindow` | Выбор шаблона, когда опций больше одной |
 
+### Сопутствующие редакторы adventure-defs
+
+В том же namespace добавлены отдельные окна CRUD для дефов, связанных с приключениями:
+
+| Окно | Меню Unity | Класс | JSON-директория |
+|---|---|---|---|
+| Pregenerated Character Editor | `Tools/Definitions/Adventures/Pregenerated Character Editor` | `PregeneratedCharacterDefEditorWindow` | `Assets/Modules/Definitions/Resources/Definitions/_ADVENTURES_/PregeneratedCharacters` |
+| Creature Editor | `Tools/Definitions/Adventures/Creature Editor` | `CreatureDefEditorWindow` | `Assets/Modules/Definitions/Resources/Definitions/_ADVENTURES_/Creatures` |
+| Encounter Editor | `Tools/Definitions/Adventures/Encounter Editor` | `EncounterDefEditorWindow` | `Assets/Modules/Definitions/Resources/Definitions/_ADVENTURES_/Encounters` |
+
+Общее поведение окон:
+- панель файлов слева (`Create` / `Rename` / `Delete`),
+- toolbar (`Refresh` / `Save` / `Revert` + статус `Saved`/`Modified`),
+- редактирование полей текущего дефа справа.
+
+Для выбора связанных дефов используется отдельное окно:
+- `DefinitionSearchPickerWindow` (поиск + список кнопок),
+- если фильтр пустой, показывается полный список дефов нужного типа.
+
 ---
 
 ## Где хранятся данные
@@ -59,6 +78,7 @@
 
 Файловый слой:
 - `Assets/Modules/Definitions/Scripts/Editor/Adventures/AdventureEditorFileRepository.cs`
+- `Assets/Modules/Definitions/Scripts/Editor/Adventures/AdventureDefinitionEditorRepository.cs` (общий репозиторий для `PregeneratedCharacterDef` / `CreatureDef` / `EncounterDef`)
 
 Важно:
 - Id приключения в runtime определяется именем файла (как и в существующем loader-пайплайне проекта).
@@ -294,7 +314,11 @@
 - `Open Window` (`Type = OpenWindow`, `Params.Strings["WindowId"]` — `Glossary.ChoiceActions.WINDOW_ID`; шаблонные ids в `Glossary.Windows`);
 - `Set World Params` (`Type = SetWorldParams`, редактируемые `Params.Strings/Ints/Bools`);
 - `Set Adventure Params` (`Type = SetAdventureParams`, редактируемые `Params.Strings/Ints/Bools`);
-- `Set Global Params` (`Type = SetGlobalParams`, редактируемые `Params.Strings/Ints/Bools`, иконка `save.png` из `ButtonIcons/`).
+- `Set Global Params` (`Type = SetGlobalParams`, редактируемые `Params.Strings/Ints/Bools`, иконка `save.png` из `ButtonIcons/`);
+- `Set Character Parameter` (`Type = SetCharacterParameter`, `Strings["ParameterKey"]`, `Ints["ParameterValue"]`);
+- `Add Character Parameter` (`Type = AddCharacterParameter`, `Strings["ParameterKey"]`, `Ints["ParameterDelta"]`).
+
+Для `SetCharacterParameter` / `AddCharacterParameter` в runtime есть blacklist ключей (`CharacterChoiceActionParameterBlacklist`): если `ParameterKey` в списке запретных, executor пишет `LogWarning` и не создаёт state-action. Оба экшена всегда применяются к текущему активному персонажу (`CurrentActiveCharacterId`).
 
 Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не мигрируется автоматически при загрузке: он ловится в `Validation` и исправляется через кнопку `Fix`.
 
@@ -341,6 +365,7 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
 ## Что поддерживается сейчас
 
 - CRUD приключений через JSON-файлы.
+- CRUD для `PregeneratedCharacterDef`, `CreatureDef`, `EncounterDef` через отдельные editor-окна.
 - Шаблоны `Create Adventure`: `Adventure`, `Chapter`, `Location` (`AdventureCreateOptionsRegistry`).
 - CRUD сцен, контента, выборов.
 - CRUD actions выбора:
@@ -349,7 +374,9 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
   - `ChoiceActionType.OpenWindow` + `WindowId`;
   - `ChoiceActionType.SetWorldParams` + словари `Params.Strings/Ints/Bools`;
   - `ChoiceActionType.SetAdventureParams` + словари `Params.Strings/Ints/Bools`;
-  - `ChoiceActionType.SetGlobalParams` + словари `Params.Strings/Ints/Bools`.
+  - `ChoiceActionType.SetGlobalParams` + словари `Params.Strings/Ints/Bools`;
+  - `ChoiceActionType.SetCharacterParameter` + `ParameterKey` / `ParameterValue` (к текущему активному персонажу);
+  - `ChoiceActionType.AddCharacterParameter` + `ParameterKey` / `ParameterDelta` (к текущему активному персонажу).
 - Редактор `Selected Choice`:
   - блок `Visual Options` (`MainIcon`, `DescriptionIcon`, `ParameterOverrideDescription` — id параметра персонажа, не локализуемый текст) для любого `ChoiceType`;
   - для `ChoiceType.Default` — блок `Actions`;
@@ -375,7 +402,9 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
   - `GoToScene` — обязательный `Params.Strings["SceneId"]` (`Glossary.ChoiceActions.SCENE_ID`);
   - `GoToAdventure` — обязательный `Params.Strings["AdventureId"]` (`Glossary.ChoiceActions.ADVENTURE_ID`);
   - `OpenWindow` — обязательный `Params.Strings["WindowId"]` (`Glossary.ChoiceActions.WINDOW_ID`);
-  - `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` — хотя бы один ключ в `Params.Strings/Ints/Bools`.
+  - `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` — хотя бы один ключ в `Params.Strings/Ints/Bools`;
+  - `SetCharacterParameter` — обязательные `Strings["ParameterKey"]`, `Ints["ParameterValue"]`;
+  - `AddCharacterParameter` — обязательные `Strings["ParameterKey"]`, `Ints["ParameterDelta"]`.
 - Валидация и автокоррекция тегов:
   - `Adventure.Tags`, `Adventure.IgnoredTags`, `Scene.Tags`, `Choice.Tags` проверяются на `UPPER_SNAKE_CASE`;
   - для некорректных тегов доступен `Fix`, который нормализует значение в `UPPER_SNAKE_CASE`.
@@ -387,12 +416,20 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
 - Валидация стиля id внутри сценария:
   - предупреждение, если id сцены/выбора не в `lower_snake_case` и не в `CamelCase/PascalCase`;
   - предупреждение, если стили id смешаны внутри одного adventure.
-- Редактор `Selected Action` для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`: inline-редактирование словарей `Params.Strings`, `Params.Ints`, `Params.Bools`; для `GoToAdventure` — поле Target Adventure; для `GoToRandomAdventure` — без params; для `GoToRandomScene` — поле списка Scene Ids через `;`; для `OpenWindow` — popup `Window Id` по `Glossary.Windows` (кастомный id тоже сохраняется в списке).
+- Редактор `Selected Action` для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams`: inline-редактирование словарей `Params.Strings`, `Params.Ints`, `Params.Bools`; для `SetCharacterParameter` / `AddCharacterParameter` — поля `Parameter Key`, `Parameter Value/Delta` (применение всегда к текущему активному персонажу); для `GoToAdventure` — поле Target Adventure; для `GoToRandomAdventure` — без params; для `GoToRandomScene` — поле списка Scene Ids через `;`; для `OpenWindow` — popup `Window Id` по `Glossary.Windows` (кастомный id тоже сохраняется в списке).
 - В `Validation` для исправляемых кейсов доступна кнопка `Fix` (например, `sceneId` → `SceneId`).
 - Окно `Localization` для генерации ключей и экспорта в `.txt` (tab-separated) для Google Sheets.
 - Цветовая индикация состояния:
   - статус в toolbar: `Saved` (зеленый), `Modified` (желтый),
   - выбранный файл в блоке `Files` окрашивается в тот же цвет состояния.
+- Для editor-окон дефов (`PregeneratedCharacter` / `Creature` / `Encounter`) добавлены picker-окна выбора связанных дефов:
+  - `Apply Feat` открывает список `FeatDef` с поиском;
+  - в `Creature` и `PregeneratedCharacter` есть session-список примененных фитов с `Unapply`;
+  - `Add Spell` открывает список `SpellDef`;
+  - `Add Item` открывает список `ItemDef`;
+  - в `Creature` кнопка `Add Status` открывает список condition-feat (`FeatType.Condition`) для совместимости с runtime `StatusEffects`/`UnapplyFeat`;
+  - в `Encounter` добавление `Creatures` выполняется через picker `CreatureDef`;
+  - в picker-окнах при пустом фильтре отображается полный список доступных дефов.
 
 ---
 

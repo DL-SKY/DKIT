@@ -55,6 +55,18 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
                     {
                         EnsureParams(actionData),
                     }),
+                ChoiceActionType.SetCharacterParameter => _container.Instantiate<SetCharacterParameterChoiceActionExecutor>(
+                    new object[]
+                    {
+                        GetRequiredString(actionData.Params?.Strings, ChoiceActions.PARAMETER_KEY, actionData.Type),
+                        GetRequiredInt(actionData.Params?.Ints, ChoiceActions.PARAMETER_VALUE, actionData.Type),
+                    }),
+                ChoiceActionType.AddCharacterParameter => _container.Instantiate<AddCharacterParameterChoiceActionExecutor>(
+                    new object[]
+                    {
+                        GetRequiredString(actionData.Params?.Strings, ChoiceActions.PARAMETER_KEY, actionData.Type),
+                        GetRequiredInt(actionData.Params?.Ints, ChoiceActions.PARAMETER_DELTA, actionData.Type),
+                    }),
 
                 _ => throw new NotImplementedException($"ChoiceActionType '{actionData.Type}' is not supported by factory yet."),
             };
@@ -76,6 +88,17 @@ namespace Modules.RPG.Scripts.Adventure.Choice.Executors
 
             if (!dictionary.TryGetValue(key, out string value) || string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException($"Required string param '{key}' is missing for action type '{type}'.");
+
+            return value;
+        }
+
+        private static int GetRequiredInt(Dictionary<string, int> dictionary, string key, ChoiceActionType type)
+        {
+            if (dictionary == null)
+                throw new ArgumentException($"Params.Ints is null for action type '{type}'.");
+
+            if (!dictionary.TryGetValue(key, out int value))
+                throw new ArgumentException($"Required int param '{key}' is missing for action type '{type}'.");
 
             return value;
         }

@@ -1,6 +1,6 @@
 # Модуль RPG
 
-**Последнее обновление:** 2026-07-31 12:45:00 (+03:00)
+**Последнее обновление:** 2026-08-10 15:20:00 (+03:00)
 
 ## Назначение
 
@@ -11,7 +11,7 @@
 - структуру сцены и ее контента (`SceneData`, `SceneContentData`);
 - структуру выбора игрока и набора действий (`ChoiceData`, `ChoiceActionData`).
 
-На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`) для переходов по сценам и записи параметров `World/Adventure` в `State`.
+На текущем этапе модуль содержит **data-contract слой** и начальный **runtime-слой выполнения действий** (`Choice/Executors`) для переходов по сценам, записи параметров `World/Adventure/Global` и точечной мутации `CharacterStateData.Parameters` в `State`.
 
 > **Связь с `Modules.Definitions`:** JSON-дефы adventure-проекта загружаются через `DefinitionsManager` (Adventures). `AdventureDef` — единственный деф, который наследует RPG-модель (`AdventureData`); классы, ancestry, предыстории, черты, предметы и заклинания описаны как `ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` / `ItemDef` / `SpellDef` и наследуют `AbstractDefinition` напрямую. Контракт дефов расширяется (`Restrictions`, `Icon`, `Features`, `AncestryDef.Names`, single-каталог `AvatarsDef` и др.); применение механик в state — в планах. Подробности — в [Definitions.md](Definitions.md#adventure-дефы-персонажа-текущий-контракт-и-эволюция).
 >
@@ -198,6 +198,8 @@
 | `OpenWindow` | `6` | Stub executor: логирует `WindowId`; открытие окон UI ещё не подключено |
 | `GoToRandomAdventure` | `7` | Подключён: фильтр кандидатов (без `HUB`, не текущее, не `Disabled`; TODO: completed/level) → случайный id → `SetCurrentAdventureIdStateAction` |
 | `GoToRandomScene` | `8` | Подключён: `Params.Strings[SceneId]` — список id через `;` → случайная сцена → `SetCurrentAdventureSceneIdStateAction` |
+| `SetCharacterParameter` | `9` | Подключён: установка `CharacterStateData.Parameters[key] = value` для текущего активного персонажа (`CurrentActiveCharacterId`) с blacklist проверкой ключа |
+| `AddCharacterParameter` | `10` | Подключён: инкремент `CharacterStateData.Parameters[key] += delta` для текущего активного персонажа (`CurrentActiveCharacterId`) с blacklist проверкой ключа |
 | `SetFlag`, `ModifyVariable`, `SkillCheck`, `StartCombat`, `ApplyDamage`, `Heal`, `GrantItem` | `110`–`500` | Временно закомментированы в enum (старый черновик enum) |
 
 Именованные ключи `Params.Strings` для choice-actions задаются в `Glossary.ChoiceActions` (`Modules.Definitions.Scripts.Implementation.Adventures.Constants`):
@@ -207,10 +209,14 @@
 | `Glossary.ChoiceActions.SCENE_ID` | `"SceneId"` | Id целевой сцены для перехода (`ChoiceActionType.GoToScene`); для `GoToRandomScene` — список id через `SCENE_IDS_SEPARATOR` (`;`) |
 | `Glossary.ChoiceActions.ADVENTURE_ID` | `"AdventureId"` | Id целевого приключения (`ChoiceActionType.GoToAdventure`) |
 | `Glossary.ChoiceActions.WINDOW_ID` | `"WindowId"` | Id окна UI (`ChoiceActionType.OpenWindow`); константы в `Glossary.Windows` |
+| `Glossary.ChoiceActions.PARAMETER_KEY` | `"ParameterKey"` | Ключ параметра персонажа в `CharacterStateData.Parameters` |
+| `Glossary.ChoiceActions.PARAMETER_VALUE` | `"ParameterValue"` | Целевое значение для `SetCharacterParameter` |
+| `Glossary.ChoiceActions.PARAMETER_DELTA` | `"ParameterDelta"` | Дельта для `AddCharacterParameter` |
 | `Glossary.ChoiceActions.SCENE_IDS_SEPARATOR` | `";"` | Разделитель id сцен в `Params.Strings[SceneId]` для `GoToRandomScene` |
 | `Glossary.Adventures.HUB` | `"HUB"` | Тег хаба; исключается из кандидатов `GoToRandomAdventure` |
 
 Для `SetWorldParams` / `SetAdventureParams` / `SetGlobalParams` ключи `Params` произвольные (рекомендуется префикс `world.*` / `adventure.*` / `global.*`). TEA валидирует только наличие хотя бы одного param; конкретные ключи не фиксируются в `Glossary`.
+Для `SetCharacterParameter` / `AddCharacterParameter` используются фиксированные ключи `ParameterKey` + (`ParameterValue` или `ParameterDelta`). Целевой персонаж берётся из `CharactersStateData.CurrentActiveCharacterId`.
 
 Примеры JSON для choice-actions:
 
@@ -278,6 +284,8 @@
 | `SetWorldParams` | `SetWorldParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetWorldParamsStateAction)` → merge в `AdventuresStateData.World.Parameters` |
 | `SetAdventureParams` | `SetAdventureParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetAdventureParamsStateAction)` → merge в `AdventuresStateData.Adventures[currentAdventureId].Parameters` |
 | `SetGlobalParams` | `SetGlobalParamsChoiceActionExecutor` | `Strings` / `Ints` / `Bools` | `AdventureStateLogic.ProcessAction(SetGlobalParamsStateAction)` → merge в `AdventuresStateData.Global.Parameters` |
+| `SetCharacterParameter` | `SetCharacterParameterChoiceActionExecutor` | `Strings.ParameterKey`, `Ints.ParameterValue` | Если key не в blacklist: `AdventureStateLogic.ProcessAction(SetCharacterParameterStateAction)` → `Characters[CurrentActiveCharacterId].Parameters[key] = value`; иначе warning и skip |
+| `AddCharacterParameter` | `AddCharacterParameterChoiceActionExecutor` | `Strings.ParameterKey`, `Ints.ParameterDelta` | Если key не в blacklist: `AdventureStateLogic.ProcessAction(AddCharacterParameterStateAction)` → `Characters[CurrentActiveCharacterId].Parameters[key] += delta`; иначе warning и skip |
 
 ### Инвариант секций State для choice-actions
 
@@ -286,13 +294,13 @@
 | Секция `StateData` | Через choice-actions | Комментарий |
 |---|---|---|
 | `Adventures` | ✅ разрешено | Навигация (`CurrentAdventureId` / `CurrentAdventureSceneId`) и `World` / `Adventure` / `Global` params — уже подключено |
-| `Characters` | ✅ разрешено | Будущие `GrantItem` / damage / heal / party и т.п.; сейчас choice-executors Characters не трогают |
+| `Characters` | ✅ разрешено | Подключены `SetCharacterParameter` / `AddCharacterParameter` (с runtime blacklist по ключам); остальные типы (`GrantItem` / damage / heal / party) — следующий этап |
 | `Inventory` | ✅ разрешено | Будущие выдачи/изъятия предметов; сейчас choice-executors Inventory не трогают |
 | `Profile` | ❌ запрещено | В т.ч. `Profile.Parameters` (`MaxPartySlots`, `MaxInventorySlots`) — не через adventure-choices |
 | `Wallet` | ❌ запрещено | Meta/UI/cheats, не choice-контент |
 | `Localization` | ❌ запрещено | Init / settings |
 
-`OpenWindow` state не меняет (stub UI). `Set*Params` пишут только в `Adventures.*Parameters`, не в `Profile.Parameters`.
+`OpenWindow` state не меняет (stub UI). `Set*Params` пишут в `Adventures.*Parameters`, а character-actions — только в `Characters[*].Parameters`; `Profile` по-прежнему не трогается.
 
 При добавлении нового `ChoiceActionType` / executor: вызывать только state-actions из разрешённых секций; иначе — отдельный UI/meta-путь вне choice-pipeline.
 
@@ -446,7 +454,7 @@ RPG-контент (сцены, выборы, действия) описывае
    - `DiceCheck` — открыть окно броска, взять модификатор по `DiceCheck.DiceCheckParam`, рассчитать исход по `DiceCheck.DifficultyClass`, выполнить actions из соответствующего outcome-списка (`OnCriticalSuccess` / `OnSuccess` / `OnFailure` / `OnCriticalFailure`).
 7. Обновление `StateData.Adventures` и переход к следующей сцене (через контроллеры/менеджеры).
 
-Runtime-поток для `ChoiceType.Default` замкнут из UI (`AdventureChoiceViewModel.Select()` → фабрика executors). `DiceCheck` runtime ещё stub. Choice-executors мутируют только `Adventures` (Characters/Inventory — по инварианту разрешены, пока не подключены). Legacy-путь (`ObsoleteGoToSceneChoiceActionExecutor` + `IAdventureFlowController`) помечен `[Obsolete]` и не используется фабрикой.
+Runtime-поток для `ChoiceType.Default` замкнут из UI (`AdventureChoiceViewModel.Select()` → фабрика executors). `DiceCheck` runtime ещё stub. Choice-executors сейчас мутируют `Adventures` и частично `Characters` (`SetCharacterParameter` / `AddCharacterParameter` с blacklist). `Inventory` по инварианту разрешён, но пока не подключён. Legacy-путь (`ObsoleteGoToSceneChoiceActionExecutor` + `IAdventureFlowController`) помечен `[Obsolete]` и не используется фабрикой.
 
 ## Текущее состояние реализации
 
@@ -461,8 +469,8 @@ Runtime-поток для `ChoiceType.Default` замкнут из UI (`Adventur
 - Поля ограничений унифицированы: `Restrictions` в `AdventureData`, `ChoiceData`, `SceneContentData` (ранее встречалась опечатка `Restictions`).
 - В `Modules.State` реализованы секции Adventure-профиля: `CharactersStateData`, `InventoryStateData`, `AdventuresStateData`; создание нового профиля — через `IAdventureStateDataFactory` (см. [State.md](State.md)).
 - `ChoiceActionData` использует контракт `Params` (`Strings` / `Ints` / `Bools`).
-- `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`), `SetGlobalParams` (`4`), `GoToAdventure` (`5`), `OpenWindow` (`6`, stub), `GoToRandomAdventure` (`7`), `GoToRandomScene` (`8`).
-- Ключи `Params.Strings`: `Glossary.ChoiceActions.SCENE_ID` / `ADVENTURE_ID` / `WINDOW_ID`; ids окон хаба — `Glossary.Windows.*`.
+- `ChoiceActionType`: к фабрике подключены `GoToScene` (`1`), `SetWorldParams` (`2`), `SetAdventureParams` (`3`), `SetGlobalParams` (`4`), `GoToAdventure` (`5`), `OpenWindow` (`6`, stub), `GoToRandomAdventure` (`7`), `GoToRandomScene` (`8`), `SetCharacterParameter` (`9`), `AddCharacterParameter` (`10`).
+- Ключи `Params.Strings`: `Glossary.ChoiceActions.SCENE_ID` / `ADVENTURE_ID` / `WINDOW_ID` / `PARAMETER_KEY`; ключи `Params.Ints`: `CHARACTER_ID` / `PARAMETER_VALUE` / `PARAMETER_DELTA`; ids окон хаба — `Glossary.Windows.*`.
 - Реализованы `ChoiceActionExecutorFactory`, `IChoiceActionExecutor`, `IChoiceActionExecutorFactory`.
 - Зафиксирован инвариант: choice-executors могут мутировать только `Characters` / `Inventory` / `Adventures` (не `Profile` / `Wallet` / `Localization`).
 - Реализованы executors:
@@ -473,7 +481,9 @@ Runtime-поток для `ChoiceType.Default` замкнут из UI (`Adventur
   - `OpenWindowChoiceActionExecutor` → stub (warning);
   - `SetWorldParamsChoiceActionExecutor` → `SetWorldParamsStateAction`;
   - `SetAdventureParamsChoiceActionExecutor` → `SetAdventureParamsStateAction`;
-  - `SetGlobalParamsChoiceActionExecutor` → `SetGlobalParamsStateAction`.
+  - `SetGlobalParamsChoiceActionExecutor` → `SetGlobalParamsStateAction`;
+  - `SetCharacterParameterChoiceActionExecutor` → `SetCharacterParameterStateAction` (если ключ не в blacklist);
+  - `AddCharacterParameterChoiceActionExecutor` → `AddCharacterParameterStateAction` (если ключ не в blacklist).
 - `RestrictionType.ActivePartyCount` + `ActivePartyCountRestrictionChecker`: сравнение `ActivePartyCharacterIds.Count` с `IntValues[0]` через `CompareOptions`.
 - `RestrictionType.CharacterParams` + `CharacterParamsRestrictionChecker`: сравнение `CharacterStateData.Parameters[key]` с `IntValues[0]`; цель — `CharacterRestrictionContext` (см. [Restrictions.md](Restrictions.md)).
 - Legacy executor: `ObsoleteGoToSceneChoiceActionExecutor` (**устаревший**, `[Obsolete]`) — старый путь через `IAdventureFlowController`.

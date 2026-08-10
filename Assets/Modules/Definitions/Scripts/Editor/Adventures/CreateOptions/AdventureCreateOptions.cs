@@ -457,6 +457,54 @@ namespace Modules.Definitions.Scripts.Editor.Adventures.CreateOptions
                         },
                     },
                 },
+                new CreateOptionDescriptor<ChoiceActionData>
+                {
+                    Id = "action.set_character_parameter",
+                    ButtonText = "Set Character Parameter",
+                    Tooltip = "Set a specific CharacterStateData.Parameters int value.",
+                    IconName = "d_winbtn_mac_max_h",
+                    IconAssetName = "settings",
+                    Create = () => new ChoiceActionData
+                    {
+                        Type = ChoiceActionType.SetCharacterParameter,
+                        Params = new ChoiceActionParamsData
+                        {
+                            Strings = new Dictionary<string, string>
+                            {
+                                { ChoiceActions.PARAMETER_KEY, Characters.EXPERIENCE },
+                            },
+                            Ints = new Dictionary<string, int>
+                            {
+                                { ChoiceActions.PARAMETER_VALUE, 0 },
+                            },
+                            Bools = new Dictionary<string, bool>(),
+                        },
+                    },
+                },
+                new CreateOptionDescriptor<ChoiceActionData>
+                {
+                    Id = "action.add_character_parameter",
+                    ButtonText = "Add Character Parameter",
+                    Tooltip = "Add delta to a specific CharacterStateData.Parameters int value.",
+                    IconName = "Toolbar Plus",
+                    IconAssetName = "plus",
+                    Create = () => new ChoiceActionData
+                    {
+                        Type = ChoiceActionType.AddCharacterParameter,
+                        Params = new ChoiceActionParamsData
+                        {
+                            Strings = new Dictionary<string, string>
+                            {
+                                { ChoiceActions.PARAMETER_KEY, Characters.EXPERIENCE },
+                            },
+                            Ints = new Dictionary<string, int>
+                            {
+                                { ChoiceActions.PARAMETER_DELTA, 100 },
+                            },
+                            Bools = new Dictionary<string, bool>(),
+                        },
+                    },
+                },
             };
         }
 
