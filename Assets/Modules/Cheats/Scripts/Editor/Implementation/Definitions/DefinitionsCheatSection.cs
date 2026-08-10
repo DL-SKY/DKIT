@@ -96,6 +96,11 @@ namespace Modules.Cheats.Scripts.Editor.Implementation.Definitions
             DrawDefinitionIds(definitionsManager.Creatures);
             EditorGUI.indentLevel--;
 
+            EditorGUILayout.LabelField("Encounters:");
+            EditorGUI.indentLevel++;
+            DrawDefinitionIds(definitionsManager.Encounters);
+            EditorGUI.indentLevel--;
+
             EditorGUILayout.LabelField("Feats:");
             EditorGUI.indentLevel++;
             DrawDefinitionIds(definitionsManager.Feats);

@@ -1,6 +1,6 @@
 # Модуль Definitions
 
-**Последнее обновление:** 2026-07-30 12:37:00 (+03:00)
+**Последнее обновление:** 2026-08-10 12:50:00 (+03:00)
 
 ## Назначение
 
@@ -33,7 +33,7 @@
 - `DefinitionsManager` (Adventures)  
   Фасад доступа к дефам adventure-проекта (`Modules.Definitions.Scripts.Implementation.Adventures`). Хранит:
   - single-def: `GlobalSettings` (`ProjectGlobalSettingsDef`), `LocalizationSettings` (`LocalizationSettingsDef`), `RuleSettings` (`RuleSettingsDef`), `Avatars` (`AvatarsDef`), `VisualSettings` (`VisualSettingsDef`);
-  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`.  
+  - коллекции: `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Encounters`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`.  
   Используется и `CharacterParametersProxy` (модуль `State`) для резолва `ANCESTRY_HP` / `CLASS_HP` из `Ancestries` / `Classes`. Choice UI читает `VisualSettings` для иконок/локализации параметров (см. [Windows.md](Windows.md)).
 
 - `Glossary` (`Implementation/Adventures/Constants/Glossary.cs`)  
@@ -41,10 +41,12 @@
   - abilities: `STR`, `DEX`, `CON`, `INT`, `WIS`, `CHA`;
   - прогресс: `LEVEL` (`"Level"`), `EXPERIENCE`;
   - HP: `MAX_HIT_POINTS` (`"MaxHitPoints"`, **вычисляемый**), `HIT_POINTS` (`"HitPoints"`, текущие);
-  - `SPEED` (`"Speed"`), `CHALLENGE_RATING` (`"ChallengeRating"` — класс опасности, в основном для creatures);
+  - `SPEED` (`"Speed"`);
   - сейвы: `FORTITUDE` / `REFLEX` / `WILL` (сырые итоги статблока; формул в `GeneralRule` пока нет);
   - навыки / `Perception` — имена как в `SkillDependencies`;
   - суффиксы сырых составляющих: `PROFICIENCY_SUFFIX` (`.ProfRank`), `ITEMS_SUFFIX` (`.ItemsBonus`), `PER_LEVEL_SUFFIX` (`.PerLevel`), `BONUS_SUFFIX` (`.Bonus`).
+
+  Отдельно: `Glossary.Characters.CHALLENGE_RATING` (`"ChallengeRating"`) — константа имени для **поля** `CreatureDef.ChallengeRating` (float, encounter-budget). Это **не** runtime-ключ `CharacterStateData.Parameters`.
 
   Для оружия — `Glossary.Weapons`:
   - типы (`ItemDef.Type`): `SIMPLE` = `"Weapon.Simple"`, `MARTIAL` = `"Weapon.Martial"`, `ADVANCED` = `"Weapon.Advanced"`;
@@ -75,6 +77,7 @@
 | `BackgroundDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Backgrounds` |
 | `PregeneratedCharacterDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/PregeneratedCharacters` |
 | `CreatureDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Creatures` |
+| `EncounterDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Encounters` |
 | `CharacterParamsPatchData` | POCO (не def) | вложен в JSON `FeatDef.Apply` |
 | `FeatDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Feats` |
 | `ItemDef` | `AbstractDefinition` | `Definitions/_ADVENTURES_/Items` |
@@ -178,6 +181,32 @@
 | | `Parameters` | `Dictionary<string, int>` | `Parameters` | нет (опционально) |
 | | `EquippedItems` | `List<EquippedItemStateData>` | `EquippedItems` | нет (опционально; слоты/стартовая экипировка прегена) |
 | | `Spells` | `Dictionary<string, int>` | `Spells` | нет (опционально) |
+| `CreatureDef` | `Disabled` | `bool` | `Disabled` | да |
+| | `Tags` | `List<string>` | `Tags` | да |
+| | `Avatar` | `string` | `Avatar` | нет (предпочтительное identity-поле; fallback через `Icon`) |
+| | `Name` | `string` | `Name` | нет (предпочтительное identity-поле; fallback через `Title`) |
+| | `Icon` | `string` | `Icon` | да (legacy avatar) |
+| | `Title` | `string` | `Title` | да (legacy name) |
+| | `Description` | `string` | `Description` | да |
+| | `ChallengeRating` | `float` | `ChallengeRating` | да (дробные значения; не пишется в Parameters) |
+| | `Size` | `AncestrySize` | `Size` | да |
+| | `Speed` | `int` | `Speed` | да |
+| | `ArmorClass` | `int` | `ArmorClass` | да |
+| | `HitPoints` | `int` | `HitPoints` | да |
+| | `BattleActionIds` | `List<string>` | `BattleActionIds` | да (id `BattleActionDef`) |
+| | `EquippedItems` | `List<EquippedItemStateData>` | `EquippedItems` | да |
+| | `Spells` | `Dictionary<string, int>` | `Spells` | да |
+| | `Parameters` | `Dictionary<string, int>` | `Parameters` | да (`Level`, abilities, saves, perception/skills) |
+| | `Ancestry` | `string` | `Ancestry` | да (часто `""`) |
+| | `Class` | `string` | `Class` | да (часто `""`) |
+| | `Background` | `string` | `Background` | да (часто `""`) |
+| | `Gender` | `CharacterGender` | `Gender` | да |
+| | `StatusEffects` | `Dictionary<string, int>` | `StatusEffects` | нет (опционально) |
+| `EncounterDef` | `Disabled` | `bool` | `Disabled` | да |
+| | `Tags` | `List<string>` | `Tags` | да |
+| | `Title` | `string` | `Title` | да |
+| | `Description` | `string` | `Description` | да |
+| | `Creatures` | `List<string>` | `Creatures` | да (id `CreatureDef`, с повторами вместо `Count`) |
 | `CharacterParamsPatchData` | `Add` | `Dictionary<string, int>` | `Add` | нет (опционально) |
 | | `Set` | `Dictionary<string, int>` | `Set` | нет (опционально) |
 | | `AlsoApplyFeatIds` | `List<string>` | `AlsoApplyFeatIds` | нет (опционально; id `FeatDef`) |
@@ -284,8 +313,10 @@
   Загрузка: `DefinitionsManager.PregeneratedCharacters` из `_ADVENTURES_/PregeneratedCharacters` (между Backgrounds и Feats в `LoadAll()`).
 
 - `CreatureDef`  
-  Статблок противника / боевого NPC (отдельный авторский шаблон, не преген). Поля: `Disabled`, `Tags`, `Icon`, `Title`, `Description`, `Level`, `ChallengeRating` (класс опасности), `Size` (`AncestrySize`), `Speed`, `ArmorClass`, `HitPoints`, `Abilities` (модификаторы `STR`…`CHA`), `Perception` (итоговый модификатор), `Saves` (`Fortitude` / `Reflex` / `Will`), `Skills` (id навыка → итоговый модификатор), `Features` (id `FeatDef`), `BattleActionIds` (id `BattleActionDef`), `EquippedItems`, `Spells`, опциональный escape-hatch `Parameters`, опциональные flavor `Ancestry` / `Class` / `Background` / `Gender`.  
-  В бою обе стороны — `CharacterStateData`; materialize через `CreatureCombatantFactory.CreateFromCreature` (модуль `State`): отрицательный session id, запекание статов в `Parameters`, `ApplyFeat` по `Features`, Apply `ItemDef.Features` на носимых слотах. `BattleActionIds` остаются на дефе (session резолвит по source creature id).  
+  Статблок противника / боевого NPC (отдельный авторский шаблон, не преген). Поля: `Disabled`, `Tags`, `Avatar`/`Name` (legacy fallback: `Icon`/`Title`), `Description`, `ChallengeRating` (`float`, класс опасности), `Size` (`AncestrySize`), `Speed`, `ArmorClass`, `HitPoints`, `BattleActionIds` (id `BattleActionDef`), `EquippedItems`, `Spells`, `Parameters` (основное числовое хранилище: `Level`, abilities, saves, perception/skills и прочие флаги/бонусы), `StatusEffects`, опциональные flavor `Ancestry` / `Class` / `Background` / `Gender`.  
+  Отдельных полей `Level` / `Abilities` / `Perception` / `Saves` / `Skills` / `Features` больше нет: числовые статы и пассивки автор пишет в `Parameters` (как у `CharacterStateData` / `PregeneratedCharacterDef`).  
+  `ChallengeRating` — контентный meta-параметр на дефе; factory **не** пишет его в `CharacterStateData.Parameters`.  
+  В бою обе стороны — `CharacterStateData`; materialize через `CreatureCombatantFactory.CreateFromCreature` (модуль `State`): отрицательный session id, копирование/запекание `Parameters`, Apply `ItemDef.Features` на носимых слотах. `BattleActionIds` остаются на дефе (session резолвит по source creature id).  
   Загрузка: `DefinitionsManager.Creatures` из `_ADVENTURES_/Creatures` (после PregeneratedCharacters). Стартовый контент: `_GoblinWarrior`, `_Wolf`.  
   Практика и примеры: [Creatures.md](Creatures.md).
 
@@ -297,6 +328,13 @@
       instanceId: -1,
       definitionsManager);
   ```
+
+- `EncounterDef`  
+  Минимальный состав боя как отдельный контентный контракт. Поля: `Disabled`, `Tags`, `Title`, `Description`, `Creatures` (`List<string>` id существ).  
+  `Creatures` хранит id из `DefinitionsManager.Creatures`; для количества однотипных врагов id повторяется N раз (без отдельного `Count`).  
+  Контракт не включает `OnWin/OnLose`, награды, battle-rule override и seed-настройки: эти зоны остаются на уровне adventure-сценария/runtime-логики.  
+  Загрузка: `DefinitionsManager.Encounters` из `_ADVENTURES_/Encounters` (после `Creatures`). Стартовый контент: `_RoadsideAmbush`, `_WolfPack`.  
+  Практика: [Battle.md](Battle.md), [Creatures.md](Creatures.md).
 
 - `FeatDef`  
   Черта/способность. Поля: `Disabled`, `Restrictions`, `Tags`, `Icon`, `Title`, `Description`, `Type` (`FeatType`), `Level`, `Apply` (`CharacterParamsPatchData`), `Options` (`List<string>` — id дочерних feat при выборе), `AdditionalSlots` (`List<string>` — дополнительные типы слотов из `Glossary.Items`).  
@@ -480,9 +518,11 @@
 - контракт `FeatDef.Apply` и runtime `CharacterParametersOperator`;
 - `ItemDef.Features` + `CharacterItemFeaturesOperator` в Equip/Unequip/Move/Remove;
 - контракт прокачки: `UpdateCharacter` = слепок + последовательный Apply (см. [State.md](State.md) / [Feats.md](Feats.md));
-- `FeatType.Condition` + `Apply.ConditionDuration` + `StatusEffects` таймеры + `EndCharacterTurnStateAction` (см. [Feats.md](Feats.md)).
+- `FeatType.Condition` + `Apply.ConditionDuration` + `StatusEffects` таймеры + `EndCharacterTurnStateAction` (см. [Feats.md](Feats.md));
+- `CreatureDef` с числовыми статами в `Parameters` + `CreatureCombatantFactory` (см. [Creatures.md](Creatures.md));
+- `EncounterDef` — минимальный состав боя (см. [Battle.md](Battle.md)).
 
-Следующий этап — UI прокачки / создания персонажа и turn-loop боя.
+Следующий этап — UI прокачки / создания персонажа и полная интеграция adventure↔бой (`StartCombat`).
 
 По мере разработки тот же формат патча может появиться в других дефах (ancestry, background, предметы):
 
@@ -508,6 +548,7 @@ Adventure-choice params (`ChoiceActionData.Params`) остаются отдел�
 | `Backgrounds` | `_ADVENTURES_/Backgrounds` | — | 2 тестовые (`_Farmhand`, `_Scholar`) |
 | `PregeneratedCharacters` | `_ADVENTURES_/PregeneratedCharacters` | — | 1 тестовый (`_TestFighter`) |
 | `Creatures` | `_ADVENTURES_/Creatures` | — | 2 тестовых (`_GoblinWarrior`, `_Wolf`) |
+| `Encounters` | `_ADVENTURES_/Encounters` | — | 2 тестовых (`_RoadsideAmbush`, `_WolfPack`) |
 | `Feats` | `_ADVENTURES_/Feats` | `General`, `Ancestry`, `Class`, `ClassFeature`, `Skill` | 15 черт |
 | `Spells` | `_ADVENTURES_/Spells` | `Cantrips`, `Arcane`, `Divine` | 13 заклинаний |
 | `Items` | `_ADVENTURES_/Items` | `Weapons`, `Armor`, `Shields`, `Consumables`, `Equipment` | 18 предметов |
@@ -546,7 +587,7 @@ Single-def:
 
 - В проекте два менеджера дефов: Match3 (`Implementation.Defs`) и Adventures (`Implementation.Adventures`). Каждый загружает свой набор JSON из `Resources/Definitions`.
 - Оба менеджера сейчас загружают `LocalizationSettingsDef` (пути: `Definitions/LocalizationSettings/LocalizationSettings` и `Definitions/_ADVENTURES_/LocalizationSettings/LocalizationSettings`).
-- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Avatars`, `VisualSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
+- Adventure-контент лежит в `Definitions/_ADVENTURES_/...` (`GlobalSettings`, `RuleSettings`, `Avatars`, `VisualSettings`, `Adventures`, `Classes`, `Ancestries`, `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Encounters`, `Feats`, `Items`, `Spells`, `BattleActions`, `Rules`, `BattleRules`). Коллекции могут иметь вложенные подпапки — на загрузку это не влияет.
 - `RuleSettingsDef` ссылается на `RuleDef`, `BattleRuleDef` и стартовое приключение по id (`Rule`, `BattleRule`, `StartAdventure`); при добавлении новых правил или смене стартовой точки обновляйте `RuleSettings.json` или потребляющий код. Поля `RuleDef.AbilityBoostPointCost`, `RuleDef.SkillDependencies` и `RuleDef.ParameterFormulas` — опциональны в JSON; отсутствующий ключ словаря трактуется потребителем (дефолт / запрет / сырое чтение параметра) на стороне runtime. Для навыков в `GeneralRule` набор ключей skill-формул совпадает с `SkillDependencies`; отдельно задана формула `MaxHitPoints`.
 - Ссылки из `Modules.State` на контент персонажа (`CharacterStateData.Ancestry`, `Class`, `Background`, `Gender`, `EquippedItems.ItemId`, стаки в `InventoryStateData`) — это `Id` соответствующих adventure-дефов (имя JSON-файла) или enum/state-поля (`Gender` — см. [State.md](State.md)). `ANCESTRY_HP` / `CLASS_HP` в формулах резолвятся через эти id в `AncestryDef.HitPoints` / `ClassDef.HitPointsPerLevel`.
 - `AncestryDef.Names` индексируется по `CharacterGender`; id ancestry — в `CharacterStateData.Ancestry`. Текущие JSON ancestries ещё могут содержать legacy `MaleNames`/`FemaleNames` — их нужно мигрировать на `Names`.
@@ -560,7 +601,7 @@ Single-def:
 - `ItemDef.IsQuestItem` — признак квестового предмета; в стартовом контенте у всех предметов `false`.
 - Оружейные `ItemDef` в `_ADVENTURES_/Items/Weapons` содержат `Type` / `Group` / формулы / `DamageDice`; модификаторы атаки и урона считает `WeaponProxy` (модуль `State`), кости урона — только метаданные для будущего броска.
 - `Restrictions` на class/ancestry/background/feat может быть пустым или отсутствовать в JSON; при добавлении ограничений JSON-ключи совпадают с полями `Restriction` (см. [Restrictions.md](Restrictions.md)).
-- В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds`, `PregeneratedCharacters`, `Creatures` (между PregeneratedCharacters и Feats), а также id single-def `Avatars`.
+- В `Tools/Cheats` секция `Definitions` показывает загруженные коллекции adventures `DefinitionsManager`, включая `Backgrounds`, `PregeneratedCharacters`, `Creatures`, `Encounters` (между Creatures и Feats), а также id single-def `Avatars`.
 - Все id дефов фактически задаются именем JSON-файла, поэтому переименование файла меняет id.
 - `LoadCollection()` загружает JSON из указанной папки и всех вложенных подпапок; `Id` — только имя файла, без пути.
 - Для коллекций id должен быть уникален в рамках всего дерева папки; при совпадении имён побеждает первый загруженный деф, дубликат пишется в `LogWarning`.

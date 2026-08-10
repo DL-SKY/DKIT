@@ -1,0 +1,14 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"mvp",
+		"beast"
+	],
+	"Title": "Wolf Pack",
+	"Description": "A repeated-creature encounter example (no Count field).",
+	"Creatures": [
+		"_Wolf",
+		"_Wolf",
+		"_Wolf"
+	]
+}

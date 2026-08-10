@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-07-31 12:45:00 (+03:00)
+**Последнее обновление:** 2026-08-10 12:50:00 (+03:00)
 
 ## Назначение
 
@@ -116,7 +116,7 @@ Implementation/Wallet/
   Apply / Unapply `ItemDef.Features` с правилом Bag (`Glossary.Items.GrantsItemFeatures`). Используется из equip/unequip/move/remove state-actions.
 
 - `CreatureCombatantFactory`  
-  `CreatureDef` → валидный `CharacterStateData` для боя (`CreateFromCreature`: отрицательный session id, запекание статблока, `ApplyFeat` / item Features). `CloneForBattle` — копии party в session. Не пишет в профиль. Практика: [Creatures.md](Creatures.md); также [Battle.md](Battle.md).
+  `CreatureDef` → валидный `CharacterStateData` для боя (`CreateFromCreature`: отрицательный session id, запекание статблока / `Parameters`, item Features с экипа). `CloneForBattle` — копии party в session. Не пишет в профиль. Практика: [Creatures.md](Creatures.md); также [Battle.md](Battle.md).
 
 - `WeaponProxy`  
   Прокси модификаторов оружия по формулам `ItemDef.AttackModifierFormula` / `DamageModifierFormula`.  
@@ -440,13 +440,15 @@ Materialize статблока противника в тот же shape, что
 
 | Метод | Поведение |
 |-------|-----------|
-| `CreateFromCreature(def, instanceId, definitionsManager)` | Собирает combatant: `Name`←`Title`, `Avatar`←`Icon`; запекает `Level` / `ChallengeRating` / `AC` / `Speed` / abilities / HP / Perception / saves / skills; мержит escape-hatch `Parameters`; `ApplyFeat` по `Features`; Apply item Features на носимых слотах. `instanceId` должен быть **&lt; 0**. |
+| `CreateFromCreature(def, instanceId, definitionsManager)` | Собирает combatant: `Name`←`Name` (fallback `Title`→`Id`), `Avatar`←`Avatar` (fallback `Icon`); копирует `CreatureDef.Parameters`; добивает `Level` / `AC` / `Speed` / HP; запекает Perception/skills totals в `*.ItemsBonus`; копирует `StatusEffects`; Apply item Features на носимых слотах. Отдельного `CreatureDef.Features` нет. `ChallengeRating` **не** пишется в Parameters. `instanceId` должен быть **&lt; 0**. |
 | `CloneForBattle(source, overrideId?)` | Копия party-персонажа для session |
 
 Запекание итогов статблока:
+- числовые статы abilities / saves / perception / skills / `Level` (и прочие пассивные флаги/бонусы) живут в `CreatureDef.Parameters` (отдельных полей `Abilities`/`Perception`/`Saves`/`Skills`/`Level`/`Features` на дефе больше нет);
 - `MaxHitPoints`: без Class/Ancestry формула даёт `(CON)*Level + Bonus` → factory ставит `MaxHitPoints.Bonus` так, чтобы `GetTotalValue(MaxHitPoints)` = `HitPoints`;
 - Perception / skills: `*.ItemsBonus = final − ability`, чтобы `GetTotalValue` совпал с числом в статблоке (Untrained);
 - saves (`Fortitude` / `Reflex` / `Will`) и `AC` — сырые ключи (формул в `GeneralRule` пока нет).
+- `ItemDef.Features` с носимого экипа по-прежнему применяются через `CharacterItemFeaturesOperator`.
 
 `BattleActionIds` на `CharacterStateData` не копируются — остаются на `CreatureDef`.
 

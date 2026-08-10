@@ -52,7 +52,7 @@ namespace Modules.State.Scripts.Implementation.Adventure
         /// </summary>
         /// <param name="creatureDef">Source stat block.</param>
         /// <param name="instanceId">Session id; must be &lt; 0 for NPC combatants.</param>
-        /// <param name="definitionsManager">Needed for <c>ApplyFeat</c> / item Features.</param>
+        /// <param name="definitionsManager">Needed for worn item Features apply.</param>
         /// <returns>
         /// Ready combatant, or <c>null</c> if <paramref name="creatureDef"/> is null.
         /// </returns>
@@ -88,10 +88,10 @@ namespace Modules.State.Scripts.Implementation.Adventure
                 CreateTime = DateTime.UtcNow.ToUnixMs(),
                 IsDead = false,
                 DeathTime = 0,
-                Avatar = creatureDef.Icon ?? string.Empty,
-                Name = string.IsNullOrWhiteSpace(creatureDef.Title)
+                Avatar = ResolveAvatar(creatureDef),
+                Name = string.IsNullOrWhiteSpace(ResolveName(creatureDef))
                     ? creatureDef.Id
-                    : creatureDef.Title,
+                    : ResolveName(creatureDef),
                 Gender = creatureDef.Gender,
                 Ancestry = creatureDef.Ancestry ?? string.Empty,
                 Class = creatureDef.Class ?? string.Empty,
@@ -99,23 +99,10 @@ namespace Modules.State.Scripts.Implementation.Adventure
                 Parameters = new Dictionary<string, int>(),
                 EquippedItems = CloneEquippedItems(creatureDef.EquippedItems),
                 Spells = CloneDictionary(creatureDef.Spells),
-                StatusEffects = new Dictionary<string, int>(),
+                StatusEffects = CloneDictionary(creatureDef.StatusEffects),
             };
 
             BakeStatBlock(character.Parameters, creatureDef);
-
-            if (creatureDef.Features != null)
-            {
-                for (int i = 0; i < creatureDef.Features.Count; i++)
-                {
-                    string featId = creatureDef.Features[i];
-                    if (string.IsNullOrWhiteSpace(featId))
-                        continue;
-
-                    CharacterParametersOperator.ApplyFeat(character, featId, definitionsManager);
-                }
-            }
-
             ApplyWornItemFeatures(character, definitionsManager);
 
             return character;
@@ -163,25 +150,23 @@ namespace Modules.State.Scripts.Implementation.Adventure
             Dictionary<string, int> parameters,
             CreatureDef creatureDef)
         {
-            int level = creatureDef.Level;
-            parameters[Glossary.Characters.LEVEL] = level;
-            parameters[Glossary.Characters.CHALLENGE_RATING] = creatureDef.ChallengeRating;
-            parameters[Glossary.Characters.ARMOR_CLASS] = creatureDef.ArmorClass;
-            parameters[Glossary.Characters.SPEED] = creatureDef.Speed;
-
-            int con = 0;
-            if (creatureDef.Abilities != null)
+            if (creatureDef.Parameters != null)
             {
-                foreach (KeyValuePair<string, int> pair in creatureDef.Abilities)
+                foreach (KeyValuePair<string, int> pair in creatureDef.Parameters)
                 {
                     if (string.IsNullOrWhiteSpace(pair.Key))
                         continue;
 
                     parameters[pair.Key] = pair.Value;
-                    if (pair.Key == Glossary.Characters.CON)
-                        con = pair.Value;
                 }
             }
+
+            int level = ResolveCreatureLevel(creatureDef);
+            parameters[Glossary.Characters.LEVEL] = level;
+            parameters[Glossary.Characters.ARMOR_CLASS] = creatureDef.ArmorClass;
+            parameters[Glossary.Characters.SPEED] = creatureDef.Speed;
+
+            int con = GetAbility(parameters, Glossary.Characters.CON);
 
             // Without Ancestry/Class, MaxHitPoints formula is (CON)*Level + Bonus.
             // Bake Bonus so GetTotalValue(MaxHitPoints) equals the authored HitPoints.
@@ -190,48 +175,33 @@ namespace Modules.State.Scripts.Implementation.Adventure
             parameters[Glossary.Characters.MAX_HIT_POINTS + Glossary.Characters.BONUS_SUFFIX] = maxHpBonus;
             parameters[Glossary.Characters.HIT_POINTS] = hitPoints;
 
-            BakeFinalModifierAsItemsBonus(
-                parameters,
-                Glossary.Characters.PERCEPTION,
-                creatureDef.Perception,
-                GetAbility(parameters, Glossary.Characters.WIS));
-
-            if (creatureDef.Saves != null)
+            if (parameters.TryGetValue(Glossary.Characters.PERCEPTION, out int perceptionTotal))
             {
-                foreach (KeyValuePair<string, int> pair in creatureDef.Saves)
-                {
-                    if (string.IsNullOrWhiteSpace(pair.Key))
-                        continue;
-
-                    parameters[pair.Key] = pair.Value;
-                }
+                BakeFinalModifierAsItemsBonus(
+                    parameters,
+                    Glossary.Characters.PERCEPTION,
+                    perceptionTotal,
+                    GetAbility(parameters, Glossary.Characters.WIS));
             }
 
-            if (creatureDef.Skills != null)
+            List<string> keysSnapshot = new List<string>(parameters.Keys);
+            for (int i = 0; i < keysSnapshot.Count; i++)
             {
-                foreach (KeyValuePair<string, int> pair in creatureDef.Skills)
-                {
-                    if (string.IsNullOrWhiteSpace(pair.Key))
-                        continue;
-
-                    string abilityKey = ResolveSkillAbilityDependency(pair.Key);
-                    int abilityMod = string.IsNullOrEmpty(abilityKey)
-                        ? 0
-                        : GetAbility(parameters, abilityKey);
-
-                    BakeFinalModifierAsItemsBonus(parameters, pair.Key, pair.Value, abilityMod);
-                }
-            }
-
-            if (creatureDef.Parameters == null)
-                return;
-
-            foreach (KeyValuePair<string, int> pair in creatureDef.Parameters)
-            {
-                if (string.IsNullOrWhiteSpace(pair.Key))
+                string skillKey = keysSnapshot[i];
+                if (string.IsNullOrWhiteSpace(skillKey))
+                    continue;
+                if (skillKey == Glossary.Characters.PERCEPTION)
                     continue;
 
-                parameters[pair.Key] = pair.Value;
+                if (!parameters.TryGetValue(skillKey, out int finalModifier))
+                    continue;
+
+                string abilityKey = ResolveSkillAbilityDependency(skillKey);
+                if (string.IsNullOrEmpty(abilityKey))
+                    continue;
+
+                int abilityMod = GetAbility(parameters, abilityKey);
+                BakeFinalModifierAsItemsBonus(parameters, skillKey, finalModifier, abilityMod);
             }
         }
 
@@ -315,6 +285,39 @@ namespace Modules.State.Scripts.Implementation.Adventure
             return source == null
                 ? new Dictionary<string, int>()
                 : new Dictionary<string, int>(source);
+        }
+
+        private static int ResolveCreatureLevel(CreatureDef creatureDef)
+        {
+            if (creatureDef?.Parameters != null
+                && creatureDef.Parameters.TryGetValue(Glossary.Characters.LEVEL, out int level))
+            {
+                return Math.Max(0, level);
+            }
+
+            return 1;
+        }
+
+        private static string ResolveAvatar(CreatureDef creatureDef)
+        {
+            if (!string.IsNullOrWhiteSpace(creatureDef.Avatar))
+                return creatureDef.Avatar;
+
+            if (!string.IsNullOrWhiteSpace(creatureDef.Icon))
+                return creatureDef.Icon;
+
+            return string.Empty;
+        }
+
+        private static string ResolveName(CreatureDef creatureDef)
+        {
+            if (!string.IsNullOrWhiteSpace(creatureDef.Name))
+                return creatureDef.Name;
+
+            if (!string.IsNullOrWhiteSpace(creatureDef.Title))
+                return creatureDef.Title;
+
+            return string.Empty;
         }
 
         private static List<EquippedItemStateData> CloneEquippedItems(List<EquippedItemStateData> source)

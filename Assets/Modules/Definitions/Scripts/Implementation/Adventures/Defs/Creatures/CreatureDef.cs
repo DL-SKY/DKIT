@@ -38,51 +38,45 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Creatures
 
         public List<string> Tags;
 
+        /// <summary>
+        /// Same semantic as <see cref="CharacterStateData.Avatar"/> / <see cref="PregeneratedCharacters.PregeneratedCharacterDef.Avatar"/>.
+        /// Preferred field for new creature defs.
+        /// </summary>
+        public string Avatar;
+
+        /// <summary>
+        /// Same semantic as <see cref="CharacterStateData.Name"/> / <see cref="PregeneratedCharacters.PregeneratedCharacterDef.Name"/>.
+        /// Preferred field for new creature defs.
+        /// </summary>
+        public string Name;
+
+        /// <summary>
+        /// Legacy avatar field kept for backward compatibility with existing content.
+        /// New defs should use <see cref="Avatar"/>.
+        /// </summary>
         public string Icon;
+
+        /// <summary>
+        /// Legacy display name field kept for backward compatibility with existing content.
+        /// New defs should use <see cref="Name"/>.
+        /// </summary>
         public string Title;
+
+        /// <summary>
+        /// Optional localized key or raw text. Not used directly by battle runtime.
+        /// </summary>
         public string Description;
 
         /// <summary>
-        /// Creature level (PF2e-style power band / proficiency scaling).
+        /// Encounter budget / challenge rating (класс опасности), supports fractional values.
         /// </summary>
-        public int Level;
-
-        /// <summary>
-        /// Encounter budget / challenge rating (класс опасности).
-        /// </summary>
-        public int ChallengeRating;
+        public float ChallengeRating;
 
         public AncestrySize Size;
         public int Speed;
 
         public int ArmorClass;
         public int HitPoints;
-
-        /// <summary>
-        /// Ability modifiers keyed by <c>Glossary.Characters</c> (<c>STR</c>…<c>CHA</c>).
-        /// </summary>
-        public Dictionary<string, int> Abilities;
-
-        /// <summary>
-        /// Final Perception modifier (stat-block total).
-        /// </summary>
-        public int Perception;
-
-        /// <summary>
-        /// Final save modifiers: <c>Fortitude</c> / <c>Reflex</c> / <c>Will</c>
-        /// (<c>Glossary.Characters.FORTITUDE</c> / <c>REFLEX</c> / <c>WILL</c>).
-        /// </summary>
-        public Dictionary<string, int> Saves;
-
-        /// <summary>
-        /// Final skill modifiers for skills that matter (id → total).
-        /// </summary>
-        public Dictionary<string, int> Skills;
-
-        /// <summary>
-        /// Passive / special ability feat ids applied on spawn via <c>ApplyFeat</c>.
-        /// </summary>
-        public List<string> Features;
 
         /// <summary>
         /// Battle actions available to this creature (<see cref="BattleActions.BattleActionDef"/> ids).
@@ -94,7 +88,8 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Creatures
         public Dictionary<string, int> Spells;
 
         /// <summary>
-        /// Optional raw parameter overrides merged last (escape hatch).
+        /// Main numeric storage for creature stats, aligned with <see cref="CharacterStateData.Parameters"/>.
+        /// Includes abilities, level, saves, authored totals for perception/skills, and optional overrides.
         /// </summary>
         public Dictionary<string, int> Parameters;
 
@@ -106,5 +101,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Creatures
         public string Background;
 
         public CharacterGender Gender;
+
+        /// <summary>
+        /// Optional initial timers for timed status effects (status id -&gt; remaining turns).
+        /// Mirrors <see cref="CharacterStateData.StatusEffects"/> shape.
+        /// </summary>
+        public Dictionary<string, int> StatusEffects;
     }
 }

@@ -1,0 +1,15 @@
+{
+	"Disabled": false,
+	"Tags": [
+		"mvp",
+		"road",
+		"ambush"
+	],
+	"Title": "Roadside Ambush",
+	"Description": "A simple mixed enemy pack for prototype combat checks.",
+	"Creatures": [
+		"_GoblinWarrior",
+		"_GoblinWarrior",
+		"_Wolf"
+	]
+}

@@ -16,6 +16,7 @@ namespace Modules.Cheats.Scripts.Editor.Core
             typeof(SaveCheatSection),
             typeof(DefinitionsCheatSection),
             typeof(LocalizationCheatSection),
+            typeof(BattlePrototypeCheatSection),
         };
 
 

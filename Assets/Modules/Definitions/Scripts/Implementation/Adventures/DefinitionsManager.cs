@@ -7,6 +7,7 @@ using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Backgrounds;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Conditions;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Creatures;
+using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Encounters;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Feats;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Items;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.PregeneratedCharacters;
@@ -46,6 +47,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         public Dictionary<string, BackgroundDef> Backgrounds;
         public Dictionary<string, PregeneratedCharacterDef> PregeneratedCharacters;
         public Dictionary<string, CreatureDef> Creatures;
+        public Dictionary<string, EncounterDef> Encounters;
         public Dictionary<string, FeatDef> Feats;
         public Dictionary<string, ConditionDef> Conditions;
         public Dictionary<string, ItemDef> Items;
@@ -90,6 +92,7 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
                 LoadBackgrounds,
                 LoadPregeneratedCharacters,
                 LoadCreatures,
+                LoadEncounters,
                 LoadFeats,
                 LoadConditions,
                 LoadItems,
@@ -147,6 +150,11 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures
         private void LoadCreatures()
         {
             Creatures = _loader.LoadCollection<CreatureDef>("Definitions/_ADVENTURES_/Creatures");
+        }
+
+        private void LoadEncounters()
+        {
+            Encounters = _loader.LoadCollection<EncounterDef>("Definitions/_ADVENTURES_/Encounters");
         }
 
         private void LoadFeats()
