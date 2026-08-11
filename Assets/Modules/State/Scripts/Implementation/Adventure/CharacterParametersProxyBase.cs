@@ -3,7 +3,6 @@ using Modules.Definitions.Scripts.Implementation.Adventures.Constants;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Ancestries;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Classes;
 using Modules.Definitions.Scripts.Implementation.Adventures.Defs.Rules;
-using Modules.State.Scripts.Implementation.Adventure.StateDatas;
 using System;
 using System.Collections.Generic;
 
@@ -143,24 +142,8 @@ namespace Modules.State.Scripts.Implementation.Adventure
         {
             string proficiencyKey = requestedKey + Glossary.Characters.PROFICIENCY_SUFFIX;
             int rankValue = GetRawValue(proficiencyKey);
-            if (rankValue < (int)ProficiencyType.Untrained || rankValue > (int)ProficiencyType.Legendary)
-                return 0;
-
-            ProficiencyType proficiencyType = (ProficiencyType)rankValue;
-            if (proficiencyType == ProficiencyType.Untrained)
-                return 0;
-
             int level = GetRawValue(Glossary.Characters.LEVEL);
-            int rankBonus = proficiencyType switch
-            {
-                ProficiencyType.Trained => 2,
-                ProficiencyType.Expert => 4,
-                ProficiencyType.Master => 6,
-                ProficiencyType.Legendary => 8,
-                _ => 0,
-            };
-
-            return level + rankBonus;
+            return ProficiencyBonus.Evaluate(rankValue, level);
         }
 
         private int EvaluateItemsBonus(string requestedKey)
