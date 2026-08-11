@@ -74,7 +74,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
                 BattleActionIds = new List<string>(),
                 EquippedItems = new List<EquippedItemStateData>(),
                 Spells = new Dictionary<string, int>(),
-                Parameters = new Dictionary<string, int>(),
+                Parameters = AdventureDefEditorGui.CreateDefaultCreatureParameters(),
                 StatusEffects = new Dictionary<string, int>(),
                 Avatar = string.Empty,
                 Name = string.Empty,
@@ -213,6 +213,13 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             {
                 if (GUILayout.Button("Add Parameter", GUILayout.Width(130f)))
                     AddDictionaryEntry(definition.Parameters, "key", 0);
+
+                if (GUILayout.Button("Add Default Parameters", GUILayout.Width(170f)))
+                {
+                    definition.Parameters ??= new Dictionary<string, int>();
+                    if (AdventureDefEditorGui.EnsureDefaultCreatureParameters(definition.Parameters))
+                        MarkDirty();
+                }
 
                 if (GUILayout.Button("Apply Feat", GUILayout.Width(120f)))
                     OpenFeatPickerAndApply(definition);

@@ -344,7 +344,7 @@ stateLogic.ProcessAction(new EquipItemFromInventoryStateAction(
 
 Condition **без** таймера (`ConditionDuration` отсутствует / `0`): только `Add`/`Set` в `Parameters`; в `StatusEffects` не пишется; снимать вручную через `UnapplyFeat` (лечение, Escape и т.п.).
 
-> **Важно:** ключи вроде `"Perception": -1` в `Add` меняют **сырое** значение. Если параметр считается формулой в `RuleDef.ParameterFormulas`, кладите штраф в сырой ключ с суффиксом (например `Perception.Bonus`) — иначе ломаете контракт «итог только через proxy».
+> **Важно:** ключи вроде `"Perception": -1` в `Add` меняют **сырое** значение. Если параметр считается формулой в `RuleDef.ParameterFormulas` (навыки, Perception, сейвы), кладите бонус/штраф в сырой ключ с суффиксом формулы — обычно `*.ItemsBonus` (токен `ITEMS`), а не в базовый ключ — иначе ломаете контракт «итог только через proxy».
 
 ### Как наложить / снять / тикнуть счётчик
 

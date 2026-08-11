@@ -1,6 +1,6 @@
 # Как использовать Creatures (статблоки противников)
 
-**Последнее обновление:** 2026-08-10 12:50:00 (+03:00)
+**Последнее обновление:** 2026-08-11 12:45:00 (+03:00)
 
 Практическое руководство: как описывать противников (`CreatureDef`) и превращать их в боевых combatant’ов (`CharacterStateData`) через `CreatureCombatantFactory`.
 
@@ -106,10 +106,12 @@ foreach (string creatureId in encounter.Creatures)
 |-------|--------|--------|
 | `Level` | `1` | Уровень существа (обязателен для корректных формул) |
 | Abilities | `STR`, `DEX`, `CON`, `INT`, `WIS`, `CHA` | Модификаторы характеристик |
-| Saves | `Fortitude`, `Reflex`, `Will` | Сырые итоги сейвов статблока |
+| Saves | `Fortitude`, `Reflex`, `Will` | Authored totals; factory запекает `*.ItemsBonus` (`CON`/`DEX`/`WIS` + Untrained) |
 | Perception / skills | `Perception`, `Stealth`, `Acrobatics`, … | Authored totals; factory запекает `*.ItemsBonus` |
 
 `ChallengeRating` в `Parameters` **не** кладётся.
+
+В TEA Creature Editor при create / `Add Default Parameters` сидятся `Level`, abilities, `Perception`, сейвы (skills — нет; добавляются вручную).
 
 ---
 
@@ -166,7 +168,7 @@ foreach (string creatureId in encounter.Creatures)
    - `AC` / `Speed` из полей дефа;
    - abilities / saves / perception / skills уже из `Parameters`;
    - текущие `HitPoints`; `MaxHitPoints.Bonus` так, чтобы `GetTotalValue(MaxHitPoints)` = авторский HP (без Class/Ancestry формула ≈ `(CON)*Level + Bonus`);
-   - для authored totals `Perception` / skills: `*.ItemsBonus = final − ability`, чтобы `GetTotalValue` совпал со статблоком.
+   - для authored totals `Perception` / skills / saves: `*.ItemsBonus = final − ability`, чтобы `GetTotalValue` совпал со статблоком.
 4. `CharacterItemFeaturesOperator.ApplyIfWorn` для носимых слотов (`ItemDef.Features`).
 5. `StatusEffects` — копируются из `CreatureDef.StatusEffects` (или пустой словарь); `BattleActionIds` **не** копируются в state.
 

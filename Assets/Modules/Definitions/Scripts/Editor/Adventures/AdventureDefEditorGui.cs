@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Adventures.Constants;
 using Modules.State.Scripts.Implementation.Adventure.StateDatas;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,101 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
 {
     public static class AdventureDefEditorGui
     {
+        /// <summary>
+        /// Pregen defaults: Level / Experience / BoostPoints / abilities.
+        /// Totals for Perception / skills / saves come from formulas (ability + ProfRank + ItemsBonus),
+        /// so authored raw totals are not seeded here.
+        /// </summary>
+        private static readonly KeyValuePair<string, int>[] DEFAULT_PREGENERATED_CHARACTER_PARAMETERS =
+        {
+            new KeyValuePair<string, int>(Glossary.Characters.LEVEL, 1),
+            new KeyValuePair<string, int>(Glossary.Characters.EXPERIENCE, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.BOOST_POINTS, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.STR, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.DEX, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.CON, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.INT, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.WIS, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.CHA, 0),
+        };
+
+        /// <summary>
+        /// Creature defaults: Level / abilities / Perception / saves as authored totals
+        /// (baked into *.ItemsBonus by CreatureCombatantFactory at spawn).
+        /// Skills are not seeded — add only those needed for the stat block.
+        /// </summary>
+        private static readonly KeyValuePair<string, int>[] DEFAULT_CREATURE_PARAMETERS =
+        {
+            new KeyValuePair<string, int>(Glossary.Characters.LEVEL, 1),
+            new KeyValuePair<string, int>(Glossary.Characters.STR, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.DEX, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.CON, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.INT, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.WIS, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.CHA, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.PERCEPTION, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.SAVING_FORTITUDE, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.SAVING_REFLEX, 0),
+            new KeyValuePair<string, int>(Glossary.Characters.SAVING_WILL, 0),
+        };
+
+        /// <summary>
+        /// Adds missing pregen Parameters without clearing or overwriting existing keys.
+        /// </summary>
+        public static bool EnsureDefaultPregeneratedCharacterParameters(Dictionary<string, int> parameters)
+        {
+            return EnsureDefaultParameters(parameters, DEFAULT_PREGENERATED_CHARACTER_PARAMETERS);
+        }
+
+        /// <summary>
+        /// Adds missing creature Parameters without clearing or overwriting existing keys.
+        /// </summary>
+        public static bool EnsureDefaultCreatureParameters(Dictionary<string, int> parameters)
+        {
+            return EnsureDefaultParameters(parameters, DEFAULT_CREATURE_PARAMETERS);
+        }
+
+        /// <summary>
+        /// Creates a Parameters dictionary with all pregen default keys filled in.
+        /// </summary>
+        public static Dictionary<string, int> CreateDefaultPregeneratedCharacterParameters()
+        {
+            var parameters = new Dictionary<string, int>(DEFAULT_PREGENERATED_CHARACTER_PARAMETERS.Length);
+            EnsureDefaultPregeneratedCharacterParameters(parameters);
+            return parameters;
+        }
+
+        /// <summary>
+        /// Creates a Parameters dictionary with all creature default keys filled in.
+        /// </summary>
+        public static Dictionary<string, int> CreateDefaultCreatureParameters()
+        {
+            var parameters = new Dictionary<string, int>(DEFAULT_CREATURE_PARAMETERS.Length);
+            EnsureDefaultCreatureParameters(parameters);
+            return parameters;
+        }
+
+        private static bool EnsureDefaultParameters(
+            Dictionary<string, int> parameters,
+            KeyValuePair<string, int>[] defaults)
+        {
+            if (parameters == null || defaults == null)
+                return false;
+
+            bool changed = false;
+            for (int i = 0; i < defaults.Length; i++)
+            {
+                KeyValuePair<string, int> entry = defaults[i];
+                if (parameters.ContainsKey(entry.Key))
+                    continue;
+
+                parameters[entry.Key] = entry.Value;
+                changed = true;
+            }
+
+            return changed;
+        }
+
         public static List<string> ParseCsv(string csv)
         {
             List<string> result = new List<string>();

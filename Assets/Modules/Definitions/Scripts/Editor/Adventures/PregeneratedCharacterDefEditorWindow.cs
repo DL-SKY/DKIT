@@ -65,7 +65,7 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             return new PregeneratedCharacterDef
             {
                 Id = definitionId,
-                Parameters = new Dictionary<string, int>(),
+                Parameters = AdventureDefEditorGui.CreateDefaultPregeneratedCharacterParameters(),
                 EquippedItems = new List<EquippedItemStateData>(),
                 Spells = new Dictionary<string, int>(),
             };
@@ -165,6 +165,13 @@ namespace Modules.Definitions.Scripts.Editor.Adventures
             {
                 if (GUILayout.Button("Add Parameter", GUILayout.Width(130f)))
                     AddDictionaryEntry(definition.Parameters, "key", 0);
+
+                if (GUILayout.Button("Add Default Parameters", GUILayout.Width(170f)))
+                {
+                    definition.Parameters ??= new Dictionary<string, int>();
+                    if (AdventureDefEditorGui.EnsureDefaultPregeneratedCharacterParameters(definition.Parameters))
+                        MarkDirty();
+                }
 
                 if (GUILayout.Button("Apply Feat", GUILayout.Width(120f)))
                     OpenFeatPickerAndApply(definition);

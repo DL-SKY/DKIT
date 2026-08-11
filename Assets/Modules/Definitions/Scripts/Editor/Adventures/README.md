@@ -65,6 +65,15 @@
 - toolbar (`Refresh` / `Save` / `Revert` + статус `Saved`/`Modified`),
 - редактирование полей текущего дефа справа.
 
+Для `PregeneratedCharacter` / `Creature` в секции `Parameters`:
+- кнопки `Add Parameter` / `Add Default Parameters` / `Apply Feat` (в этом порядке);
+- `Add Default Parameters` и create нового дефа добавляют **только отсутствующие** ключи (существующие не перезаписываются, словарь не очищается);
+- наборы дефолтов живут в `AdventureDefEditorGui`:
+  - **Pregen:** `Level=1`, `Experience=0`, `BoostPoints=0`, abilities `STR`…`CHA=0`  
+    (итоги Perception / skills / saves считаются формулами `ability + PROFICIENCY + ITEMS`, сырые totals не сидятся);
+  - **Creature:** `Level=1`, abilities, `Perception`, `Fortitude` / `Reflex` / `Will` — всё по `0` как authored totals статблока  
+    (skills **не** входят в дефолт — добавляются вручную по необходимости; при спавне factory запекает totals в `*.ItemsBonus`).
+
 Для выбора связанных дефов используется отдельное окно:
 - `DefinitionSearchPickerWindow` (поиск + список кнопок),
 - если фильтр пустой, показывается полный список дефов нужного типа.
@@ -423,6 +432,7 @@ Legacy-формат (`Type = 100` / `sceneId`, а также `Type = None`) не
   - статус в toolbar: `Saved` (зеленый), `Modified` (желтый),
   - выбранный файл в блоке `Files` окрашивается в тот же цвет состояния.
 - Для editor-окон дефов (`PregeneratedCharacter` / `Creature` / `Encounter`) добавлены picker-окна выбора связанных дефов:
+  - `Add Default Parameters` сидит отсутствующие ключи из набора редактора (pregen ≠ creature; см. раздел «Сопутствующие редакторы»);
   - `Apply Feat` открывает список `FeatDef` с поиском;
   - в `Creature` и `PregeneratedCharacter` есть session-список примененных фитов с `Unapply`;
   - `Add Spell` открывает список `SpellDef`;

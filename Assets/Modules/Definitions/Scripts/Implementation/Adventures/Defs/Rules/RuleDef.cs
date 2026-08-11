@@ -68,6 +68,9 @@ namespace Modules.Definitions.Scripts.Implementation.Adventures.Defs.Rules
         /// "Athletics": "STR+PROFICIENCY+ITEMS"
         /// "Stealth": "DEX+PROFICIENCY+ITEMS"
         /// "Perception": "WIS+PROFICIENCY+ITEMS"
+        /// "Fortitude": "CON+PROFICIENCY+ITEMS"
+        /// "Reflex": "DEX+PROFICIENCY+ITEMS"
+        /// "Will": "WIS+PROFICIENCY+ITEMS"
         /// "MaxHitPoints": "ANCESTRY_HP+(CLASS_HP+CON+PER_LEVEL)*Level+BONUS"
         /// "CustomStat": "(STR+DEX)/2+2"
         /// </code>

@@ -33,6 +33,9 @@ alwaysApply: true
 | Файловый слой | `AdventureEditorFileRepository.cs` | Чтение/запись JSON |
 | Сервисы | `AdventureEditorServices.cs` | Граф, валидация, `AdventureLocalizationGenerationService` |
 | Create-options | `CreateOptions/AdventureCreateOptions.cs`, `CreateOptionDescriptor.cs` | Реестры кнопок-шаблонов CRUD |
+| Pregen Editor | `PregeneratedCharacterDefEditorWindow.cs` | CRUD `PregeneratedCharacterDef`; default Parameters — Level/Experience/BoostPoints/abilities |
+| Creature Editor | `CreatureDefEditorWindow.cs` | CRUD `CreatureDef`; default Parameters — Level/abilities/Perception/saves (без skills) |
+| Shared def GUI | `AdventureDefEditorGui.cs` | Общие helpers + наборы `EnsureDefaultPregeneratedCharacterParameters` / `EnsureDefaultCreatureParameters` |
 
 ## Документация
 
@@ -52,3 +55,5 @@ alwaysApply: true
 - «Поправь граф в TEA» → `AdventureGraphPreviewWindow.cs`
 - «Валидация в редакторе приключений» → `AdventureValidationService` / `AdventureValidationWindow.cs`
 - «Локализация в TEA» / «сгенерируй ключи» → `AdventureLocalizationExportWindow` / `AdventureLocalizationGenerationService`
+- «Дефолтные Parameters для pregen/creature» → `AdventureDefEditorGui` (`CreateDefaultPregeneratedCharacterParameters` / `CreateDefaultCreatureParameters`)
+- «Формулы Fortitude/Reflex/Will» → `GeneralRule.json` `ParameterFormulas` + bake в `CreatureCombatantFactory`

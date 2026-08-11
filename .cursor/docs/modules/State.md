@@ -106,7 +106,7 @@ Implementation/Wallet/
   Регистрация в DI: `IAdventureStateDataFactory → AdventureStateDataFactory`, `AsTransient()`.
 
 - `CharacterParametersProxy`  
-  **Read API** параметров персонажа: сырые значения из `CharacterStateData.Parameters` и вычисляемые по `RuleDef.ParameterFormulas` (навыки, `MaxHitPoints`).  
+  **Read API** параметров персонажа: сырые значения из `CharacterStateData.Parameters` и вычисляемые по `RuleDef.ParameterFormulas` (навыки, Perception, сейвы, `MaxHitPoints`).
   Зависит от `DefinitionsManager` (Adventures) для `ANCESTRY_HP` / `CLASS_HP`. Конвенция: читать через proxy (`GetRawValue` / `GetTotalValue`); мутации — через `CharacterParametersOperator` (Apply / Unapply). Подробнее — [ниже](#adventure-characterparametersproxy-read-api).
 
 - `CharacterParametersOperator`  
@@ -267,7 +267,7 @@ Implementation/Wallet/
 | `Ancestry` | `string` | Id дефа ancestry (`AncestryDef`) |
 | `Class` | `string` | Id дефа класса (`ClassDef`) |
 | `Background` | `string` | Id дефа предыстории (`BackgroundDef`) |
-| `Parameters` | `Dictionary<string, int>` | Сырое хранилище: abilities, level/experience, proficiency ranks, item/per-level/flat bonuses, текущие HP, speed, feat-флаги и т.д. Итоги (`MaxHitPoints`, навыки) **не** хранятся — `CharacterParametersProxy.GetTotalValue`. Чтение — через proxy; запись — через Write API (Apply / Unapply) |
+| `Parameters` | `Dictionary<string, int>` | Сырое хранилище: abilities, level/experience, proficiency ranks, item/per-level/flat bonuses, текущие HP, speed, feat-флаги и т.д. Итоги (`MaxHitPoints`, навыки, Perception, сейвы) **не** хранятся — `CharacterParametersProxy.GetTotalValue`. Чтение — через proxy; запись — через Write API (Apply / Unapply) |
 | `EquippedItems` | `List<EquippedItemStateData>` | Надетая экипировка |
 | `Spells` | `Dictionary<string, int>` | Заклинания |
 | `StatusEffects` | `Dictionary<string, int>` | Таймеры timed Condition-feats: **ключ = id `FeatDef`**, **value = оставшиеся ходы**. Пишется `CharacterParametersOperator` при Apply Condition с `ConditionDuration > 0`; декремент — `EndCharacterTurnStateAction` |
@@ -296,7 +296,7 @@ Implementation/Wallet/
 - ключи abilities/skills/level согласованы с `Glossary.Characters` (`STR`, `DEX`, `CON`, `Level`, `Athletics.ProfRank`, `Athletics.ItemsBonus`, `MaxHitPoints.PerLevel`, `MaxHitPoints.Bonus`, …);
 - оружейные сырые ключи: `Weapon.Martial.ProfRank` (и аналоги по `Glossary.Weapons` типам), `<ItemId>.Attack.ItemsBonus` / `<ItemId>.Damage.ItemsBonus`, `<Group>.Attack.Group.Bonus` / `<Group>.Damage.Group.Bonus`;
 - bool-флаги кодируются как `0` / ненулевое значение;
-- итоговый модификатор навыка и `MaxHitPoints` **не пишутся** в `Parameters` — их даёт `CharacterParametersProxy.GetTotalValue`;
+- итоговый модификатор навыка / Perception / сейвов и `MaxHitPoints` **не пишутся** в `Parameters` — их даёт `CharacterParametersProxy.GetTotalValue`;
 - итоговые attack/damage modifiers оружия тоже **не пишутся** — их даёт `WeaponProxy`;
 - **чтение:** конвенция — через `CharacterParametersProxy` (пока не enforced компилятором);
 - **запись:** через `CharacterParametersOperator` — Apply / Unapply `CharacterParamsPatchData` / `FeatDef`.
@@ -333,10 +333,11 @@ Implementation/Wallet/
 
 Примеры:
 - `GetTotalValue("Athletics")` при `STR+PROFICIENCY+ITEMS`;
+- `GetTotalValue("Fortitude")` при `CON+PROFICIENCY+ITEMS`;
 - `GetTotalValue("MaxHitPoints")` при `ANCESTRY_HP+(CLASS_HP+CON+PER_LEVEL)*Level+BONUS`  
   (дварф-воин 5 ур., CON+3, без доп. бонусов → `10+(10+3+0)*5+0 = 75`).
 
-Формулы навыков и `MaxHitPoints` заданы в `GeneralRule.ParameterFormulas` (см. [Definitions.md](Definitions.md)).
+Формулы навыков / Perception / сейвов и `MaxHitPoints` заданы в `GeneralRule.ParameterFormulas` (см. [Definitions.md](Definitions.md)).
 
 ### Adventure: Write API параметров (Apply / Unapply)
 
@@ -446,8 +447,8 @@ Materialize статблока противника в тот же shape, что
 Запекание итогов статблока:
 - числовые статы abilities / saves / perception / skills / `Level` (и прочие пассивные флаги/бонусы) живут в `CreatureDef.Parameters` (отдельных полей `Abilities`/`Perception`/`Saves`/`Skills`/`Level`/`Features` на дефе больше нет);
 - `MaxHitPoints`: без Class/Ancestry формула даёт `(CON)*Level + Bonus` → factory ставит `MaxHitPoints.Bonus` так, чтобы `GetTotalValue(MaxHitPoints)` = `HitPoints`;
-- Perception / skills: `*.ItemsBonus = final − ability`, чтобы `GetTotalValue` совпал с числом в статблоке (Untrained);
-- saves (`Fortitude` / `Reflex` / `Will`) и `AC` — сырые ключи (формул в `GeneralRule` пока нет).
+- Perception / skills / saves: `*.ItemsBonus = final − ability`, чтобы `GetTotalValue` совпал с числом в статблоке (Untrained);
+- `AC` — сырой ключ (формулы в `GeneralRule` нет).
 - `ItemDef.Features` с носимого экипа по-прежнему применяются через `CharacterItemFeaturesOperator`.
 
 `BattleActionIds` на `CharacterStateData` не копируются — остаются на `CreatureDef`.

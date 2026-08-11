@@ -206,7 +206,7 @@ namespace Modules.State.Scripts.Implementation.Adventure
         }
 
         /// <summary>
-        /// Authored totals (Perception / skills) are baked so
+        /// Authored totals (Perception / skills / saves) are baked so
         /// <c>GetTotalValue</c> = ability + Untrained(0) + ItemsBonus equals the stat-block number.
         /// </summary>
         private static void BakeFinalModifierAsItemsBonus(
@@ -224,7 +224,7 @@ namespace Modules.State.Scripts.Implementation.Adventure
         }
 
         /// <summary>
-        /// Minimal skill→ability map aligned with <c>GeneralRule.SkillDependencies</c>
+        /// Minimal parameter→ability map aligned with <c>GeneralRule.ParameterFormulas</c>
         /// (avoids requiring RuleDef at convert time).
         /// </summary>
         private static string ResolveSkillAbilityDependency(string skillId)
@@ -234,6 +234,7 @@ namespace Modules.State.Scripts.Implementation.Adventure
                 case Glossary.Characters.ACROBATICS:
                 case Glossary.Characters.STEALTH:
                 case Glossary.Characters.THIEVERY:
+                case Glossary.Characters.SAVING_REFLEX:
                     return Glossary.Characters.DEX;
                 case Glossary.Characters.ARCANA:
                 case Glossary.Characters.CRAFTING:
@@ -253,7 +254,10 @@ namespace Modules.State.Scripts.Implementation.Adventure
                 case Glossary.Characters.RELIGION:
                 case Glossary.Characters.SURVIVAL:
                 case Glossary.Characters.PERCEPTION:
+                case Glossary.Characters.SAVING_WILL:
                     return Glossary.Characters.WIS;
+                case Glossary.Characters.SAVING_FORTITUDE:
+                    return Glossary.Characters.CON;
                 default:
                     return null;
             }
