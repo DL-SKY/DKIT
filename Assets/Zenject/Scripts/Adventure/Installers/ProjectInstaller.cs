@@ -1,7 +1,6 @@
-using Modules.RPG.Scripts.Adventure;
-using Modules.Localization.Scripts.Core;
 using Modules.Localization.Scripts.Implementation;
 using Modules.Restrictions.Scripts.Core;
+using Modules.RPG.Scripts.Adventure;
 using Modules.State.Scripts.Implementation.Adventure;
 using Modules.State.Scripts.Implementation.Adventure.Factories;
 using Modules.State.Scripts.Implementation.Adventure.Logic;
@@ -10,6 +9,7 @@ using Modules.Utils.Scripts.Input;
 using Modules.Windows.Scripts.Managers;
 using Modules.Windows.Scripts.Services;
 using UnityEngine;
+using Zenject;
 using Zenject.Scripts.Factories;
 
 namespace Zenject.Scripts.Adventure.Installers
@@ -39,6 +39,7 @@ namespace Zenject.Scripts.Adventure.Installers
 
             //Core prefabs
             Container.Bind<WindowsManager>().FromComponentInNewPrefab(_windowsManagerPrefab).AsSingle().NonLazy();
+            Container.Bind<IHintManager>().FromMethod(ResolveHintManager).AsSingle();
             //...
 
             //Factories
@@ -49,6 +50,20 @@ namespace Zenject.Scripts.Adventure.Installers
 
             //Debug
             Container.BindInterfacesAndSelfTo<Modules.Debug.Scripts.Logger.Logger>().AsSingle().NonLazy();  //IDisposable
+        }
+
+        private static IHintManager ResolveHintManager(InjectContext context)
+        {
+            WindowsManager windowsManager = context.Container.Resolve<WindowsManager>();
+            IHintManager hintManager = windowsManager.GetComponent<IHintManager>();
+            if (hintManager == null)
+            {
+                throw new System.InvalidOperationException(
+                    "IHintManager component is missing on the WindowsManager prefab. " +
+                    "Run Tools/Cursor/Wire HintManager On WindowsManager (or Build Hint Prefabs).");
+            }
+
+            return hintManager;
         }
     }
 }

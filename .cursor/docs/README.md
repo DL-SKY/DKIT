@@ -32,4 +32,4 @@
 Как заполнять дефы создания персонажа: [modules/CharacterCreationDefs.md](modules/CharacterCreationDefs.md) (`ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` / `ConditionDef`).  
 Практическое руководство по противникам: [modules/Creatures.md](modules/Creatures.md) (`CreatureDef` → `CharacterStateData`).
 - `Utils` — общие утилиты, вспомогательные компоненты и инструменты.
-- `Windows` — базовая UI-архитектура окон и view/viewmodel-слой.
+- `Windows` — базовая UI-архитектура окон (View/ViewModel), стек/`Esc`, toast-hints (`IHintManager`), Adventure runtime UI; см. [modules/Windows.md](modules/Windows.md).

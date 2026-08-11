@@ -10,6 +10,7 @@ using Modules.State.Scripts.Implementation.Adventure.Logic;
 using Modules.State.Scripts.Implementation.Adventure.StateDatas;
 using Modules.Windows.Scripts.Base;
 using Modules.Windows.Scripts.Implementation.Adventure.Characters.CursorCreateCharacter.SubWindows;
+using Modules.Windows.Scripts.Implementation.Adventure.ListDialog;
 using Modules.Windows.Scripts.Managers;
 using Modules.Windows.Scripts.Settings;
 using System.Collections.Generic;
@@ -137,10 +138,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CursorCrea
             if (_isDisposed)
                 return;
 
-            var vm = _viewModelFactory.Create<CursorSelectAvatarViewModel>();
+            var vm = _viewModelFactory.Create<AvatarListDialogViewModel>();
             vm.Init(_request.Avatar, OnAvatarSelected);
-            _windowsManager.OpenView<CursorSelectAvatarView, CursorSelectAvatarViewModel>(
-                CursorSelectAvatarView.Path, vm);
+            _windowsManager.OpenView<ListDialogView, ListDialogViewModel>(
+                ListDialogView.Path, vm);
         }
 
         public void OnEditName()
@@ -161,7 +162,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CursorCrea
 
             OpenDefinitionPicker(
                 title: "Происхождение",
-                mode: CursorDefinitionSelectMode.Ancestry,
+                mode: DefinitionListDialogMode.Ancestry,
                 selectedId: _request.Ancestry,
                 onSelected: OnAncestrySelected);
         }
@@ -173,7 +174,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CursorCrea
 
             OpenDefinitionPicker(
                 title: "Класс",
-                mode: CursorDefinitionSelectMode.Class,
+                mode: DefinitionListDialogMode.Class,
                 selectedId: _request.Class,
                 onSelected: OnClassSelected);
         }
@@ -185,7 +186,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CursorCrea
 
             OpenDefinitionPicker(
                 title: "Предыстория",
-                mode: CursorDefinitionSelectMode.Background,
+                mode: DefinitionListDialogMode.Background,
                 selectedId: _request.Background,
                 onSelected: OnBackgroundSelected);
         }
@@ -233,14 +234,14 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CursorCrea
 
         private void OpenDefinitionPicker(
             string title,
-            CursorDefinitionSelectMode mode,
+            DefinitionListDialogMode mode,
             string selectedId,
             System.Action<string> onSelected)
         {
-            var vm = _viewModelFactory.Create<CursorSelectDefinitionViewModel>();
+            var vm = _viewModelFactory.Create<DefinitionListDialogViewModel>();
             vm.Init(title, mode, selectedId, onSelected);
-            _windowsManager.OpenView<CursorSelectDefinitionView, CursorSelectDefinitionViewModel>(
-                CursorSelectDefinitionView.Path, vm);
+            _windowsManager.OpenView<ListDialogView, ListDialogViewModel>(
+                ListDialogView.Path, vm);
         }
 
         private void OnAvatarSelected(string avatarPath)

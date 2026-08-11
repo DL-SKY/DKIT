@@ -1,10 +1,10 @@
 # Модуль Windows
 
-**Последнее обновление:** 2026-07-30 12:37:00 (+03:00)
+**Последнее обновление:** 2026-08-11 17:43:00 (+03:00)
 
 ## Назначение
 
-`Windows` реализует базовую UI-архитектуру окон (View/ViewModel), управление стеком открытых окон, сортировкой и закрытием по `Esc`, а также runtime UI приключений (Adventure Main / Scroll / content items) и общий сервис загрузки картинок по path/URL.
+`Windows` реализует базовую UI-архитектуру окон (View/ViewModel), управление стеком открытых окон, сортировкой и закрытием по `Esc`, очередь toast-подсказок (`IHintManager`), runtime UI приключений (Adventure Main / Scroll / content items) и общий сервис загрузки картинок по path/URL.
 
 ## Краткая логика работы
 
@@ -14,11 +14,15 @@
 4. `WindowsManager` хранит открытые окна в словаре и историю (если `Options.HideInHistory == false`).
 5. По `Esc` менеджер пытается закрыть последнее окно в истории, если `Options.CanCloseOnEsc == true`.
 6. При закрытии `View` уничтожается, VM вызывает `Dispose()`, менеджер очищает ссылки и историю.
+7. Toast-подсказки идут отдельно через `IHintManager` (очередь VM, одно видимое окно на `SortingOrderLayer.HINT`) — см. секцию **Hints** ниже.
 
 ## Основные классы
 
 - `WindowsManager`  
-  Открытие/закрытие окон, история, сортировка, обработка `Esc`.
+  Открытие/закрытие окон, история, сортировка, обработка `Esc`. Prefab: `Resources/Prefabs/Main/WindowsManager`.
+
+- `IHintManager` / `HintManager`  
+  Очередь toast-подсказок; реализация — MonoBehaviour на том же prefab, что и `WindowsManager`. Подробнее: секция **Hints** ниже.
 
 - `ViewBase<TViewModel>`  
   Базовый класс View: `Init`, `Subscribe/Unsubscribe`, `Show/Hide`, `SetSortingOrder`, жизненный цикл destroy.
@@ -30,13 +34,76 @@
   Контракты слоя окон.
 
 - `Options`, `SortingOrderLayer`  
-  Настройки поведения окна (закрытие по Esc, скрытие из истории, слой сортировки).
+  Настройки поведения окна (закрытие по Esc, скрытие из истории, слой сортировки). Слои: `COMMON` (100), `DIALOGUE` (1_000), `HINT` (10_000), `PRELOADER` (20_000), `DEBUG` (32_000).
 
-- Примеры реализаций: `MainLoadView`/`MainLoadViewModel`, `DefaultMatch3View`/`DefaultMatch3ViewModel`, `AdventureMainView`/`AdventureMainViewModel`.
+- Примеры реализаций: `MainLoadView`/`MainLoadViewModel`, `DefaultMatch3View`/`DefaultMatch3ViewModel`, `AdventureMainView`/`AdventureMainViewModel`, `HintView`/`HintViewModel`.
 
 - Компоненты: `ProgressBar`, `SafeAreaRect`, `CachedPathImage`.
 
 - Сервисы: `IImageCache` / `CachedPathImageService` (Zenject singleton).
+
+## Hints (`IHintManager`)
+
+Папка: `Assets/Modules/Windows/Scripts/Implementation/Hints/`  
+Менеджер: `Assets/Modules/Windows/Scripts/Managers/HintManager.cs`  
+Prefab окна: `Resources/Prefabs/Views/Hints/HintView` (`HintView.Path`).
+
+### Назначение
+
+Короткоживущие toast-окна (подложка + локализованный текст). Высота панели зависит от объёма текста (VerticalLayoutGroup + ContentSizeFitter). В один момент видна только одна подсказка; остальные ждут в очереди VM.
+
+### API
+
+| Метод | Поведение |
+|---|---|
+| `Show(string localizationKey)` | В очередь; длительность = `_defaultDurationSeconds` на `HintManager` (по умолчанию 3 с, в инспекторе prefab) |
+| `Show(string localizationKey, float durationSeconds)` | В очередь с явной длительностью |
+| `Clear()` | Dispose всех ожидающих VM + закрытие текущей подсказки **без** показа следующих |
+
+Потребители инжектят интерфейс: `[Inject] IHintManager _hints`.
+
+### Поток
+
+1. `Show` → `ViewModelFactory.Create<HintViewModel>()` → `Init(key, duration)` → enqueue.
+2. Если активной нет — `WindowsManager.OpenView<HintView, HintViewModel>(...)`.
+3. `HintView.Show`: fade-in (`CanvasGroup`) → hold (`unscaledDeltaTime`) → fade-out → `Destroy`.
+4. `HintViewModel.Dispose` (из `ViewBase.OnDestroy`) поднимает `Closed` (только если окно реально открывалось, `ViewHandle != 0`).
+5. `HintManager` снимает active и открывает следующую из очереди (если не было `Clear`).
+
+`Clear` ставит `_suppressAdvanceOnClose`, чтобы после закрытия текущей очередь не продолжалась.
+
+### Options окна
+
+`HintViewModel.CreateOptions()`:
+
+- `CanCloseOnEsc = false`
+- `HideInHistory = true` (Esc / history `WindowsManager` не затрагивают toast)
+- `SortingOrderLayer.HINT`
+
+Клики не перехватывает: `CanvasGroup.blocksRaycasts = false`, `interactable = false`.
+
+### Локализация
+
+View вызывает `_text.SetText(localizationKey)` (`LocalizationText`); ключ хранится в VM, резолв строки — на стороне View (как в остальных окнах модуля).
+
+### DI и prefab
+
+- Компонент `HintManager` (или другая реализация `IHintManager`) располагается **на том же GameObject/prefab**, что и `WindowsManager`.
+- Adventure и Match3 `ProjectInstaller`:  
+  `Container.Bind<IHintManager>().FromMethod(...)` → `windowsManager.GetComponent<IHintManager>()`.  
+  Если компонента нет — исключение с подсказкой про меню Wire/Build.
+- Zenject инжектит зависимости в sibling-компоненты при `FromComponentInNewPrefab` для `WindowsManager`.
+
+### Editor
+
+`Tools/Cursor/Build Hint Prefabs` (`HintPrefabBuilder`):
+
+- собирает `HintView.prefab` из `TemplateView`;
+- вешает `HintManager` на `WindowsManager.prefab`.
+
+Отдельно: `Tools/Cursor/Wire HintManager On WindowsManager`.
+
+`.meta` не создаёт и не правит — после импорта скриптов в Unity.
 
 ## Adventure runtime UI
 
