@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-08-10 12:50:00 (+03:00)
+**Последнее обновление:** 2026-08-13 18:10:00 (+03:00)
 
 ## Назначение
 
@@ -61,6 +61,7 @@ Implementation/Adventure/
   AdventureStateManager.cs
   CharacterParametersProxy.cs     ← Read API: GetRawValue / GetTotalValue
   CharacterParametersOperator.cs  ← Write API: Apply/Unapply patch + Feat (+ StatusEffects timer for Condition); CreateCharacterRequestSnapshot
+  CreateCharacterRequestApplicator.cs ← Write API черновика создания: wipe+reapply из Ancestry/Class/Background, затем NotifyUpdated
   CharacterItemFeaturesOperator.cs ← ItemDef.Features Apply/Unapply с правилом Bag (GrantsItemFeatures)
   CreatureCombatantFactory.cs     ← CreatureDef → CharacterStateData (+ CloneForBattle для копий партии)
   WeaponProxy.cs                  ← attack/damage modifiers по ItemDef формулам
@@ -112,6 +113,9 @@ Implementation/Wallet/
 - `CharacterParametersOperator`  
   **Write API** сырых `Parameters`: `ApplyPatch` / `UnapplyPatch`, `ApplyFeat` / `UnapplyFeat`, слепок `CreateCharacterRequestSnapshot`. Подробнее — [ниже](#adventure-write-api-параметров-apply--unapply).
 
+- `CreateCharacterRequestApplicator`  
+  **Write API черновика создания** (`CreateCharacterRequestData`): инстанс, не статика. Создаёт `CreateCharacterViewModel`, отдаёт в подокна. `SetAncestry` / `SetClass` / `SetBackground` делают wipe+reapply Features lvl 1 и starting equipment, затем `NotifyUpdated()`. Имя/аватар/гендер и ручные boosts/skills — без полного rebuild. Не считает формулы (это `CreatedCharacterParametersProxy`). Контракт UI: [Windows.md — CreateCharacterView](Windows.md#createcharacterview-создание-персонажа).
+
 - `CharacterItemFeaturesOperator`  
   Apply / Unapply `ItemDef.Features` с правилом Bag (`Glossary.Items.GrantsItemFeatures`). Используется из equip/unequip/move/remove state-actions.
 
@@ -151,7 +155,8 @@ Implementation/Wallet/
   Контракт экшена: read-only `Source`, `Validate(state)`, `Execute(state)`. В конструктор передаются только входные данные действия, не ссылка на `State`.
 
 - `CreateCharacterRequestData`  
-  DTO входных данных для `CreateCharacterStateAction` (единый буфер для ручного создания и выбора прегена): персонажные поля (`Name`, `Avatar`, `Gender`, `Ancestry`, `Class`, `Background`), блок `CharacterData` (`CharacterRequestData`) и флаг `AddToActiveParty`.
+  DTO входных данных для `CreateCharacterStateAction` (единый буфер для ручного создания и выбора прегена): персонажные поля (`Name`, `Avatar`, `Gender`, `Ancestry`, `Class`, `Background`), блок `CharacterData` (`CharacterRequestData`) и флаг `AddToActiveParty`.  
+  `OnUpdate` — сигнал «черновик согласован» для UI. Поля публичные, событие само не стреляет: `NotifyUpdated()` после записи. Конвенция: зовёт `CreateCharacterRequestApplicator`. Контракт экрана создания: [Windows.md — CreateCharacterView](Windows.md#createcharacterview-создание-персонажа).
 
 - `CharacterRequestData`  
   Переиспользуемый блок изменяемых данных персонажа: `Parameters`, `EquippedItems`, `Spells`, `StatusEffects`. Используется в `CreateCharacterRequestData` и `UpdateCharacterRequestData`.  

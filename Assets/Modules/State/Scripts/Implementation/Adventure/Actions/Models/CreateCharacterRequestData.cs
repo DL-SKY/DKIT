@@ -25,5 +25,14 @@ namespace Modules.State.Scripts.Implementation.Adventure.Actions.Models
         /// When true, the created character id is appended to ActivePartyCharacterIds.
         /// </summary>
         public bool AddToActiveParty;
+
+        /// <summary>
+        /// Raises <see cref="OnUpdate"/> after the draft is consistent.
+        /// Intended caller: <c>CreateCharacterRequestApplicator</c> after a finished write, not mid-rebuild.
+        /// </summary>
+        public void NotifyUpdated()
+        {
+            OnUpdate?.Invoke();
+        }
     }
 }

@@ -12,8 +12,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
     /// </summary>
     public class CreateCharacterView : ViewBase<CreateCharacterViewModel>
     {
-        //TODO: create prefab view!!!
-        public static string Path = "";
+        public static string Path = "Prefabs/Views/Adventure/Characters/CreateCharacterView/CreateCharacterView";
 
         [Header("Buttons")]
         [SerializeField] private Button _closeButton;

@@ -1,6 +1,6 @@
 # Модуль Windows
 
-**Последнее обновление:** 2026-08-11 17:43:00 (+03:00)
+**Последнее обновление:** 2026-08-13 18:10:00 (+03:00)
 
 ## Назначение
 
@@ -36,7 +36,7 @@
 - `Options`, `SortingOrderLayer`  
   Настройки поведения окна (закрытие по Esc, скрытие из истории, слой сортировки). Слои: `COMMON` (100), `DIALOGUE` (1_000), `HINT` (10_000), `PRELOADER` (20_000), `DEBUG` (32_000).
 
-- Примеры реализаций: `MainLoadView`/`MainLoadViewModel`, `DefaultMatch3View`/`DefaultMatch3ViewModel`, `AdventureMainView`/`AdventureMainViewModel`, `HintView`/`HintViewModel`.
+- Примеры реализаций: `MainLoadView`/`MainLoadViewModel`, `DefaultMatch3View`/`DefaultMatch3ViewModel`, `AdventureMainView`/`AdventureMainViewModel`, `HintView`/`HintViewModel`, `CreateCharacterView`/`CreateCharacterViewModel`.
 
 - Компоненты: `ProgressBar`, `SafeAreaRect`, `CachedPathImage`.
 
@@ -56,21 +56,52 @@ Prefab окна: `Resources/Prefabs/Views/Hints/HintView` (`HintView.Path`).
 
 | Метод | Поведение |
 |---|---|
-| `Show(string localizationKey)` | В очередь; длительность = `_defaultDurationSeconds` на `HintManager` (по умолчанию 3 с, в инспекторе prefab) |
-| `Show(string localizationKey, float durationSeconds)` | В очередь с явной длительностью |
+| `Show(string localizationKey)` | В очередь; hold = `_defaultDurationSeconds` на `HintManager` (по умолчанию 3 с, в инспекторе prefab) |
+| `Show(string localizationKey, float durationSeconds)` | В очередь с явным hold после fade-in |
 | `Clear()` | Dispose всех ожидающих VM + закрытие текущей подсказки **без** показа следующих |
 
 Потребители инжектят интерфейс: `[Inject] IHintManager _hints`.
 
+`durationSeconds` — время **Hold** (полностью видимый toast), не включая fade-in/out и ожидание в очереди. Минимум 1 с (`Mathf.Max(1, durationSeconds)` в `Init`).
+
+### Разделение View / VM
+
+Анимация и таймер жизни живут в `HintViewModel` (`Updater`, не `Update` на View и не корутины).
+
+`HintView` — тонкий биндинг:
+
+- `Show()` / `Hide()` передают длительности fade из prefab (`_showAnimationSeconds` / `_hideAnimationSeconds`, по умолчанию 0.25 с)
+- `OnChange` пишет `CanvasGroup.alpha` из `HintViewModel.Alpha`
+- `HideFinished` → `base.Hide()` (`Destroy`)
+- на `Closed` View **не** подписан
+
+`HintView.Hide()` не уничтожает окно сразу (в отличие от дефолта `ViewBase.Hide`). Destroy только после окончания hide-анимации.
+
+### Состояния (`HintViewStateType`)
+
+`None` → `Show` (fade к 1) → `Hold` (тикает жизнь) → `Hide` (fade к 0) → `None`.
+
+- Fade идёт от **текущего** `Alpha` к цели (Hide во время Show не прыгает к 1).
+- `Hide()` идемпотентен: повторный вызов в состоянии `Hide` — no-op.
+- Шаг часов клампится до `MAX_DELTA_TIME` (`1/30` с), чтобы hitch-кадр (`Time.maximumDeltaTime` ≈ 0.33 с) не съедал fade 0.25 с.
+
+### События
+
+| Событие | Кто шлёт | Кто слушает | Когда |
+|---|---|---|---|
+| `HideFinished` | VM, один раз, после fade-out | `HintView` | пора `Destroy` |
+| `Closed` | VM из `Dispose`, один раз, только если `ViewHandle != 0` | `HintManager` | окно реально открывалось и уничтожено; очередь может идти дальше |
+
 ### Поток
 
-1. `Show` → `ViewModelFactory.Create<HintViewModel>()` → `Init(key, duration)` → enqueue.
+1. `IHintManager.Show` → `ViewModelFactory.Create<HintViewModel>()` → `Init(key, holdDuration)` → enqueue. VM в `None`, жизнь ещё не тикает.
 2. Если активной нет — `WindowsManager.OpenView<HintView, HintViewModel>(...)`.
-3. `HintView.Show`: fade-in (`CanvasGroup`) → hold (`unscaledDeltaTime`) → fade-out → `Destroy`.
-4. `HintViewModel.Dispose` (из `ViewBase.OnDestroy`) поднимает `Closed` (только если окно реально открывалось, `ViewHandle != 0`).
-5. `HintManager` снимает active и открывает следующую из очереди (если не было `Clear`).
+3. `HintView.Show` → `HintViewModel.Show(showSeconds)` → состояние `Show`, fade-in.
+4. Fade-in закончился → `Hold`. Тикает `_lifeTime`. Затем `RequestClose()` → `WindowsManager.CloseView` → `HintView.Hide` → `HintViewModel.Hide(hideSeconds)` → `Hide`.
+5. Fade-out закончился → `HideFinished` → `Destroy` → `Dispose` → `Closed`.
+6. `HintManager` снимает active и открывает следующую из очереди (если не было `Clear`).
 
-`Clear` ставит `_suppressAdvanceOnClose`, чтобы после закрытия текущей очередь не продолжалась.
+`Clear` ставит `_suppressAdvanceOnClose`, Dispose очереди без показа, текущую закрывает через `RequestClose` (hide доигрывается). После `Closed` очередь не продолжается.
 
 ### Options окна
 
@@ -102,6 +133,8 @@ View вызывает `_text.SetText(localizationKey)` (`LocalizationText`); к�
 - вешает `HintManager` на `WindowsManager.prefab`.
 
 Отдельно: `Tools/Cursor/Wire HintManager On WindowsManager`.
+
+На компоненте `HintManager` в Play Mode: контекстное меню **Hints/Show Test Hint** (`HINT_TEST`). Если ключа нет в локализации, на экране покажется сам ключ.
 
 `.meta` не создаёт и не правит — после импорта скриптов в Unity.
 
@@ -224,6 +257,93 @@ Image-группа:
 - Отображение UI: `EnsureRemoteLoading(url, prioritize: true)` — старт сразу, лимит игнорируется; если URL был в очереди — promote.
 - `ClearMemoryCache()` — чистит memory (диск остаётся).
 - Prefab View через `Resources.Instantiate` может резолвить сервис через `ProjectContext`, если Zenject inject не сработал.
+
+## CreateCharacterView (создание персонажа)
+
+Папка: `Assets/Modules/Windows/Scripts/Implementation/Adventure/Characters/CreateCharacter/`  
+Prefab: `Resources/Prefabs/Views/Adventure/Characters/CreateCharacterView/CreateCharacterView`  
+DTO черновика: `CreateCharacterRequestData` ([State.md](State.md))  
+Запись в черновик: `CreateCharacterRequestApplicator` ([State.md](State.md))  
+Накат черт в производное: `CharacterRequestData.ApplyFeat` ([Feats.md](Feats.md), [CharacterCreationDefs.md](CharacterCreationDefs.md))
+
+Открытие: `OpenWindowChoiceActionExecutor` (`Glossary.Windows.CREATE_CHARACTER`) → `ViewModelFactory.Create<CreateCharacterViewModel>()` → `Init(addToActiveParty)` → `WindowsManager.OpenView`.
+
+Окно в работе: View/VM и prefab ещё неполные; контракт ниже — целевой, его держать при дописывании экрана и подокон.
+
+### Слои данных
+
+Два слоя, не смешивать:
+
+| Слой | Где | Роль |
+|---|---|---|
+| Черновик | `CreateCharacterViewModel` владеет `CreateCharacterRequestData _request` | единственный source of truth до `CreateCharacterStateAction` |
+| Презентация | публичные свойства VM (`Name`, `Avatar`, `HitPoints`, `Ancestry`, …) | снимок для View |
+
+`CreateCharacterStateAction` **не** считает статы: персистит то, что уже лежит в `_request`. Пересчёт производного — ответственность UI-потока **до** Create.
+
+### Триггеры vs производное
+
+**Триггеры** (выбор игрока): `Ancestry`, `Class`, `Background`, `Name` / `Avatar` / `Gender`, ручные пики (свободные boosts, skills, option-feat).
+
+**Производное** (собирается из триггеров): `CharacterData.Parameters`, `EquippedItems`, `Spells`, `StatusEffects`. Экранные HP / Level / формулы — через `CreatedCharacterParametersProxy` по этому словарю, не отдельное хранилище.
+
+### Главный экран — зеркало, не пересчётчик
+
+`CreateCharacterViewModel` в `Init` создаёт `_request`, инстанс `CreateCharacterRequestApplicator` и **подписывается** на `CreateCharacterRequestData.OnUpdate`.
+
+Аппликатор передаётся в VM подокон, которые меняют персонажа. Подокна **не** пишут в `_request` напрямую.
+
+Обработчик `OnUpdate`:
+
+1. Проецирует `_request` в свойства VM (`UpdateCharacterRequestData`).
+2. Шлёт `SendOnChange(ON_CHANGE_CHARACTER)`.
+3. Пересчитывает `CanCreate` и при смене шлёт `ON_CHANGE_CAN_CREATE`.
+
+В этом обработчике **нет** `ApplyFeat`, очистки `Parameters`, rebuild инвентаря. Главный VM не знает, какой триггер изменился — он читает уже согласованный черновик.
+
+View на теги: `ON_CHANGE_CHARACTER` → панели персонажа; `ON_CHANGE_CAN_CREATE` → active/disabled Create. Теги раздельные: кнопка Create не обязана перерисовывать все панели.
+
+`Init` VM вызывается **до** `OpenView` / `Subscribe` View. Первый `RebuildDerived(notify: false)` и проекция свойств — без расчёта на `SendOnChange` (событие в этот момент никто не слушает). `Dispose` — отписка от `OnUpdate` и `Applicator.Dispose()`.
+
+### Аппликатор — единственный писатель
+
+`CreateCharacterRequestApplicator` (не статика; lifetime = сессия создания):
+
+- `SetName` / `SetAvatar` / `SetGender` — запись триггера, без rebuild, один `NotifyUpdated`.
+- `SetAncestry` / `SetClass` / `SetBackground` — запись триггера → wipe + reapply всех валидных Features / starting equipment → **один** `NotifyUpdated`.
+- `TryApplyAbilityBoost` / `TryRefundAbilityBoost` / `SetSkillProficiencyRank` / `ApplyOptionFeat` — правка уже собранного `CharacterData`, без полного wipe, один `NotifyUpdated`.
+
+`CreateCharacterRequestData.NotifyUpdated()` поднимает `OnUpdate`. Конвенция: зовёт только аппликатор, не из проектора VM и не mid-rebuild.
+
+Подокно класса: `applicator.SetClass(id)` — всё. Транзакция wipe+reapply внутри `SetClass`.
+
+На смене `Ancestry` / `Class` / `Background` сносятся ручные пики (свободные boosts, option-feat): они живут только до следующего `RebuildDerived`. Имя / аватар rebuild не делают.
+
+Чтение формул (HP и т.п.) — `CreatedCharacterParametersProxy`, не аппликатор.
+
+### Что не делать
+
+- Rebuild / `ApplyFeat` / очистку `Parameters` внутри подписки главного VM на `OnUpdate` — скрытый второй пересчёт и гонка с аппликатором.
+- `NotifyUpdated` из проектора главного VM — цикл.
+- `NotifyUpdated` на каждый `ApplyFeat` внутри `RebuildDerived`.
+- Прямую запись в поля `_request` из подокон и отдельный callback «перерисуйся»: один канал — `OnUpdate`.
+
+### Логические панели главного экрана
+
+Контент (9) + хром (1). Prefab пока заглушка (`Background` + пустой `Frame`); состав — контракт View/VM.
+
+| # | Блок | Тип |
+|---|---|---|
+| 1 | Avatar | триггер |
+| 2 | Name | триггер |
+| 3 | Hit Points | производное (показ) |
+| 4 | Level | производное (показ) |
+| 5 | Ancestry | триггер |
+| 6 | Class | триггер |
+| 7 | Background | триггер |
+| 8 | Ability Scores (+ boost points) | производное + ручной пик |
+| 9 | Skills (+ boost points) | производное + ручной пик |
+| 10 | Buttons (Close / Create active|disabled) | хром; `CanCreate` с `_request` |
 
 ## Как добавить новое окно (View + ViewModel)
 

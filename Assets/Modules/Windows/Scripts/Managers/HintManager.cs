@@ -107,5 +107,22 @@ namespace Modules.Windows.Scripts.Managers
                 _active = null;
             }
         }
+
+#if UNITY_EDITOR
+        private const string HINT_TEST = "HINT_TEST";
+
+        [ContextMenu("Hints/Show Test Hint")]
+        private void EditorShowTestHint()
+        {
+            if (!Application.isPlaying)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[{nameof(HintManager)}] Show Test Hint works only in Play Mode.");
+                return;
+            }
+
+            Show(HINT_TEST);
+        }
+#endif
     }
 }

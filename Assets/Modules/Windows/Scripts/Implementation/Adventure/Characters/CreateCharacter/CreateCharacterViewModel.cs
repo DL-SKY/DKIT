@@ -1,3 +1,4 @@
+using Modules.Definitions.Scripts.Implementation.Adventures;
 using Modules.State.Scripts.Actions.Models;
 using Modules.State.Scripts.Implementation.Adventure;
 using Modules.State.Scripts.Implementation.Adventure.Actions;
@@ -21,6 +22,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
         [Inject] private readonly WindowsManager _windowsManager;
         [Inject] private readonly AdventureStateManager _stateManager;
         [Inject] private readonly AdventureStateLogic _stateLogic;
+        [Inject] private readonly DefinitionsManager _definitionsManager;
 
         private bool _isInitialized;
         private bool _isDisposed;
@@ -29,6 +31,11 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
         /// Accumulator for the character being created. Filled by UI later; submitted on Create.
         /// </summary>
         private CreateCharacterRequestData _request { get; set; }
+
+        /// <summary>
+        /// Write API for the draft. Pass into sub-window VMs; do not mutate <c>_request</c> directly.
+        /// </summary>
+        public CreateCharacterRequestApplicator Applicator { get; private set; }
 
         public string Name { get; private set; }
         public string Avatar { get; private set; }
@@ -64,8 +71,21 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
                 CharacterData = new CharacterRequestData(),
             };
 
+            Applicator = new CreateCharacterRequestApplicator(_request, _definitionsManager);
+            _request.OnUpdate += OnRequestUpdated;
+
+            Applicator.RebuildDerived(notify: false);
             UpdateCharacterRequestData();
-            SetCanCreate(false);
+            RefreshCanCreate();
+        }
+
+        private void OnRequestUpdated()
+        {
+            if (_isDisposed)
+                return;
+
+            UpdateCharacterRequestData();
+            RefreshCanCreate();
         }
 
         private void UpdateCharacterRequestData()
@@ -73,6 +93,16 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
             //...
 
             SendOnChange(ON_CHANGE_CHARACTER);
+        }
+
+        private void RefreshCanCreate()
+        {
+            bool canCreate = _request != null
+                && !string.IsNullOrWhiteSpace(_request.Name)
+                && !string.IsNullOrWhiteSpace(_request.Ancestry)
+                && !string.IsNullOrWhiteSpace(_request.Class);
+
+            SetCanCreate(canCreate);
         }
 
         private void SetCanCreate(bool value)
@@ -157,7 +187,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
 
             // Intentional no-op for now (future: hint / validation feedback).
 
-            // TODO: äîáàâèòü óâåäîìëåíèå î íåäîñòóïíîñòè êíîïêè èç-çà òîãî-òî òîãî-òî...
+            // TODO: ˜˜˜˜˜˜˜˜ ˜˜˜˜˜˜˜˜˜˜˜ ˜ ˜˜˜˜˜˜˜˜˜˜˜˜˜ ˜˜˜˜˜˜ ˜˜-˜˜ ˜˜˜˜-˜˜ ˜˜˜˜-˜˜...
             //...
         }
 
@@ -210,6 +240,12 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
 
             _isDisposed = true;
             _isInitialized = false;
+
+            if (_request != null)
+                _request.OnUpdate -= OnRequestUpdated;
+
+            Applicator?.Dispose();
+            Applicator = null;
             _request = null;
             CanCreate = false;
         }
