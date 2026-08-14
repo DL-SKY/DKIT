@@ -1,6 +1,6 @@
 # Модуль State
 
-**Последнее обновление:** 2026-08-13 18:10:00 (+03:00)
+**Последнее обновление:** 2026-08-14 09:28:00 (+03:00)
 
 ## Назначение
 
@@ -114,7 +114,24 @@ Implementation/Wallet/
   **Write API** сырых `Parameters`: `ApplyPatch` / `UnapplyPatch`, `ApplyFeat` / `UnapplyFeat`, слепок `CreateCharacterRequestSnapshot`. Подробнее — [ниже](#adventure-write-api-параметров-apply--unapply).
 
 - `CreateCharacterRequestApplicator`  
-  **Write API черновика создания** (`CreateCharacterRequestData`): инстанс, не статика. Создаёт `CreateCharacterViewModel`, отдаёт в подокна. `SetAncestry` / `SetClass` / `SetBackground` делают wipe+reapply Features lvl 1 и starting equipment, затем `NotifyUpdated()`. Имя/аватар/гендер и ручные boosts/skills — без полного rebuild. Не считает формулы (это `CreatedCharacterParametersProxy`). Контракт UI: [Windows.md — CreateCharacterView](Windows.md#createcharacterview-создание-персонажа).
+  **Write API черновика создания** (`CreateCharacterRequestData`): инстанс, не статика. Создаёт `CreateCharacterViewModel`, отдаёт в подокна. `SetAncestry` / `SetClass` / `SetBackground` делают wipe+reapply Features lvl 1 и starting equipment, затем `NotifyUpdated()`. Имя/аватар/гендер и ручные boosts/skills — без полного rebuild. Не считает формулы (это `CreatedCharacterParametersProxy`). Контракт UI и примеры: [Windows.md — CreateCharacterView](Windows.md#createcharacterview-создание-персонажа).
+
+  Best practice (коротко):
+
+  ```csharp
+  // Init главного VM (уже так): тихий rebuild, View ещё не подписан
+  Applicator = new CreateCharacterRequestApplicator(_request, _definitionsManager);
+  _request.OnUpdate += OnRequestUpdated;
+  Applicator.RebuildDerived(notify: false);
+
+  // подокно / callback ListDialog — только аппликатор
+  Applicator.SetClass(classId);
+  Applicator.TryApplyAbilityBoost(Glossary.Characters.STR);
+
+  // итоги — proxy
+  int maxHp = new CreatedCharacterParametersProxy(_request, ruleDef, defs)
+      .GetTotalValue(Glossary.Characters.MAX_HIT_POINTS);
+  ```
 
 - `CharacterItemFeaturesOperator`  
   Apply / Unapply `ItemDef.Features` с правилом Bag (`Glossary.Items.GrantsItemFeatures`). Используется из equip/unequip/move/remove state-actions.

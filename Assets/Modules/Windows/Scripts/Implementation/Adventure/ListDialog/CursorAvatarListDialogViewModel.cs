@@ -5,7 +5,7 @@ using Zenject;
 
 namespace Modules.Windows.Scripts.Implementation.Adventure.ListDialog
 {
-    public sealed class AvatarListDialogViewModel : ListDialogViewModel
+    public sealed class CursorAvatarListDialogViewModel : ListDialogViewModel
     {
         [Inject] private readonly DefinitionsManager _definitionsManager;
 

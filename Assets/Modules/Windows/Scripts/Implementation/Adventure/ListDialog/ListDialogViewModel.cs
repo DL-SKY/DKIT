@@ -21,11 +21,11 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.ListDialog
 
         private readonly List<ListDialogItemViewModelBase> _items = new List<ListDialogItemViewModelBase>();
         private bool _isDisposed;
+        
+        public ListDialogLayoutSettings Layout { get; protected set; } = ListDialogLayoutSettings.VerticalList();
+        public string ItemPrefabPath { get; protected set; } = string.Empty;
 
         public string Title { get; protected set; } = string.Empty;
-        public ListDialogLayoutSettings Layout { get; protected set; } =
-            ListDialogLayoutSettings.VerticalList();
-        public string ItemPrefabPath { get; protected set; } = string.Empty;
 
         public IReadOnlyList<ListDialogItemViewModelBase> Items => _items;
 

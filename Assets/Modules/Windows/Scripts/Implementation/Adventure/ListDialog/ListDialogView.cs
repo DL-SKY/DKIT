@@ -56,11 +56,12 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.ListDialog
                 ApplyLayout();
                 LoadItemPrefab();
                 RebuildItems();
-                return;
             }
 
             if (tag == ListDialogViewModel.ON_CHANGE_ITEMS)
+            {
                 RebuildItems();
+            }
         }
 
         private void ApplyTitle()

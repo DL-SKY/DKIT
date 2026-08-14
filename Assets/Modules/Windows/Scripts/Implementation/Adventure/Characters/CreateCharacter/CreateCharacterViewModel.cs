@@ -30,12 +30,12 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
         /// <summary>
         /// Accumulator for the character being created. Filled by UI later; submitted on Create.
         /// </summary>
-        private CreateCharacterRequestData _request { get; set; }
+        private CreateCharacterRequestData _request;
 
         /// <summary>
         /// Write API for the draft. Pass into sub-window VMs; do not mutate <c>_request</c> directly.
         /// </summary>
-        public CreateCharacterRequestApplicator Applicator { get; private set; }
+        private CreateCharacterRequestApplicator _applicator;
 
         public string Name { get; private set; }
         public string Avatar { get; private set; }
@@ -71,10 +71,10 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
                 CharacterData = new CharacterRequestData(),
             };
 
-            Applicator = new CreateCharacterRequestApplicator(_request, _definitionsManager);
+            _applicator = new CreateCharacterRequestApplicator(_request, _definitionsManager);
             _request.OnUpdate += OnRequestUpdated;
 
-            Applicator.RebuildDerived(notify: false);
+            _applicator.RebuildDerived(notify: false);
             UpdateCharacterRequestData();
             RefreshCanCreate();
         }
@@ -244,8 +244,8 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CreateChar
             if (_request != null)
                 _request.OnUpdate -= OnRequestUpdated;
 
-            Applicator?.Dispose();
-            Applicator = null;
+            _applicator?.Dispose();
+            _applicator = null;
             _request = null;
             CanCreate = false;
         }

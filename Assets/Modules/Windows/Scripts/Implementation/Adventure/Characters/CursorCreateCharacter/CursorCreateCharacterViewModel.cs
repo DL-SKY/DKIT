@@ -138,7 +138,7 @@ namespace Modules.Windows.Scripts.Implementation.Adventure.Characters.CursorCrea
             if (_isDisposed)
                 return;
 
-            var vm = _viewModelFactory.Create<AvatarListDialogViewModel>();
+            var vm = _viewModelFactory.Create<CursorAvatarListDialogViewModel>();
             vm.Init(_request.Avatar, OnAvatarSelected);
             _windowsManager.OpenView<ListDialogView, ListDialogViewModel>(
                 ListDialogView.Path, vm);

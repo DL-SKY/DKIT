@@ -1,6 +1,6 @@
 # Модуль Windows
 
-**Последнее обновление:** 2026-08-13 18:10:00 (+03:00)
+**Последнее обновление:** 2026-08-14 09:28:00 (+03:00)
 
 ## Назначение
 
@@ -327,6 +327,92 @@ View на теги: `ON_CHANGE_CHARACTER` → панели персонажа; `
 - `NotifyUpdated` из проектора главного VM — цикл.
 - `NotifyUpdated` на каждый `ApplyFeat` внутри `RebuildDerived`.
 - Прямую запись в поля `_request` из подокон и отдельный callback «перерисуйся»: один канал — `OnUpdate`.
+
+### Best practice: как пользоваться аппликатором
+
+Целевой код (подокон у `CreateCharacter` ещё нет). Главный VM уже создаёт `Applicator` в `Init` и слушает `OnUpdate` — подокну остаётся вызвать метод аппликатора.
+
+**1. Выбор класса / вида / предыстории** (`ListDialog` уже есть). Callback пишет только через аппликатор: wipe+reapply и `OnUpdate` внутри `SetClass`.
+
+```csharp
+public void OnEditClass()
+{
+    if (_isDisposed)
+        return;
+
+    var vm = _viewModelFactory.Create<DefinitionListDialogViewModel>();
+    vm.Init(
+        title: "Класс",
+        mode: DefinitionListDialogMode.Class,
+        selectedId: Class,
+        onSelected: OnClassSelected);
+    _windowsManager.OpenView<ListDialogView, ListDialogViewModel>(
+        ListDialogView.Path, vm);
+}
+
+private void OnClassSelected(string classId)
+{
+    if (_isDisposed)
+        return;
+
+    Applicator.SetClass(classId);
+    // не трогать _request.Class
+    // не звать RebuildDerived / NotifyUpdated / SendOnChange — это сделает аппликатор → OnUpdate
+}
+```
+
+То же для вида / предыстории: `SetAncestry` / `SetBackground`. Имя и аватар — `SetName` / `SetAvatar` (без rebuild).
+
+**2. Подокно, которое крутит параметры** (характеристики / навыки). В `Init` передаём аппликатор, не `_request`.
+
+```csharp
+public void Init(CreateCharacterRequestApplicator applicator)
+{
+    _applicator = applicator;
+}
+
+public void OnIncreaseStrength()
+{
+    _applicator.TryApplyAbilityBoost(Glossary.Characters.STR);
+}
+
+public void OnDecreaseStrength()
+{
+    _applicator.TryRefundAbilityBoost(Glossary.Characters.STR);
+}
+
+public void OnCycleAthletics()
+{
+    int next = _applicator.GetSkillProficiencyRank(Glossary.Characters.ATHLETICS) + 1;
+    _applicator.SetSkillProficiencyRank(Glossary.Characters.ATHLETICS, next);
+}
+```
+
+Главный экран под подокном живой: каждый успешный вызов уже шлёт `OnUpdate`, HP/boosts на главном экране обновятся сами.
+
+**3. Читать итоги (HP, Perception, сейвы) — proxy, не сырой ключ.**
+
+```csharp
+var proxy = new CreatedCharacterParametersProxy(
+    _request,
+    ruleDef,
+    _definitionsManager);
+
+int maxHp = proxy.GetTotalValue(Glossary.Characters.MAX_HIT_POINTS);
+int perception = proxy.GetTotalValue(Glossary.Characters.PERCEPTION);
+int strRaw = Applicator.GetRawParameter(Glossary.Characters.STR);
+```
+
+Не писать и не читать итог как `_request.CharacterData.Parameters["Perception"]`.
+
+Антипаттерн:
+
+```csharp
+_request.Class = classId;                          // без OnUpdate, без rebuild
+_request.CharacterData.Parameters["STR"] = 3;      // минуя аппликатор
+_request.NotifyUpdated();                          // Raise не из аппликатора
+Applicator.RebuildDerived();                       // второй полный wipe из VM подокна
+```
 
 ### Логические панели главного экрана
 
