@@ -1,0 +1,104 @@
+{
+  "Title": "Validation fixture",
+  "Description": "",
+  "Tags": ["tutorial", ""],
+  "StartScenes": ["scene_01"],
+  "Type": "Location",
+  "Scenes": {
+    "scene_01": {
+      "Id": "scene_01",
+      "Tags": ["debug"],
+      "Content": [
+        { "Type": "Text", "Value": "KEY_1" }
+      ],
+      "Choices": [
+        {
+          "Id": "go",
+          "Tags": ["test"],
+          "Type": "Default",
+          "Text": "go there",
+          "VisualOptions": {
+            "MainIcon": "",
+            "DescriptionIcon": "",
+            "ParameterOverrideDescription": "PARAM_OVERRIDE"
+          },
+          "DiceCheck": {
+            "DifficultyClass": 15,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "",
+            "OnCriticalSuccess": [],
+            "OnSuccess": [],
+            "OnFailure": [],
+            "OnCriticalFailure": []
+          },
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": { "SceneId": "scene_01" },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "roll",
+          "Type": "DiceCheck",
+          "Text": "Roll the dice",
+          "DiceCheck": {
+            "DifficultyClass": -3,
+            "DiceType": "D20",
+            "DiceOptions": "None",
+            "DiceCheckParam": "",
+            "OnCriticalSuccess": [],
+            "OnSuccess": [
+              {
+                "Type": "GoToScene",
+                "Params": {
+                  "Strings": { "SceneId": "ghost_scene" },
+                  "Ints": {},
+                  "Bools": {}
+                }
+              }
+            ],
+            "OnFailure": [],
+            "OnCriticalFailure": []
+          },
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": { "SceneId": "scene_01" },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        },
+        {
+          "Id": "miss",
+          "Type": "DiceCheck",
+          "Text": "No dice block"
+        },
+        {
+          "Id": "jump",
+          "Tags": ["nav"],
+          "Type": "Default",
+          "Text": "Jump",
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": { "SceneId": "scene_01", "Extra": "nope" },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

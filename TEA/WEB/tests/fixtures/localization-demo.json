@@ -1,0 +1,36 @@
+{
+  "Title": "Hello world",
+  "Description": "Hello world",
+  "StartScenes": ["scene_01"],
+  "Scenes": {
+    "scene_01": {
+      "Id": "scene_01",
+      "Content": [
+        { "Type": "Image", "Value": "not a loc field" },
+        { "Type": "Text", "Value": "First text" },
+        { "Type": "Text", "Value": "Hello {0} and {1}" }
+      ],
+      "Choices": [
+        {
+          "Id": "go",
+          "Type": "Default",
+          "Text": "Go there",
+          "Description": "",
+          "VisualOptions": {
+            "MainIcon": "",
+            "DescriptionIcon": "",
+            "ParameterOverrideDescription": "Thievery"
+          },
+          "Actions": []
+        },
+        {
+          "Id": "stay",
+          "Type": "Default",
+          "Text": "Stay here with a newline\nand more",
+          "Description": "Go there",
+          "Actions": []
+        }
+      ]
+    }
+  }
+}

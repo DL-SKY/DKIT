@@ -1,0 +1,31 @@
+{
+  "Title": "Preview build",
+  "Description": "Smoke",
+  "StartScenes": ["scene_01"],
+  "Scenes": {
+    "scene_01": {
+      "Id": "scene_01",
+      "Content": [
+        { "Type": "Text", "Value": "Hello" },
+        { "Type": "Slideshow", "Values": ["one", "two"] }
+      ],
+      "Choices": [
+        {
+          "Id": "go",
+          "Type": "Default",
+          "Text": "Go",
+          "Actions": [
+            {
+              "Type": "GoToAdventure",
+              "Params": {
+                "Strings": { "AdventureId": "other" },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

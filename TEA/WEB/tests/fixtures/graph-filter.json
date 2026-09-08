@@ -1,0 +1,29 @@
+{
+  "Title": "Graph filter",
+  "StartScenes": ["start"],
+  "Scenes": {
+    "start": {
+      "Id": "start",
+      "Choices": [
+        {
+          "Id": "next",
+          "Type": "Default",
+          "Actions": [
+            {
+              "Type": "GoToScene",
+              "Params": {
+                "Strings": { "SceneId": "missing_target" },
+                "Ints": {},
+                "Bools": {}
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "island": {
+      "Id": "island",
+      "Choices": []
+    }
+  }
+}

@@ -66,3 +66,11 @@ sysinfo.txt
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# ============= #
+# Web TEA       #
+# ============= #
+TEA/WEB/node_modules/
+TEA/WEB/dist/
+TEA/WEB/playwright-report/
+TEA/WEB/test-results/
