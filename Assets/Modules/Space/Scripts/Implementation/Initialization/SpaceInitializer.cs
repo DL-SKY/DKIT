@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using Modules.Initializer.Scripts.Core;
 using Modules.Initializer.Scripts.Tasks;
 using Modules.Space.Scripts.Implementation.Definitions;
+using Modules.Space.Scripts.Implementation.Session;
 using Modules.Space.Scripts.Implementation.State;
+using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Implementation.Loading;
 using Modules.Windows.Scripts.Managers;
 using UnityEngine;
@@ -21,6 +23,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
         private WindowsManager _windowsManager;
         private ViewModelFactory _viewModelFactory;
         private InitializeTasker _tasker;
+        private SpaceSessionController _session;
 
         private void Start()
         {
@@ -49,6 +52,12 @@ namespace Modules.Space.Scripts.Implementation.Initialization
         private void OnCompleted()
         {
             UnityEngine.Debug.Log("[Space] Initialization complete. Sector is not started.");
+
+            var container = ProjectContext.Instance.Container;
+            _session = new SpaceSessionController(
+                container.Resolve<Updater>(),
+                container.Instantiate<EcsSystemFactory>());
+            _session.Start();
         }
 
         private void OnFailed(int errorCode)
@@ -58,6 +67,8 @@ namespace Modules.Space.Scripts.Implementation.Initialization
 
         private void OnDestroy()
         {
+            _session?.Dispose();
+            _session = null;
             _tasker?.Dispose();
         }
     }
