@@ -23,11 +23,13 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             _definitionsManager.Init();
             if (!_definitionsManager.IsReady)
             {
+                UnityEngine.Debug.LogError("[Space] Definitions catalog is missing a hull, a module, an organ, or timed targets.");
                 Fail(SpaceInitErrorCodes.DEFINITIONS);
                 return;
             }
 
-            UnityEngine.Debug.Log("[Space] Definitions catalog is ready. Records are added in the data step.");
+            UnityEngine.Debug.Log(
+                $"[Space] Definitions ready. Hulls {_definitionsManager.Hulls.Count}, modules {_definitionsManager.Modules.Count}, organs {_definitionsManager.ControlOrgans.Count}, targets {_definitionsManager.TimedTargets.Count}.");
             Complete();
         }
     }

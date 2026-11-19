@@ -24,6 +24,8 @@ namespace Modules.Space.Scripts.Implementation.Initialization
         private ViewModelFactory _viewModelFactory;
         private InitializeTasker _tasker;
         private SpaceSessionController _session;
+        private SpaceDefinitionsManager _definitions;
+        private SpaceStateManager _state;
 
         private void Start()
         {
@@ -31,14 +33,14 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             _windowsManager = container.Resolve<WindowsManager>();
             _viewModelFactory = container.Resolve<ViewModelFactory>();
 
-            var definitionsManager = new SpaceDefinitionsManager();
-            var stateManager = new SpaceStateManager();
+            _definitions = new SpaceDefinitionsManager();
+            _state = new SpaceStateManager();
             var loaderViewModel = _viewModelFactory.Create<MainLoadViewModel>();
 
             var tasks = new List<TaskBase>
             {
-                new SpaceDefinitionsInitTask(TASK_WEIGHT, definitionsManager),
-                new SpaceStateInitTask(TASK_WEIGHT, stateManager),
+                new SpaceDefinitionsInitTask(TASK_WEIGHT, _definitions),
+                new SpaceStateInitTask(TASK_WEIGHT, _state, _definitions),
                 new SpaceLocalizationInitTask(TASK_WEIGHT),
                 new CloseViewTask(_windowsManager, loaderViewModel, 0),
             };
