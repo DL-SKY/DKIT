@@ -10,7 +10,7 @@ using UnityEngine;
 namespace Modules.Space.Scripts.Implementation.State
 {
     /// <summary>
-    /// Space profile on disk. Queues live here, not in the flight ECS world.
+    /// Space profile on disk. The hull, fitted modules, and queues live here, not in the flight ECS world.
     /// </summary>
     public sealed class SpaceStateManager
     {
@@ -41,6 +41,12 @@ namespace Modules.Space.Scripts.Implementation.State
             ProfileFilePath = Path.Combine(ProfileDirectory, PROFILE_FILE_NAME);
             Profile = LoadOrCreate();
             EnsureQueues();
+            if (!EnsureShip())
+            {
+                IsReady = false;
+                return;
+            }
+
             Save();
             IsReady = true;
         }
@@ -140,6 +146,86 @@ namespace Modules.Space.Scripts.Implementation.State
                     MaxCount = SpaceQueueIds.FREE_MAX_COUNT
                 });
             }
+        }
+
+        private bool EnsureShip()
+        {
+            if (Profile.OwnedHullIds == null)
+                Profile.OwnedHullIds = new List<string>();
+            if (Profile.FittedModules == null)
+                Profile.FittedModules = new List<SpaceFittedModule>();
+
+            Profile.OwnedHullIds = KeepKnownHulls(Profile.OwnedHullIds);
+
+            if (!_definitions.TryGetHull(Profile.ActiveHullId, out _))
+            {
+                if (!_definitions.TryGetHull(SpaceProfile.STARTER_HULL_ID, out _))
+                    return false;
+
+                Profile.ActiveHullId = SpaceProfile.STARTER_HULL_ID;
+            }
+
+            if (!Profile.OwnedHullIds.Contains(Profile.ActiveHullId))
+                Profile.OwnedHullIds.Add(Profile.ActiveHullId);
+
+            _definitions.TryGetHull(Profile.ActiveHullId, out var hull);
+            Profile.FittedModules = KeepValidFittings(hull, Profile.FittedModules);
+            return true;
+        }
+
+        private List<string> KeepKnownHulls(List<string> hullIds)
+        {
+            var kept = new List<string>();
+            for (var i = 0; i < hullIds.Count; i++)
+            {
+                var hullId = hullIds[i];
+                if (kept.Contains(hullId) || !_definitions.TryGetHull(hullId, out _))
+                    continue;
+
+                kept.Add(hullId);
+            }
+
+            return kept;
+        }
+
+        private List<SpaceFittedModule> KeepValidFittings(SpaceHullDef hull, List<SpaceFittedModule> fittings)
+        {
+            var kept = new List<SpaceFittedModule>();
+            var usedSlots = new HashSet<string>();
+            for (var i = 0; i < fittings.Count; i++)
+            {
+                var fitting = fittings[i];
+                if (fitting == null || string.IsNullOrEmpty(fitting.SlotId) || string.IsNullOrEmpty(fitting.ModuleId))
+                    continue;
+
+                if (usedSlots.Contains(fitting.SlotId))
+                    continue;
+
+                if (!HullHasSlot(hull, fitting.SlotId))
+                    continue;
+
+                if (!_definitions.TryGetModule(fitting.ModuleId, out var module) || module.SlotId != fitting.SlotId)
+                    continue;
+
+                usedSlots.Add(fitting.SlotId);
+                kept.Add(fitting);
+            }
+
+            return kept;
+        }
+
+        private static bool HullHasSlot(SpaceHullDef hull, string slotId)
+        {
+            if (hull?.ModuleSlotIds == null)
+                return false;
+
+            for (var i = 0; i < hull.ModuleSlotIds.Count; i++)
+            {
+                if (hull.ModuleSlotIds[i] == slotId)
+                    return true;
+            }
+
+            return false;
         }
 
         private bool TryGetQueue(string queueId, out SpaceQueueState queue)

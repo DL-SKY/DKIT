@@ -7,5 +7,6 @@ namespace Modules.Space.Scripts.Implementation.Definitions
     {
         public List<string> ModuleSlotIds;
         public List<string> CommandIds;
+        public string VisualResourcesPath;
     }
 }

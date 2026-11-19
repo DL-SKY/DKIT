@@ -28,6 +28,18 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             IsReady = HasRequiredRecords();
         }
 
+        public bool TryGetHull(string hullId, out SpaceHullDef hull)
+        {
+            hull = null;
+            return _hulls != null && !string.IsNullOrEmpty(hullId) && _hulls.TryGetValue(hullId, out hull);
+        }
+
+        public bool TryGetModule(string moduleId, out SpaceModuleDef module)
+        {
+            module = null;
+            return _modules != null && !string.IsNullOrEmpty(moduleId) && _modules.TryGetValue(moduleId, out module);
+        }
+
         public bool TryGetTimedTarget(string targetId, out SpaceTimedTargetDef target)
         {
             target = null;

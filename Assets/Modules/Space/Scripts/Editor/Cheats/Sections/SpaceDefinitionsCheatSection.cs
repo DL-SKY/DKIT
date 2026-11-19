@@ -52,7 +52,8 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 SpaceHullDef hull = definitions.Hulls[ids[i]];
                 int slotCount = hull.ModuleSlotIds != null ? hull.ModuleSlotIds.Count : 0;
                 int commandCount = hull.CommandIds != null ? hull.CommandIds.Count : 0;
-                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount);
+                string visual = string.IsNullOrEmpty(hull.VisualResourcesPath) ? "—" : hull.VisualResourcesPath;
+                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount + ", visual " + visual);
             }
 
             EditorGUI.indentLevel--;

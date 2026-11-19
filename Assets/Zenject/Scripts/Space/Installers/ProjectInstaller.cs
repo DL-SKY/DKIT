@@ -33,7 +33,7 @@ namespace Zenject.Scripts.Space.Installers
             Container.Bind<SpaceStateManager>().AsSingle().NonLazy();
 
             // Later, still not bound:
-            // Screen input — camera drag and taps, with the player ship.
+            // Screen input — taps that open the command menu.
             // IHintManager — when a Space window uses hints.
             // Space localization catalog — the startup task does not read Adventure settings.
             // Stash, blueprint charges, and hull certificates stay on the Space profile, not in EcsWorld.

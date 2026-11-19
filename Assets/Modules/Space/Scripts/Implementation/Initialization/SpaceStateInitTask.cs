@@ -45,11 +45,15 @@ namespace Modules.Space.Scripts.Implementation.Initialization
 
             if (!_stateManager.IsReady)
             {
-                Fail(SpaceInitErrorCodes.SAVE_FOLDER);
+                UnityEngine.Debug.LogError("[Space] Profile has no valid active hull.");
+                Fail(SpaceInitErrorCodes.HULL);
                 return;
             }
 
-            UnityEngine.Debug.Log($"[Space] Queue time check passed. Profile: {_stateManager.ProfileFilePath}");
+            var profile = _stateManager.Profile;
+            int fittedCount = profile.FittedModules != null ? profile.FittedModules.Count : 0;
+            UnityEngine.Debug.Log(
+                $"[Space] Queue time check passed. Hull {profile.ActiveHullId}, fitted {fittedCount}. Profile: {_stateManager.ProfileFilePath}");
             Complete();
         }
     }

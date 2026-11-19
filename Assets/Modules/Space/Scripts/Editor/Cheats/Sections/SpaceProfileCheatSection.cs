@@ -54,6 +54,8 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             }
 
             DrawSectionHeader(isLive ? "Space profile (play):" : "Space profile (file):");
+            DrawShip(profile);
+            EditorGUILayout.Space(6f);
             DrawQueues(profile);
         }
 
@@ -86,6 +88,44 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 UnityEngine.Debug.LogError("[Space] Failed to read profile for the cheat window. " + exception.Message);
                 return null;
             }
+        }
+
+        private static void DrawShip(SpaceProfile profile)
+        {
+            string activeHull = string.IsNullOrEmpty(profile.ActiveHullId) ? "—" : profile.ActiveHullId;
+            EditorGUILayout.LabelField("Active hull: " + activeHull);
+
+            EditorGUILayout.LabelField("Owned hulls:");
+            EditorGUI.indentLevel++;
+            List<string> owned = profile.OwnedHullIds;
+            if (owned == null || owned.Count == 0)
+                EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
+            else
+            {
+                for (int i = 0; i < owned.Count; i++)
+                    EditorGUILayout.LabelField((i + 1) + ". " + owned[i]);
+            }
+
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.LabelField("Fitted modules:");
+            EditorGUI.indentLevel++;
+            List<SpaceFittedModule> fitted = profile.FittedModules;
+            if (fitted == null || fitted.Count == 0)
+                EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
+            else
+            {
+                for (int i = 0; i < fitted.Count; i++)
+                {
+                    SpaceFittedModule module = fitted[i];
+                    if (module == null)
+                        continue;
+
+                    EditorGUILayout.LabelField((i + 1) + ". " + module.SlotId + "  " + module.ModuleId);
+                }
+            }
+
+            EditorGUI.indentLevel--;
         }
 
         private static void DrawQueues(SpaceProfile profile)

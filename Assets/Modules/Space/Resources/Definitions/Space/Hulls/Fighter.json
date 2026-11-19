@@ -1,4 +1,5 @@
 {
   "ModuleSlotIds": ["weapon_a"],
-  "CommandIds": ["approach"]
+  "CommandIds": ["approach"],
+  "VisualResourcesPath": "Visuals/Fighter"
 }

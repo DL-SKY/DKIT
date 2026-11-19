@@ -6,5 +6,6 @@ namespace Modules.Space.Scripts.Implementation.Initialization
         public const int DEFINITIONS = 2;
         public const int LOCALIZATION = 3;
         public const int QUEUE_TIME = 4;
+        public const int HULL = 5;
     }
 }

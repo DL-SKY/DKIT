@@ -46,6 +46,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 |---|---|---|---|---|
 | `SpaceHullDef` | `ModuleSlotIds` | `List<string>` | `ModuleSlotIds` | id слотов, куда садится модуль. Это не id `SpaceModuleDef` |
 | `SpaceHullDef` | `CommandIds` | `List<string>` | `CommandIds` | id `SpaceCommandDef`, которые корпус умеет отдать |
+| `SpaceHullDef` | `VisualResourcesPath` | `string` | `VisualResourcesPath` | путь в `Resources` на префаб корпуса. Пустой путь корпус в сцену не ставит |
 | `SpaceModuleDef` | `SlotId` | `string` | `SlotId` | слот корпуса, в который модуль ставится |
 | `SpaceModuleDef` | `WeaponGroup` | `string` | `WeaponGroup` | группа оружия. Сейчас в контенте `"A"` |
 | `SpaceCommandDef` | — | — | — | своих полей нет. Id файла и есть команда. Исполнения в дефе нет |
@@ -70,7 +71,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 
 | Файл | Id | Поля |
 |---|---|---|
-| `Hulls/Fighter.json` | `Fighter` | слот `weapon_a`, команда `approach` |
+| `Hulls/Fighter.json` | `Fighter` | слот `weapon_a`, команда `approach`, вид `Visuals/Fighter` |
 | `Modules/laser_a.json` | `laser_a` | слот `weapon_a`, группа `A` |
 | `Commands/approach.json` | `approach` | полей нет, `{}` |
 | `TimedTargets/skill_survey.json` | `skill_survey` | `Skill`, 45000 мс |

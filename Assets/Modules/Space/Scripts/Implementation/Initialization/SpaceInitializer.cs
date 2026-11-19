@@ -66,7 +66,11 @@ namespace Modules.Space.Scripts.Implementation.Initialization
 
             var container = ProjectContext.Instance.Container;
             var host = container.Resolve<SpaceSessionHost>();
-            host.StartSession(container.Resolve<Updater>(), container.Resolve<EcsSystemFactory>());
+            host.StartSession(
+                container.Resolve<Updater>(),
+                container.Resolve<EcsSystemFactory>(),
+                container.Resolve<SpaceDefinitionsManager>(),
+                container.Resolve<SpaceStateManager>());
         }
 
         private void OnFailed(int errorCode)
