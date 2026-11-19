@@ -8,7 +8,6 @@ using Modules.Utils.Scripts.Components;
 using Modules.Windows.Scripts.Implementation.Space;
 using Modules.Windows.Scripts.Managers;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Zenject;
 using Zenject.Scripts.Factories;
 
@@ -19,7 +18,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
     /// </summary>
     public sealed class SpaceInitializer : MonoBehaviour
     {
-        public const string DEBUG_SECTOR_SCENE = "SpaceDebug";
+        public const string START_SECTOR_ID = "SpaceDebug";
 
         private const int TASK_WEIGHT = 10;
         private const float FULL_BAR_PAUSE_SECONDS = 0.25f;
@@ -45,7 +44,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
                 new SpaceDefinitionsInitTask(TASK_WEIGHT, definitions),
                 new SpaceStateInitTask(TASK_WEIGHT, state, definitions),
                 new SpaceLocalizationInitTask(TASK_WEIGHT),
-                new LoadSceneTask(DEBUG_SECTOR_SCENE, LoadSceneMode.Single, coroutineHolder, TASK_WEIGHT),
+                new SpaceLoadSectorTask(TASK_WEIGHT, START_SECTOR_ID, definitions, coroutineHolder),
                 new PauseTask(updater, FULL_BAR_PAUSE_SECONDS, 0),
                 new SpaceOpenMainViewTask(0, _windowsManager, _viewModelFactory),
                 new CloseViewTask(_windowsManager, loaderViewModel, 0),
@@ -63,7 +62,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             _tasker?.Dispose();
             _tasker = null;
 
-            UnityEngine.Debug.Log("[Space] Initialization complete. Debug sector loaded.");
+            UnityEngine.Debug.Log($"[Space] Initialization complete. Sector '{START_SECTOR_ID}' loaded.");
 
             var container = ProjectContext.Instance.Container;
             var host = container.Resolve<SpaceSessionHost>();
@@ -71,7 +70,8 @@ namespace Modules.Space.Scripts.Implementation.Initialization
                 container.Resolve<Updater>(),
                 container.Resolve<EcsSystemFactory>(),
                 container.Resolve<SpaceDefinitionsManager>(),
-                container.Resolve<SpaceStateManager>());
+                container.Resolve<SpaceStateManager>(),
+                START_SECTOR_ID);
         }
 
         private void OnFailed(int errorCode)

@@ -20,6 +20,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceModuleDef` | `AbstractDefinition` | `Definitions/Space/Modules` | `SpaceDefinitionsManager.Modules` |
 | `SpaceCommandDef` | `AbstractDefinition` | `Definitions/Space/Commands` | `SpaceDefinitionsManager.Commands` |
 | `SpaceTimedTargetDef` | `AbstractDefinition` | `Definitions/Space/TimedTargets` | `SpaceDefinitionsManager.TimedTargets`. Временная запись, будет удалена |
+| `SpaceSectorDef` | `AbstractDefinition` | `Definitions/Space/Sectors` | `SpaceDefinitionsManager.Sectors` |
 | `SpaceCameraSettingsDef` | `AbstractDefinition` | `Definitions/Space/CameraSettings/CameraSettings` | `SpaceDefinitionsManager.CameraSettings`. Одна запись, не словарь |
 
 `Id` в JSON не пишется. `SpaceDefinitionLoader` ставит его из имени файла (`approach.json` → `approach`). Файл из одних пробелов пропускается, поэтому у команды без полей в файле лежит `{}`. Повторный id пропускается с предупреждением, в словарь остаётся первая запись. Битый JSON из загрузчика не глотается: исключение выходит из `Init` до `IsReady`.
@@ -35,11 +36,12 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 - среди целей есть все пять значений `SpaceQueueKind`;
 - среди целей с `Kind = Skill` есть хотя бы три разных `BaseTimeMs`;
 - `CameraSettings` загружен и пригоден: минимум дистанции больше нуля и меньше максимума, старт наклона внутри диапазона, чувствительность, шаг зума и порог перетаскивания больше нуля;
-- у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры.
+- у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры;
+- хотя бы один сектор, и у каждого есть имя сцены и хотя бы одна точка появления.
 
-Иначе задача старта падает с кодом `SpaceInitErrorCodes.DEFINITIONS` (2). В Play окно `Tools/Space`, секция Definitions, показывает четыре словаря и одиночную запись камеры. Вне Play секция пишет, что менеджера нет.
+Иначе задача старта падает с кодом `SpaceInitErrorCodes.DEFINITIONS` (2). В Play окно `Tools/Space`, секция Definitions, показывает словари каталога и одиночную запись камеры. Вне Play секция пишет, что менеджера нет.
 
-Полёт корпуса эти записи пока не читает. Камера читает `CameraSettings` и `CameraDistance` корпуса. В секторе стартовая дистанция берётся с корпуса, поворот и наклон — с камеры. На станции дистанция корпуса не применяется, остаются поворот и наклон камеры. Очередь умеет взять цель по id: `TryEnqueue` сверяет, что `SpaceTimedTargetDef.Kind` совпадает с очередью. Эта сверка временная: см. раздел ниже.
+Полёт корпуса эти записи пока не читает. Загрузка сектора и точка корабля читают `SpaceSectorDef`: старт передаёт id сектора в `SpaceSectorLoad`, сцена берётся из `SceneName`. Одна точка появления используется как есть, несколько выбираются случайно. Камера читает `CameraSettings` и `CameraDistance` корпуса. В секторе стартовая дистанция берётся с корпуса, поворот и наклон — с камеры. На станции дистанция корпуса не применяется, остаются поворот и наклон камеры. Очередь умеет взять цель по id: `TryEnqueue` сверяет, что `SpaceTimedTargetDef.Kind` совпадает с очередью. Эта сверка временная: см. раздел ниже.
 
 ## Поля
 
@@ -47,6 +49,12 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 
 | Def | Поле | Тип | В JSON | Смысл |
 |---|---|---|---|---|
+| `SpaceSectorDef` | `SceneName` | `string` | `SceneName` | имя сцены в Build Settings, которую грузить для этого сектора |
+| `SpaceSectorDef` | `SpawnPoints` | `List<SpaceSectorSpawnPoint>` | `SpawnPoints` | точки появления игрока. Одна точка — спавн в ней. Несколько — случайная |
+| `SpaceSectorSpawnPoint` | `X` | `float` | `X` | метры в сцене сектора, ось вправо |
+| `SpaceSectorSpawnPoint` | `Y` | `float` | `Y` | метры в сцене сектора, ось вверх |
+| `SpaceSectorSpawnPoint` | `Z` | `float` | `Z` | метры в сцене сектора, ось вперёд |
+| `SpaceSectorSpawnPoint` | `Yaw` | `float` | `Yaw` | градусы вокруг вертикали. `0` — нос по +Z. Положительный угол поворачивает нос к +X |
 | `SpaceHullDef` | `ModuleSlotIds` | `List<string>` | `ModuleSlotIds` | id слотов, куда садится модуль. Это не id `SpaceModuleDef` |
 | `SpaceHullDef` | `CommandIds` | `List<string>` | `CommandIds` | id `SpaceCommandDef`, которые корпус умеет отдать |
 | `SpaceHullDef` | `VisualResourcesPath` | `string` | `VisualResourcesPath` | путь в `Resources` на префаб корпуса. Пустой путь корпус в сцену не ставит |
@@ -66,6 +74,8 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceCameraSettingsDef` | `ScrollStep` | `float` | `ScrollStep` | шаг дистанции на один щелчок колеса |
 | `SpaceCameraSettingsDef` | `DragThresholdPixels` | `float` | `DragThresholdPixels` | сдвиг, после которого касание считается поворотом, а не кликом |
 
+Точка появления — место корпуса в уже загруженной сцене сектора. `X`, `Y`, `Z` задают это место в метрах: вправо, вверх и вперёд. `Yaw` только крутит корпус вокруг вертикали, крен и наклон точки не задают. Ноль градусов смотрит носом по +Z. Код ставит поворот как `Quaternion.Euler(0, Yaw, 0)`. Нуля в коде нет: числа берутся из выбранной точки.
+
 Слоты модулей и команды на корпусе — разные списки. Модуль ссылается на слот через `SlotId`. Команда — это id `SpaceCommandDef`.
 
 `BaseTimeMs` в деф не запекается с бонусами. Длительность строки очереди считает только `SpaceQueueTime`: база умножается на произведение факторов, результат не короче 1 мс. Процент `−25` даёт множитель `0.75`, явный множитель `2` удваивает срок.
@@ -84,6 +94,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 
 | Файл | Id | Поля |
 |---|---|---|
+| `Sectors/SpaceDebug.json` | `SpaceDebug` | сцена `SpaceDebug`, одна точка `(0, 0, 0)`, поворот `0` |
 | `Hulls/Fighter.json` | `Fighter` | слот `weapon_a`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, дистанция камеры 32.5 |
 | `Modules/laser_a.json` | `laser_a` | слот `weapon_a`, группа `A` |
 | `Commands/approach.json` | `approach` | полей нет, `{}` |
@@ -98,6 +109,6 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 
 ## Чего в каталоге ещё нет
 
-Отдельных дефов сектора, контакта, навыка, чертежа, разбора, склада и сертификата корпуса нет.
+Отдельных дефов контакта, навыка, чертежа, разбора, склада и сертификата корпуса нет.
 
 `SpaceTimedTargetDef` и папка `TimedTargets` — временная заглушка. Запись будет удалена. Строка очереди станет хранить id настоящего дефа цели: навыка, чертежа и остальных работ. Длительность в миллисекундах будет полем этого дефа, а не отдельной общей записи. `Kind` на заглушке нужен только пока один каталог обслуживает все пять очередей.

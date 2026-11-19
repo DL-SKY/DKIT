@@ -13,12 +13,14 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public IReadOnlyDictionary<string, SpaceModuleDef> Modules => _modules;
         public IReadOnlyDictionary<string, SpaceCommandDef> Commands => _commands;
         public IReadOnlyDictionary<string, SpaceTimedTargetDef> TimedTargets => _timedTargets;
+        public IReadOnlyDictionary<string, SpaceSectorDef> Sectors => _sectors;
         public SpaceCameraSettingsDef CameraSettings { get; private set; }
 
         private Dictionary<string, SpaceHullDef> _hulls = new Dictionary<string, SpaceHullDef>();
         private Dictionary<string, SpaceModuleDef> _modules = new Dictionary<string, SpaceModuleDef>();
         private Dictionary<string, SpaceCommandDef> _commands = new Dictionary<string, SpaceCommandDef>();
         private Dictionary<string, SpaceTimedTargetDef> _timedTargets = new Dictionary<string, SpaceTimedTargetDef>();
+        private Dictionary<string, SpaceSectorDef> _sectors = new Dictionary<string, SpaceSectorDef>();
 
         public void Init()
         {
@@ -26,6 +28,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             _modules = SpaceDefinitionLoader.Load<SpaceModuleDef>(SpaceDefinitionLoader.MODULES_PATH);
             _commands = SpaceDefinitionLoader.Load<SpaceCommandDef>(SpaceDefinitionLoader.COMMANDS_PATH);
             _timedTargets = SpaceDefinitionLoader.Load<SpaceTimedTargetDef>(SpaceDefinitionLoader.TIMED_TARGETS_PATH);
+            _sectors = SpaceDefinitionLoader.Load<SpaceSectorDef>(SpaceDefinitionLoader.SECTORS_PATH);
             CameraSettings = SpaceDefinitionLoader.LoadSingle<SpaceCameraSettingsDef>(SpaceDefinitionLoader.CAMERA_SETTINGS_PATH);
             IsReady = HasRequiredRecords();
         }
@@ -42,6 +45,12 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             return _modules != null && !string.IsNullOrEmpty(moduleId) && _modules.TryGetValue(moduleId, out module);
         }
 
+        public bool TryGetSector(string sectorId, out SpaceSectorDef sector)
+        {
+            sector = null;
+            return _sectors != null && !string.IsNullOrEmpty(sectorId) && _sectors.TryGetValue(sectorId, out sector);
+        }
+
         public bool TryGetTimedTarget(string targetId, out SpaceTimedTargetDef target)
         {
             target = null;
@@ -53,7 +62,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             if (_hulls.Count < 1 || _modules.Count < 1 || _commands.Count < 1)
                 return false;
 
-            if (CameraSettings == null || !CameraSettings.IsUsable() || !HullCameraDistancesFit())
+            if (CameraSettings == null || !CameraSettings.IsUsable() || !HullCameraDistancesFit() || !SectorsFit())
                 return false;
 
             var skillDurations = new HashSet<long>();
@@ -85,6 +94,20 @@ namespace Modules.Space.Scripts.Implementation.Definitions
                 if (hull == null
                     || hull.CameraDistance < CameraSettings.MinDistance
                     || hull.CameraDistance > CameraSettings.MaxDistance)
+                    return false;
+            }
+
+            return true;
+        }
+
+        private bool SectorsFit()
+        {
+            if (_sectors == null || _sectors.Count < 1)
+                return false;
+
+            foreach (var pair in _sectors)
+            {
+                if (pair.Value == null || !pair.Value.IsUsable())
                     return false;
             }
 

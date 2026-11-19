@@ -11,7 +11,7 @@ namespace Modules.Space.Scripts.Implementation.Session
     {
         public const string OBJECT_NAME = "PlayerShip";
 
-        public static Transform Spawn(SpaceDefinitionsManager definitions, SpaceStateManager state)
+        public static Transform Spawn(SpaceDefinitionsManager definitions, SpaceStateManager state, Vector3 position, Quaternion rotation)
         {
             if (definitions == null || state == null || !state.IsReady || state.Profile == null)
             {
@@ -33,9 +33,9 @@ namespace Modules.Space.Scripts.Implementation.Session
                 return null;
             }
 
-            var ship = Object.Instantiate(prefab, Vector3.zero, Quaternion.identity);
+            var ship = Object.Instantiate(prefab, position, rotation);
             ship.name = OBJECT_NAME;
-            UnityEngine.Debug.Log($"[Space] Player ship created from hull {hullId}.");
+            UnityEngine.Debug.Log($"[Space] Player ship created from hull {hullId} at {position}.");
             return ship.transform;
         }
     }

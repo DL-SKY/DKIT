@@ -18,19 +18,26 @@ namespace Modules.Space.Scripts.Implementation.Session
             Updater updater,
             EcsSystemFactory factory,
             SpaceDefinitionsManager definitions,
-            SpaceStateManager state)
+            SpaceStateManager state,
+            string sectorId)
         {
             if (_session != null)
                 return;
 
             _session = new SpaceSessionController(updater, factory);
             _session.Start();
-            SpawnPlayerShip(definitions, state);
+            SpawnPlayerShip(definitions, state, sectorId);
         }
 
-        private void SpawnPlayerShip(SpaceDefinitionsManager definitions, SpaceStateManager state)
+        private void SpawnPlayerShip(SpaceDefinitionsManager definitions, SpaceStateManager state, string sectorId)
         {
-            _playerShip = SpacePlayerShip.Spawn(definitions, state);
+            if (!SpaceSectorLoad.TryGet(definitions, sectorId, out var sector) || !sector.TryPickSpawnPoint(out var position, out var yaw))
+            {
+                UnityEngine.Debug.LogError($"[Space] Player ship was not created. Sector '{sectorId}' has no spawn point.");
+                return;
+            }
+
+            _playerShip = SpacePlayerShip.Spawn(definitions, state, position, Quaternion.Euler(0f, yaw, 0f));
             if (_playerShip == null)
                 return;
 

@@ -29,6 +29,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             DrawModules(definitions);
             DrawCommands(definitions);
             DrawTimedTargets(definitions);
+            DrawSectors(definitions);
             DrawCameraSettings(definitions);
         }
 
@@ -104,6 +105,24 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             {
                 SpaceTimedTargetDef target = definitions.TimedTargets[ids[i]];
                 EditorGUILayout.LabelField((i + 1) + ". " + target.Id + "  " + target.Kind + "  " + target.BaseTimeMs + " ms");
+            }
+
+            EditorGUI.indentLevel--;
+        }
+
+        private static void DrawSectors(SpaceDefinitionsManager definitions)
+        {
+            EditorGUILayout.LabelField("Sectors:");
+            EditorGUI.indentLevel++;
+            List<string> ids = SortedIds(definitions.Sectors);
+            if (ids.Count == 0)
+                EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
+
+            for (int i = 0; i < ids.Count; i++)
+            {
+                SpaceSectorDef sector = definitions.Sectors[ids[i]];
+                int spawnCount = sector.SpawnPoints != null ? sector.SpawnPoints.Count : 0;
+                EditorGUILayout.LabelField((i + 1) + ". " + sector.Id + "  scene " + sector.SceneName + ", spawns " + spawnCount);
             }
 
             EditorGUI.indentLevel--;
