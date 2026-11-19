@@ -45,7 +45,17 @@ namespace Modules.Space.Scripts.Implementation.Session
             if (orbit == null)
                 orbit = camera.gameObject.AddComponent<SpaceOrbitCamera>();
 
-            orbit.Follow(_playerShip, definitions != null ? definitions.CameraSettings : null);
+            var settings = definitions != null ? definitions.CameraSettings : null;
+            var shipDistance = ReadShipCameraDistance(definitions, state);
+            orbit.Follow(_playerShip, settings, SpaceCameraOrigin.Space, shipDistance);
+        }
+
+        private static float ReadShipCameraDistance(SpaceDefinitionsManager definitions, SpaceStateManager state)
+        {
+            if (definitions == null || state == null || state.Profile == null)
+                return 0f;
+
+            return definitions.TryGetHull(state.Profile.ActiveHullId, out var hull) ? hull.CameraDistance : 0f;
         }
 
         private void OnDestroy()

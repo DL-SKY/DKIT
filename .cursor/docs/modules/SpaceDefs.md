@@ -34,11 +34,12 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 - у каждой цели `BaseTimeMs` не меньше 1;
 - среди целей есть все пять значений `SpaceQueueKind`;
 - среди целей с `Kind = Skill` есть хотя бы три разных `BaseTimeMs`;
-- `CameraSettings` загружен и пригоден: дистанция больше нуля, минимум не выше старта и максимума, старт наклона внутри диапазона, чувствительность, шаг зума и порог перетаскивания больше нуля.
+- `CameraSettings` загружен и пригоден: минимум дистанции больше нуля и меньше максимума, старт наклона внутри диапазона, чувствительность, шаг зума и порог перетаскивания больше нуля;
+- у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры.
 
 Иначе задача старта падает с кодом `SpaceInitErrorCodes.DEFINITIONS` (2). В Play окно `Tools/Space`, секция Definitions, показывает четыре словаря и одиночную запись камеры. Вне Play секция пишет, что менеджера нет.
 
-Полёт корпуса эти записи пока не читает. Камера читает `CameraSettings`. Очередь умеет взять цель по id: `TryEnqueue` сверяет, что `SpaceTimedTargetDef.Kind` совпадает с очередью. Эта сверка временная: см. раздел ниже.
+Полёт корпуса эти записи пока не читает. Камера читает `CameraSettings` и `CameraDistance` корпуса. В секторе стартовая дистанция берётся с корпуса, поворот и наклон — с камеры. На станции дистанция корпуса не применяется, остаются поворот и наклон камеры. Очередь умеет взять цель по id: `TryEnqueue` сверяет, что `SpaceTimedTargetDef.Kind` совпадает с очередью. Эта сверка временная: см. раздел ниже.
 
 ## Поля
 
@@ -49,14 +50,15 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceHullDef` | `ModuleSlotIds` | `List<string>` | `ModuleSlotIds` | id слотов, куда садится модуль. Это не id `SpaceModuleDef` |
 | `SpaceHullDef` | `CommandIds` | `List<string>` | `CommandIds` | id `SpaceCommandDef`, которые корпус умеет отдать |
 | `SpaceHullDef` | `VisualResourcesPath` | `string` | `VisualResourcesPath` | путь в `Resources` на префаб корпуса. Пустой путь корпус в сцену не ставит |
+| `SpaceHullDef` | `CameraDistance` | `float` | `CameraDistance` | стартовая дистанция камеры в секторе. На станции не применяется |
 | `SpaceModuleDef` | `SlotId` | `string` | `SlotId` | слот корпуса, в который модуль ставится |
 | `SpaceModuleDef` | `WeaponGroup` | `string` | `WeaponGroup` | группа оружия. Сейчас в контенте `"A"` |
 | `SpaceCommandDef` | — | — | — | своих полей нет. Id файла и есть команда. Исполнения в дефе нет |
 | `SpaceTimedTargetDef` | `Kind` | `SpaceQueueKind` | `Kind` | в какую из пяти очередей цель ставится. Поле уйдёт вместе с этой записью |
 | `SpaceTimedTargetDef` | `BaseTimeMs` | `long` | `BaseTimeMs` | базовая длительность в миллисекундах, без модификаторов. Потом это поле будет у дефа самой цели |
-| `SpaceCameraSettingsDef` | `DefaultDistance` | `float` | `DefaultDistance` | стартовая дистанция камеры |
 | `SpaceCameraSettingsDef` | `MinDistance` | `float` | `MinDistance` | ближайший зум |
 | `SpaceCameraSettingsDef` | `MaxDistance` | `float` | `MaxDistance` | дальний зум |
+| `SpaceCameraSettingsDef` | `DefaultYaw` | `float` | `DefaultYaw` | стартовый поворот в градусах. Ноль — камера сзади корпуса |
 | `SpaceCameraSettingsDef` | `DefaultPitch` | `float` | `DefaultPitch` | стартовый наклон в градусах. Положительный — сверху |
 | `SpaceCameraSettingsDef` | `MinPitch` | `float` | `MinPitch` | нижний предел наклона. Отрицательный заглядывает под корпус |
 | `SpaceCameraSettingsDef` | `MaxPitch` | `float` | `MaxPitch` | верхний предел наклона |
@@ -82,10 +84,10 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 
 | Файл | Id | Поля |
 |---|---|---|
-| `Hulls/Fighter.json` | `Fighter` | слот `weapon_a`, команда `approach`, вид `Visuals/Fighter` |
+| `Hulls/Fighter.json` | `Fighter` | слот `weapon_a`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, дистанция камеры 18.97 |
 | `Modules/laser_a.json` | `laser_a` | слот `weapon_a`, группа `A` |
 | `Commands/approach.json` | `approach` | полей нет, `{}` |
-| `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 14 (4..48), наклон 22 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
+| `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 4..160, поворот 0, наклон 18.43 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
 | `TimedTargets/skill_survey.json` | `skill_survey` | `Skill`, 45000 мс |
 | `TimedTargets/skill_mining.json` | `skill_mining` | `Skill`, 90000 мс |
 | `TimedTargets/skill_repair.json` | `skill_repair` | `Skill`, 180000 мс |

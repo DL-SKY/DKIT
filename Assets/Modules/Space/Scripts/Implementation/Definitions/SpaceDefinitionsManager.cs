@@ -53,7 +53,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             if (_hulls.Count < 1 || _modules.Count < 1 || _commands.Count < 1)
                 return false;
 
-            if (CameraSettings == null || !CameraSettings.IsUsable())
+            if (CameraSettings == null || !CameraSettings.IsUsable() || !HullCameraDistancesFit())
                 return false;
 
             var skillDurations = new HashSet<long>();
@@ -75,6 +75,20 @@ namespace Modules.Space.Scripts.Implementation.Definitions
                 && kinds.Contains(SpaceQueueKind.Disassembly)
                 && kinds.Contains(SpaceQueueKind.BlueprintAttempt)
                 && kinds.Contains(SpaceQueueKind.Production);
+        }
+
+        private bool HullCameraDistancesFit()
+        {
+            foreach (var pair in _hulls)
+            {
+                var hull = pair.Value;
+                if (hull == null
+                    || hull.CameraDistance < CameraSettings.MinDistance
+                    || hull.CameraDistance > CameraSettings.MaxDistance)
+                    return false;
+            }
+
+            return true;
         }
     }
 }

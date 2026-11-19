@@ -54,7 +54,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 int slotCount = hull.ModuleSlotIds != null ? hull.ModuleSlotIds.Count : 0;
                 int commandCount = hull.CommandIds != null ? hull.CommandIds.Count : 0;
                 string visual = string.IsNullOrEmpty(hull.VisualResourcesPath) ? "—" : hull.VisualResourcesPath;
-                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount + ", visual " + visual);
+                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount + ", camera " + hull.CameraDistance + ", visual " + visual);
             }
 
             EditorGUI.indentLevel--;
@@ -121,8 +121,8 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 return;
             }
 
-            EditorGUILayout.LabelField("distance " + settings.DefaultDistance + "  " + settings.MinDistance + ".." + settings.MaxDistance);
-            EditorGUILayout.LabelField("pitch " + settings.DefaultPitch + "  " + settings.MinPitch + ".." + settings.MaxPitch);
+            EditorGUILayout.LabelField("distance " + settings.MinDistance + ".." + settings.MaxDistance);
+            EditorGUILayout.LabelField("yaw " + settings.DefaultYaw + "  pitch " + settings.DefaultPitch + "  " + settings.MinPitch + ".." + settings.MaxPitch);
             EditorGUILayout.LabelField("degrees/pixel " + settings.DegreesPerPixel + "  scroll " + settings.ScrollStep + "  drag " + settings.DragThresholdPixels);
             EditorGUI.indentLevel--;
         }

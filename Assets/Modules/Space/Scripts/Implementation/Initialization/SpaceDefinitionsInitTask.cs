@@ -23,7 +23,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             _definitionsManager.Init();
             if (!_definitionsManager.IsReady)
             {
-                UnityEngine.Debug.LogError("[Space] Definitions catalog is missing a hull, a module, a command, timed targets, or camera settings.");
+                UnityEngine.Debug.LogError("[Space] Definitions catalog is missing a hull, a module, a command, timed targets, camera settings, or a hull camera distance.");
                 Fail(SpaceInitErrorCodes.DEFINITIONS);
                 return;
             }

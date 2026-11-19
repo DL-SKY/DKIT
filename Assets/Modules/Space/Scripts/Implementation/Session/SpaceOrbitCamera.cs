@@ -3,9 +3,16 @@ using UnityEngine;
 
 namespace Modules.Space.Scripts.Implementation.Session
 {
+    public enum SpaceCameraOrigin
+    {
+        Space,
+        Station
+    }
+
     /// <summary>
     /// Orbits a hull from above or below. Drag rotates, scroll and pinch change distance.
-    /// Distances and angles come from <see cref="SpaceCameraSettingsDef"/>.
+    /// Yaw and pitch defaults come from <see cref="SpaceCameraSettingsDef"/>.
+    /// In space the distance starts from the hull. At a station the current distance stays.
     /// A click without a drag does not set a route.
     /// </summary>
     public sealed class SpaceOrbitCamera : MonoBehaviour
@@ -21,7 +28,7 @@ namespace Modules.Space.Scripts.Implementation.Session
         private Vector2 _previousPointer;
         private float _previousPinchDistance;
 
-        public void Follow(Transform target, SpaceCameraSettingsDef settings)
+        public void Follow(Transform target, SpaceCameraSettingsDef settings, SpaceCameraOrigin origin, float shipDistance)
         {
             _target = target;
             _settings = settings;
@@ -32,8 +39,11 @@ namespace Modules.Space.Scripts.Implementation.Session
                 return;
             }
 
+            _yaw = _settings.DefaultYaw;
             _pitch = _settings.DefaultPitch;
-            _distance = _settings.DefaultDistance;
+            if (origin == SpaceCameraOrigin.Space)
+                _distance = Mathf.Clamp(shipDistance, _settings.MinDistance, _settings.MaxDistance);
+
             Apply();
         }
 

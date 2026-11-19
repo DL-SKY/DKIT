@@ -1,5 +1,6 @@
 {
   "ModuleSlotIds": ["weapon_a"],
   "CommandIds": ["approach"],
-  "VisualResourcesPath": "Visuals/Fighter"
+  "VisualResourcesPath": "Prefabs/Spaceships/Fighter",
+  "CameraDistance": 18.97
 }

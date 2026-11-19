@@ -29,7 +29,7 @@
 
 Старт открывает `SpaceLoadView` (`Resources/Prefabs/Views/Space/SpaceLoadView`) до задач. После каталога, профиля и локализации `LoadSceneTask` грузит `SpaceDebug` вместо стартовой сцены: камера, свет и два астероида, без корабля игрока. Короткая пауза держит полную полосу, затем `CloseViewTask` закрывает окно. `CoroutineHolder` зарегистрирован в `ProjectInstaller`. `OnDestroy` стартовой сцены не обрывает список, пока задачи ещё идут. Мир ECS после закрытия окна поднимает `SpaceSessionHost`, он живёт дольше стартовой сцены.
 
-Корабль игрока в `SpaceDebug` не лежит в файле сцены. `SpacePlayerShip` читает `ActiveHullId`, грузит `VisualResourcesPath` и создаёт `PlayerShip`. У `Fighter` это `Visuals/Fighter`. `SpaceOrbitCamera` ведёт камеру сцены вокруг корпуса. Список радара и меню по нажатию идут после камеры.
+Корабль игрока в `SpaceDebug` не лежит в файле сцены. `SpacePlayerShip` читает `ActiveHullId`, грузит `VisualResourcesPath` и создаёт `PlayerShip`. У `Fighter` это `Prefabs/Spaceships/Fighter`. `SpaceOrbitCamera` ведёт камеру сцены вокруг корпуса: в секторе дистанция берётся из `CameraDistance` корпуса, поворот и наклон — из `CameraSettings`. На станции дистанция корпуса не ставится. Список радара и меню по нажатию идут после камеры.
 
 Системы создаются тем же `EcsSystemFactory`, что и Match-3. Свой `EcsWorld` живёт только пока корабль в секторе. На стыковке контроллер делает `Dispose()` мира, как `Match3RoundController`. Очереди и склад в этот мир не кладутся: иначе стыковка их сотрёт.
 
