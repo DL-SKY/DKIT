@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Space/Space.unity
     guid: 2965d298ffa4f394ab173c1f2e299c82
+  - enabled: 1
+    path: Assets/Scenes/Space/SpaceDebug.unity
+    guid: 3599632f180ea224e96663cab9f51b97
   m_configObjects: {}

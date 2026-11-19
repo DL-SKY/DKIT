@@ -5,9 +5,10 @@ using Modules.Space.Scripts.Implementation.Definitions;
 using Modules.Space.Scripts.Implementation.Session;
 using Modules.Space.Scripts.Implementation.State;
 using Modules.Utils.Scripts.Components;
-using Modules.Windows.Scripts.Implementation.Loading;
+using Modules.Windows.Scripts.Implementation.Space;
 using Modules.Windows.Scripts.Managers;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Zenject;
 using Zenject.Scripts.Factories;
 
@@ -18,59 +19,71 @@ namespace Modules.Space.Scripts.Implementation.Initialization
     /// </summary>
     public sealed class SpaceInitializer : MonoBehaviour
     {
+        public const string DEBUG_SECTOR_SCENE = "SpaceDebug";
+
         private const int TASK_WEIGHT = 10;
+        private const float FULL_BAR_PAUSE_SECONDS = 0.25f;
 
         private WindowsManager _windowsManager;
         private ViewModelFactory _viewModelFactory;
         private InitializeTasker _tasker;
-        private SpaceSessionController _session;
-        private SpaceDefinitionsManager _definitions;
-        private SpaceStateManager _state;
+        private bool _startupFinished;
 
         private void Start()
         {
             var container = ProjectContext.Instance.Container;
             _windowsManager = container.Resolve<WindowsManager>();
             _viewModelFactory = container.Resolve<ViewModelFactory>();
-            _definitions = container.Resolve<SpaceDefinitionsManager>();
-            _state = container.Resolve<SpaceStateManager>();
-            var loaderViewModel = _viewModelFactory.Create<MainLoadViewModel>();
+            var definitions = container.Resolve<SpaceDefinitionsManager>();
+            var state = container.Resolve<SpaceStateManager>();
+            var coroutineHolder = container.Resolve<CoroutineHolder>();
+            var updater = container.Resolve<Updater>();
+            var loaderViewModel = _viewModelFactory.Create<SpaceLoadViewModel>();
 
             var tasks = new List<TaskBase>
             {
-                new SpaceDefinitionsInitTask(TASK_WEIGHT, _definitions),
-                new SpaceStateInitTask(TASK_WEIGHT, _state, _definitions),
+                new SpaceDefinitionsInitTask(TASK_WEIGHT, definitions),
+                new SpaceStateInitTask(TASK_WEIGHT, state, definitions),
                 new SpaceLocalizationInitTask(TASK_WEIGHT),
+                new LoadSceneTask(DEBUG_SECTOR_SCENE, LoadSceneMode.Single, coroutineHolder, TASK_WEIGHT),
+                new PauseTask(updater, FULL_BAR_PAUSE_SECONDS, 0),
                 new CloseViewTask(_windowsManager, loaderViewModel, 0),
             };
 
             _tasker = new InitializeTasker(tasks);
             loaderViewModel.Init(_tasker);
-            _windowsManager.OpenView<MainLoadView, MainLoadViewModel>(MainLoadView.Path, loaderViewModel);
+            _windowsManager.OpenView<SpaceLoadView, SpaceLoadViewModel>(SpaceLoadView.Path, loaderViewModel);
             _tasker.Run(OnCompleted, OnFailed);
         }
 
         private void OnCompleted()
         {
-            UnityEngine.Debug.Log("[Space] Initialization complete. Sector is not started.");
+            _startupFinished = true;
+            _tasker?.Dispose();
+            _tasker = null;
+
+            UnityEngine.Debug.Log("[Space] Initialization complete. Debug sector loaded.");
 
             var container = ProjectContext.Instance.Container;
-            _session = new SpaceSessionController(
-                container.Resolve<Updater>(),
-                container.Resolve<EcsSystemFactory>());
-            _session.Start();
+            var host = container.Resolve<SpaceSessionHost>();
+            host.StartSession(container.Resolve<Updater>(), container.Resolve<EcsSystemFactory>());
         }
 
         private void OnFailed(int errorCode)
         {
+            _startupFinished = true;
+            _tasker?.Dispose();
+            _tasker = null;
             UnityEngine.Debug.LogError($"[Space] Initialization failed with error {errorCode}.");
         }
 
         private void OnDestroy()
         {
-            _session?.Dispose();
-            _session = null;
+            if (!_startupFinished)
+                return;
+
             _tasker?.Dispose();
+            _tasker = null;
         }
     }
 }
