@@ -39,7 +39,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             {
                 new SpaceDefinitionsInitTask(TASK_WEIGHT, definitionsManager),
                 new SpaceStateInitTask(TASK_WEIGHT, stateManager),
-                container.Instantiate<SpaceLocalizationInitTask>(new object[] { TASK_WEIGHT }),
+                new SpaceLocalizationInitTask(TASK_WEIGHT),
                 new CloseViewTask(_windowsManager, loaderViewModel, 0),
             };
 
@@ -56,7 +56,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             var container = ProjectContext.Instance.Container;
             _session = new SpaceSessionController(
                 container.Resolve<Updater>(),
-                container.Instantiate<EcsSystemFactory>());
+                container.Resolve<EcsSystemFactory>());
             _session.Start();
         }
 
