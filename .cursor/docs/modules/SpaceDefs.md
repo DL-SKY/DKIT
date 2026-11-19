@@ -19,7 +19,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceHullDef` | `AbstractDefinition` | `Definitions/Space/Hulls` | `SpaceDefinitionsManager.Hulls` |
 | `SpaceModuleDef` | `AbstractDefinition` | `Definitions/Space/Modules` | `SpaceDefinitionsManager.Modules` |
 | `SpaceCommandDef` | `AbstractDefinition` | `Definitions/Space/Commands` | `SpaceDefinitionsManager.Commands` |
-| `SpaceTimedTargetDef` | `AbstractDefinition` | `Definitions/Space/TimedTargets` | `SpaceDefinitionsManager.TimedTargets` |
+| `SpaceTimedTargetDef` | `AbstractDefinition` | `Definitions/Space/TimedTargets` | `SpaceDefinitionsManager.TimedTargets`. Временная запись, будет удалена |
 
 `Id` в JSON не пишется. `SpaceDefinitionLoader` ставит его из имени файла (`approach.json` → `approach`). Файл из одних пробелов пропускается, поэтому у команды без полей в файле лежит `{}`. Повторный id пропускается с предупреждением, в словарь остаётся первая запись. Битый JSON из загрузчика не глотается: исключение выходит из `Init` до `IsReady`.
 
@@ -36,7 +36,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 
 Иначе задача старта падает с кодом `SpaceInitErrorCodes.DEFINITIONS` (2). В Play окно `Tools/Space`, секция Definitions, показывает те же четыре словаря. Вне Play секция пишет, что менеджера нет.
 
-Полёт эти записи пока не читает. Очередь умеет взять цель по id: `TryEnqueue` сверяет, что `SpaceTimedTargetDef.Kind` совпадает с очередью.
+Полёт эти записи пока не читает. Очередь умеет взять цель по id: `TryEnqueue` сверяет, что `SpaceTimedTargetDef.Kind` совпадает с очередью. Эта сверка временная: см. раздел ниже.
 
 ## Поля
 
@@ -49,8 +49,8 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceModuleDef` | `SlotId` | `string` | `SlotId` | слот корпуса, в который модуль ставится |
 | `SpaceModuleDef` | `WeaponGroup` | `string` | `WeaponGroup` | группа оружия. Сейчас в контенте `"A"` |
 | `SpaceCommandDef` | — | — | — | своих полей нет. Id файла и есть команда. Исполнения в дефе нет |
-| `SpaceTimedTargetDef` | `Kind` | `SpaceQueueKind` | `Kind` | в какую из пяти очередей цель ставится |
-| `SpaceTimedTargetDef` | `BaseTimeMs` | `long` | `BaseTimeMs` | базовая длительность в миллисекундах, без модификаторов |
+| `SpaceTimedTargetDef` | `Kind` | `SpaceQueueKind` | `Kind` | в какую из пяти очередей цель ставится. Поле уйдёт вместе с этой записью |
+| `SpaceTimedTargetDef` | `BaseTimeMs` | `long` | `BaseTimeMs` | базовая длительность в миллисекундах, без модификаторов. Потом это поле будет у дефа самой цели |
 
 Слоты модулей и команды на корпусе — разные списки. Модуль ссылается на слот через `SlotId`. Команда — это id `SpaceCommandDef`.
 
@@ -83,4 +83,6 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 
 ## Чего в каталоге ещё нет
 
-Отдельных дефов сектора, контакта, чертежа, склада и сертификата корпуса нет. Цель очереди — общая запись `SpaceTimedTargetDef`: у навыка, улучшения чертежа, разбора, попытки создать чертёж и производства одни и те же поля `Kind` и `BaseTimeMs`.
+Отдельных дефов сектора, контакта, навыка, чертежа, разбора, склада и сертификата корпуса нет.
+
+`SpaceTimedTargetDef` и папка `TimedTargets` — временная заглушка. Запись будет удалена. Строка очереди станет хранить id настоящего дефа цели: навыка, чертежа и остальных работ. Длительность в миллисекундах будет полем этого дефа, а не отдельной общей записи. `Kind` на заглушке нужен только пока один каталог обслуживает все пять очередей.
