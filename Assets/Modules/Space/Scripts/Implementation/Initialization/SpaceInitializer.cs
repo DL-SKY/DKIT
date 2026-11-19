@@ -32,9 +32,8 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             var container = ProjectContext.Instance.Container;
             _windowsManager = container.Resolve<WindowsManager>();
             _viewModelFactory = container.Resolve<ViewModelFactory>();
-
-            _definitions = new SpaceDefinitionsManager();
-            _state = new SpaceStateManager();
+            _definitions = container.Resolve<SpaceDefinitionsManager>();
+            _state = container.Resolve<SpaceStateManager>();
             var loaderViewModel = _viewModelFactory.Create<MainLoadViewModel>();
 
             var tasks = new List<TaskBase>
