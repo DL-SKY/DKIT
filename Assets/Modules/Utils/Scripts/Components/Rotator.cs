@@ -71,7 +71,7 @@ namespace Modules.Utils.Scripts.Components
             }
 
             float deltaTime = _useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
-            transform.Rotate(_axis, _speedDegreesPerSecond * deltaTime, Space.Self);
+            transform.Rotate(_axis, _speedDegreesPerSecond * deltaTime, UnityEngine.Space.Self);
         }
 
 
