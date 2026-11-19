@@ -1,0 +1,11 @@
+{
+  "DefaultDistance": 14,
+  "MinDistance": 4,
+  "MaxDistance": 48,
+  "DefaultPitch": 22,
+  "MinPitch": -75,
+  "MaxPitch": 75,
+  "DegreesPerPixel": 0.2,
+  "ScrollStep": 2,
+  "DragThresholdPixels": 6
+}

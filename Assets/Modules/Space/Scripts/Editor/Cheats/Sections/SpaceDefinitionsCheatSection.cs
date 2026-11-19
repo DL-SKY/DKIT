@@ -29,6 +29,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             DrawModules(definitions);
             DrawCommands(definitions);
             DrawTimedTargets(definitions);
+            DrawCameraSettings(definitions);
         }
 
         private static SpaceDefinitionsManager TryGetDefinitions()
@@ -105,6 +106,24 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 EditorGUILayout.LabelField((i + 1) + ". " + target.Id + "  " + target.Kind + "  " + target.BaseTimeMs + " ms");
             }
 
+            EditorGUI.indentLevel--;
+        }
+
+        private static void DrawCameraSettings(SpaceDefinitionsManager definitions)
+        {
+            SpaceCameraSettingsDef settings = definitions.CameraSettings;
+            EditorGUILayout.LabelField("Camera:");
+            EditorGUI.indentLevel++;
+            if (settings == null)
+            {
+                EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
+                EditorGUI.indentLevel--;
+                return;
+            }
+
+            EditorGUILayout.LabelField("distance " + settings.DefaultDistance + "  " + settings.MinDistance + ".." + settings.MaxDistance);
+            EditorGUILayout.LabelField("pitch " + settings.DefaultPitch + "  " + settings.MinPitch + ".." + settings.MaxPitch);
+            EditorGUILayout.LabelField("degrees/pixel " + settings.DegreesPerPixel + "  scroll " + settings.ScrollStep + "  drag " + settings.DragThresholdPixels);
             EditorGUI.indentLevel--;
         }
 

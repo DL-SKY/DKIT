@@ -12,6 +12,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public const string MODULES_PATH = "Definitions/Space/Modules";
         public const string COMMANDS_PATH = "Definitions/Space/Commands";
         public const string TIMED_TARGETS_PATH = "Definitions/Space/TimedTargets";
+        public const string CAMERA_SETTINGS_PATH = "Definitions/Space/CameraSettings/CameraSettings";
 
         private static readonly JsonSerializerSettings SETTINGS = new JsonSerializerSettings
         {
@@ -41,6 +42,26 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             }
 
             return result;
+        }
+
+        public static T LoadSingle<T>(string resourcesPath) where T : AbstractDefinition
+        {
+            var asset = Resources.Load<TextAsset>(resourcesPath);
+            if (asset == null || string.IsNullOrWhiteSpace(asset.text))
+            {
+                UnityEngine.Debug.LogWarning($"[Space] Single definition '{resourcesPath}' was not found.");
+                return null;
+            }
+
+            var definition = JsonConvert.DeserializeObject<T>(asset.text, SETTINGS);
+            if (definition == null)
+            {
+                UnityEngine.Debug.LogWarning($"[Space] Single definition '{resourcesPath}' did not deserialize.");
+                return null;
+            }
+
+            definition.Id = asset.name;
+            return definition;
         }
     }
 }

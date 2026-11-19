@@ -45,7 +45,7 @@ namespace Modules.Space.Scripts.Implementation.Session
             if (orbit == null)
                 orbit = camera.gameObject.AddComponent<SpaceOrbitCamera>();
 
-            orbit.Follow(_playerShip);
+            orbit.Follow(_playerShip, definitions != null ? definitions.CameraSettings : null);
         }
 
         private void OnDestroy()

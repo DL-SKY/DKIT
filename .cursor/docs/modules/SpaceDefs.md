@@ -20,6 +20,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceModuleDef` | `AbstractDefinition` | `Definitions/Space/Modules` | `SpaceDefinitionsManager.Modules` |
 | `SpaceCommandDef` | `AbstractDefinition` | `Definitions/Space/Commands` | `SpaceDefinitionsManager.Commands` |
 | `SpaceTimedTargetDef` | `AbstractDefinition` | `Definitions/Space/TimedTargets` | `SpaceDefinitionsManager.TimedTargets`. Временная запись, будет удалена |
+| `SpaceCameraSettingsDef` | `AbstractDefinition` | `Definitions/Space/CameraSettings/CameraSettings` | `SpaceDefinitionsManager.CameraSettings`. Одна запись, не словарь |
 
 `Id` в JSON не пишется. `SpaceDefinitionLoader` ставит его из имени файла (`approach.json` → `approach`). Файл из одних пробелов пропускается, поэтому у команды без полей в файле лежит `{}`. Повторный id пропускается с предупреждением, в словарь остаётся первая запись. Битый JSON из загрузчика не глотается: исключение выходит из `Init` до `IsReady`.
 
@@ -32,15 +33,16 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 - хотя бы один корпус, один модуль и одна команда;
 - у каждой цели `BaseTimeMs` не меньше 1;
 - среди целей есть все пять значений `SpaceQueueKind`;
-- среди целей с `Kind = Skill` есть хотя бы три разных `BaseTimeMs`.
+- среди целей с `Kind = Skill` есть хотя бы три разных `BaseTimeMs`;
+- `CameraSettings` загружен и пригоден: дистанция больше нуля, минимум не выше старта и максимума, старт наклона внутри диапазона, чувствительность, шаг зума и порог перетаскивания больше нуля.
 
-Иначе задача старта падает с кодом `SpaceInitErrorCodes.DEFINITIONS` (2). В Play окно `Tools/Space`, секция Definitions, показывает те же четыре словаря. Вне Play секция пишет, что менеджера нет.
+Иначе задача старта падает с кодом `SpaceInitErrorCodes.DEFINITIONS` (2). В Play окно `Tools/Space`, секция Definitions, показывает четыре словаря и одиночную запись камеры. Вне Play секция пишет, что менеджера нет.
 
-Полёт эти записи пока не читает. Очередь умеет взять цель по id: `TryEnqueue` сверяет, что `SpaceTimedTargetDef.Kind` совпадает с очередью. Эта сверка временная: см. раздел ниже.
+Полёт корпуса эти записи пока не читает. Камера читает `CameraSettings`. Очередь умеет взять цель по id: `TryEnqueue` сверяет, что `SpaceTimedTargetDef.Kind` совпадает с очередью. Эта сверка временная: см. раздел ниже.
 
 ## Поля
 
-`Id` у всех четырёх — `string`, `[JsonIgnore]`, в JSON нет.
+`Id` у коллекций и у одиночной записи камеры — `string`, `[JsonIgnore]`, в JSON нет.
 
 | Def | Поле | Тип | В JSON | Смысл |
 |---|---|---|---|---|
@@ -52,6 +54,15 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceCommandDef` | — | — | — | своих полей нет. Id файла и есть команда. Исполнения в дефе нет |
 | `SpaceTimedTargetDef` | `Kind` | `SpaceQueueKind` | `Kind` | в какую из пяти очередей цель ставится. Поле уйдёт вместе с этой записью |
 | `SpaceTimedTargetDef` | `BaseTimeMs` | `long` | `BaseTimeMs` | базовая длительность в миллисекундах, без модификаторов. Потом это поле будет у дефа самой цели |
+| `SpaceCameraSettingsDef` | `DefaultDistance` | `float` | `DefaultDistance` | стартовая дистанция камеры |
+| `SpaceCameraSettingsDef` | `MinDistance` | `float` | `MinDistance` | ближайший зум |
+| `SpaceCameraSettingsDef` | `MaxDistance` | `float` | `MaxDistance` | дальний зум |
+| `SpaceCameraSettingsDef` | `DefaultPitch` | `float` | `DefaultPitch` | стартовый наклон в градусах. Положительный — сверху |
+| `SpaceCameraSettingsDef` | `MinPitch` | `float` | `MinPitch` | нижний предел наклона. Отрицательный заглядывает под корпус |
+| `SpaceCameraSettingsDef` | `MaxPitch` | `float` | `MaxPitch` | верхний предел наклона |
+| `SpaceCameraSettingsDef` | `DegreesPerPixel` | `float` | `DegreesPerPixel` | сколько градусов даёт один пиксель перетаскивания |
+| `SpaceCameraSettingsDef` | `ScrollStep` | `float` | `ScrollStep` | шаг дистанции на один щелчок колеса |
+| `SpaceCameraSettingsDef` | `DragThresholdPixels` | `float` | `DragThresholdPixels` | сдвиг, после которого касание считается поворотом, а не кликом |
 
 Слоты модулей и команды на корпусе — разные списки. Модуль ссылается на слот через `SlotId`. Команда — это id `SpaceCommandDef`.
 
@@ -74,6 +85,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `Hulls/Fighter.json` | `Fighter` | слот `weapon_a`, команда `approach`, вид `Visuals/Fighter` |
 | `Modules/laser_a.json` | `laser_a` | слот `weapon_a`, группа `A` |
 | `Commands/approach.json` | `approach` | полей нет, `{}` |
+| `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 14 (4..48), наклон 22 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
 | `TimedTargets/skill_survey.json` | `skill_survey` | `Skill`, 45000 мс |
 | `TimedTargets/skill_mining.json` | `skill_mining` | `Skill`, 90000 мс |
 | `TimedTargets/skill_repair.json` | `skill_repair` | `Skill`, 180000 мс |

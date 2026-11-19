@@ -1,41 +1,47 @@
+using Modules.Space.Scripts.Implementation.Definitions;
 using UnityEngine;
 
 namespace Modules.Space.Scripts.Implementation.Session
 {
     /// <summary>
-    /// Orbits behind and above a hull. Drag rotates, scroll and pinch change distance.
+    /// Orbits a hull from above or below. Drag rotates, scroll and pinch change distance.
+    /// Distances and angles come from <see cref="SpaceCameraSettingsDef"/>.
     /// A click without a drag does not set a route.
     /// </summary>
     public sealed class SpaceOrbitCamera : MonoBehaviour
     {
-        private const float DEFAULT_DISTANCE = 14f;
-        private const float MIN_DISTANCE = 4f;
-        private const float MAX_DISTANCE = 48f;
-        private const float DEFAULT_PITCH = 22f;
-        private const float MIN_PITCH = 10f;
-        private const float MAX_PITCH = 75f;
-        private const float DEGREES_PER_PIXEL = 0.2f;
-        private const float SCROLL_STEP = 2f;
-        private const float DRAG_THRESHOLD_PIXELS = 6f;
-
+        private SpaceCameraSettingsDef _settings;
         private Transform _target;
         private float _yaw;
-        private float _pitch = DEFAULT_PITCH;
-        private float _distance = DEFAULT_DISTANCE;
+        private float _pitch;
+        private float _distance;
         private bool _pressed;
         private bool _dragging;
         private Vector2 _pressPosition;
         private Vector2 _previousPointer;
         private float _previousPinchDistance;
 
-        public void Follow(Transform target)
+        public void Follow(Transform target, SpaceCameraSettingsDef settings)
         {
             _target = target;
+            _settings = settings;
+            if (_settings == null || !_settings.IsUsable())
+            {
+                UnityEngine.Debug.LogError("[Space] Orbit camera has no usable camera settings.");
+                _settings = null;
+                return;
+            }
+
+            _pitch = _settings.DefaultPitch;
+            _distance = _settings.DefaultDistance;
             Apply();
         }
 
         private void LateUpdate()
         {
+            if (_settings == null)
+                return;
+
             ReadInput();
             Apply();
         }
@@ -70,7 +76,7 @@ namespace Modules.Space.Scripts.Implementation.Session
                 UnityEngine.Input.GetMouseButtonUp(0),
                 mousePosition,
                 mouseDelta);
-            _distance = Mathf.Clamp(_distance - UnityEngine.Input.mouseScrollDelta.y * SCROLL_STEP, MIN_DISTANCE, MAX_DISTANCE);
+            _distance = Mathf.Clamp(_distance - UnityEngine.Input.mouseScrollDelta.y * _settings.ScrollStep, _settings.MinDistance, _settings.MaxDistance);
         }
 
         private void ReadPointer(bool began, bool ended, Vector2 position, Vector2 delta)
@@ -86,13 +92,14 @@ namespace Modules.Space.Scripts.Implementation.Session
             if (!_pressed)
                 return;
 
-            if ((position - _pressPosition).sqrMagnitude >= DRAG_THRESHOLD_PIXELS * DRAG_THRESHOLD_PIXELS)
+            var threshold = _settings.DragThresholdPixels;
+            if ((position - _pressPosition).sqrMagnitude >= threshold * threshold)
                 _dragging = true;
 
             if (_dragging)
             {
-                _yaw += delta.x * DEGREES_PER_PIXEL;
-                _pitch = Mathf.Clamp(_pitch - delta.y * DEGREES_PER_PIXEL, MIN_PITCH, MAX_PITCH);
+                _yaw += delta.x * _settings.DegreesPerPixel;
+                _pitch = Mathf.Clamp(_pitch - delta.y * _settings.DegreesPerPixel, _settings.MinPitch, _settings.MaxPitch);
             }
 
             if (ended)
@@ -108,7 +115,7 @@ namespace Modules.Space.Scripts.Implementation.Session
             var second = UnityEngine.Input.GetTouch(1).position;
             var pinchDistance = Vector2.Distance(first, second);
             if (_previousPinchDistance > 0f && pinchDistance > 0f)
-                _distance = Mathf.Clamp(_distance * (_previousPinchDistance / pinchDistance), MIN_DISTANCE, MAX_DISTANCE);
+                _distance = Mathf.Clamp(_distance * (_previousPinchDistance / pinchDistance), _settings.MinDistance, _settings.MaxDistance);
 
             _previousPinchDistance = pinchDistance;
         }

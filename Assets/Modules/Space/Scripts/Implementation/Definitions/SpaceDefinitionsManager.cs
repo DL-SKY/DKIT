@@ -13,6 +13,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public IReadOnlyDictionary<string, SpaceModuleDef> Modules => _modules;
         public IReadOnlyDictionary<string, SpaceCommandDef> Commands => _commands;
         public IReadOnlyDictionary<string, SpaceTimedTargetDef> TimedTargets => _timedTargets;
+        public SpaceCameraSettingsDef CameraSettings { get; private set; }
 
         private Dictionary<string, SpaceHullDef> _hulls = new Dictionary<string, SpaceHullDef>();
         private Dictionary<string, SpaceModuleDef> _modules = new Dictionary<string, SpaceModuleDef>();
@@ -25,6 +26,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             _modules = SpaceDefinitionLoader.Load<SpaceModuleDef>(SpaceDefinitionLoader.MODULES_PATH);
             _commands = SpaceDefinitionLoader.Load<SpaceCommandDef>(SpaceDefinitionLoader.COMMANDS_PATH);
             _timedTargets = SpaceDefinitionLoader.Load<SpaceTimedTargetDef>(SpaceDefinitionLoader.TIMED_TARGETS_PATH);
+            CameraSettings = SpaceDefinitionLoader.LoadSingle<SpaceCameraSettingsDef>(SpaceDefinitionLoader.CAMERA_SETTINGS_PATH);
             IsReady = HasRequiredRecords();
         }
 
@@ -49,6 +51,9 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         private bool HasRequiredRecords()
         {
             if (_hulls.Count < 1 || _modules.Count < 1 || _commands.Count < 1)
+                return false;
+
+            if (CameraSettings == null || !CameraSettings.IsUsable())
                 return false;
 
             var skillDurations = new HashSet<long>();
