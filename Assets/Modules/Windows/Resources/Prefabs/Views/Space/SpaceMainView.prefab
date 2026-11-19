@@ -88,6 +88,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 810000001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00000000000000000000000000000000, type: 3}
+  m_Script: {fileID: 11500000, guid: cc8a5198c860e574f9d1ad3eafba732e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Space.SpaceMainView
