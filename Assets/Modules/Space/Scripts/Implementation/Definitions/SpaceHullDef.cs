@@ -6,6 +6,6 @@ namespace Modules.Space.Scripts.Implementation.Definitions
     public sealed class SpaceHullDef : AbstractDefinition
     {
         public List<string> ModuleSlotIds;
-        public List<string> ControlOrganIds;
+        public List<string> CommandIds;
     }
 }

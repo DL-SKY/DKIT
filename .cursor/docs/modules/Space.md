@@ -21,7 +21,7 @@
 | `Assets/Modules/ECS/Scripts/Space` | Компоненты и системы полёта на `Leopotam.Ecs` |
 | [Windows](Windows.md) | Список радара, меню приказа, экраны станции. View/ViewModel пишут приказ и читают контакты |
 | [State](State.md) / `Save` | Склад, чертежи, пять очередей, сертификаты корпусов |
-| [Definitions](Definitions.md) | Сектора, корпуса, модули, чертежи, контакты — когда появятся данные |
+| [SpaceDefs](SpaceDefs.md) | Каталог Space: корпуса, модули, команды, цели очередей. Каталог Приключений из [Definitions](Definitions.md) сюда не входит |
 
 `Space` не вкладывается в `RPG` и не расширяет пайплайн Adventure.
 

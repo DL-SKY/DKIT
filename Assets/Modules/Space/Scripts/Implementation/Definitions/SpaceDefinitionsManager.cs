@@ -11,19 +11,19 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public bool IsReady { get; private set; }
         public IReadOnlyDictionary<string, SpaceHullDef> Hulls => _hulls;
         public IReadOnlyDictionary<string, SpaceModuleDef> Modules => _modules;
-        public IReadOnlyDictionary<string, SpaceControlOrganDef> ControlOrgans => _controlOrgans;
+        public IReadOnlyDictionary<string, SpaceCommandDef> Commands => _commands;
         public IReadOnlyDictionary<string, SpaceTimedTargetDef> TimedTargets => _timedTargets;
 
         private Dictionary<string, SpaceHullDef> _hulls = new Dictionary<string, SpaceHullDef>();
         private Dictionary<string, SpaceModuleDef> _modules = new Dictionary<string, SpaceModuleDef>();
-        private Dictionary<string, SpaceControlOrganDef> _controlOrgans = new Dictionary<string, SpaceControlOrganDef>();
+        private Dictionary<string, SpaceCommandDef> _commands = new Dictionary<string, SpaceCommandDef>();
         private Dictionary<string, SpaceTimedTargetDef> _timedTargets = new Dictionary<string, SpaceTimedTargetDef>();
 
         public void Init()
         {
             _hulls = SpaceDefinitionLoader.Load<SpaceHullDef>(SpaceDefinitionLoader.HULLS_PATH);
             _modules = SpaceDefinitionLoader.Load<SpaceModuleDef>(SpaceDefinitionLoader.MODULES_PATH);
-            _controlOrgans = SpaceDefinitionLoader.Load<SpaceControlOrganDef>(SpaceDefinitionLoader.CONTROL_ORGANS_PATH);
+            _commands = SpaceDefinitionLoader.Load<SpaceCommandDef>(SpaceDefinitionLoader.COMMANDS_PATH);
             _timedTargets = SpaceDefinitionLoader.Load<SpaceTimedTargetDef>(SpaceDefinitionLoader.TIMED_TARGETS_PATH);
             IsReady = HasRequiredRecords();
         }
@@ -36,7 +36,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
 
         private bool HasRequiredRecords()
         {
-            if (_hulls.Count < 1 || _modules.Count < 1 || _controlOrgans.Count < 1)
+            if (_hulls.Count < 1 || _modules.Count < 1 || _commands.Count < 1)
                 return false;
 
             var skillDurations = new HashSet<long>();

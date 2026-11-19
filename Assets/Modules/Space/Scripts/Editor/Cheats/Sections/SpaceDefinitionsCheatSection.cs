@@ -27,7 +27,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             EditorGUILayout.Space(2f);
             DrawHulls(definitions);
             DrawModules(definitions);
-            DrawControlOrgans(definitions);
+            DrawCommands(definitions);
             DrawTimedTargets(definitions);
         }
 
@@ -51,8 +51,8 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             {
                 SpaceHullDef hull = definitions.Hulls[ids[i]];
                 int slotCount = hull.ModuleSlotIds != null ? hull.ModuleSlotIds.Count : 0;
-                int organCount = hull.ControlOrganIds != null ? hull.ControlOrganIds.Count : 0;
-                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", organs " + organCount);
+                int commandCount = hull.CommandIds != null ? hull.CommandIds.Count : 0;
+                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount);
             }
 
             EditorGUI.indentLevel--;
@@ -76,19 +76,16 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             EditorGUI.indentLevel--;
         }
 
-        private static void DrawControlOrgans(SpaceDefinitionsManager definitions)
+        private static void DrawCommands(SpaceDefinitionsManager definitions)
         {
-            EditorGUILayout.LabelField("Control organs:");
+            EditorGUILayout.LabelField("Commands:");
             EditorGUI.indentLevel++;
-            List<string> ids = SortedIds(definitions.ControlOrgans);
+            List<string> ids = SortedIds(definitions.Commands);
             if (ids.Count == 0)
                 EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
 
             for (int i = 0; i < ids.Count; i++)
-            {
-                SpaceControlOrganDef organ = definitions.ControlOrgans[ids[i]];
-                EditorGUILayout.LabelField((i + 1) + ". " + organ.Id + "  command " + organ.CommandId);
-            }
+                EditorGUILayout.LabelField((i + 1) + ". " + ids[i]);
 
             EditorGUI.indentLevel--;
         }

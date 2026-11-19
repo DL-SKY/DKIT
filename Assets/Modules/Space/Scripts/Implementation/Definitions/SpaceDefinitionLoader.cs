@@ -10,7 +10,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
     {
         public const string HULLS_PATH = "Definitions/Space/Hulls";
         public const string MODULES_PATH = "Definitions/Space/Modules";
-        public const string CONTROL_ORGANS_PATH = "Definitions/Space/ControlOrgans";
+        public const string COMMANDS_PATH = "Definitions/Space/Commands";
         public const string TIMED_TARGETS_PATH = "Definitions/Space/TimedTargets";
 
         private static readonly JsonSerializerSettings SETTINGS = new JsonSerializerSettings
