@@ -25,7 +25,7 @@
 
 `Space` не вкладывается в `RPG` и не расширяет пайплайн Adventure.
 
-Если в активной сцене есть `SpaceInitializer`, `ProjectInstaller` Приключений не выполняет свои привязки. Вместо них `SpaceProjectInstaller` регистрирует `Updater`, `WindowsManager`, `ViewModelFactory` и `EcsSystemFactory`. `AdventuresManager`, состояние и определения Приключений при этом не создаются. Локализация Space пока не читает каталог Приключений.
+`Assets/Zenject/Resources/ProjectContext.prefab` ссылается на `Zenject.Scripts.Space.Installers.ProjectInstaller`. Он регистрирует `Updater`, `WindowsManager`, `ViewModelFactory` и `EcsSystemFactory`. `AdventuresManager`, состояние и определения Приключений этим префабом не создаются. Локализация Space пока не читает каталог Приключений.
 
 Системы создаются тем же `EcsSystemFactory`, что и Match-3. Свой `EcsWorld` живёт только пока корабль в секторе. На стыковке контроллер делает `Dispose()` мира, как `Match3RoundController`. Очереди и склад в этот мир не кладутся: иначе стыковка их сотрёт.
 

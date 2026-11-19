@@ -71,7 +71,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6764209133376136409}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef6c8206f10d4534fbb11f6119ed3774, type: 3}
+  m_Script: {fileID: 11500000, guid: 9fbbe092388b6d14988198ab2194d2a0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Zenject.Scripts.Adventure.Installers.ProjectInstaller
+  m_EditorClassIdentifier: Assembly-CSharp::Zenject.Scripts.Space.Installers.ProjectInstaller
   _windowsManagerPrefab: {fileID: 7876915917344967144, guid: 72d15aed7e5e1a241b1516ae20482eca, type: 3}

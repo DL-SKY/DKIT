@@ -1,6 +1,5 @@
 using Modules.Localization.Scripts.Implementation;
 using Modules.Restrictions.Scripts.Core;
-using Modules.Space.Scripts.Implementation.Initialization;
 using Modules.RPG.Scripts.Adventure;
 using Modules.State.Scripts.Implementation.Adventure;
 using Modules.State.Scripts.Implementation.Adventure.Factories;
@@ -21,12 +20,6 @@ namespace Zenject.Scripts.Adventure.Installers
 
         public override void InstallBindings()
         {
-            if (SpaceProjectInstaller.IsSpaceScene())
-            {
-                SpaceProjectInstaller.Install(Container, _windowsManagerPrefab);
-                return;
-            }
-
             //Utils
             Container.Bind<Updater>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<CoroutineHolder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
