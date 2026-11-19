@@ -160,7 +160,7 @@ Prefab: `Resources/Prefabs/Views/Adventure/Preloaders/AdventureApplicationLoadVi
 
 Match-3, Приключения и Space не делят View, ViewModel и префабы. Общие только `WindowsManager` и каркас `ViewBase` / `ViewModelBase`.
 
-Окно загрузки Space уже есть: `SpaceLoadView` / `SpaceLoadViewModel` в `Assets/Modules/Windows/Scripts/Implementation/Space/`, префаб `Resources/Prefabs/Views/Space/SpaceLoadView`. `SpaceInitializer` открывает его до задач и закрывает после сцены `SpaceDebug`. Список радара и меню приказа — следующие окна Space, не экраны Match-3 и не окна Приключений.
+Окно загрузки Space: `SpaceLoadView` / `SpaceLoadViewModel` в `Assets/Modules/Windows/Scripts/Implementation/Space/`, префаб `Resources/Prefabs/Views/Space/SpaceLoadView`. `SpaceInitializer` открывает его до задач. После сцены `SpaceDebug` и паузы на полной полосе открывается пустое `SpaceMainView` (`SortingOrderLayer.COMMON`, без закрытия по Esc). Загрузчик остаётся сверху, потому что его слой `PRELOADER`. Затем `CloseViewTask` закрывает только загрузчик. Список радара и меню приказа — следующие окна Space, не экраны Match-3 и не окна Приключений.
 
 ## Adventure runtime UI
 

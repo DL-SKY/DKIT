@@ -47,6 +47,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
                 new SpaceLocalizationInitTask(TASK_WEIGHT),
                 new LoadSceneTask(DEBUG_SECTOR_SCENE, LoadSceneMode.Single, coroutineHolder, TASK_WEIGHT),
                 new PauseTask(updater, FULL_BAR_PAUSE_SECONDS, 0),
+                new SpaceOpenMainViewTask(0, _windowsManager, _viewModelFactory),
                 new CloseViewTask(_windowsManager, loaderViewModel, 0),
             };
 

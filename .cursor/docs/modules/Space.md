@@ -19,7 +19,7 @@
 |---|---|
 | `Assets/Modules/Space` | Сессия сектора по образцу `Match3`: контроллер, данные вылета, визуал корпуса |
 | `Assets/Modules/ECS/Scripts/Space` | Компоненты и системы полёта на `Leopotam.Ecs` |
-| [Windows](Windows.md) | Только свои View, ViewModel и префабы Space. Сначала окно загрузки с полосой. Потом список радара, меню приказа и экраны станции. `MainLoadView` и окна Приключений не используются |
+| [Windows](Windows.md) | Только свои View, ViewModel и префабы Space. Сначала окно загрузки с полосой, затем пустое `SpaceMainView`. Потом список радара, меню приказа и экраны станции. `MainLoadView` и окна Приключений не используются |
 | [State](State.md) / `Save` | Склад, чертежи, пять очередей, сертификаты корпусов |
 | [SpaceDefs](SpaceDefs.md) | Каталог Space: корпуса, модули, команды, цели очередей. Каталог Приключений из [Definitions](Definitions.md) сюда не входит |
 
@@ -27,7 +27,7 @@
 
 `Assets/Zenject/Resources/ProjectContext.prefab` ссылается на `Zenject.Scripts.Space.Installers.ProjectInstaller`. Он регистрирует `Updater`, `WindowsManager`, `ViewModelFactory`, `EcsSystemFactory`, `SpaceDefinitionsManager` и `SpaceStateManager`. Загрузка каталога и профиля остаётся в задачах старта. `AdventuresManager`, состояние и определения Приключений этим префабом не создаются. Локализация Space пока не читает каталог Приключений.
 
-Старт открывает `SpaceLoadView` (`Resources/Prefabs/Views/Space/SpaceLoadView`) до задач. После каталога, профиля и локализации `LoadSceneTask` грузит `SpaceDebug` вместо стартовой сцены: камера, свет и два астероида, без корабля игрока. Короткая пауза держит полную полосу, затем `CloseViewTask` закрывает окно. `CoroutineHolder` зарегистрирован в `ProjectInstaller`. `OnDestroy` стартовой сцены не обрывает список, пока задачи ещё идут. Мир ECS после закрытия окна поднимает `SpaceSessionHost`, он живёт дольше стартовой сцены.
+Старт открывает `SpaceLoadView` (`Resources/Prefabs/Views/Space/SpaceLoadView`) до задач. После каталога, профиля и локализации `LoadSceneTask` грузит `SpaceDebug` вместо стартовой сцены: камера, свет и два астероида, без корабля игрока. Короткая пауза держит полную полосу. Затем открывается пустое `SpaceMainView` под загрузчиком, и только после этого `CloseViewTask` закрывает загрузчик. `CoroutineHolder` зарегистрирован в `ProjectInstaller`. `OnDestroy` стартовой сцены не обрывает список, пока задачи ещё идут. Мир ECS после закрытия окна поднимает `SpaceSessionHost`, он живёт дольше стартовой сцены.
 
 Корабль игрока в `SpaceDebug` не лежит в файле сцены. `SpacePlayerShip` читает `ActiveHullId`, грузит `VisualResourcesPath` и создаёт `PlayerShip`. У `Fighter` это `Prefabs/Spaceships/Fighter`. `SpaceOrbitCamera` ведёт камеру сцены вокруг корпуса. В секторе стартовая дистанция берётся из `CameraDistance` корпуса, поворот и наклон — из `CameraSettings`. У `Fighter` это дистанция `32.5`, поворот `141.474`, наклон `28.779`: кадр сбоку и сверху, не в хвост. На станции дистанция корпуса не ставится. Список радара и меню по нажатию идут после камеры.
 

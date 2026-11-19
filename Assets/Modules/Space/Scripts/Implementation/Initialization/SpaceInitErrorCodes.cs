@@ -7,5 +7,6 @@ namespace Modules.Space.Scripts.Implementation.Initialization
         public const int LOCALIZATION = 3;
         public const int QUEUE_TIME = 4;
         public const int HULL = 5;
+        public const int MAIN_VIEW = 6;
     }
 }
