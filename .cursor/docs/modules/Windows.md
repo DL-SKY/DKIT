@@ -4,7 +4,7 @@
 
 ## Назначение
 
-`Windows` реализует базовую UI-архитектуру окон (View/ViewModel), управление стеком открытых окон, сортировкой и закрытием по `Esc`, очередь toast-подсказок (`IHintManager`), прелоадер старта Adventure, runtime UI приключений (Adventure Main / Scroll / content items), общий list-dialog и сервис загрузки картинок по path/URL.
+`Windows` реализует базовую UI-архитектуру окон (View/ViewModel), управление стеком открытых окон, сортировкой и закрытием по `Esc`, очередь toast-подсказок (`IHintManager`), прелоадер старта Adventure, runtime UI приключений (Adventure Main / Scroll / content items), общий list-dialog и сервис загрузки картинок по path/URL. Окна Space — отдельные View, ViewModel и префабы; первым будет своё окно загрузки.
 
 ## Краткая логика работы
 
@@ -154,7 +154,13 @@ Prefab: `Resources/Prefabs/Views/Adventure/Preloaders/AdventureApplicationLoadVi
 
 Дальше один `ScreenInputType.PointerDown` (`MAX_KNOCKS = 1`): `ViewModelFactory.Create<AdventureMainViewModel>()`, `Init()`, `OpenView` главного экрана, `CloseView` прелоадера. Повторный стук, пока открытие уже началось, игнорируется.
 
-`MainLoadView` — отдельный простой прогресс без стука. Живой Adventure-старт его не использует.
+`MainLoadView` — отдельный простой прогресс без стука. Живой Adventure-старт его не использует. Space его тоже не оставляет: у подпроекта будет своё окно загрузки.
+
+## Окна подпроекта
+
+Match-3, Приключения и Space не делят View, ViewModel и префабы. Общие только `WindowsManager` и каркас `ViewBase` / `ViewModelBase`.
+
+Окно Space кладётся в `Assets/Modules/Windows/Scripts/Implementation/Space/`, префаб — в `Resources/Prefabs/Views/Space/`. Первое такое окно — загрузка с полосой прогресса. Его открывает `SpaceInitializer` до задач инициализации и закрывает после загрузки отладочной сцены сектора. Список радара и меню приказа — следующие окна Space, не экраны Match-3 и не окна Приключений.
 
 ## Adventure runtime UI
 
