@@ -19,7 +19,7 @@
 - `Definitions` — загрузка и работа с конфигурационными definitions-данными.
 - `Dices` — механики бросков кубиков и представление результатов.
 - `ECS` — ECS-слой с компонентами, системами и событиями.
-- `Initializer` — пайплайн инициализации проекта и стартовых задач.
+- `Initializer` — пайплайн стартовых задач Adventure и прелоадер до жеста игрока; см. [modules/Initializer.md](modules/Initializer.md).
 - `Localization` — локализационные данные и прокси-компоненты UI-текстов.
 - `Match3` — доменная логика игрового режима Match-3.
 - `Restrictions` — система проверок ограничений и условий доступа.
@@ -32,4 +32,4 @@
 Как заполнять дефы создания персонажа: [modules/CharacterCreationDefs.md](modules/CharacterCreationDefs.md) (`ClassDef` / `AncestryDef` / `BackgroundDef` / `FeatDef` / `ConditionDef`).  
 Практическое руководство по противникам: [modules/Creatures.md](modules/Creatures.md) (`CreatureDef` → `CharacterStateData`).
 - `Utils` — общие утилиты, вспомогательные компоненты и инструменты.
-- `Windows` — базовая UI-архитектура окон (View/ViewModel), стек/`Esc`, toast-hints (`IHintManager`), Adventure runtime UI; см. [modules/Windows.md](modules/Windows.md).
+- `Windows` — UI окон (View/ViewModel), стек/`Esc`, toast-hints (`IHintManager`), прелоадер старта, Adventure runtime UI; см. [modules/Windows.md](modules/Windows.md).

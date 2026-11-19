@@ -1,10 +1,10 @@
 # Модуль Windows
 
-**Последнее обновление:** 2026-08-14 09:28:00 (+03:00)
+**Последнее обновление:** 2026-11-19
 
 ## Назначение
 
-`Windows` реализует базовую UI-архитектуру окон (View/ViewModel), управление стеком открытых окон, сортировкой и закрытием по `Esc`, очередь toast-подсказок (`IHintManager`), runtime UI приключений (Adventure Main / Scroll / content items) и общий сервис загрузки картинок по path/URL.
+`Windows` реализует базовую UI-архитектуру окон (View/ViewModel), управление стеком открытых окон, сортировкой и закрытием по `Esc`, очередь toast-подсказок (`IHintManager`), прелоадер старта Adventure, runtime UI приключений (Adventure Main / Scroll / content items), общий list-dialog и сервис загрузки картинок по path/URL.
 
 ## Краткая логика работы
 
@@ -36,7 +36,7 @@
 - `Options`, `SortingOrderLayer`  
   Настройки поведения окна (закрытие по Esc, скрытие из истории, слой сортировки). Слои: `COMMON` (100), `DIALOGUE` (1_000), `HINT` (10_000), `PRELOADER` (20_000), `DEBUG` (32_000).
 
-- Примеры реализаций: `MainLoadView`/`MainLoadViewModel`, `DefaultMatch3View`/`DefaultMatch3ViewModel`, `AdventureMainView`/`AdventureMainViewModel`, `HintView`/`HintViewModel`, `CreateCharacterView`/`CreateCharacterViewModel`.
+- Примеры реализаций: `AdventureApplicationLoadView`/`AdventureApplicationLoadViewModel` (живой старт), `AdventureMainView`/`AdventureMainViewModel`, `HintView`/`HintViewModel`, `ListDialogView`/`ListDialogViewModel`, `CreateCharacterView`/`CreateCharacterViewModel`. `MainLoadView` и `DefaultMatch3View` в коде есть, текущий Adventure-`Initializer` их не открывает.
 
 - Компоненты: `ProgressBar`, `SafeAreaRect`, `CachedPathImage`.
 
@@ -138,6 +138,24 @@ View вызывает `_text.SetText(localizationKey)` (`LocalizationText`); к�
 
 `.meta` не создаёт и не правит — после импорта скриптов в Unity.
 
+## Старт: AdventureApplicationLoad
+
+Папка: `Assets/Modules/Windows/Scripts/Implementation/Adventure/Preloaders/`  
+Prefab: `Resources/Prefabs/Views/Adventure/Preloaders/AdventureApplicationLoadView`.
+
+`Initializer` открывает это окно и передаёт в `Init` `InitializeTasker` как `IProgressable`. Options: `CanCloseOnEsc = false`, `HideInHistory = true`, `SortingOrderLayer.PRELOADER`.
+
+| Событие VM | View |
+|---|---|
+| `ON_CHANGE_PROGRESS` | `ProgressBar.SetFillAmount(Progress)` |
+| `ON_CHANGE_INTERACTABLE` | показывает `_doorImage` и `_hintHolder` |
+
+Прогресс `current / max`. Когда `current >= max` и `max > 0`, `IsInteractable = true`, подсказка `KNOCK_TO_CONTINUE`.
+
+Дальше один `ScreenInputType.PointerDown` (`MAX_KNOCKS = 1`): `ViewModelFactory.Create<AdventureMainViewModel>()`, `Init()`, `OpenView` главного экрана, `CloseView` прелоадера. Повторный стук, пока открытие уже началось, игнорируется.
+
+`MainLoadView` — отдельный простой прогресс без стука. Живой Adventure-старт его не использует.
+
 ## Adventure runtime UI
 
 Корневая папка скриптов:
@@ -152,13 +170,14 @@ Prefab главного окна: `Resources/Prefabs/Views/Adventure/AdventureMa
 |---|---|---|
 | `AdventureMainView` / `AdventureMainViewModel` | `ViewBase` / `ViewModelBase` | Главный экран; `Init()` создаёт и инициализирует Scroll / TopPanel / BottomPanel VM |
 | `AdventureScrollView` / `AdventureScrollViewModel` | MonoBehaviour sub-view | Скролл контента сцены + плашки choices: подписка на `AdventuresManager`, factory VM, spawn prefab’ов, sequencer |
-| `AdventureTopPanelView` / `AdventureTopPanelViewModel` | MonoBehaviour sub-view | Верхняя панель (character / abilities / menu); `Init` создаёт Parameter VM на каждый слот `_parameterViews` |
+| `AdventureTopPanelView` / `AdventureTopPanelViewModel` | MonoBehaviour sub-view | Верхняя панель. `View.Init` зовёт `CreateCharacterButton()` и `CreateParameter()` на каждый слот `_parameterViews`. `VM.Init()` только подписки, слоты сам не создаёт |
+| `AdventureCharacterButtonView` / `AdventureCharacterButtonViewModel` | MonoBehaviour sub-view | Кнопка персонажа в TopPanel. Lifetime VM — `AdventureTopPanelViewModel` |
 | `AdventureParameterView` / `AdventureParameterViewModel` | MonoBehaviour sub-view | Слот параметра в TopPanel; View вызывает `VM.Init(_parameterName)` |
 | `AdventureBottomPanelView` / `AdventureBottomPanelViewModel` | MonoBehaviour sub-view | Нижняя панель; каркас `Init` / `Subscribe` |
 | Content items | MonoBehaviour + VM | Элементы `SceneContentType` в скролле |
 | Choice items | MonoBehaviour + VM | Плашки `ChoiceData` внизу скролла |
 
-Sub-views (Scroll / TopPanel / BottomPanel / Parameter) и Content / Choice item View **не** наследуют `ViewBase`: паттерн `Init(vm)`, `Subscribe`/`Unsubscribe`. Lifetime panel VM владеет `AdventureMainViewModel`; lifetime parameter VM — `AdventureTopPanelViewModel`; lifetime content/choice VM — `AdventureScrollViewModel` (`Dispose` идемпотентен).
+Sub-views (Scroll / TopPanel / BottomPanel / CharacterButton / Parameter) и Content / Choice item View **не** наследуют `ViewBase`: паттерн `Init(vm)`, `Subscribe`/`Unsubscribe`. Lifetime panel VM владеет `AdventureMainViewModel`; lifetime character-button и parameter VM — `AdventureTopPanelViewModel`; lifetime content/choice VM — `AdventureScrollViewModel` (`Dispose` идемпотентен).
 
 База:
 
@@ -173,16 +192,17 @@ VM создаются через DiContainer (`Instantiate` + `Init(data)`), з�
 ### Scroll ↔ AdventuresManager
 
 1. `AdventureMainViewModel.Init()` → factory + `Init()` для `Scroll`, `TopPanel`, `BottomPanel`; `AdventureMainView` прокидывает VM в соответствующие sub-view.
-2. `AdventureScrollViewModel` подписан на `AdventuresManager.ChangedContent` и `ChangedChoices`.
-3. На `ChangedContent` / стартовый `Init`: `AppendContent` — factory новых content VM по `SceneContentType` **в конец** списка → `ON_APPEND_CONTENT`. Уже показанные content-плашки не трогаются; **choice-плашки уничтожаются** и появятся снова после sequencer.
-4. На `ChangedChoices` / стартовый `Init`: `RebuildChoices` — `ON_CLEAR_CHOICES` (View уничтожает choice panels) → dispose старых choice VM → factory новых из `GetCurrentChoices()` → `ON_REFRESH_CHOICES`.
-5. Очистка только явно: `ClearContent()` → `ON_CLEAR_CONTENT` (View уничтожает content **и** choice children) → dispose content + choice VM. Также из `Dispose`.
-6. `AdventureScrollView` держит prefab’ы Text / Image / Splitter / Item / Choice, `_contentRoot`.
-7. Sequencer контента: spawn pending → ждать `IsContentReady` → `Animator.Play` → `Completed` → следующий pending. После последнего контента (или если pending нет) — `PresentChoices`: все плашки создаются сразу, у каждой свой `Animator.Play` **параллельно**.
-8. `ON_REFRESH_CHOICES` во время sequencer — откладывает показ до конца контента; если sequencer не бежит — сразу parallel present (после `ON_CLEAR_CHOICES`).
-9. `SkipAllShowAnimation()`: `Skip` текущего content-аниматора + остальные pending content сразу с `Skip` + choice-плашки появляются с `Skip` (без анимации). Триггер: `ScreenInputService.OnInput` (`ScreenInputType.PointerDown`) — любой pointer down по экрану.
+2. `AdventureScrollViewModel` подписан на `AdventuresManager.ChangedScene`, `ChangedContent`, `ChangedChoices` и на `ScreenInputService.OnInput`.
+3. На `ChangedScene`: если `ShouldClearContent()` (`SceneData.NotClearScene == false`) — `ClearContent()`. Иначе уже показанный контент остаётся.
+4. На `ChangedContent` / стартовый `Init`: `AppendContent` создаёт content VM на **каждый** элемент текущего `GetCurrentContent()` и дописывает их в конец → `ON_APPEND_CONTENT`. View спавнит панели только для индексов, у которых ещё нет view, и на этом теге уничтожает уже показанные choice-плашки (`_choicesPending`): они появятся снова после sequencer. Повторный `ChangedContent` без `ClearContent` дописывает content-список ещё раз.
+5. На `ChangedChoices` / стартовый `Init`: `RebuildChoices` — `ON_CLEAR_CHOICES` (View уничтожает choice panels) → dispose старых choice VM → factory новых из `GetCurrentChoices()` → `ON_REFRESH_CHOICES`.
+6. `ClearContent()` → `ON_CLEAR_CONTENT` (View уничтожает content **и** choice children) → dispose content + choice VM. Вызов: `ChangedScene` + `ShouldClearContent()`, явный вызов, `Dispose`.
+7. `AdventureScrollView` держит prefab’ы Text / Image / Splitter / Item / Choice, `_contentRoot`.
+8. Sequencer контента: spawn pending → ждать `IsContentReady` → `Animator.Play` → `Completed` → следующий pending. После последнего контента (или если pending нет) — `PresentChoices`: все плашки создаются сразу, у каждой свой `Animator.Play` **параллельно**.
+9. `ON_REFRESH_CHOICES` во время sequencer — откладывает показ до конца контента; если sequencer не бежит — сразу parallel present (после `ON_CLEAR_CHOICES`).
+10. Skip: `PointerDown` ловит `AdventureScrollViewModel` и шлёт `ON_SKIP_ALL_SHOW_ANIMATION`. View в `SkipAllShowAnimation()` делает `Skip` текущего content-аниматора, остальные pending content сразу с `Skip`, choice-плашки появляются с `Skip`.
 
-`Initializer` после загрузки вызывает `adventureMainViewModel.Init()` перед `OpenView`.
+После задач загрузки `Initializer.OnCompletedCallback` главное окно не открывает. Переход делает прелоадер: секция **Старт** выше. `AdventureMainViewModel.Init()` без аргументов.
 
 ### Content items (View + VM)
 
@@ -258,6 +278,22 @@ Image-группа:
 - `ClearMemoryCache()` — чистит memory (диск остаётся).
 - Prefab View через `Resources.Instantiate` может резолвить сервис через `ProjectContext`, если Zenject inject не сработал.
 
+## ListDialog
+
+Папка: `Assets/Modules/Windows/Scripts/Implementation/Adventure/ListDialog/`  
+Prefab оболочки: `Resources/Prefabs/Views/Adventure/ListDialog/ListDialogView` (`ListDialogView.Path`).
+
+Общий пикер. `ListDialogView` — `ViewBase<ListDialogViewModel>`. Контент, layout и путь item-prefab задаёт конкретная VM.
+
+| VM | Что показывает |
+|---|---|
+| `DefinitionListDialogViewModel` | Ancestry / Class / Background (`DefinitionListDialogMode`), item `DefinitionListDialogItemView` |
+| `CursorAvatarListDialogViewModel` | сетка аватаров, item `AvatarListDialogItemView` |
+
+Options оболочки: `CanCloseOnEsc = true`, `HideInHistory = false`, `SortingOrderLayer.DIALOGUE`. Отмена — `OnCancel()` → `CloseView`.
+
+`CreateCharacterViewModel.OnEdit*` пока пустые. Образец вызова `DefinitionListDialogViewModel` в секции CreateCharacter — целевой контракт, не текущая проводка кнопок.
+
 ## CreateCharacterView (создание персонажа)
 
 Папка: `Assets/Modules/Windows/Scripts/Implementation/Adventure/Characters/CreateCharacter/`  
@@ -268,7 +304,9 @@ DTO черновика: `CreateCharacterRequestData` ([State.md](State.md))
 
 Открытие: `OpenWindowChoiceActionExecutor` (`Glossary.Windows.CREATE_CHARACTER`) → `ViewModelFactory.Create<CreateCharacterViewModel>()` → `Init(addToActiveParty)` → `WindowsManager.OpenView`.
 
-Окно в работе: View/VM и prefab ещё неполные; контракт ниже — целевой, его держать при дописывании экрана и подокон.
+Игровой вход: `OpenWindowChoiceActionExecutor` открывает именно это окно. View/VM и prefab ещё неполные: `OnEditName` / `OnEditAvatar` / `OnEditAncestry` / `OnEditClass` / `OnEditBackground` / `OnEditAbilities` / `OnEditSkills` пустые. Контракт ниже — целевой.
+
+Рядом лежит отдельный прототип `CursorCreateCharacter` (свои подокна и `CursorCreateCharacterDraftApplier`). В choice-pipeline он не входит. Открытие из Play Mode: `Tools/Cursor/Open Create Character Window` (`CursorCreateCharacterOpener`). Прототип боя `CursorBattlePrototype` тоже отдельный и в этот поток не подключён.
 
 ### Слои данных
 
@@ -330,7 +368,7 @@ View на теги: `ON_CHANGE_CHARACTER` → панели персонажа; `
 
 ### Best practice: как пользоваться аппликатором
 
-Целевой код (подокон у `CreateCharacter` ещё нет). Главный VM уже создаёт `Applicator` в `Init` и слушает `OnUpdate` — подокну остаётся вызвать метод аппликатора.
+Целевой код. Главный VM уже создаёт `Applicator` в `Init` и слушает `OnUpdate`. `ListDialog` как оболочка уже есть; кнопки `OnEdit*` на `CreateCharacterViewModel` его ещё не открывают. Подокну остаётся вызвать метод аппликатора.
 
 **1. Выбор класса / вида / предыстории** (`ListDialog` уже есть). Callback пишет только через аппликатор: wipe+reapply и `OnUpdate` внутри `SetClass`.
 

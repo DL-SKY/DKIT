@@ -1,6 +1,6 @@
 # AdventuresManager
 
-**Последнее обновление:** 2026-07-31 12:45:00 (+03:00)
+**Последнее обновление:** 2026-11-19
 
 ## Назначение
 
@@ -28,7 +28,7 @@
 
 > Оркестрация «клик choice → прогон списка `Actions` через фабрику executors» уже идёт из `AdventureChoiceViewModel.Select()` для `ChoiceType.Default`; `DiceCheck` runtime — ещё stub. Переход по сцене и запись params через executors реализованы.
 
-> **UI (Windows):** `AdventureScrollViewModel` подписан на `ChangedContent` / `GetCurrentContent()` и `ChangedChoices` / `GetCurrentChoices()`. Content VM **дописываются** в конец списка; `AdventureScrollView` секвенциально анимирует новые item’ы (`IContentAnimator`, `SkipAllShowAnimation` по `ScreenInputService.OnInput` / `PointerDown`). Choice-плашки уничтожаются на `ON_CLEAR_CONTENT` / `ON_APPEND_CONTENT` / refresh и после конца content-sequence появляются **все сразу** (parallel `Animator.Play`). Клик choice → `AdventureChoiceViewModel.Select()` → `ChoiceActionExecutorFactory` (DiceCheck runtime — ещё stub). Очистка content — только `ClearContent`. Подробности: [Windows.md](Windows.md) (секция Adventure runtime UI).
+> **UI (Windows):** `AdventureScrollViewModel` подписан на `ChangedScene`, `ChangedContent` / `GetCurrentContent()` и `ChangedChoices` / `GetCurrentChoices()`. На `ChangedScene`, если `ShouldClearContent()` (`NotClearScene == false`), контент очищается, затем `ChangedContent` дописывает VM текущего списка. `AdventureScrollView` секвенциально анимирует ещё не показанные item’ы. Skip: VM ловит `PointerDown` и шлёт `ON_SKIP_ALL_SHOW_ANIMATION`. Choice-плашки пересобираются на `ChangedChoices` и после конца content-sequence появляются **все сразу**. Клик choice → `AdventureChoiceViewModel.Select()` → `ChoiceActionExecutorFactory` (DiceCheck runtime — ещё stub). Подробности: [Windows.md](Windows.md).
 
 ## Ключевые классы и роли
 
@@ -36,7 +36,7 @@
   - life-cycle: `Init()` / `Dispose()`;
   - создание `RuntimeSceneData` через `DiContainer`;
   - подписка на события `RuntimeSceneData` и ретрансляция своим подписчикам;
-  - публичные методы `GetCurrentContent()` и `GetCurrentChoices()` (делегируют в `RuntimeSceneData`).
+  - публичные методы `GetCurrentContent()`, `GetCurrentChoices()` и `ShouldClearContent()` (делегируют в `RuntimeSceneData`). `ShouldClearContent()` — `true`, если у текущей сцены нет флага `NotClearScene`.
 
 - `RuntimeSceneData` (`Assets/Modules/RPG/Scripts/Adventure/RuntimeSceneData.cs`)
   - хранит текущие runtime-поля: adventure id, scene id и `AdventureDef`;
