@@ -1,8 +1,8 @@
 {
   "MinDistance": 4,
   "MaxDistance": 160,
-  "DefaultYaw": 0,
-  "DefaultPitch": 18.43,
+  "DefaultYaw": 142,
+  "DefaultPitch": 28.5,
   "MinPitch": -75,
   "MaxPitch": 75,
   "DegreesPerPixel": 0.2,

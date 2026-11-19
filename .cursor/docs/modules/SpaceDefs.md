@@ -84,10 +84,10 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 
 | Файл | Id | Поля |
 |---|---|---|
-| `Hulls/Fighter.json` | `Fighter` | слот `weapon_a`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, дистанция камеры 18.97 |
+| `Hulls/Fighter.json` | `Fighter` | слот `weapon_a`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, дистанция камеры 32.5 |
 | `Modules/laser_a.json` | `laser_a` | слот `weapon_a`, группа `A` |
 | `Commands/approach.json` | `approach` | полей нет, `{}` |
-| `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 4..160, поворот 0, наклон 18.43 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
+| `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 4..160, поворот 141.474, наклон 28.779 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
 | `TimedTargets/skill_survey.json` | `skill_survey` | `Skill`, 45000 мс |
 | `TimedTargets/skill_mining.json` | `skill_mining` | `Skill`, 90000 мс |
 | `TimedTargets/skill_repair.json` | `skill_repair` | `Skill`, 180000 мс |
