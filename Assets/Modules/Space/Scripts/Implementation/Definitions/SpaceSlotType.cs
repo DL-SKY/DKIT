@@ -1,9 +1,9 @@
 namespace Modules.Space.Scripts.Implementation.Definitions
 {
     /// <summary>
-    /// What a fitted module does. Weapons and engines share one catalog.
+    /// What a hull slot accepts. A module uses the same value to say which slots it can enter.
     /// </summary>
-    public enum SpaceModuleKind
+    public enum SpaceSlotType
     {
         Weapon,
         Engine

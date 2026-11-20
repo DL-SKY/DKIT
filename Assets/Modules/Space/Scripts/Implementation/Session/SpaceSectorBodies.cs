@@ -63,7 +63,7 @@ namespace Modules.Space.Scripts.Implementation.Session
             return created;
         }
 
-        public static void AttachPlayer(EcsWorld world, Transform ship, SpaceHullDef hull, SpaceModuleDef engine, Vector3 position, float yaw)
+        public static void AttachPlayer(EcsWorld world, Transform ship, SpaceHullDef hull, SpaceModuleDef engine, SpaceSizeType engineSlotSize, Vector3 position, float yaw)
         {
             if (world == null || ship == null || hull == null)
             {
@@ -80,7 +80,7 @@ namespace Modules.Space.Scripts.Implementation.Session
             entity.Get<SpaceYaw>() = new SpaceYaw { Degrees = yaw };
             entity.Get<SpaceRadius>() = new SpaceRadius { Meters = hull.Radius };
             entity.Get<SpaceTurnRate>() = new SpaceTurnRate { DegreesPerSecond = hull.ManeuverabilityDegreesPerSecond };
-            entity.Get<SpaceMotion>() = CreateMotion(hull, engine);
+            entity.Get<SpaceMotion>() = CreateMotion(engine, engineSlotSize);
             entity.Get<SpaceView>() = new SpaceView { Transform = ship };
             AddHullGizmo(ship.gameObject, hull.Radius);
             UnityEngine.Debug.Log($"[Space] Player hull entity created. Radius {hull.Radius}.");
@@ -105,17 +105,17 @@ namespace Modules.Space.Scripts.Implementation.Session
             return instance.transform;
         }
 
-        private static SpaceMotion CreateMotion(SpaceHullDef hull, SpaceModuleDef engine)
+        private static SpaceMotion CreateMotion(SpaceModuleDef engine, SpaceSizeType slotSize)
         {
-            if (engine == null || engine.Kind != SpaceModuleKind.Engine)
+            if (engine == null || engine.SlotType != SpaceSlotType.Engine)
             {
                 UnityEngine.Debug.LogError("[Space] Player hull has no fitted engine. Speed stays at zero.");
                 return new SpaceMotion();
             }
 
-            if (hull == null || !engine.TryGetSizeParameters(hull.SizeType, out var parameters) || parameters == null)
+            if (!engine.TryGetSizeParameters(slotSize, out var parameters) || parameters == null)
             {
-                UnityEngine.Debug.LogError($"[Space] Engine '{engine.Id}' has no parameters for size {hull?.SizeType}. Speed stays at zero.");
+                UnityEngine.Debug.LogError($"[Space] Engine '{engine.Id}' has no parameters for slot size {slotSize}. Speed stays at zero.");
                 return new SpaceMotion();
             }
 

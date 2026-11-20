@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Modules.Space.Scripts.Implementation.Definitions;
 using Modules.Space.Scripts.Implementation.Queues;
 
 namespace Modules.Space.Scripts.Implementation.State
@@ -9,17 +10,26 @@ namespace Modules.Space.Scripts.Implementation.State
         public const string STARTER_ENGINE_ID = "engine_default";
 
         public string ActiveHullId;
-        public List<string> OwnedHullIds = new List<string>();
-        public List<SpaceFittedModule> FittedModules = new List<SpaceFittedModule>();
+        public List<SpacePlayerShipState> Ships = new List<SpacePlayerShipState>();
         public List<SpaceQueueState> Queues = new List<SpaceQueueState>();
     }
 
     /// <summary>
-    /// One module fitted into a hull slot. The pair is stored on the profile, not in the flight world.
+    /// One owned hull and the modules sitting in its sockets.
     /// </summary>
-    public sealed class SpaceFittedModule
+    public sealed class SpacePlayerShipState
     {
-        public string SlotId;
+        public string HullId;
+        public List<SpacePlayerShipSlot> Slots = new List<SpacePlayerShipSlot>();
+    }
+
+    /// <summary>
+    /// One socket copied from the hull def, plus the installed module id when the socket is filled.
+    /// </summary>
+    public sealed class SpacePlayerShipSlot
+    {
+        public SpaceSlotType SlotType;
+        public SpaceSizeType SizeType;
         public string ModuleId;
     }
 }

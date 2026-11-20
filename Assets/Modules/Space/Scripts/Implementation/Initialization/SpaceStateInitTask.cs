@@ -51,10 +51,33 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             }
 
             var profile = _stateManager.Profile;
-            int fittedCount = profile.FittedModules != null ? profile.FittedModules.Count : 0;
+            int fittedCount = CountInstalledModules(profile);
             UnityEngine.Debug.Log(
                 $"[Space] Queue time check passed. Hull {profile.ActiveHullId}, fitted {fittedCount}. Profile: {_stateManager.ProfileFilePath}");
             Complete();
+        }
+
+        private static int CountInstalledModules(SpaceProfile profile)
+        {
+            var count = 0;
+            if (profile?.Ships == null)
+                return count;
+
+            for (var i = 0; i < profile.Ships.Count; i++)
+            {
+                var ship = profile.Ships[i];
+                if (ship == null || ship.HullId != profile.ActiveHullId || ship.Slots == null)
+                    continue;
+
+                for (var slotIndex = 0; slotIndex < ship.Slots.Count; slotIndex++)
+                {
+                    var slot = ship.Slots[slotIndex];
+                    if (slot != null && !string.IsNullOrEmpty(slot.ModuleId))
+                        count++;
+                }
+            }
+
+            return count;
         }
     }
 }

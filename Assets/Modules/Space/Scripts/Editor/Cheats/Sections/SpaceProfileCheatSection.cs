@@ -95,33 +95,33 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             string activeHull = string.IsNullOrEmpty(profile.ActiveHullId) ? "—" : profile.ActiveHullId;
             EditorGUILayout.LabelField("Active hull: " + activeHull);
 
-            EditorGUILayout.LabelField("Owned hulls:");
+            EditorGUILayout.LabelField("Ships:");
             EditorGUI.indentLevel++;
-            List<string> owned = profile.OwnedHullIds;
-            if (owned == null || owned.Count == 0)
+            List<SpacePlayerShipState> ships = profile.Ships;
+            if (ships == null || ships.Count == 0)
                 EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
             else
             {
-                for (int i = 0; i < owned.Count; i++)
-                    EditorGUILayout.LabelField((i + 1) + ". " + owned[i]);
-            }
-
-            EditorGUI.indentLevel--;
-
-            EditorGUILayout.LabelField("Fitted modules:");
-            EditorGUI.indentLevel++;
-            List<SpaceFittedModule> fitted = profile.FittedModules;
-            if (fitted == null || fitted.Count == 0)
-                EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
-            else
-            {
-                for (int i = 0; i < fitted.Count; i++)
+                for (int i = 0; i < ships.Count; i++)
                 {
-                    SpaceFittedModule module = fitted[i];
-                    if (module == null)
+                    SpacePlayerShipState ship = ships[i];
+                    if (ship == null)
                         continue;
 
-                    EditorGUILayout.LabelField((i + 1) + ". " + module.SlotId + "  " + module.ModuleId);
+                    EditorGUILayout.LabelField((i + 1) + ". " + ship.HullId);
+                    List<SpacePlayerShipSlot> slots = ship.Slots;
+                    if (slots == null)
+                        continue;
+
+                    for (int slotIndex = 0; slotIndex < slots.Count; slotIndex++)
+                    {
+                        SpacePlayerShipSlot slot = slots[slotIndex];
+                        if (slot == null)
+                            continue;
+
+                        string moduleId = string.IsNullOrEmpty(slot.ModuleId) ? "—" : slot.ModuleId;
+                        EditorGUILayout.LabelField("    " + slot.SlotType + " " + slot.SizeType + "  " + moduleId);
+                    }
                 }
             }
 

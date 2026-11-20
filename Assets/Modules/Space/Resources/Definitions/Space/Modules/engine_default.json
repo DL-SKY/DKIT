@@ -1,6 +1,5 @@
 {
-  "Kind": "Engine",
-  "SlotId": "engine",
+  "SlotType": "Engine",
   "WeaponGroup": "",
   "SizeType": "S",
   "SizeParameters": [

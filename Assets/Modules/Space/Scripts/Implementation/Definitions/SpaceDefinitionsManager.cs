@@ -134,7 +134,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
                 if (module == null || !module.IsUsable())
                     return false;
 
-                if (module.Kind == SpaceModuleKind.Engine)
+                if (module.SlotType == SpaceSlotType.Engine)
                     hasEngine = true;
             }
 

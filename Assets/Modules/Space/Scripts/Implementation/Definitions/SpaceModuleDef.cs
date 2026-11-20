@@ -5,13 +5,12 @@ namespace Modules.Space.Scripts.Implementation.Definitions
 {
     /// <summary>
     /// One piece of fitted equipment. The file name is the id.
-    /// An engine lists only the hull sizes it can be fitted to. A missing size forbids that hull.
-    /// A module without size rows allows only its own <see cref="SizeType"/>.
+    /// An engine lists the slot sizes it can be fitted to. A missing size forbids that slot.
+    /// A module without size rows allows only slots of its own <see cref="SizeType"/>.
     /// </summary>
     public sealed class SpaceModuleDef : AbstractDefinition
     {
-        public SpaceModuleKind Kind;
-        public string SlotId;
+        public SpaceSlotType SlotType;
         public string WeaponGroup;
         public SpaceSizeType SizeType;
         public List<SpaceModuleSizeParameters> SizeParameters;
@@ -35,24 +34,21 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             return false;
         }
 
-        public bool AllowsHullSize(SpaceSizeType hullSize)
+        public bool AllowsSlotSize(SpaceSizeType slotSize)
         {
             if (HasSizeRows())
             {
-                if (CountSize(hullSize) != 1 || !TryGetSizeParameters(hullSize, out var row) || row == null)
+                if (CountSize(slotSize) != 1 || !TryGetSizeParameters(slotSize, out var row) || row == null)
                     return false;
 
-                return Kind != SpaceModuleKind.Engine || row.IsUsable();
+                return SlotType != SpaceSlotType.Engine || row.IsUsable();
             }
 
-            return SizeType == hullSize;
+            return SizeType == slotSize;
         }
 
         public bool IsUsable()
         {
-            if (string.IsNullOrWhiteSpace(SlotId))
-                return false;
-
             if (SizeParameters != null)
             {
                 var seen = new HashSet<SpaceSizeType>();
@@ -62,12 +58,12 @@ namespace Modules.Space.Scripts.Implementation.Definitions
                     if (row == null || !seen.Add(row.SizeType))
                         return false;
 
-                    if (Kind == SpaceModuleKind.Engine && !row.IsUsable())
+                    if (SlotType == SpaceSlotType.Engine && !row.IsUsable())
                         return false;
                 }
             }
 
-            if (Kind == SpaceModuleKind.Engine && !HasSizeRows())
+            if (SlotType == SpaceSlotType.Engine && !HasSizeRows())
                 return false;
 
             return true;

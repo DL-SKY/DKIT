@@ -54,7 +54,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             for (int i = 0; i < ids.Count; i++)
             {
                 SpaceHullDef hull = definitions.Hulls[ids[i]];
-                int slotCount = hull.ModuleSlotIds != null ? hull.ModuleSlotIds.Count : 0;
+                int slotCount = hull.Slots != null ? hull.Slots.Count : 0;
                 int commandCount = hull.CommandIds != null ? hull.CommandIds.Count : 0;
                 string visual = string.IsNullOrEmpty(hull.VisualResourcesPath) ? "—" : hull.VisualResourcesPath;
                 string icon = string.IsNullOrEmpty(hull.IconResourcesPath) ? "—" : hull.IconResourcesPath;
@@ -77,10 +77,10 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 SpaceModuleDef module = definitions.Modules[ids[i]];
                 string weaponGroup = string.IsNullOrEmpty(module.WeaponGroup) ? "—" : module.WeaponGroup;
                 int parameterCount = module.SizeParameters != null ? module.SizeParameters.Count : 0;
-                string engine = module.Kind == SpaceModuleKind.Engine
+                string engine = module.SlotType == SpaceSlotType.Engine
                     ? ", size parameters " + parameterCount
                     : "";
-                EditorGUILayout.LabelField((i + 1) + ". " + module.Id + "  " + module.Kind + " " + module.SizeType + ", slot " + module.SlotId + ", group " + weaponGroup + engine);
+                EditorGUILayout.LabelField((i + 1) + ". " + module.Id + "  " + module.SlotType + " " + module.SizeType + ", group " + weaponGroup + engine);
             }
 
             EditorGUI.indentLevel--;

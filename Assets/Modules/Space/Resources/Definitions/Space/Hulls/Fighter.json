@@ -1,5 +1,8 @@
 {
-  "ModuleSlotIds": ["weapon_a", "engine"],
+  "Slots": [
+    { "SlotType": "Weapon", "SizeType": "S" },
+    { "SlotType": "Engine", "SizeType": "S" }
+  ],
   "CommandIds": ["approach"],
   "VisualResourcesPath": "Prefabs/Spaceships/Fighter",
   "IconResourcesPath": "Sprites/Space/Markers/Fighter",

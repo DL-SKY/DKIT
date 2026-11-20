@@ -66,7 +66,9 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceObjectDef` | `UniformScale` | `float` | `UniformScale` | единый масштаб префаба. На расстановке не переопределяется |
 | `SpaceObjectDef` | `Radius` | `float` | `Radius` | радиус сферы в метрах. Ноль не отталкивает другие тела |
 | `SpaceObjectDef` | `CommandIds` | `List<string>` | `CommandIds` | id команд, которые касание метки раскладывает по кругу. Пустой список круг не строит |
-| `SpaceHullDef` | `ModuleSlotIds` | `List<string>` | `ModuleSlotIds` | id слотов, куда садится модуль. Это не id `SpaceModuleDef` |
+| `SpaceHullDef` | `Slots` | `List<SpaceHullSlotDef>` | `Slots` | гнёзда корпуса. У гнезда свой тип и свой типоразмер, не id модуля |
+| `SpaceHullSlotDef` | `SlotType` | `SpaceSlotType` | `SlotType` | что в гнездо садится: `Weapon` или `Engine` |
+| `SpaceHullSlotDef` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер гнезда. С ним сравниваются `SizeParameters` модуля |
 | `SpaceHullDef` | `CommandIds` | `List<string>` | `CommandIds` | id `SpaceCommandDef`, которые корпус умеет отдать |
 | `SpaceHullDef` | `VisualResourcesPath` | `string` | `VisualResourcesPath` | путь в `Resources` на префаб корпуса. Пустой путь корпус в сцену не ставит |
 | `SpaceHullDef` | `IconResourcesPath` | `string` | `IconResourcesPath` | картинка метки этого корпуса. Путь в `Resources` на спрайт |
@@ -74,12 +76,11 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceHullDef` | `Radius` | `float` | `Radius` | радиус сферы корпуса в метрах |
 | `SpaceHullDef` | `ManeuverabilityDegreesPerSecond` | `float` | `ManeuverabilityDegreesPerSecond` | насколько быстро нос поворачивается к желаемому рысканию. Форма корпуса, не двигатель |
 | `SpaceHullDef` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер корпуса: `XXS` люди и боеприпасы, `XS` дроны, `S` лёгкий истребитель, затем `M`, `L`, `XL`, `XXL` |
-| `SpaceModuleDef` | `Kind` | `SpaceModuleKind` | `Kind` | `Weapon` или `Engine` |
-| `SpaceModuleDef` | `SlotId` | `string` | `SlotId` | слот корпуса, в который модуль ставится |
+| `SpaceModuleDef` | `SlotType` | `SpaceSlotType` | `SlotType` | в гнездо какого типа модуль садится: `Weapon` или `Engine` |
 | `SpaceModuleDef` | `WeaponGroup` | `string` | `WeaponGroup` | группа оружия. У двигателя пусто |
 | `SpaceModuleDef` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер самой единицы оборудования |
-| `SpaceModuleDef` | `SizeParameters` | `List<SpaceModuleSizeParameters>` | `SizeParameters` | параметры по типоразмерам, которые модуль вообще допускает. Нет строки типоразмера корпуса — модуль на этот корпус не ставится. Пустой список значит, что допустим только собственный `SizeType` модуля |
-| `SpaceModuleSizeParameters` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер, к которому относится строка. При спавне выбирается строка типоразмера корпуса |
+| `SpaceModuleDef` | `SizeParameters` | `List<SpaceModuleSizeParameters>` | `SizeParameters` | параметры по типоразмерам гнезда. Нет строки типоразмера гнезда — модуль в это гнездо не ставится. Пустой список значит, что допустим только гнездо собственного `SizeType` модуля |
+| `SpaceModuleSizeParameters` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер гнезда, к которому относится строка. При спавне выбирается строка типоразмера гнезда двигателя |
 | `SpaceModuleSizeParameters` | `MaxSpeedMetersPerSecond` | `float` | `MaxSpeedMetersPerSecond` | потолок скорости этой строки |
 | `SpaceModuleSizeParameters` | `InertiaSeconds` | `float` | `InertiaSeconds` | постоянная времени разгона и торможения этой строки, в секундах. Больше — медленнее набор и сброс |
 | `SpaceCommandDef` | — | — | — | своих полей нет. Id файла и есть команда. Исполнения в дефе нет |
@@ -100,7 +101,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 
 Точка появления — место корпуса в уже загруженной сцене сектора. `X`, `Y`, `Z` задают это место в метрах: вправо, вверх и вперёд. `Yaw` только крутит корпус вокруг вертикали, крен и наклон точки не задают. Ноль градусов смотрит носом по +Z. Код ставит поворот как `Quaternion.Euler(0, Yaw, 0)`. Нуля в коде нет: числа берутся из выбранной точки.
 
-Слоты модулей и команды на корпусе — разные списки. Модуль ссылается на слот через `SlotId`. Команда — это id `SpaceCommandDef`.
+Гнёзда и команды на корпусе — разные списки. Гнездо задаёт `SlotType` и `SizeType`. Модуль называет свой `SlotType` и не хранит id гнезда. Команда — это id `SpaceCommandDef`.
 
 `BaseTimeMs` в деф не запекается с бонусами. Длительность строки очереди считает только `SpaceQueueTime`: база умножается на произведение факторов, результат не короче 1 мс. Процент `−25` даёт множитель `0.75`, явный множитель `2` удваивает срок.
 
@@ -122,10 +123,10 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `Objects/player_spawn.json` | `player_spawn` | `Spawn`, без префаба, масштаб `1`, радиус `0` |
 | `Objects/asteroid_near.json` | `asteroid_near` | `Asteroid`, `Prefabs/Asteroids/AsteroidNear`, масштаб `0.08`, радиус `9.967` |
 | `Objects/asteroid_far.json` | `asteroid_far` | `Asteroid`, `Prefabs/Asteroids/AsteroidFar`, масштаб `0.12`, радиус `15.812` |
-| `Hulls/Fighter.json` | `Fighter` | слоты `weapon_a` и `engine`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с, типоразмер `S` |
+| `Hulls/Fighter.json` | `Fighter` | гнёзда `Weapon S` и `Engine S`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с, типоразмер корпуса `S` |
 | `MarkerIcons/MarkerIcons.json` | `MarkerIcons` | `PointOfInterest` → `Sprites/Space/Markers/Point`, `Station` → `Sprites/Space/Markers/Station`, `Asteroid` → `Sprites/Space/Markers/Asteroid`, `Spawn` → `Sprites/Space/Markers/Spawn` |
-| `Modules/engine_default.json` | `engine_default` | `Engine`, слот `engine`, типоразмер `S`. Строки: `XXS` 70 м/с и 0.6 с, `XS` 55 м/с и 1 с, `S` 40 м/с и 1.5 с, `M` 32 м/с и 2.2 с, `L` 24 м/с и 3.2 с, `XL` 18 м/с и 4.5 с, `XXL` 12 м/с и 6.5 с |
-| `Modules/laser_a.json` | `laser_a` | `Weapon`, слот `weapon_a`, группа `A`, типоразмер `S` |
+| `Modules/engine_default.json` | `engine_default` | `Engine`, типоразмер модуля `S`. Строки гнёзд: `XXS` 70 м/с и 0.6 с, `XS` 55 м/с и 1 с, `S` 40 м/с и 1.5 с, `M` 32 м/с и 2.2 с, `L` 24 м/с и 3.2 с, `XL` 18 м/с и 4.5 с, `XXL` 12 м/с и 6.5 с |
+| `Modules/laser_a.json` | `laser_a` | `Weapon`, группа `A`, типоразмер `S`, списка `SizeParameters` нет |
 | `Commands/approach.json` | `approach` | полей нет, `{}` |
 | `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 4..160, поворот 141.474, наклон 28.779 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
 | `TimedTargets/skill_survey.json` | `skill_survey` | `Skill`, 45000 мс |

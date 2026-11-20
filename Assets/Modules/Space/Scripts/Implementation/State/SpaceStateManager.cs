@@ -150,12 +150,8 @@ namespace Modules.Space.Scripts.Implementation.State
 
         private bool EnsureShip()
         {
-            if (Profile.OwnedHullIds == null)
-                Profile.OwnedHullIds = new List<string>();
-            if (Profile.FittedModules == null)
-                Profile.FittedModules = new List<SpaceFittedModule>();
-
-            Profile.OwnedHullIds = KeepKnownHulls(Profile.OwnedHullIds);
+            if (Profile.Ships == null)
+                Profile.Ships = new List<SpacePlayerShipState>();
 
             if (!_definitions.TryGetHull(Profile.ActiveHullId, out _))
             {
@@ -165,95 +161,141 @@ namespace Modules.Space.Scripts.Implementation.State
                 Profile.ActiveHullId = SpaceProfile.STARTER_HULL_ID;
             }
 
-            if (!Profile.OwnedHullIds.Contains(Profile.ActiveHullId))
-                Profile.OwnedHullIds.Add(Profile.ActiveHullId);
+            Profile.Ships = KeepKnownShips(Profile.Ships);
+            if (FindShip(Profile.ActiveHullId) == null)
+            {
+                Profile.Ships.Add(new SpacePlayerShipState
+                {
+                    HullId = Profile.ActiveHullId
+                });
+            }
 
-            _definitions.TryGetHull(Profile.ActiveHullId, out var hull);
-            Profile.FittedModules = KeepValidFittings(hull, Profile.FittedModules);
-            EnsureDefaultEngine(hull);
+            for (var i = 0; i < Profile.Ships.Count; i++)
+            {
+                var ship = Profile.Ships[i];
+                if (!_definitions.TryGetHull(ship.HullId, out var hull))
+                    continue;
+
+                ship.Slots = RebuildSlots(hull, ship.Slots);
+                EnsureDefaultEngine(ship);
+            }
+
             return true;
         }
 
-        private List<string> KeepKnownHulls(List<string> hullIds)
+        private List<SpacePlayerShipState> KeepKnownShips(List<SpacePlayerShipState> ships)
         {
-            var kept = new List<string>();
-            for (var i = 0; i < hullIds.Count; i++)
+            var kept = new List<SpacePlayerShipState>();
+            for (var i = 0; i < ships.Count; i++)
             {
-                var hullId = hullIds[i];
-                if (kept.Contains(hullId) || !_definitions.TryGetHull(hullId, out _))
+                var ship = ships[i];
+                if (ship == null || string.IsNullOrEmpty(ship.HullId) || !_definitions.TryGetHull(ship.HullId, out _))
                     continue;
 
-                kept.Add(hullId);
+                if (FindIn(kept, ship.HullId) != null)
+                    continue;
+
+                kept.Add(ship);
             }
 
             return kept;
         }
 
-        private List<SpaceFittedModule> KeepValidFittings(SpaceHullDef hull, List<SpaceFittedModule> fittings)
+        private List<SpacePlayerShipSlot> RebuildSlots(SpaceHullDef hull, List<SpacePlayerShipSlot> saved)
         {
-            var kept = new List<SpaceFittedModule>();
-            var usedSlots = new HashSet<string>();
-            for (var i = 0; i < fittings.Count; i++)
+            var slots = new List<SpacePlayerShipSlot>();
+            if (hull?.Slots == null)
+                return slots;
+
+            var used = new bool[saved != null ? saved.Count : 0];
+            for (var i = 0; i < hull.Slots.Count; i++)
             {
-                var fitting = fittings[i];
-                if (fitting == null || string.IsNullOrEmpty(fitting.SlotId) || string.IsNullOrEmpty(fitting.ModuleId))
+                var defined = hull.Slots[i];
+                if (defined == null)
                     continue;
 
-                if (usedSlots.Contains(fitting.SlotId))
-                    continue;
-
-                if (!HullHasSlot(hull, fitting.SlotId))
-                    continue;
-
-                if (!_definitions.TryGetModule(fitting.ModuleId, out var module) || module.SlotId != fitting.SlotId)
-                    continue;
-
-                if (hull == null || !module.AllowsHullSize(hull.SizeType))
-                    continue;
-
-                usedSlots.Add(fitting.SlotId);
-                kept.Add(fitting);
+                var slot = new SpacePlayerShipSlot
+                {
+                    SlotType = defined.SlotType,
+                    SizeType = defined.SizeType
+                };
+                slot.ModuleId = TakeInstalledModule(saved, used, defined);
+                slots.Add(slot);
             }
 
-            return kept;
+            return slots;
         }
 
-        private void EnsureDefaultEngine(SpaceHullDef hull)
+        private string TakeInstalledModule(List<SpacePlayerShipSlot> saved, bool[] used, SpaceHullSlotDef defined)
         {
-            if (hull == null || !_definitions.TryGetModule(SpaceProfile.STARTER_ENGINE_ID, out var engine))
-                return;
+            if (saved == null)
+                return null;
 
-            if (engine.Kind != SpaceModuleKind.Engine || !engine.IsUsable() || !HullHasSlot(hull, engine.SlotId))
-                return;
-
-            if (!engine.AllowsHullSize(hull.SizeType))
-                return;
-
-            for (var i = 0; i < Profile.FittedModules.Count; i++)
+            for (var i = 0; i < saved.Count; i++)
             {
-                if (Profile.FittedModules[i].SlotId == engine.SlotId)
-                    return;
+                if (used[i])
+                    continue;
+
+                var previous = saved[i];
+                if (previous == null || previous.SlotType != defined.SlotType || previous.SizeType != defined.SizeType)
+                    continue;
+
+                used[i] = true;
+                if (string.IsNullOrEmpty(previous.ModuleId))
+                    return null;
+
+                if (!_definitions.TryGetModule(previous.ModuleId, out var module))
+                    return null;
+
+                if (module.SlotType != defined.SlotType || !module.AllowsSlotSize(defined.SizeType))
+                    return null;
+
+                return module.Id;
             }
 
-            Profile.FittedModules.Add(new SpaceFittedModule
-            {
-                SlotId = engine.SlotId,
-                ModuleId = engine.Id
-            });
+            return null;
         }
 
-        private static bool HullHasSlot(SpaceHullDef hull, string slotId)
+        private void EnsureDefaultEngine(SpacePlayerShipState ship)
         {
-            if (hull?.ModuleSlotIds == null)
-                return false;
+            if (ship?.Slots == null || !_definitions.TryGetModule(SpaceProfile.STARTER_ENGINE_ID, out var engine))
+                return;
 
-            for (var i = 0; i < hull.ModuleSlotIds.Count; i++)
+            if (engine.SlotType != SpaceSlotType.Engine || !engine.IsUsable())
+                return;
+
+            for (var i = 0; i < ship.Slots.Count; i++)
             {
-                if (hull.ModuleSlotIds[i] == slotId)
-                    return true;
+                var slot = ship.Slots[i];
+                if (slot == null || slot.SlotType != SpaceSlotType.Engine || !string.IsNullOrEmpty(slot.ModuleId))
+                    continue;
+
+                if (!engine.AllowsSlotSize(slot.SizeType))
+                    continue;
+
+                slot.ModuleId = engine.Id;
+                return;
+            }
+        }
+
+        private SpacePlayerShipState FindShip(string hullId)
+        {
+            return FindIn(Profile?.Ships, hullId);
+        }
+
+        private static SpacePlayerShipState FindIn(List<SpacePlayerShipState> ships, string hullId)
+        {
+            if (ships == null || string.IsNullOrEmpty(hullId))
+                return null;
+
+            for (var i = 0; i < ships.Count; i++)
+            {
+                var ship = ships[i];
+                if (ship != null && ship.HullId == hullId)
+                    return ship;
             }
 
-            return false;
+            return null;
         }
 
         private bool TryGetQueue(string queueId, out SpaceQueueState queue)

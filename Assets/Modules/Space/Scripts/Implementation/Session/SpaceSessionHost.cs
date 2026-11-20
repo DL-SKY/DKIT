@@ -173,7 +173,8 @@ namespace Modules.Space.Scripts.Implementation.Session
             if (state != null && state.Profile != null)
                 definitions.TryGetHull(state.Profile.ActiveHullId, out hull);
 
-            SpaceSectorBodies.AttachPlayer(_session.World, _playerShip, hull, FindFittedEngine(definitions, state, hull), position, yaw);
+            var engine = FindFittedEngine(definitions, state, out var engineSlotSize);
+            SpaceSectorBodies.AttachPlayer(_session.World, _playerShip, hull, engine, engineSlotSize, position, yaw);
 
             var camera = Camera.main;
             if (camera == null)
@@ -199,41 +200,43 @@ namespace Modules.Space.Scripts.Implementation.Session
             return definitions.TryGetHull(state.Profile.ActiveHullId, out var hull) ? hull.CameraDistance : 0f;
         }
 
-        private static SpaceModuleDef FindFittedEngine(SpaceDefinitionsManager definitions, SpaceStateManager state, SpaceHullDef hull)
+        private static SpaceModuleDef FindFittedEngine(SpaceDefinitionsManager definitions, SpaceStateManager state, out SpaceSizeType slotSize)
         {
-            if (definitions == null || state?.Profile?.FittedModules == null || hull?.ModuleSlotIds == null)
+            slotSize = default;
+            var ships = state?.Profile?.Ships;
+            if (definitions == null || ships == null)
                 return null;
 
-            for (var i = 0; i < state.Profile.FittedModules.Count; i++)
+            SpacePlayerShipState ship = null;
+            for (var i = 0; i < ships.Count; i++)
             {
-                var fitting = state.Profile.FittedModules[i];
-                if (fitting == null || !definitions.TryGetModule(fitting.ModuleId, out var module))
+                if (ships[i] != null && ships[i].HullId == state.Profile.ActiveHullId)
+                {
+                    ship = ships[i];
+                    break;
+                }
+            }
+
+            if (ship?.Slots == null)
+                return null;
+
+            for (var i = 0; i < ship.Slots.Count; i++)
+            {
+                var slot = ship.Slots[i];
+                if (slot == null || slot.SlotType != SpaceSlotType.Engine || string.IsNullOrEmpty(slot.ModuleId))
                     continue;
 
-                if (module.Kind != SpaceModuleKind.Engine || module.SlotId != fitting.SlotId)
+                if (!definitions.TryGetModule(slot.ModuleId, out var module) || module.SlotType != SpaceSlotType.Engine)
                     continue;
 
-                if (!HullHasSlot(hull, fitting.SlotId))
+                if (!module.AllowsSlotSize(slot.SizeType))
                     continue;
 
+                slotSize = slot.SizeType;
                 return module;
             }
 
             return null;
-        }
-
-        private static bool HullHasSlot(SpaceHullDef hull, string slotId)
-        {
-            if (hull?.ModuleSlotIds == null)
-                return false;
-
-            for (var i = 0; i < hull.ModuleSlotIds.Count; i++)
-            {
-                if (hull.ModuleSlotIds[i] == slotId)
-                    return true;
-            }
-
-            return false;
         }
 
         private void OnDestroy()
