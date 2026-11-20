@@ -32,6 +32,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             DrawObjects(definitions);
             DrawSectors(definitions);
             DrawCameraSettings(definitions);
+            DrawMarkerIcons(definitions);
         }
 
         private static SpaceDefinitionsManager TryGetDefinitions()
@@ -56,7 +57,8 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 int slotCount = hull.ModuleSlotIds != null ? hull.ModuleSlotIds.Count : 0;
                 int commandCount = hull.CommandIds != null ? hull.CommandIds.Count : 0;
                 string visual = string.IsNullOrEmpty(hull.VisualResourcesPath) ? "—" : hull.VisualResourcesPath;
-                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount + ", camera " + hull.CameraDistance + ", radius " + hull.Radius + ", maneuver " + hull.ManeuverabilityDegreesPerSecond + ", visual " + visual);
+                string icon = string.IsNullOrEmpty(hull.IconResourcesPath) ? "—" : hull.IconResourcesPath;
+                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount + ", camera " + hull.CameraDistance + ", radius " + hull.Radius + ", maneuver " + hull.ManeuverabilityDegreesPerSecond + ", visual " + visual + ", icon " + icon);
             }
 
             EditorGUI.indentLevel--;
@@ -166,6 +168,31 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             EditorGUILayout.LabelField("distance " + settings.MinDistance + ".." + settings.MaxDistance);
             EditorGUILayout.LabelField("yaw " + settings.DefaultYaw + "  pitch " + settings.DefaultPitch + "  " + settings.MinPitch + ".." + settings.MaxPitch);
             EditorGUILayout.LabelField("degrees/pixel " + settings.DegreesPerPixel + "  scroll " + settings.ScrollStep + "  drag " + settings.DragThresholdPixels);
+            EditorGUI.indentLevel--;
+        }
+
+        private static void DrawMarkerIcons(SpaceDefinitionsManager definitions)
+        {
+            SpaceMarkerIconsDef icons = definitions.MarkerIcons;
+            EditorGUILayout.LabelField("Marker icons:");
+            EditorGUI.indentLevel++;
+            if (icons == null || icons.Icons == null || icons.Icons.Count == 0)
+            {
+                EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
+                EditorGUI.indentLevel--;
+                return;
+            }
+
+            for (int i = 0; i < icons.Icons.Count; i++)
+            {
+                SpaceMarkerKindIcon entry = icons.Icons[i];
+                if (entry == null)
+                    continue;
+
+                string path = string.IsNullOrEmpty(entry.IconResourcesPath) ? "—" : entry.IconResourcesPath;
+                EditorGUILayout.LabelField((i + 1) + ". " + entry.Kind + "  " + path);
+            }
+
             EditorGUI.indentLevel--;
         }
 

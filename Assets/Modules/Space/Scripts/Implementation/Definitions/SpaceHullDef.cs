@@ -8,6 +8,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public List<string> ModuleSlotIds;
         public List<string> CommandIds;
         public string VisualResourcesPath;
+        public string IconResourcesPath;
         public float CameraDistance;
         public float Radius;
         public float ManeuverabilityDegreesPerSecond;

@@ -23,6 +23,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceSectorDef` | `AbstractDefinition` | `Definitions/Space/Sectors` | `SpaceDefinitionsManager.Sectors` |
 | `SpaceObjectDef` | `AbstractDefinition` | `Definitions/Space/Objects` | `SpaceDefinitionsManager.Objects` |
 | `SpaceCameraSettingsDef` | `AbstractDefinition` | `Definitions/Space/CameraSettings/CameraSettings` | `SpaceDefinitionsManager.CameraSettings`. Одна запись, не словарь |
+| `SpaceMarkerIconsDef` | `AbstractDefinition` | `Definitions/Space/MarkerIcons/MarkerIcons` | `SpaceDefinitionsManager.MarkerIcons`. Одна запись, не словарь. Картинки типов `SpaceObjectKind`. Корабль её не читает |
 
 `Id` в JSON не пишется. `SpaceDefinitionLoader` ставит его из имени файла (`approach.json` → `approach`). Файл из одних пробелов пропускается, поэтому у команды без полей в файле лежит `{}`. Повторный id пропускается с предупреждением, в словарь остаётся первая запись. Битый JSON из загрузчика не глотается: исключение выходит из `Init` до `IsReady`.
 
@@ -37,7 +38,8 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 - среди целей есть все пять значений `SpaceQueueKind`;
 - среди целей с `Kind = Skill` есть хотя бы три разных `BaseTimeMs`;
 - `CameraSettings` загружен и пригоден: минимум дистанции больше нуля и меньше максимума, старт наклона внутри диапазона, чувствительность, шаг зума и порог перетаскивания больше нуля;
-- у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры, `Radius` не меньше нуля, манёвренность больше нуля;
+- у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры, `Radius` не меньше нуля, манёвренность больше нуля, `IconResourcesPath` не пустой;
+- `MarkerIcons` загружен и покрывает каждое значение `SpaceObjectKind` ровно одной непустой картинкой;
 - среди модулей есть пригодный двигатель: максимальная скорость и инерция больше нуля;
 - хотя бы один объект, и у каждого масштаб больше нуля, а радиус не меньше нуля;
 - хотя бы один сектор, и у каждого есть имя сцены, расстановка из известных объектов и хотя бы одна точка спавна.
@@ -67,6 +69,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceHullDef` | `ModuleSlotIds` | `List<string>` | `ModuleSlotIds` | id слотов, куда садится модуль. Это не id `SpaceModuleDef` |
 | `SpaceHullDef` | `CommandIds` | `List<string>` | `CommandIds` | id `SpaceCommandDef`, которые корпус умеет отдать |
 | `SpaceHullDef` | `VisualResourcesPath` | `string` | `VisualResourcesPath` | путь в `Resources` на префаб корпуса. Пустой путь корпус в сцену не ставит |
+| `SpaceHullDef` | `IconResourcesPath` | `string` | `IconResourcesPath` | картинка метки этого корпуса. Путь в `Resources` на спрайт |
 | `SpaceHullDef` | `CameraDistance` | `float` | `CameraDistance` | стартовая дистанция камеры в секторе. На станции не применяется |
 | `SpaceHullDef` | `Radius` | `float` | `Radius` | радиус сферы корпуса в метрах |
 | `SpaceHullDef` | `ManeuverabilityDegreesPerSecond` | `float` | `ManeuverabilityDegreesPerSecond` | насколько быстро нос поворачивается к желаемому рысканию. Форма корпуса, не двигатель |
@@ -87,6 +90,9 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceCameraSettingsDef` | `DegreesPerPixel` | `float` | `DegreesPerPixel` | сколько градусов даёт один пиксель перетаскивания |
 | `SpaceCameraSettingsDef` | `ScrollStep` | `float` | `ScrollStep` | шаг дистанции на один щелчок колеса |
 | `SpaceCameraSettingsDef` | `DragThresholdPixels` | `float` | `DragThresholdPixels` | сдвиг, после которого касание считается поворотом, а не кликом |
+| `SpaceMarkerIconsDef` | `Icons` | `List<SpaceMarkerKindIcon>` | `Icons` | по одной записи на каждое значение `SpaceObjectKind` |
+| `SpaceMarkerKindIcon` | `Kind` | `SpaceObjectKind` | `Kind` | тип тела, которому принадлежит картинка |
+| `SpaceMarkerKindIcon` | `IconResourcesPath` | `string` | `IconResourcesPath` | путь спрайта в `Resources` |
 
 Точка появления — место корпуса в уже загруженной сцене сектора. `X`, `Y`, `Z` задают это место в метрах: вправо, вверх и вперёд. `Yaw` только крутит корпус вокруг вертикали, крен и наклон точки не задают. Ноль градусов смотрит носом по +Z. Код ставит поворот как `Quaternion.Euler(0, Yaw, 0)`. Нуля в коде нет: числа берутся из выбранной точки.
 
@@ -112,7 +118,8 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `Objects/player_spawn.json` | `player_spawn` | `Spawn`, без префаба, масштаб `1`, радиус `0` |
 | `Objects/asteroid_near.json` | `asteroid_near` | `Asteroid`, `Prefabs/Asteroids/AsteroidNear`, масштаб `0.08`, радиус `9.967` |
 | `Objects/asteroid_far.json` | `asteroid_far` | `Asteroid`, `Prefabs/Asteroids/AsteroidFar`, масштаб `0.12`, радиус `15.812` |
-| `Hulls/Fighter.json` | `Fighter` | слоты `weapon_a` и `engine`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с |
+| `Hulls/Fighter.json` | `Fighter` | слоты `weapon_a` и `engine`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с |
+| `MarkerIcons/MarkerIcons.json` | `MarkerIcons` | `PointOfInterest` → `Sprites/Space/Markers/Point`, `Station` → `Sprites/Space/Markers/Station`, `Asteroid` → `Sprites/Space/Markers/Asteroid`, `Spawn` → `Sprites/Space/Markers/Spawn` |
 | `Modules/laser_a.json` | `laser_a` | `Weapon`, слот `weapon_a`, группа `A` |
 | `Modules/engine_default.json` | `engine_default` | `Engine`, слот `engine`, скорость `40` м/с, инерция `1.5` с |
 | `Commands/approach.json` | `approach` | полей нет, `{}` |

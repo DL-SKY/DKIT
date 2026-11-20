@@ -60,6 +60,14 @@ namespace Modules.ECS.Scripts.Space.Components
     }
 
     /// <summary>
+    /// Stable marker key assigned once at spawn. The window matches a button to this value.
+    /// </summary>
+    public struct SpaceMarkerKey
+    {
+        public string Value;
+    }
+
+    /// <summary>
     /// Turn rate copied from the hull maneuverability. Present does not start a turn by itself.
     /// </summary>
     public struct SpaceTurnRate

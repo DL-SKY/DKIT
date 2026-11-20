@@ -16,6 +16,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public IReadOnlyDictionary<string, SpaceSectorDef> Sectors => _sectors;
         public IReadOnlyDictionary<string, SpaceObjectDef> Objects => _objects;
         public SpaceCameraSettingsDef CameraSettings { get; private set; }
+        public SpaceMarkerIconsDef MarkerIcons { get; private set; }
 
         private Dictionary<string, SpaceHullDef> _hulls = new Dictionary<string, SpaceHullDef>();
         private Dictionary<string, SpaceModuleDef> _modules = new Dictionary<string, SpaceModuleDef>();
@@ -33,6 +34,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             _sectors = SpaceDefinitionLoader.Load<SpaceSectorDef>(SpaceDefinitionLoader.SECTORS_PATH);
             _objects = SpaceDefinitionLoader.Load<SpaceObjectDef>(SpaceDefinitionLoader.OBJECTS_PATH);
             CameraSettings = SpaceDefinitionLoader.LoadSingle<SpaceCameraSettingsDef>(SpaceDefinitionLoader.CAMERA_SETTINGS_PATH);
+            MarkerIcons = SpaceDefinitionLoader.LoadSingle<SpaceMarkerIconsDef>(SpaceDefinitionLoader.MARKER_ICONS_PATH);
             IsReady = HasRequiredRecords();
         }
 
@@ -71,7 +73,10 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             if (_hulls.Count < 1 || _modules.Count < 1 || _commands.Count < 1)
                 return false;
 
-            if (CameraSettings == null || !CameraSettings.IsUsable() || !HullsFit() || !ModulesFit() || !ObjectsFit() || !SectorsFit())
+            if (CameraSettings == null || !CameraSettings.IsUsable() || MarkerIcons == null || !MarkerIcons.IsUsable())
+                return false;
+
+            if (!HullsFit() || !ModulesFit() || !ObjectsFit() || !SectorsFit())
                 return false;
 
             var skillDurations = new HashSet<long>();
@@ -102,6 +107,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
                 var hull = pair.Value;
                 if (hull == null
                     || !hull.HasFlightRates()
+                    || string.IsNullOrWhiteSpace(hull.IconResourcesPath)
                     || hull.CameraDistance < CameraSettings.MinDistance
                     || hull.CameraDistance > CameraSettings.MaxDistance)
                     return false;

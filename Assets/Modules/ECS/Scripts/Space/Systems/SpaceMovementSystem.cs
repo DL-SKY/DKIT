@@ -35,17 +35,17 @@ namespace Modules.ECS.Scripts.Space.Systems
 
                 var current = position.Value;
                 var forward = Quaternion.Euler(0f, yaw.Degrees, 0f) * Vector3.forward;
-                var desiredSpeed = DesiredSpeed(current, target.Position, motion);
+                ref var self = ref _movers.GetEntity(index);
+                var desiredSpeed = DesiredSpeed(RemainingDistance(self, current, radius.Meters, target.Position), motion);
                 motion.MetersPerSecond = Approach(motion.MetersPerSecond, desiredSpeed, motion.InertiaSeconds, deltaSeconds);
 
                 var step = motion.MetersPerSecond * deltaSeconds;
                 if (step <= STEP_EPSILON)
                 {
-                    position.Value = PushOut(_movers.GetEntity(index), current, radius.Meters);
+                    position.Value = PushOut(self, current, radius.Meters);
                     continue;
                 }
 
-                ref var self = ref _movers.GetEntity(index);
                 var resolved = StopAtBodies(self, current, current + forward * step, radius.Meters);
                 if (Vector3.Distance(current, resolved) < step * 0.5f)
                     motion.MetersPerSecond = Approach(motion.MetersPerSecond, 0f, motion.InertiaSeconds, deltaSeconds);
@@ -54,14 +54,38 @@ namespace Modules.ECS.Scripts.Space.Systems
             }
         }
 
-        private static float DesiredSpeed(Vector3 position, Vector3 target, SpaceMotion motion)
+        private float RemainingDistance(EcsEntity self, Vector3 position, float selfRadius, Vector3 target)
         {
-            var distance = Vector3.Distance(position, target);
-            if (distance <= STEP_EPSILON)
+            var centerDistance = Vector3.Distance(position, target);
+            var targetRadius = 0f;
+            if (_bodies != null)
+            {
+                foreach (var index in _bodies)
+                {
+                    if (_bodies.GetEntity(index).Equals(self))
+                        continue;
+
+                    ref var otherPosition = ref _bodies.Get1(index);
+                    if ((otherPosition.Value - target).sqrMagnitude > STEP_EPSILON)
+                        continue;
+
+                    ref var otherRadius = ref _bodies.Get2(index);
+                    if (otherRadius.Meters > targetRadius)
+                        targetRadius = otherRadius.Meters;
+                }
+            }
+
+            var gap = centerDistance - selfRadius - targetRadius;
+            return gap > 0f ? gap : 0f;
+        }
+
+        private static float DesiredSpeed(float remainingDistance, SpaceMotion motion)
+        {
+            if (remainingDistance <= STEP_EPSILON)
                 return 0f;
 
             var stoppingDistance = motion.MetersPerSecond * motion.InertiaSeconds;
-            if (distance <= stoppingDistance)
+            if (remainingDistance <= stoppingDistance)
                 return 0f;
 
             return motion.MaxMetersPerSecond;

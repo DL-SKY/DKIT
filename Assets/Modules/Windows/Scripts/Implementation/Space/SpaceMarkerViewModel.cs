@@ -8,7 +8,37 @@ using UnityEngine;
 namespace Modules.Windows.Scripts.Implementation.Space
 {
     /// <summary>
-    /// One screen marker. The picture and the click menu come from the tracked def.
+    /// Одна метка на экране. Картинка и круг команд берутся из дефа цели.
+    /// Картинка корабля — <c>SpaceHullDef.IconResourcesPath</c>. Остальные типы читают картинку
+    /// из единственного <c>SpaceMarkerIconsDef</c>.
+    /// <para>
+    /// Скорость, радиус и прочность не приходят событием. Их читают с сущности сектора в том же
+    /// обходе, что уже делает <see cref="SpaceSessionHost.CopyMarkers"/> каждый кадр.
+    /// Корабль игрока — сущность с <c>SpacePlayerHull</c>. Остальное тело узнаётся по
+    /// <c>SpaceLabel.Value</c> = <see cref="DefId"/> и по <c>SpaceKind</c> = <see cref="Kind"/>.
+    /// </para>
+    /// <para>
+    /// Текущая скорость — <c>SpaceMotion.MetersPerSecond</c>, метры в секунду вдоль носа.
+    /// Тестовая подпись метки уже копирует это число в <see cref="MetersPerSecond"/>.
+    /// Если компонента нет, скорость цели равна нулю: так сейчас у неподвижных тел.
+    /// <c>MaxMetersPerSecond</c> и <c>InertiaSeconds</c> — потолок и время набора, их при спавне
+    /// копируют с надетого двигателя. В дефе корпуса скорости нет. Она лежит на дефе двигателя:
+    /// <c>SpaceModuleDef.MaxSpeedMetersPerSecond</c> и <c>InertiaSeconds</c>, модуль находится
+    /// по слоту в надетом оснащении профиля. Скорость поворота, если метке понадобится, —
+    /// <c>SpaceTurnRate.DegreesPerSecond</c> из <c>SpaceHullDef.ManeuverabilityDegreesPerSecond</c>.
+    /// </para>
+    /// <para>
+    /// Радиус в метрах — <c>SpaceRadius.Meters</c> на той же сущности. Кораблю его копируют из
+    /// <c>SpaceHullDef.Radius</c>, телу — из <c>SpaceObjectDef.Radius</c>. Те же числа остаются
+    /// в дефах: <c>TryGetHull</c> и <c>TryGetObject</c> по <see cref="DefId"/>. Ноль значит, что
+    /// тело никого не отталкивает. Дистанция до игрока — разница между <see cref="WorldPosition"/>
+    /// и <c>SpacePosition</c> корпуса игрока.
+    /// </para>
+    /// <para>
+    /// Прочности корпуса и щитов нет ни на сущности, ни в дефе корпуса или объекта.
+    /// Их нельзя выводить из радиуса или из двигателя. Когда появятся, текущие значения
+    /// должны лежать на сущности, а максимумы — в дефе корпуса или модуля.
+    /// </para>
     /// </summary>
     public sealed class SpaceMarkerViewModel : ViewModelBase
     {
@@ -21,9 +51,11 @@ namespace Modules.Windows.Scripts.Implementation.Space
 
         public string TargetId { get; private set; }
         public string DefId { get; private set; }
+        public bool Ship { get; private set; }
         public bool Player { get; private set; }
         public SpaceObjectKind Kind { get; private set; }
         public Vector3 WorldPosition { get; private set; }
+        public float MetersPerSecond { get; private set; }
         public string IconResourcesPath { get; private set; }
         public bool MenuOpen => _menuOpen;
         public IReadOnlyList<string> Commands => _commands;
@@ -36,19 +68,22 @@ namespace Modules.Windows.Scripts.Implementation.Space
         {
             TargetId = snapshot.TargetId;
             DefId = snapshot.DefId;
+            Ship = snapshot.Ship;
             Player = snapshot.Player;
             Kind = snapshot.Kind;
             WorldPosition = snapshot.WorldPosition;
-            IconResourcesPath = ResolveIconPath(snapshot);
+            MetersPerSecond = snapshot.MetersPerSecond;
+            IconResourcesPath = ReadIconPath(snapshot, definitions);
             _onClick = onClick;
             _onCommand = onCommand;
             _commands.Clear();
             CollectCommands(snapshot, definitions);
         }
 
-        public void SetWorldPosition(Vector3 worldPosition)
+        public void SetLive(Vector3 worldPosition, float metersPerSecond)
         {
             WorldPosition = worldPosition;
+            MetersPerSecond = metersPerSecond;
         }
 
         public void SetMenuOpen(bool open)
@@ -83,7 +118,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             if (definitions == null || string.IsNullOrEmpty(snapshot.DefId))
                 return;
 
-            if (snapshot.Player)
+            if (snapshot.Ship)
             {
                 if (definitions.TryGetHull(snapshot.DefId, out var hull))
                     CopyCommands(hull?.CommandIds);
@@ -109,20 +144,25 @@ namespace Modules.Windows.Scripts.Implementation.Space
             }
         }
 
-        private static string ResolveIconPath(SpaceMarkerSnapshot snapshot)
+        private static string ReadIconPath(SpaceMarkerSnapshot snapshot, SpaceDefinitionsManager definitions)
         {
-            if (snapshot.Player)
-                return "Sprites/Space/Markers/Player";
-
-            switch (snapshot.Kind)
+            if (snapshot.Ship)
             {
-                case SpaceObjectKind.Asteroid:
-                    return "Sprites/Space/Markers/Asteroid";
-                case SpaceObjectKind.Station:
-                    return "Sprites/Space/Markers/Station";
-                default:
-                    return "Sprites/Space/Markers/Point";
+                if (definitions != null
+                    && definitions.TryGetHull(snapshot.DefId, out var hull)
+                    && hull != null
+                    && !string.IsNullOrWhiteSpace(hull.IconResourcesPath))
+                    return hull.IconResourcesPath;
+
+                UnityEngine.Debug.LogError($"[Space] Ship marker '{snapshot.DefId}' has no icon on its hull def.");
+                return string.Empty;
             }
+
+            if (definitions?.MarkerIcons != null && definitions.MarkerIcons.TryGetIcon(snapshot.Kind, out var path))
+                return path;
+
+            UnityEngine.Debug.LogError($"[Space] Marker icons have no picture for {snapshot.Kind}.");
+            return string.Empty;
         }
     }
 }

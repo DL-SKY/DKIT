@@ -15,9 +15,11 @@ namespace Modules.Windows.Scripts.Implementation.Space
         private const float MENU_RADIUS = 78f;
         private const float MENU_BUTTON_SIZE = 44f;
         private const float EDGE_MARGIN = 36f;
+        private const bool SHOW_TEST_SPEED = true;
 
         private Button _button;
         private Image _icon;
+        private TextMeshProUGUI _speedLabel;
         private SpaceMarkerViewModel _viewModel;
         private readonly List<GameObject> _menuButtons = new List<GameObject>();
 
@@ -33,6 +35,8 @@ namespace Modules.Windows.Scripts.Implementation.Space
                 _icon = GetComponent<Image>();
 
             ApplyIcon();
+            EnsureSpeedLabel();
+            ApplySpeed();
             ApplyMenu();
             Subscribe();
         }
@@ -53,6 +57,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = local;
+            ApplySpeed();
         }
 
         private void OnDestroy()
@@ -88,6 +93,38 @@ namespace Modules.Windows.Scripts.Implementation.Space
         private void OnButtonClick()
         {
             _viewModel?.Click();
+        }
+
+        private void EnsureSpeedLabel()
+        {
+            if (!SHOW_TEST_SPEED || _speedLabel != null)
+                return;
+
+            var labelObject = new GameObject("Speed", typeof(RectTransform));
+            labelObject.transform.SetParent(transform, false);
+            _speedLabel = labelObject.AddComponent<TextMeshProUGUI>();
+            _speedLabel.fontSize = 14f;
+            _speedLabel.alignment = TextAlignmentOptions.Center;
+            _speedLabel.color = Color.white;
+            _speedLabel.raycastTarget = false;
+            _speedLabel.enableWordWrapping = false;
+            if (TMP_Settings.defaultFontAsset != null)
+                _speedLabel.font = TMP_Settings.defaultFontAsset;
+
+            var rect = _speedLabel.rectTransform;
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.sizeDelta = new Vector2(72f, 18f);
+            rect.anchoredPosition = new Vector2(0f, -26f);
+        }
+
+        private void ApplySpeed()
+        {
+            if (_speedLabel == null || _viewModel == null)
+                return;
+
+            _speedLabel.text = _viewModel.MetersPerSecond.ToString("0.00");
         }
 
         private void ApplyIcon()

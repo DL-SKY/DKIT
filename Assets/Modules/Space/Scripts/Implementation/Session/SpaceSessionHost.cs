@@ -86,7 +86,7 @@ namespace Modules.Space.Scripts.Implementation.Session
             for (var i = 0; i < count; i++)
             {
                 var entity = _entityBuffer[i];
-                if (!entity.Has<SpacePosition>() || !entity.Has<SpaceLabel>())
+                if (!entity.Has<SpacePosition>() || !entity.Has<SpaceLabel>() || !entity.Has<SpaceMarkerKey>())
                     continue;
 
                 var player = entity.Has<SpacePlayerHull>();
@@ -100,11 +100,14 @@ namespace Modules.Space.Scripts.Implementation.Session
                 var label = entity.Get<SpaceLabel>().Value;
                 target.Add(new SpaceMarkerSnapshot
                 {
-                    TargetId = player ? "player" : "body:" + i + ":" + label,
+                    TargetId = entity.Get<SpaceMarkerKey>().Value,
                     DefId = label,
+                    // The only hull entity today is the player ship. Another ship sets Ship and leaves Player false.
+                    Ship = player,
                     Player = player,
                     Kind = kind,
-                    WorldPosition = entity.Get<SpacePosition>().Value
+                    WorldPosition = entity.Get<SpacePosition>().Value,
+                    MetersPerSecond = entity.Has<SpaceMotion>() ? entity.Get<SpaceMotion>().MetersPerSecond : 0f
                 });
             }
         }

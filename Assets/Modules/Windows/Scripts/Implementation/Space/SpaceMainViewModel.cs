@@ -11,6 +11,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
     public sealed class SpaceMainViewModel : ViewModelBase
     {
         public const string ON_MARKERS = "markers";
+        private const string APPROACH_COMMAND_ID = "approach";
 
         [Inject] private readonly ViewModelFactory _viewModelFactory;
         [Inject] private readonly SpaceSessionHost _sessionHost;
@@ -59,7 +60,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
                     continue;
                 }
 
-                marker.SetWorldPosition(snapshot.WorldPosition);
+                marker.SetLive(snapshot.WorldPosition, snapshot.MetersPerSecond);
             }
 
             if (changed)
@@ -101,7 +102,11 @@ namespace Modules.Windows.Scripts.Implementation.Space
 
         private void OnMarkerCommand(SpaceMarkerViewModel marker, string commandId)
         {
-            UnityEngine.Debug.Log($"[Space] Marker '{marker?.DefId}' command '{commandId}'.");
+            if (marker != null && commandId == APPROACH_COMMAND_ID)
+                _sessionHost.TrySetMoveTarget(marker.WorldPosition);
+            else
+                UnityEngine.Debug.Log($"[Space] Marker '{marker?.DefId}' command '{commandId}'.");
+
             if (marker != null)
                 marker.SetMenuOpen(false);
 

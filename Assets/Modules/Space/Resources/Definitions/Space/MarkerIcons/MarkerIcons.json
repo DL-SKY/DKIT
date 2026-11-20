@@ -1,0 +1,8 @@
+{
+  "Icons": [
+    { "Kind": "PointOfInterest", "IconResourcesPath": "Sprites/Space/Markers/Point" },
+    { "Kind": "Station", "IconResourcesPath": "Sprites/Space/Markers/Station" },
+    { "Kind": "Asteroid", "IconResourcesPath": "Sprites/Space/Markers/Asteroid" },
+    { "Kind": "Spawn", "IconResourcesPath": "Sprites/Space/Markers/Spawn" }
+  ]
+}
