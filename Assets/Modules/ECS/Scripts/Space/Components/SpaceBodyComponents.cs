@@ -52,6 +52,14 @@ namespace Modules.ECS.Scripts.Space.Components
     }
 
     /// <summary>
+    /// Short name drawn on the screen marker. The marker reads it and does not invent a title.
+    /// </summary>
+    public struct SpaceLabel
+    {
+        public string Value;
+    }
+
+    /// <summary>
     /// Turn rate copied from the hull maneuverability. Present does not start a turn by itself.
     /// </summary>
     public struct SpaceTurnRate

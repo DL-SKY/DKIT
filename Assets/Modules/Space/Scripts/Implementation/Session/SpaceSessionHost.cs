@@ -75,6 +75,40 @@ namespace Modules.Space.Scripts.Implementation.Session
             SpawnPlayerShip(definitions, state, sector);
         }
 
+        public void CopyMarkers(List<SpaceMarkerSnapshot> target)
+        {
+            target.Clear();
+            var world = _session != null ? _session.World : null;
+            if (world == null || !world.IsAlive())
+                return;
+
+            var count = world.GetAllEntities(ref _entityBuffer);
+            for (var i = 0; i < count; i++)
+            {
+                var entity = _entityBuffer[i];
+                if (!entity.Has<SpacePosition>() || !entity.Has<SpaceLabel>())
+                    continue;
+
+                var player = entity.Has<SpacePlayerHull>();
+                var kind = SpaceObjectKind.PointOfInterest;
+                if (!player && entity.Has<SpaceKind>())
+                    kind = entity.Get<SpaceKind>().Value;
+
+                if (!player && kind == SpaceObjectKind.Spawn)
+                    continue;
+
+                var label = entity.Get<SpaceLabel>().Value;
+                target.Add(new SpaceMarkerSnapshot
+                {
+                    TargetId = player ? "player" : "body:" + i + ":" + label,
+                    DefId = label,
+                    Player = player,
+                    Kind = kind,
+                    WorldPosition = entity.Get<SpacePosition>().Value
+                });
+            }
+        }
+
         private void SpawnPlayerShip(SpaceDefinitionsManager definitions, SpaceStateManager state, SpaceSectorDef sector)
         {
             if (sector == null || !sector.TryPickSpawnPoint(definitions.Objects, out var position, out var yaw))

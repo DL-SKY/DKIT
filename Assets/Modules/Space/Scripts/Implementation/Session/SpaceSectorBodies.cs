@@ -42,6 +42,7 @@ namespace Modules.Space.Scripts.Implementation.Session
                 entity.Get<SpaceYaw>() = new SpaceYaw { Degrees = placement.Yaw };
                 entity.Get<SpaceRadius>() = new SpaceRadius { Meters = body.Radius };
                 entity.Get<SpaceKind>() = new SpaceKind { Value = body.Kind };
+                entity.Get<SpaceLabel>() = new SpaceLabel { Value = body.Id };
 
                 var view = CreateView(body, position, placement.Yaw);
                 if (view == null)
@@ -66,6 +67,7 @@ namespace Modules.Space.Scripts.Implementation.Session
 
             var entity = world.NewEntity();
             entity.Get<SpacePlayerHull>();
+            entity.Get<SpaceLabel>() = new SpaceLabel { Value = hull.Id };
             entity.Get<SpacePosition>() = new SpacePosition { Value = position };
             entity.Get<SpaceYaw>() = new SpaceYaw { Degrees = yaw };
             entity.Get<SpaceRadius>() = new SpaceRadius { Meters = hull.Radius };

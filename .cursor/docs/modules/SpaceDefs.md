@@ -63,6 +63,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceObjectDef` | `VisualResourcesPath` | `string` | `VisualResourcesPath` | путь префаба в `Resources`. Пустая строка — сущность без объекта |
 | `SpaceObjectDef` | `UniformScale` | `float` | `UniformScale` | единый масштаб префаба. На расстановке не переопределяется |
 | `SpaceObjectDef` | `Radius` | `float` | `Radius` | радиус сферы в метрах. Ноль не отталкивает другие тела |
+| `SpaceObjectDef` | `CommandIds` | `List<string>` | `CommandIds` | id команд, которые касание метки раскладывает по кругу. Пустой список круг не строит |
 | `SpaceHullDef` | `ModuleSlotIds` | `List<string>` | `ModuleSlotIds` | id слотов, куда садится модуль. Это не id `SpaceModuleDef` |
 | `SpaceHullDef` | `CommandIds` | `List<string>` | `CommandIds` | id `SpaceCommandDef`, которые корпус умеет отдать |
 | `SpaceHullDef` | `VisualResourcesPath` | `string` | `VisualResourcesPath` | путь в `Resources` на префаб корпуса. Пустой путь корпус в сцену не ставит |

@@ -1,5 +1,6 @@
 using Modules.Space.Scripts.Implementation.Definitions;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Modules.Space.Scripts.Implementation.Session
 {
@@ -93,6 +94,9 @@ namespace Modules.Space.Scripts.Implementation.Session
         {
             if (began)
             {
+                if (IsPointerOverUi())
+                    return;
+
                 _pressed = true;
                 _dragging = false;
                 _pressPosition = position;
@@ -117,6 +121,18 @@ namespace Modules.Space.Scripts.Implementation.Session
                 _pressed = false;
                 _dragging = false;
             }
+        }
+
+        private static bool IsPointerOverUi()
+        {
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null)
+                return false;
+
+            if (UnityEngine.Input.touchCount == 1)
+                return eventSystem.IsPointerOverGameObject(UnityEngine.Input.GetTouch(0).fingerId);
+
+            return eventSystem.IsPointerOverGameObject();
         }
 
         private void ReadPinch()

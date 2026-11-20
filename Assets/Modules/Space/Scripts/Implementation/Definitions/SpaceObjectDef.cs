@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Modules.Definitions.Scripts.Defs;
 
 namespace Modules.Space.Scripts.Implementation.Definitions
@@ -12,6 +13,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public string VisualResourcesPath;
         public float UniformScale;
         public float Radius;
+        public List<string> CommandIds;
 
         public bool IsUsable()
         {
