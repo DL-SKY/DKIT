@@ -1,6 +1,8 @@
 {
   "SceneName": "SpaceDebug",
-  "SpawnPoints": [
-    { "X": 0, "Y": 0, "Z": 0, "Yaw": 0 }
+  "Placements": [
+    { "ObjectId": "player_spawn", "X": 0, "Y": 0, "Z": 0, "Yaw": 0 },
+    { "ObjectId": "asteroid_near", "X": 120, "Y": 0, "Z": 70, "Yaw": 0 },
+    { "ObjectId": "asteroid_far", "X": -140, "Y": 10, "Z": 160, "Yaw": 45 }
   ]
 }

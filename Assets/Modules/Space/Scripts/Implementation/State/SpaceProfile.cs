@@ -6,6 +6,7 @@ namespace Modules.Space.Scripts.Implementation.State
     public sealed class SpaceProfile
     {
         public const string STARTER_HULL_ID = "Fighter";
+        public const string STARTER_ENGINE_ID = "engine_default";
 
         public string ActiveHullId;
         public List<string> OwnedHullIds = new List<string>();

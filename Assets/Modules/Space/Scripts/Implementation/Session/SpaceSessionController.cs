@@ -7,7 +7,8 @@ using Zenject.Scripts.Factories;
 namespace Modules.Space.Scripts.Implementation.Session
 {
     /// <summary>
-    /// Owns the flight ECS world for one sector visit. This pass has a clock and one session entity.
+    /// Owns the flight ECS world for one sector visit.
+    /// Systems run in order: clock, face target, rotation, movement, pose sync.
     /// </summary>
     public sealed class SpaceSessionController : IDisposable
     {
@@ -18,6 +19,8 @@ namespace Modules.Space.Scripts.Implementation.Session
         private EcsWorld _world;
         private EcsSystems _systems;
         private bool _subscribed;
+
+        public EcsWorld World => _world;
 
         public SpaceSessionController(Updater updater, EcsSystemFactory ecsSystemFactory)
         {
@@ -50,6 +53,10 @@ namespace Modules.Space.Scripts.Implementation.Session
                 _systems
                     .Add(sessionInitSystem)
                     .Add(clockSystem)
+                    .Add(_ecsSystemFactory.Create<SpaceFaceMoveTargetSystem>())
+                    .Add(_ecsSystemFactory.Create<SpaceRotationSystem>())
+                    .Add(_ecsSystemFactory.Create<SpaceMovementSystem>())
+                    .Add(_ecsSystemFactory.Create<SpacePoseSyncSystem>())
                     .Init();
 
                 _updater.OnUpdate += OnUpdate;
@@ -62,7 +69,7 @@ namespace Modules.Space.Scripts.Implementation.Session
                 return;
             }
 
-            UnityEngine.Debug.Log("[Space] Session world started. No contacts spawned.");
+            UnityEngine.Debug.Log("[Space] Session world started.");
         }
 
         public void Dispose()

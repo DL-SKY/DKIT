@@ -13,7 +13,7 @@ namespace Modules.Space.Scripts.Implementation.Session
             return definitions != null
                 && definitions.TryGetSector(sectorId, out sector)
                 && sector != null
-                && sector.IsUsable();
+                && sector.IsUsable(definitions.Objects);
         }
     }
 }

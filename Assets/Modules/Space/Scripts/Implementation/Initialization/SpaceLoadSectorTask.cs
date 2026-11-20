@@ -36,7 +36,8 @@ namespace Modules.Space.Scripts.Implementation.Initialization
                 return;
             }
 
-            UnityEngine.Debug.Log($"[Space] Sector '{_sectorId}' loads scene '{sector.SceneName}'. Spawn points {sector.SpawnPoints.Count}.");
+            var placementCount = sector.Placements != null ? sector.Placements.Count : 0;
+            UnityEngine.Debug.Log($"[Space] Sector '{_sectorId}' loads scene '{sector.SceneName}'. Placements {placementCount}.");
             _coroutineHolder.StartCoroutine(LoadScene(sector.SceneName));
         }
 

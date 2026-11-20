@@ -13,6 +13,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public const string COMMANDS_PATH = "Definitions/Space/Commands";
         public const string TIMED_TARGETS_PATH = "Definitions/Space/TimedTargets";
         public const string SECTORS_PATH = "Definitions/Space/Sectors";
+        public const string OBJECTS_PATH = "Definitions/Space/Objects";
         public const string CAMERA_SETTINGS_PATH = "Definitions/Space/CameraSettings/CameraSettings";
 
         private static readonly JsonSerializerSettings SETTINGS = new JsonSerializerSettings

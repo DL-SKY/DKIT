@@ -1,0 +1,7 @@
+{
+  "Kind": "Engine",
+  "SlotId": "engine",
+  "WeaponGroup": "",
+  "MaxSpeedMetersPerSecond": 40,
+  "InertiaSeconds": 1.5
+}

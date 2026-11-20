@@ -1,0 +1,6 @@
+{
+  "Kind": "Asteroid",
+  "VisualResourcesPath": "Prefabs/Asteroids/AsteroidFar",
+  "UniformScale": 0.12,
+  "Radius": 15.812
+}

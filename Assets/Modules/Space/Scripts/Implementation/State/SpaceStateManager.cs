@@ -170,6 +170,7 @@ namespace Modules.Space.Scripts.Implementation.State
 
             _definitions.TryGetHull(Profile.ActiveHullId, out var hull);
             Profile.FittedModules = KeepValidFittings(hull, Profile.FittedModules);
+            EnsureDefaultEngine(hull);
             return true;
         }
 
@@ -212,6 +213,27 @@ namespace Modules.Space.Scripts.Implementation.State
             }
 
             return kept;
+        }
+
+        private void EnsureDefaultEngine(SpaceHullDef hull)
+        {
+            if (hull == null || !_definitions.TryGetModule(SpaceProfile.STARTER_ENGINE_ID, out var engine))
+                return;
+
+            if (engine.Kind != SpaceModuleKind.Engine || !engine.IsUsable() || !HullHasSlot(hull, engine.SlotId))
+                return;
+
+            for (var i = 0; i < Profile.FittedModules.Count; i++)
+            {
+                if (Profile.FittedModules[i].SlotId == engine.SlotId)
+                    return;
+            }
+
+            Profile.FittedModules.Add(new SpaceFittedModule
+            {
+                SlotId = engine.SlotId,
+                ModuleId = engine.Id
+            });
         }
 
         private static bool HullHasSlot(SpaceHullDef hull, string slotId)

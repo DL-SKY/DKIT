@@ -11,6 +11,7 @@ namespace Modules.Space.Scripts.Editor.Cheats
         {
             typeof(SpaceProfileCheatSection),
             typeof(SpaceDefinitionsCheatSection),
+            typeof(SpaceSectorCheatSection),
         };
 
         public static List<CheatSectionBase> CreateSections()

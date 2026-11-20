@@ -1,6 +1,8 @@
 {
-  "ModuleSlotIds": ["weapon_a"],
+  "ModuleSlotIds": ["weapon_a", "engine"],
   "CommandIds": ["approach"],
   "VisualResourcesPath": "Prefabs/Spaceships/Fighter",
-  "CameraDistance": 32.5
+  "CameraDistance": 32.5,
+  "Radius": 7.249,
+  "ManeuverabilityDegreesPerSecond": 90
 }

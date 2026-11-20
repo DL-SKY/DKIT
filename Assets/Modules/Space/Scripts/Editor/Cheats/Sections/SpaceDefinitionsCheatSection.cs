@@ -29,6 +29,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             DrawModules(definitions);
             DrawCommands(definitions);
             DrawTimedTargets(definitions);
+            DrawObjects(definitions);
             DrawSectors(definitions);
             DrawCameraSettings(definitions);
         }
@@ -55,7 +56,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 int slotCount = hull.ModuleSlotIds != null ? hull.ModuleSlotIds.Count : 0;
                 int commandCount = hull.CommandIds != null ? hull.CommandIds.Count : 0;
                 string visual = string.IsNullOrEmpty(hull.VisualResourcesPath) ? "—" : hull.VisualResourcesPath;
-                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount + ", camera " + hull.CameraDistance + ", visual " + visual);
+                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount + ", camera " + hull.CameraDistance + ", radius " + hull.Radius + ", maneuver " + hull.ManeuverabilityDegreesPerSecond + ", visual " + visual);
             }
 
             EditorGUI.indentLevel--;
@@ -73,7 +74,10 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             {
                 SpaceModuleDef module = definitions.Modules[ids[i]];
                 string weaponGroup = string.IsNullOrEmpty(module.WeaponGroup) ? "—" : module.WeaponGroup;
-                EditorGUILayout.LabelField((i + 1) + ". " + module.Id + "  slot " + module.SlotId + ", group " + weaponGroup);
+                string engine = module.Kind == SpaceModuleKind.Engine
+                    ? ", speed " + module.MaxSpeedMetersPerSecond + ", inertia " + module.InertiaSeconds + "s"
+                    : "";
+                EditorGUILayout.LabelField((i + 1) + ". " + module.Id + "  " + module.Kind + ", slot " + module.SlotId + ", group " + weaponGroup + engine);
             }
 
             EditorGUI.indentLevel--;
@@ -110,6 +114,24 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             EditorGUI.indentLevel--;
         }
 
+        private static void DrawObjects(SpaceDefinitionsManager definitions)
+        {
+            EditorGUILayout.LabelField("Objects:");
+            EditorGUI.indentLevel++;
+            List<string> ids = SortedIds(definitions.Objects);
+            if (ids.Count == 0)
+                EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
+
+            for (int i = 0; i < ids.Count; i++)
+            {
+                SpaceObjectDef body = definitions.Objects[ids[i]];
+                string visual = string.IsNullOrEmpty(body.VisualResourcesPath) ? "—" : body.VisualResourcesPath;
+                EditorGUILayout.LabelField((i + 1) + ". " + body.Id + "  " + body.Kind + ", scale " + body.UniformScale + ", radius " + body.Radius + ", visual " + visual);
+            }
+
+            EditorGUI.indentLevel--;
+        }
+
         private static void DrawSectors(SpaceDefinitionsManager definitions)
         {
             EditorGUILayout.LabelField("Sectors:");
@@ -121,8 +143,9 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             for (int i = 0; i < ids.Count; i++)
             {
                 SpaceSectorDef sector = definitions.Sectors[ids[i]];
-                int spawnCount = sector.SpawnPoints != null ? sector.SpawnPoints.Count : 0;
-                EditorGUILayout.LabelField((i + 1) + ". " + sector.Id + "  scene " + sector.SceneName + ", spawns " + spawnCount);
+                int placementCount = sector.Placements != null ? sector.Placements.Count : 0;
+                int spawnCount = CountSpawns(definitions, sector);
+                EditorGUILayout.LabelField((i + 1) + ". " + sector.Id + "  scene " + sector.SceneName + ", placements " + placementCount + ", spawns " + spawnCount);
             }
 
             EditorGUI.indentLevel--;
@@ -144,6 +167,28 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             EditorGUILayout.LabelField("yaw " + settings.DefaultYaw + "  pitch " + settings.DefaultPitch + "  " + settings.MinPitch + ".." + settings.MaxPitch);
             EditorGUILayout.LabelField("degrees/pixel " + settings.DegreesPerPixel + "  scroll " + settings.ScrollStep + "  drag " + settings.DragThresholdPixels);
             EditorGUI.indentLevel--;
+        }
+
+        private static int CountSpawns(SpaceDefinitionsManager definitions, SpaceSectorDef sector)
+        {
+            int count = 0;
+            if (sector.Placements == null)
+                return count;
+
+            for (int i = 0; i < sector.Placements.Count; i++)
+            {
+                SpaceSectorPlacement placement = sector.Placements[i];
+                if (placement == null
+                    || string.IsNullOrEmpty(placement.ObjectId)
+                    || definitions.Objects == null
+                    || !definitions.Objects.TryGetValue(placement.ObjectId, out SpaceObjectDef body))
+                    continue;
+
+                if (body.Kind == SpaceObjectKind.Spawn)
+                    count++;
+            }
+
+            return count;
         }
 
         private static List<string> SortedIds<T>(IReadOnlyDictionary<string, T> source)
