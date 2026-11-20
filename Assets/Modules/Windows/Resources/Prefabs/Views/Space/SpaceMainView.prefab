@@ -93,6 +93,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Modules.Windows.Scripts.Implementation.Space.SpaceMainView
   _markerHolder: {fileID: 810000012}
+  _menuRadius: 78
 --- !u!1 &810000011
 GameObject:
   m_ObjectHideFlags: 0

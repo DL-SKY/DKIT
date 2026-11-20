@@ -13,8 +13,8 @@ namespace Modules.Windows.Scripts.Implementation.Space
     {
         public const string Path = "Prefabs/Views/Space/SpaceMarkerView";
 
-        private const float MENU_RADIUS = 78f;
         private const float MENU_BUTTON_SIZE = 44f;
+        private float _menuRadius = 78f;
         private const float EDGE_MARGIN = 36f;
 
         private Button _button;
@@ -24,6 +24,12 @@ namespace Modules.Windows.Scripts.Implementation.Space
         private readonly List<GameObject> _menuButtons = new List<GameObject>();
 
         public string TargetId => _viewModel != null ? _viewModel.TargetId : null;
+
+        public void SetMenuRadius(float radius)
+        {
+            if (radius > 0f)
+                _menuRadius = radius;
+        }
 
         public void Init(SpaceMarkerViewModel viewModel)
         {
@@ -158,7 +164,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
                 var angle = (90f - step * i) * Mathf.Deg2Rad;
                 var button = CreateMenuButton(menuButton);
                 var rect = (RectTransform)button.transform;
-                rect.anchoredPosition = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * MENU_RADIUS;
+                rect.anchoredPosition = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * _menuRadius;
                 _menuButtons.Add(button);
             }
         }

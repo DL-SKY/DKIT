@@ -1,0 +1,8 @@
+{
+  "Name": "command.test_1.name",
+  "Description": "command.test_1.description",
+  "IconResourcesPath": "Sprites/Space/Commands/Test1",
+  "PriorityOrder": 20,
+  "ObjectTypes": ["Ship"],
+  "Relations": ["Player"]
+}

@@ -136,12 +136,13 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `Objects/player_spawn.json` | `player_spawn` | `Spawn`, без префаба, масштаб `1`, радиус `0` |
 | `Objects/asteroid_near.json` | `asteroid_near` | `Asteroid`, `Prefabs/Asteroids/AsteroidNear`, масштаб `0.08`, радиус `9.967` |
 | `Objects/asteroid_far.json` | `asteroid_far` | `Asteroid`, `Prefabs/Asteroids/AsteroidFar`, масштаб `0.12`, радиус `15.812` |
-| `Hulls/Fighter.json` | `Fighter` | гнёзда `Weapon S` и `Engine S`, команд нет, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с, типоразмер корпуса `S` |
+| `Hulls/Fighter.json` | `Fighter` | гнёзда `Weapon S` и `Engine S`, тестовые команды `test_1`…`test_5`, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с, типоразмер корпуса `S` |
 | `MarkerIcons/MarkerIcons.json` | `MarkerIcons` | `PointOfInterest` → `Sprites/Space/Markers/Point`, `Station` → `Sprites/Space/Markers/Station`, `Asteroid` → `Sprites/Space/Markers/Asteroid`, `Spawn` → `Sprites/Space/Markers/Spawn` |
 | `Modules/engine_default.json` | `engine_default` | `Engine`, команды `stop` и `approach`, типоразмер модуля `S`. Строки гнёзд: `XXS` 70 м/с и 0.6 с, `XS` 55 м/с и 1 с, `S` 40 м/с и 1.5 с, `M` 32 м/с и 2.2 с, `L` 24 м/с и 3.2 с, `XL` 18 м/с и 4.5 с, `XXL` 12 м/с и 6.5 с |
 | `Modules/laser_a.json` | `laser_a` | `Weapon`, группа `A`, типоразмер `S`, списка `SizeParameters` нет |
 | `Commands/approach.json` | `approach` | типы `Ship`, `Asteroid`, `Station`, `PointOfInterest`; отношения `Ally`, `Enemy`, `Neutral`. На своём корабле нет. Порядок `10` |
 | `Commands/stop.json` | `stop` | тип `Ship`, отношение `Player`. Только свой корабль. Порядок `0` |
+| `Commands/test_1.json` … `test_5.json` | `test_1`…`test_5` | тестовые кнопки корпуса. Тип `Ship`, отношение `Player`. Порядок `20`, `30`, `40`, `50`, `60`. Нажатие ничего не делает |
 | `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 4..160, поворот 141.474, наклон 28.779 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
 | `TimedTargets/skill_survey.json` | `skill_survey` | `Skill`, 45000 мс |
 | `TimedTargets/skill_mining.json` | `skill_mining` | `Skill`, 90000 мс |

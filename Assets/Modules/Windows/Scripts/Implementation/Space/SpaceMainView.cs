@@ -9,6 +9,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
         public static string Path = "Prefabs/Views/Space/SpaceMainView";
 
         [SerializeField] private RectTransform _markerHolder;
+        [SerializeField] private float _menuRadius = 78f;
 
         private readonly Dictionary<string, SpaceMarkerView> _markers = new Dictionary<string, SpaceMarkerView>();
         private GameObject _markerPrefab;
@@ -78,6 +79,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
                 if (view == null)
                     view = instance.AddComponent<SpaceMarkerView>();
 
+                view.SetMenuRadius(_menuRadius);
                 view.Init(marker);
                 _markers.Add(marker.TargetId, view);
             }
