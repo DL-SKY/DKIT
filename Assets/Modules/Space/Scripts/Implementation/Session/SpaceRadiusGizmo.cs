@@ -15,15 +15,15 @@ namespace Modules.Space.Scripts.Implementation.Session
         public float Radius;
         public Color Color = HULL_COLOR;
 
-        public static Color ColorFor(SpaceObjectKind kind)
+        public static Color ColorFor(SpaceObjectType objectType)
         {
-            switch (kind)
+            switch (objectType)
             {
-                case SpaceObjectKind.Asteroid:
+                case SpaceObjectType.Asteroid:
                     return new Color(1f, 0.85f, 0.2f, 0.95f);
-                case SpaceObjectKind.Station:
+                case SpaceObjectType.Station:
                     return new Color(0.2f, 0.9f, 0.85f, 0.95f);
-                case SpaceObjectKind.PointOfInterest:
+                case SpaceObjectType.PointOfInterest:
                     return new Color(0.45f, 1f, 0.5f, 0.95f);
                 default:
                     return new Color(1f, 1f, 1f, 0.95f);

@@ -12,6 +12,22 @@ namespace Modules.Space.Scripts.Implementation.State
         public string ActiveShipId;
         public List<SpacePlayerShipState> Ships = new List<SpacePlayerShipState>();
         public List<SpaceQueueState> Queues = new List<SpaceQueueState>();
+
+        public SpacePlayerShipState ActiveShip()
+        {
+            var ships = Ships;
+            if (ships == null || string.IsNullOrEmpty(ActiveShipId))
+                return null;
+
+            for (var i = 0; i < ships.Count; i++)
+            {
+                var ship = ships[i];
+                if (ship != null && ship.Id == ActiveShipId)
+                    return ship;
+            }
+
+            return null;
+        }
     }
 
     /// <summary>

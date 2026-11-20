@@ -9,7 +9,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
     /// </summary>
     public sealed class SpaceObjectDef : AbstractDefinition
     {
-        public SpaceObjectKind Kind;
+        public SpaceObjectType ObjectType;
         public string VisualResourcesPath;
         public float UniformScale;
         public float Radius;

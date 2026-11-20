@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Modules.Space.Scripts.Implementation.Definitions;
 using Modules.Space.Scripts.Implementation.Session;
+using Modules.Space.Scripts.Implementation.State;
 using Modules.Windows.Scripts.Base;
 using UnityEngine;
 
@@ -11,14 +12,14 @@ namespace Modules.Windows.Scripts.Implementation.Space
     /// Общая модель метки на экране. Свой корабль — <see cref="SpacePlayerMarkerViewModel"/>.
     /// Чужой корабль — <see cref="SpaceShipMarkerViewModel"/>.
     /// Остальные цели — <see cref="SpaceSectorMarkerViewModel"/>.
-    /// Картинку выбирает наследник. Какие кнопки стоят на круге, тоже решает наследник.
-    /// Сейчас список у всех наследников пустой: круг не показывается.
+    /// Картинку выбирает наследник. Кнопки круга собирает база из корпуса игрока и надетых модулей.
+    /// Команда видна, только если тип и отношение этой метки есть в её дефе.
     /// Вид рисует <see cref="MenuButtons"/> и сам кнопки не добавляет и не выбрасывает.
     /// <para>
     /// Скорость, радиус и прочность не приходят событием. Их читают с сущности сектора в том же
     /// обходе, что уже делает <see cref="SpaceSessionHost.CopyMarkers"/> каждый кадр.
     /// Корабль игрока — сущность с <c>SpacePlayerHull</c>. Остальное тело узнаётся по
-    /// <c>SpaceLabel.Value</c> = <see cref="DefId"/> и по <c>SpaceKind</c> = <see cref="Kind"/>.
+    /// <c>SpaceLabel.Value</c> = <see cref="DefId"/> и по <c>SpaceBodyType</c> = <see cref="ObjectType"/>.
     /// </para>
     /// <para>
     /// Текущая скорость — <c>SpaceMotion.MetersPerSecond</c>, метры в секунду вдоль носа.
@@ -57,7 +58,8 @@ namespace Modules.Windows.Scripts.Implementation.Space
         public string DefId { get; private set; }
         public bool Ship { get; private set; }
         public bool Player { get; private set; }
-        public SpaceObjectKind Kind { get; private set; }
+        public SpaceObjectType ObjectType { get; private set; }
+        public SpaceRelation Relation { get; private set; }
         public Vector3 WorldPosition { get; private set; }
         public float MetersPerSecond { get; private set; }
         public float MaxMetersPerSecond { get; private set; }
@@ -110,7 +112,8 @@ namespace Modules.Windows.Scripts.Implementation.Space
             DefId = snapshot.DefId;
             Ship = snapshot.Ship;
             Player = snapshot.Player;
-            Kind = snapshot.Kind;
+            ObjectType = snapshot.ObjectType;
+            Relation = snapshot.Relation;
             WorldPosition = snapshot.WorldPosition;
             MetersPerSecond = snapshot.MetersPerSecond;
             MaxMetersPerSecond = snapshot.MaxMetersPerSecond;
@@ -120,7 +123,38 @@ namespace Modules.Windows.Scripts.Implementation.Space
             _menuButtons.Clear();
         }
 
-        protected void AddMenuButtons(SpaceDefinitionsManager definitions, List<string> commandIds)
+        protected void AddPlayerCommands(SpaceDefinitionsManager definitions, SpaceProfile profile)
+        {
+            var ship = profile != null ? profile.ActiveShip() : null;
+            if (definitions == null || ship == null)
+                return;
+
+            var ranked = new List<RankedCommand>();
+            if (definitions.TryGetHull(ship.HullId, out var hull))
+                Collect(definitions, hull != null ? hull.CommandIds : null, ranked);
+
+            var slots = ship.Slots;
+            if (slots != null)
+            {
+                for (var i = 0; i < slots.Count; i++)
+                {
+                    var slot = slots[i];
+                    if (slot == null || string.IsNullOrEmpty(slot.ModuleId))
+                        continue;
+
+                    if (!definitions.TryGetModule(slot.ModuleId, out var module) || module == null)
+                        continue;
+
+                    Collect(definitions, module.CommandIds, ranked);
+                }
+            }
+
+            ranked.Sort(CompareCommands);
+            for (var i = 0; i < ranked.Count; i++)
+                _menuButtons.Add(new SpaceMarkerMenuButton(ranked[i].Id, ranked[i].Label, ranked[i].IconResourcesPath));
+        }
+
+        private void Collect(SpaceDefinitionsManager definitions, List<string> commandIds, List<RankedCommand> ranked)
         {
             if (commandIds == null)
                 return;
@@ -128,25 +162,51 @@ namespace Modules.Windows.Scripts.Implementation.Space
             for (var i = 0; i < commandIds.Count; i++)
             {
                 var commandId = commandIds[i];
-                if (string.IsNullOrEmpty(commandId) || HasMenuButton(commandId))
+                if (string.IsNullOrEmpty(commandId) || Contains(ranked, commandId))
                     continue;
 
-                if (definitions == null || !definitions.TryGetCommand(commandId, out _))
+                if (!definitions.TryGetCommand(commandId, out var command) || command == null)
                     continue;
 
-                _menuButtons.Add(new SpaceMarkerMenuButton(commandId, commandId));
+                if (!command.Allows(ObjectType, Relation))
+                    continue;
+
+                ranked.Add(new RankedCommand
+                {
+                    Id = commandId,
+                    Priority = command.PriorityOrder,
+                    Label = string.IsNullOrEmpty(command.Name) ? commandId : command.Name,
+                    IconResourcesPath = command.IconResourcesPath
+                });
             }
         }
 
-        private bool HasMenuButton(string commandId)
+        private static bool Contains(List<RankedCommand> ranked, string commandId)
         {
-            for (var i = 0; i < _menuButtons.Count; i++)
+            for (var i = 0; i < ranked.Count; i++)
             {
-                if (_menuButtons[i].CommandId == commandId)
+                if (ranked[i].Id == commandId)
                     return true;
             }
 
             return false;
+        }
+
+        private static int CompareCommands(RankedCommand left, RankedCommand right)
+        {
+            var order = left.Priority.CompareTo(right.Priority);
+            if (order != 0)
+                return order;
+
+            return string.CompareOrdinal(left.Id, right.Id);
+        }
+
+        private struct RankedCommand
+        {
+            public string Id;
+            public int Priority;
+            public string Label;
+            public string IconResourcesPath;
         }
 
         protected static string ReadHullIcon(SpaceMarkerSnapshot snapshot, SpaceDefinitionsManager definitions)
@@ -159,19 +219,6 @@ namespace Modules.Windows.Scripts.Implementation.Space
 
             UnityEngine.Debug.LogError($"[Space] Ship marker '{snapshot.DefId}' has no icon on its hull def.");
             return string.Empty;
-        }
-
-        protected static bool TryGetHullCommands(
-            SpaceMarkerSnapshot snapshot,
-            SpaceDefinitionsManager definitions,
-            out List<string> commandIds)
-        {
-            commandIds = null;
-            if (definitions == null || !definitions.TryGetHull(snapshot.DefId, out var hull) || hull == null)
-                return false;
-
-            commandIds = hull.CommandIds;
-            return true;
         }
     }
 }

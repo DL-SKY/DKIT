@@ -1,4 +1,8 @@
 {
+  "Name": "module.laser_a.name",
+  "Description": "module.laser_a.description",
+  "IconResourcesPath": "Sprites/Space/Modules/LaserA",
+  "CommandIds": [],
   "SlotType": "Weapon",
   "WeaponGroup": "A",
   "SizeType": "S"

@@ -69,6 +69,34 @@ namespace Modules.Space.Scripts.Implementation.Session
             return false;
         }
 
+        public bool TryStopPlayer()
+        {
+            var world = _session != null ? _session.World : null;
+            if (world == null || !world.IsAlive())
+            {
+                UnityEngine.Debug.LogError("[Space] Player was not stopped. The sector world is not running.");
+                return false;
+            }
+
+            var count = world.GetAllEntities(ref _entityBuffer);
+            for (var i = 0; i < count; i++)
+            {
+                var entity = _entityBuffer[i];
+                if (!entity.Has<SpacePlayerHull>())
+                    continue;
+
+                entity.Get<SpaceMoveTarget>() = new SpaceMoveTarget();
+                if (entity.Has<SpaceYaw>())
+                    entity.Get<SpaceDesiredYaw>() = new SpaceDesiredYaw { Degrees = entity.Get<SpaceYaw>().Degrees };
+
+                UnityEngine.Debug.Log("[Space] Player move order cleared. Speed will fall off.");
+                return true;
+            }
+
+            UnityEngine.Debug.LogError("[Space] Player was not stopped. The player hull entity is missing.");
+            return false;
+        }
+
         private bool TryFindMarker(EcsWorld world, string markerKey, out EcsEntity target)
         {
             target = default;
@@ -126,11 +154,25 @@ namespace Modules.Space.Scripts.Implementation.Session
                     continue;
 
                 var player = entity.Has<SpacePlayerHull>();
-                var kind = SpaceObjectKind.PointOfInterest;
-                if (!player && entity.Has<SpaceKind>())
-                    kind = entity.Get<SpaceKind>().Value;
+                var ship = entity.Has<SpaceHull>();
+                SpaceObjectType objectType;
+                SpaceRelation relation;
+                if (player || ship)
+                {
+                    objectType = SpaceObjectType.Ship;
+                    relation = player ? SpaceRelation.Player : SpaceRelation.Neutral;
+                }
+                else if (entity.Has<SpaceBodyType>())
+                {
+                    objectType = entity.Get<SpaceBodyType>().Value;
+                    relation = SpaceRelation.Neutral;
+                }
+                else
+                {
+                    continue;
+                }
 
-                if (!player && kind == SpaceObjectKind.Spawn)
+                if (objectType == SpaceObjectType.Spawn)
                     continue;
 
                 var label = entity.Get<SpaceLabel>().Value;
@@ -147,9 +189,10 @@ namespace Modules.Space.Scripts.Implementation.Session
                 {
                     TargetId = entity.Get<SpaceMarkerKey>().Value,
                     DefId = label,
-                    Ship = entity.Has<SpaceHull>(),
+                    Ship = ship,
                     Player = player,
-                    Kind = kind,
+                    ObjectType = objectType,
+                    Relation = relation,
                     WorldPosition = entity.Get<SpacePosition>().Value,
                     MetersPerSecond = metersPerSecond,
                     MaxMetersPerSecond = maxMetersPerSecond

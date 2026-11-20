@@ -1,1 +1,8 @@
-{}
+{
+  "Name": "command.approach.name",
+  "Description": "command.approach.description",
+  "IconResourcesPath": "Sprites/Space/Commands/Approach",
+  "PriorityOrder": 10,
+  "ObjectTypes": ["Ship", "Asteroid", "Station", "PointOfInterest"],
+  "Relations": ["Ally", "Enemy", "Neutral"]
+}

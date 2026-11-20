@@ -82,7 +82,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             if (CameraSettings == null || !CameraSettings.IsUsable() || MarkerIcons == null || !MarkerIcons.IsUsable())
                 return false;
 
-            if (!HullsFit() || !ModulesFit() || !ObjectsFit() || !SectorsFit())
+            if (!CommandsFit() || !HullsFit() || !ModulesFit() || !ObjectsFit() || !SectorsFit())
                 return false;
 
             var skillDurations = new HashSet<long>();
@@ -106,6 +106,39 @@ namespace Modules.Space.Scripts.Implementation.Definitions
                 && kinds.Contains(SpaceQueueKind.Production);
         }
 
+        private bool CommandsFit()
+        {
+            if (_commands == null || _commands.Count < 1)
+                return false;
+
+            foreach (var pair in _commands)
+            {
+                if (pair.Value == null || !pair.Value.IsUsable())
+                    return false;
+            }
+
+            return true;
+        }
+
+        private bool CommandsKnown(List<string> commandIds)
+        {
+            if (commandIds == null)
+                return true;
+
+            var seen = new HashSet<string>();
+            for (var i = 0; i < commandIds.Count; i++)
+            {
+                var commandId = commandIds[i];
+                if (string.IsNullOrEmpty(commandId) || !seen.Add(commandId))
+                    return false;
+
+                if (!TryGetCommand(commandId, out var command) || command == null || !command.IsUsable())
+                    return false;
+            }
+
+            return true;
+        }
+
         private bool HullsFit()
         {
             foreach (var pair in _hulls)
@@ -113,7 +146,10 @@ namespace Modules.Space.Scripts.Implementation.Definitions
                 var hull = pair.Value;
                 if (hull == null
                     || !hull.HasFlightRates()
+                    || string.IsNullOrWhiteSpace(hull.Name)
+                    || string.IsNullOrWhiteSpace(hull.Description)
                     || string.IsNullOrWhiteSpace(hull.IconResourcesPath)
+                    || !CommandsKnown(hull.CommandIds)
                     || hull.CameraDistance < CameraSettings.MinDistance
                     || hull.CameraDistance > CameraSettings.MaxDistance)
                     return false;
@@ -131,7 +167,12 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             foreach (var pair in _modules)
             {
                 var module = pair.Value;
-                if (module == null || !module.IsUsable())
+                if (module == null
+                    || !module.IsUsable()
+                    || string.IsNullOrWhiteSpace(module.Name)
+                    || string.IsNullOrWhiteSpace(module.Description)
+                    || string.IsNullOrWhiteSpace(module.IconResourcesPath)
+                    || !CommandsKnown(module.CommandIds))
                     return false;
 
                 if (module.SlotType == SpaceSlotType.Engine)
@@ -148,7 +189,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
 
             foreach (var pair in _objects)
             {
-                if (pair.Value == null || !pair.Value.IsUsable())
+                if (pair.Value == null || !pair.Value.IsUsable() || !CommandsKnown(pair.Value.CommandIds))
                     return false;
             }
 

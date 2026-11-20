@@ -47,7 +47,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 if (!definitions.TryGetObject(placement.ObjectId, out SpaceObjectDef body) || body == null)
                     continue;
 
-                string label = (i + 1) + ". " + body.Id + "  " + body.Kind
+                string label = (i + 1) + ". " + body.Id + "  " + body.ObjectType
                     + "  (" + placement.X + ", " + placement.Y + ", " + placement.Z + ")";
                 if (!GUILayout.Button(label, GUILayout.Height(22f)))
                     continue;

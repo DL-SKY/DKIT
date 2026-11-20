@@ -1,9 +1,11 @@
 {
+  "Name": "hull.fighter.name",
+  "Description": "hull.fighter.description",
   "Slots": [
     { "SlotType": "Weapon", "SizeType": "S" },
     { "SlotType": "Engine", "SizeType": "S" }
   ],
-  "CommandIds": ["approach"],
+  "CommandIds": [],
   "VisualResourcesPath": "Prefabs/Spaceships/Fighter",
   "IconResourcesPath": "Sprites/Space/Markers/Fighter",
   "CameraDistance": 32.5,

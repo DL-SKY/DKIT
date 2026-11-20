@@ -170,7 +170,10 @@ namespace Modules.Windows.Scripts.Implementation.Space
             var rect = buttonObject.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(MENU_BUTTON_SIZE, MENU_BUTTON_SIZE);
             var image = buttonObject.GetComponent<Image>();
-            image.sprite = _icon != null ? _icon.sprite : null;
+            var sprite = string.IsNullOrEmpty(menuButton.IconResourcesPath)
+                ? null
+                : Resources.Load<Sprite>(menuButton.IconResourcesPath);
+            image.sprite = sprite;
             image.color = Color.white;
             var button = buttonObject.GetComponent<Button>();
             button.targetGraphic = image;

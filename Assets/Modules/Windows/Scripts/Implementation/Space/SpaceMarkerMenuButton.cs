@@ -5,13 +5,15 @@ namespace Modules.Windows.Scripts.Implementation.Space
     /// </summary>
     public sealed class SpaceMarkerMenuButton
     {
-        public SpaceMarkerMenuButton(string commandId, string label)
+        public SpaceMarkerMenuButton(string commandId, string label, string iconResourcesPath)
         {
             CommandId = commandId;
             Label = label;
+            IconResourcesPath = iconResourcesPath ?? string.Empty;
         }
 
         public string CommandId { get; }
         public string Label { get; }
+        public string IconResourcesPath { get; }
     }
 }

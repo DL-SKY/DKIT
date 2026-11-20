@@ -77,10 +77,12 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 SpaceModuleDef module = definitions.Modules[ids[i]];
                 string weaponGroup = string.IsNullOrEmpty(module.WeaponGroup) ? "—" : module.WeaponGroup;
                 int parameterCount = module.SizeParameters != null ? module.SizeParameters.Count : 0;
+                int commandCount = module.CommandIds != null ? module.CommandIds.Count : 0;
                 string engine = module.SlotType == SpaceSlotType.Engine
                     ? ", size parameters " + parameterCount
                     : "";
-                EditorGUILayout.LabelField((i + 1) + ". " + module.Id + "  " + module.SlotType + " " + module.SizeType + ", group " + weaponGroup + engine);
+                string icon = string.IsNullOrEmpty(module.IconResourcesPath) ? "—" : module.IconResourcesPath;
+                EditorGUILayout.LabelField((i + 1) + ". " + module.Id + "  " + module.SlotType + " " + module.SizeType + ", commands " + commandCount + ", group " + weaponGroup + engine + ", icon " + icon);
             }
 
             EditorGUI.indentLevel--;
@@ -95,7 +97,13 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
 
             for (int i = 0; i < ids.Count; i++)
-                EditorGUILayout.LabelField((i + 1) + ". " + ids[i]);
+            {
+                SpaceCommandDef command = definitions.Commands[ids[i]];
+                int typeCount = command.ObjectTypes != null ? command.ObjectTypes.Count : 0;
+                int relationCount = command.Relations != null ? command.Relations.Count : 0;
+                string icon = string.IsNullOrEmpty(command.IconResourcesPath) ? "—" : command.IconResourcesPath;
+                EditorGUILayout.LabelField((i + 1) + ". " + command.Id + "  order " + command.PriorityOrder + ", types " + typeCount + ", relations " + relationCount + ", " + command.Name + ", icon " + icon);
+            }
 
             EditorGUI.indentLevel--;
         }
@@ -129,7 +137,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             {
                 SpaceObjectDef body = definitions.Objects[ids[i]];
                 string visual = string.IsNullOrEmpty(body.VisualResourcesPath) ? "—" : body.VisualResourcesPath;
-                EditorGUILayout.LabelField((i + 1) + ". " + body.Id + "  " + body.Kind + ", scale " + body.UniformScale + ", radius " + body.Radius + ", visual " + visual);
+                EditorGUILayout.LabelField((i + 1) + ". " + body.Id + "  " + body.ObjectType + ", scale " + body.UniformScale + ", radius " + body.Radius + ", visual " + visual);
             }
 
             EditorGUI.indentLevel--;
@@ -191,7 +199,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                     continue;
 
                 string path = string.IsNullOrEmpty(entry.IconResourcesPath) ? "—" : entry.IconResourcesPath;
-                EditorGUILayout.LabelField((i + 1) + ". " + entry.Kind + "  " + path);
+                EditorGUILayout.LabelField((i + 1) + ". " + entry.ObjectType + "  " + path);
             }
 
             EditorGUI.indentLevel--;
@@ -212,7 +220,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                     || !definitions.Objects.TryGetValue(placement.ObjectId, out SpaceObjectDef body))
                     continue;
 
-                if (body.Kind == SpaceObjectKind.Spawn)
+                if (body.ObjectType == SpaceObjectType.Spawn)
                     count++;
             }
 

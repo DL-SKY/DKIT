@@ -70,9 +70,9 @@ namespace Modules.Space.Scripts.Editor
 
             var center = new Vector3(placement.X, placement.Y, placement.Z);
             if (body.Radius > 0f)
-                DrawSphere(center, body.Radius, SpaceRadiusGizmo.ColorFor(body.Kind), body.Id);
+                DrawSphere(center, body.Radius, SpaceRadiusGizmo.ColorFor(body.ObjectType), body.Id);
 
-            if (body.Kind != SpaceObjectKind.Spawn)
+            if (body.ObjectType != SpaceObjectType.Spawn)
                 return;
 
             for (var i = 0; i < _hulls.Count; i++)

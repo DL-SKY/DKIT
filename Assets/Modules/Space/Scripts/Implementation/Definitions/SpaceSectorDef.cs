@@ -52,7 +52,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
                 if (!objects.TryGetValue(placement.ObjectId, out var body) || body == null || !body.IsUsable())
                     return true;
 
-                if (body.Kind == SpaceObjectKind.Spawn)
+                if (body.ObjectType == SpaceObjectType.Spawn)
                     spawns.Add(placement);
             }
 

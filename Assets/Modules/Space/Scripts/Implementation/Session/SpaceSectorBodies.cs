@@ -46,7 +46,7 @@ namespace Modules.Space.Scripts.Implementation.Session
                 entity.Get<SpacePosition>() = new SpacePosition { Value = position };
                 entity.Get<SpaceYaw>() = new SpaceYaw { Degrees = placement.Yaw };
                 entity.Get<SpaceRadius>() = new SpaceRadius { Meters = body.Radius };
-                entity.Get<SpaceKind>() = new SpaceKind { Value = body.Kind };
+                entity.Get<SpaceBodyType>() = new SpaceBodyType { Value = body.ObjectType };
                 entity.Get<SpaceLabel>() = new SpaceLabel { Value = body.Id };
                 entity.Get<SpaceMarkerKey>() = new SpaceMarkerKey { Value = PlacementKey(i) };
 
@@ -132,7 +132,7 @@ namespace Modules.Space.Scripts.Implementation.Session
             if (body == null)
                 return;
 
-            AddRadiusGizmo(instance, body.Radius, SpaceRadiusGizmo.ColorFor(body.Kind));
+            AddRadiusGizmo(instance, body.Radius, SpaceRadiusGizmo.ColorFor(body.ObjectType));
 #endif
         }
 

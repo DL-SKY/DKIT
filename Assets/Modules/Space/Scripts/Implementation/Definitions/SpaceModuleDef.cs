@@ -10,7 +10,11 @@ namespace Modules.Space.Scripts.Implementation.Definitions
     /// </summary>
     public sealed class SpaceModuleDef : AbstractDefinition
     {
+        public string Name;
+        public string Description;
+        public string IconResourcesPath;
         public SpaceSlotType SlotType;
+        public List<string> CommandIds;
         public string WeaponGroup;
         public SpaceSizeType SizeType;
         public List<SpaceModuleSizeParameters> SizeParameters;

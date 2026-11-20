@@ -30,11 +30,12 @@ namespace Modules.ECS.Scripts.Space.Components
     }
 
     /// <summary>
-    /// Kind copied from the object definition. The player hull does not use this.
+    /// Object type copied from the object definition. Hulls do not use this.
+    /// Their marker type is <see cref="SpaceObjectType.Ship"/>.
     /// </summary>
-    public struct SpaceKind
+    public struct SpaceBodyType
     {
-        public SpaceObjectKind Value;
+        public SpaceObjectType Value;
     }
 
     /// <summary>

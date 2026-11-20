@@ -23,9 +23,9 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceSectorDef` | `AbstractDefinition` | `Definitions/Space/Sectors` | `SpaceDefinitionsManager.Sectors` |
 | `SpaceObjectDef` | `AbstractDefinition` | `Definitions/Space/Objects` | `SpaceDefinitionsManager.Objects` |
 | `SpaceCameraSettingsDef` | `AbstractDefinition` | `Definitions/Space/CameraSettings/CameraSettings` | `SpaceDefinitionsManager.CameraSettings`. Одна запись, не словарь |
-| `SpaceMarkerIconsDef` | `AbstractDefinition` | `Definitions/Space/MarkerIcons/MarkerIcons` | `SpaceDefinitionsManager.MarkerIcons`. Одна запись, не словарь. Картинки типов `SpaceObjectKind`. Корабль её не читает |
+| `SpaceMarkerIconsDef` | `AbstractDefinition` | `Definitions/Space/MarkerIcons/MarkerIcons` | `SpaceDefinitionsManager.MarkerIcons`. Одна запись, не словарь. Картинки типов тел, кроме `Ship`. Корабль её не читает |
 
-`Id` в JSON не пишется. `SpaceDefinitionLoader` ставит его из имени файла (`approach.json` → `approach`). Файл из одних пробелов пропускается, поэтому у команды без полей в файле лежит `{}`. Повторный id пропускается с предупреждением, в словарь остаётся первая запись. Битый JSON из загрузчика не глотается: исключение выходит из `Init` до `IsReady`.
+`Id` в JSON не пишется. `SpaceDefinitionLoader` ставит его из имени файла (`approach.json` → `approach`). Файл из одних пробелов пропускается. Повторный id пропускается с предупреждением, в словарь остаётся первая запись. Битый JSON из загрузчика не глотается: исключение выходит из `Init` до `IsReady`.
 
 Перечисления пишутся строковым именем (`"Skill"`, `"Production"`). Загрузчик использует `StringEnumConverter`.
 
@@ -38,8 +38,10 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 - среди целей есть все пять значений `SpaceQueueKind`;
 - среди целей с `Kind = Skill` есть хотя бы три разных `BaseTimeMs`;
 - `CameraSettings` загружен и пригоден: минимум дистанции больше нуля и меньше максимума, старт наклона внутри диапазона, чувствительность, шаг зума и порог перетаскивания больше нуля;
-- у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры, `Radius` не меньше нуля, манёвренность больше нуля, `IconResourcesPath` не пустой, `SizeType` задан;
-- `MarkerIcons` загружен и покрывает каждое значение `SpaceObjectKind` ровно одной непустой картинкой;
+- у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры, `Radius` не меньше нуля, манёвренность больше нуля, `Name`, `Description` и `IconResourcesPath` не пустые, `SizeType` задан, каждый `CommandId` указывает на пригодную команду и не повторяется;
+- у каждой команды непустые `Name`, `Description` и `IconResourcesPath`, а в `ObjectTypes` и `Relations` хотя бы по одному неповторяющемуся значению;
+- у каждого модуля непустые `Name`, `Description` и `IconResourcesPath`, и те же правила для `CommandIds`;
+- `MarkerIcons` загружен и покрывает каждое значение `SpaceObjectType`, кроме `Ship`, ровно одной непустой картинкой;
 - среди модулей есть пригодный двигатель: в `SizeParameters` хотя бы одна строка, размеры не повторяются, в каждой скорость и инерция больше нуля. Строка на каждый `SpaceSizeType` не обязательна;
 - хотя бы один объект, и у каждого масштаб больше нуля, а радиус не меньше нуля;
 - хотя бы один сектор, и у каждого есть имя сцены, расстановка из известных объектов и хотя бы одна точка спавна.
@@ -61,21 +63,27 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceSectorPlacement` | `Y` | `float` | `Y` | метры в сцене сектора, ось вверх |
 | `SpaceSectorPlacement` | `Z` | `float` | `Z` | метры в сцене сектора, ось вперёд |
 | `SpaceSectorPlacement` | `Yaw` | `float` | `Yaw` | градусы вокруг вертикали. `0` — нос по +Z. Положительный угол поворачивает нос к +X |
-| `SpaceObjectDef` | `Kind` | `SpaceObjectKind` | `Kind` | `PointOfInterest`, `Station`, `Asteroid`, `Spawn`. Дальнейшие типы добавляются вместе с объектами |
+| `SpaceObjectDef` | `ObjectType` | `SpaceObjectType` | `ObjectType` | `PointOfInterest`, `Station`, `Asteroid`, `Spawn`. `Ship` в расстановке не пишется: это тип метки корпуса |
 | `SpaceObjectDef` | `VisualResourcesPath` | `string` | `VisualResourcesPath` | путь префаба в `Resources`. Пустая строка — сущность без объекта |
 | `SpaceObjectDef` | `UniformScale` | `float` | `UniformScale` | единый масштаб префаба. На расстановке не переопределяется |
 | `SpaceObjectDef` | `Radius` | `float` | `Radius` | радиус сферы в метрах. Ноль не отталкивает другие тела |
-| `SpaceObjectDef` | `CommandIds` | `List<string>` | `CommandIds` | id команд, которые касание метки раскладывает по кругу. Пустой список круг не строит |
+| `SpaceObjectDef` | `CommandIds` | `List<string>` | `CommandIds` | id команд, которые этот объект мог бы принять. Круг метки их не читает |
+| `SpaceHullDef` | `Name` | `string` | `Name` | ключ локализации названия. Круг его не читает |
+| `SpaceHullDef` | `Description` | `string` | `Description` | ключ локализации описания. Круг его не читает |
 | `SpaceHullDef` | `Slots` | `List<SpaceHullSlotDef>` | `Slots` | гнёзда корпуса. У гнезда свой тип и свой типоразмер, не id модуля |
 | `SpaceHullSlotDef` | `SlotType` | `SpaceSlotType` | `SlotType` | что в гнездо садится: `Weapon` или `Engine` |
 | `SpaceHullSlotDef` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер гнезда. С ним сравниваются `SizeParameters` модуля |
-| `SpaceHullDef` | `CommandIds` | `List<string>` | `CommandIds` | id `SpaceCommandDef`, которые корпус умеет отдать |
+| `SpaceHullDef` | `CommandIds` | `List<string>` | `CommandIds` | id `SpaceCommandDef`, которые этот корпус игрока умеет отдать. Чужой корпус в круг не подмешивается |
 | `SpaceHullDef` | `VisualResourcesPath` | `string` | `VisualResourcesPath` | путь в `Resources` на префаб корпуса. Пустой путь корпус в сцену не ставит |
 | `SpaceHullDef` | `IconResourcesPath` | `string` | `IconResourcesPath` | картинка метки этого корпуса. Путь в `Resources` на спрайт |
 | `SpaceHullDef` | `CameraDistance` | `float` | `CameraDistance` | стартовая дистанция камеры в секторе. На станции не применяется |
 | `SpaceHullDef` | `Radius` | `float` | `Radius` | радиус сферы корпуса в метрах |
 | `SpaceHullDef` | `ManeuverabilityDegreesPerSecond` | `float` | `ManeuverabilityDegreesPerSecond` | насколько быстро нос поворачивается к желаемому рысканию. Форма корпуса, не двигатель |
 | `SpaceHullDef` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер корпуса: `XXS` люди и боеприпасы, `XS` дроны, `S` лёгкий истребитель, затем `M`, `L`, `XL`, `XXL` |
+| `SpaceModuleDef` | `Name` | `string` | `Name` | ключ локализации названия. Круг его не читает |
+| `SpaceModuleDef` | `Description` | `string` | `Description` | ключ локализации описания. Круг его не читает |
+| `SpaceModuleDef` | `IconResourcesPath` | `string` | `IconResourcesPath` | картинка модуля. Путь в `Resources` на спрайт. Круг её не читает |
+| `SpaceModuleDef` | `CommandIds` | `List<string>` | `CommandIds` | id `SpaceCommandDef`, которые модуль добавляет кругу, когда стоит в гнезде активного корабля |
 | `SpaceModuleDef` | `SlotType` | `SpaceSlotType` | `SlotType` | в гнездо какого типа модуль садится: `Weapon` или `Engine` |
 | `SpaceModuleDef` | `WeaponGroup` | `string` | `WeaponGroup` | группа оружия. У двигателя пусто |
 | `SpaceModuleDef` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер самой единицы оборудования |
@@ -83,7 +91,12 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceModuleSizeParameters` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер гнезда, к которому относится строка. При спавне выбирается строка типоразмера гнезда двигателя |
 | `SpaceModuleSizeParameters` | `MaxSpeedMetersPerSecond` | `float` | `MaxSpeedMetersPerSecond` | потолок скорости этой строки |
 | `SpaceModuleSizeParameters` | `InertiaSeconds` | `float` | `InertiaSeconds` | постоянная времени разгона и торможения этой строки, в секундах. Больше — медленнее набор и сброс |
-| `SpaceCommandDef` | — | — | — | своих полей нет. Id файла и есть команда. Исполнения в дефе нет |
+| `SpaceCommandDef` | `Name` | `string` | `Name` | ключ локализации подписи кнопки круга |
+| `SpaceCommandDef` | `Description` | `string` | `Description` | ключ локализации описания. Круг его не читает |
+| `SpaceCommandDef` | `IconResourcesPath` | `string` | `IconResourcesPath` | картинка кнопки круга. Путь в `Resources` на спрайт |
+| `SpaceCommandDef` | `PriorityOrder` | `int` | `PriorityOrder` | порядок на круге. Меньше — раньше. При равенстве порядок по id |
+| `SpaceCommandDef` | `ObjectTypes` | `List<SpaceObjectType>` | `ObjectTypes` | на метках каких типов кнопка видна. Пустой список — нигде |
+| `SpaceCommandDef` | `Relations` | `List<SpaceRelation>` | `Relations` | при каком отношении к игроку кнопка видна. Пустой список — нигде |
 | `SpaceTimedTargetDef` | `Kind` | `SpaceQueueKind` | `Kind` | в какую из пяти очередей цель ставится. Поле уйдёт вместе с этой записью |
 | `SpaceTimedTargetDef` | `BaseTimeMs` | `long` | `BaseTimeMs` | базовая длительность в миллисекундах, без модификаторов. Потом это поле будет у дефа самой цели |
 | `SpaceCameraSettingsDef` | `MinDistance` | `float` | `MinDistance` | ближайший зум |
@@ -95,13 +108,13 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceCameraSettingsDef` | `DegreesPerPixel` | `float` | `DegreesPerPixel` | сколько градусов даёт один пиксель перетаскивания |
 | `SpaceCameraSettingsDef` | `ScrollStep` | `float` | `ScrollStep` | шаг дистанции на один щелчок колеса |
 | `SpaceCameraSettingsDef` | `DragThresholdPixels` | `float` | `DragThresholdPixels` | сдвиг, после которого касание считается поворотом, а не кликом |
-| `SpaceMarkerIconsDef` | `Icons` | `List<SpaceMarkerKindIcon>` | `Icons` | по одной записи на каждое значение `SpaceObjectKind` |
-| `SpaceMarkerKindIcon` | `Kind` | `SpaceObjectKind` | `Kind` | тип тела, которому принадлежит картинка |
+| `SpaceMarkerIconsDef` | `Icons` | `List<SpaceMarkerKindIcon>` | `Icons` | по одной записи на каждый `SpaceObjectType`, кроме `Ship` |
+| `SpaceMarkerKindIcon` | `ObjectType` | `SpaceObjectType` | `ObjectType` | тип тела, которому принадлежит картинка |
 | `SpaceMarkerKindIcon` | `IconResourcesPath` | `string` | `IconResourcesPath` | путь спрайта в `Resources` |
 
 Точка появления — место корпуса в уже загруженной сцене сектора. `X`, `Y`, `Z` задают это место в метрах: вправо, вверх и вперёд. `Yaw` только крутит корпус вокруг вертикали, крен и наклон точки не задают. Ноль градусов смотрит носом по +Z. Код ставит поворот как `Quaternion.Euler(0, Yaw, 0)`. Нуля в коде нет: числа берутся из выбранной точки.
 
-Гнёзда и команды на корпусе — разные списки. Гнездо задаёт `SlotType` и `SizeType`. Модуль называет свой `SlotType` и не хранит id гнезда. Команда — это id `SpaceCommandDef`.
+Гнёзда и команды на корпусе — разные списки. Гнездо задаёт `SlotType` и `SizeType`. Модуль называет свой `SlotType` и не хранит id гнезда. Команда — это id `SpaceCommandDef`. Круг берёт команды только активного корабля игрока: с его корпуса и с надетых модулей. Тип метки и отношение к игроку — разные оси. `SpaceObjectType`: `PointOfInterest`, `Station`, `Asteroid`, `Spawn`, `Ship`. `SpaceRelation`: `Player`, `Ally`, `Enemy`, `Neutral`. Свой корпус пишет `Ship` и `Player`. Чужой корпус пишет `Ship` и `Neutral`. Тело сектора пишет свой `ObjectType` и `Neutral`.
 
 `BaseTimeMs` в деф не запекается с бонусами. Длительность строки очереди считает только `SpaceQueueTime`: база умножается на произведение факторов, результат не короче 1 мс. Процент `−25` даёт множитель `0.75`, явный множитель `2` удваивает срок.
 
@@ -123,11 +136,12 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `Objects/player_spawn.json` | `player_spawn` | `Spawn`, без префаба, масштаб `1`, радиус `0` |
 | `Objects/asteroid_near.json` | `asteroid_near` | `Asteroid`, `Prefabs/Asteroids/AsteroidNear`, масштаб `0.08`, радиус `9.967` |
 | `Objects/asteroid_far.json` | `asteroid_far` | `Asteroid`, `Prefabs/Asteroids/AsteroidFar`, масштаб `0.12`, радиус `15.812` |
-| `Hulls/Fighter.json` | `Fighter` | гнёзда `Weapon S` и `Engine S`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с, типоразмер корпуса `S` |
+| `Hulls/Fighter.json` | `Fighter` | гнёзда `Weapon S` и `Engine S`, команд нет, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с, типоразмер корпуса `S` |
 | `MarkerIcons/MarkerIcons.json` | `MarkerIcons` | `PointOfInterest` → `Sprites/Space/Markers/Point`, `Station` → `Sprites/Space/Markers/Station`, `Asteroid` → `Sprites/Space/Markers/Asteroid`, `Spawn` → `Sprites/Space/Markers/Spawn` |
-| `Modules/engine_default.json` | `engine_default` | `Engine`, типоразмер модуля `S`. Строки гнёзд: `XXS` 70 м/с и 0.6 с, `XS` 55 м/с и 1 с, `S` 40 м/с и 1.5 с, `M` 32 м/с и 2.2 с, `L` 24 м/с и 3.2 с, `XL` 18 м/с и 4.5 с, `XXL` 12 м/с и 6.5 с |
+| `Modules/engine_default.json` | `engine_default` | `Engine`, команды `stop` и `approach`, типоразмер модуля `S`. Строки гнёзд: `XXS` 70 м/с и 0.6 с, `XS` 55 м/с и 1 с, `S` 40 м/с и 1.5 с, `M` 32 м/с и 2.2 с, `L` 24 м/с и 3.2 с, `XL` 18 м/с и 4.5 с, `XXL` 12 м/с и 6.5 с |
 | `Modules/laser_a.json` | `laser_a` | `Weapon`, группа `A`, типоразмер `S`, списка `SizeParameters` нет |
-| `Commands/approach.json` | `approach` | полей нет, `{}` |
+| `Commands/approach.json` | `approach` | типы `Ship`, `Asteroid`, `Station`, `PointOfInterest`; отношения `Ally`, `Enemy`, `Neutral`. На своём корабле нет. Порядок `10` |
+| `Commands/stop.json` | `stop` | тип `Ship`, отношение `Player`. Только свой корабль. Порядок `0` |
 | `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 4..160, поворот 141.474, наклон 28.779 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
 | `TimedTargets/skill_survey.json` | `skill_survey` | `Skill`, 45000 мс |
 | `TimedTargets/skill_mining.json` | `skill_mining` | `Skill`, 90000 мс |

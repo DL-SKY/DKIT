@@ -5,6 +5,8 @@ namespace Modules.Space.Scripts.Implementation.Definitions
 {
     public sealed class SpaceHullDef : AbstractDefinition
     {
+        public string Name;
+        public string Description;
         public List<SpaceHullSlotDef> Slots;
         public List<string> CommandIds;
         public string VisualResourcesPath;
