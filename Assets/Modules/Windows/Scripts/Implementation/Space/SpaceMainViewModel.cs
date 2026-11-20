@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Modules.Space.Scripts.Implementation.Definitions;
+using Modules.Space.Scripts.Implementation.Commands;
 using Modules.Space.Scripts.Implementation.Session;
 using Modules.Space.Scripts.Implementation.State;
 using Modules.Windows.Scripts.Base;
@@ -12,8 +13,6 @@ namespace Modules.Windows.Scripts.Implementation.Space
     public sealed class SpaceMainViewModel : ViewModelBase
     {
         public const string ON_MARKERS = "markers";
-        private const string APPROACH_COMMAND_ID = "approach";
-        private const string STOP_COMMAND_ID = "stop";
 
         [Inject] private readonly ViewModelFactory _viewModelFactory;
         [Inject] private readonly SpaceSessionHost _sessionHost;
@@ -65,8 +64,21 @@ namespace Modules.Windows.Scripts.Implementation.Space
                 marker.SetLive(snapshot.WorldPosition, snapshot.MetersPerSecond, snapshot.MaxMetersPerSecond);
             }
 
+            ApplyMenuRadius();
             if (changed)
                 SendOnChange(ON_MARKERS);
+        }
+
+        private void ApplyMenuRadius()
+        {
+            var radius = _definitions != null && _definitions.MarkerSettings != null
+                ? _definitions.MarkerSettings.MenuRadius
+                : 0f;
+            for (var i = 0; i < _markers.Count; i++)
+            {
+                if (_markers[i] != null)
+                    _markers[i].SetMenuRadius(radius);
+            }
         }
 
         protected override Options CreateOptions()
@@ -102,14 +114,10 @@ namespace Modules.Windows.Scripts.Implementation.Space
             _openMarker = marker;
         }
 
-        private void OnMarkerCommand(SpaceMarkerViewModel marker, string commandId)
+        private void OnMarkerCommand(SpaceMarkerViewModel marker, string commandId, string sourceId)
         {
-            if (marker != null && commandId == APPROACH_COMMAND_ID)
-                _sessionHost.TrySetMoveTarget(marker.TargetId);
-            else if (commandId == STOP_COMMAND_ID)
-                _sessionHost.TryStopPlayer();
-            else
-                UnityEngine.Debug.Log($"[Space] Marker '{marker?.DefId}' command '{commandId}'.");
+            var command = SpaceCommandFactory.Create(_definitions, commandId, sourceId);
+            command.Execute(_sessionHost, marker != null ? marker.TargetId : null);
 
             if (marker != null)
                 marker.SetMenuOpen(false);

@@ -23,7 +23,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceSectorDef` | `AbstractDefinition` | `Definitions/Space/Sectors` | `SpaceDefinitionsManager.Sectors` |
 | `SpaceObjectDef` | `AbstractDefinition` | `Definitions/Space/Objects` | `SpaceDefinitionsManager.Objects` |
 | `SpaceCameraSettingsDef` | `AbstractDefinition` | `Definitions/Space/CameraSettings/CameraSettings` | `SpaceDefinitionsManager.CameraSettings`. Одна запись, не словарь |
-| `SpaceMarkerIconsDef` | `AbstractDefinition` | `Definitions/Space/MarkerIcons/MarkerIcons` | `SpaceDefinitionsManager.MarkerIcons`. Одна запись, не словарь. Картинки типов тел, кроме `Ship`. Корабль её не читает |
+| `SpaceMarkerSettingsDef` | `AbstractDefinition` | `Definitions/Space/MarkerSettings/MarkerSettings` | `SpaceDefinitionsManager.MarkerSettings`. Одна запись, не словарь. Картинки типов тел, кроме `Ship`, и радиус круга. Корабль картинку отсюда не читает |
 
 `Id` в JSON не пишется. `SpaceDefinitionLoader` ставит его из имени файла (`approach.json` → `approach`). Файл из одних пробелов пропускается. Повторный id пропускается с предупреждением, в словарь остаётся первая запись. Битый JSON из загрузчика не глотается: исключение выходит из `Init` до `IsReady`.
 
@@ -41,7 +41,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 - у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры, `Radius` не меньше нуля, манёвренность больше нуля, `Name`, `Description` и `IconResourcesPath` не пустые, `SizeType` задан, каждый `CommandId` указывает на пригодную команду и не повторяется;
 - у каждой команды непустые `Name`, `Description` и `IconResourcesPath`, а в `ObjectTypes` и `Relations` хотя бы по одному неповторяющемуся значению;
 - у каждого модуля непустые `Name`, `Description` и `IconResourcesPath`, и те же правила для `CommandIds`;
-- `MarkerIcons` загружен и покрывает каждое значение `SpaceObjectType`, кроме `Ship`, ровно одной непустой картинкой;
+- `MarkerSettings` загружен, `MenuRadius` больше нуля и покрывает каждое значение `SpaceObjectType`, кроме `Ship`, ровно одной непустой картинкой;
 - среди модулей есть пригодный двигатель: в `SizeParameters` хотя бы одна строка, размеры не повторяются, в каждой скорость и инерция больше нуля. Строка на каждый `SpaceSizeType` не обязательна;
 - хотя бы один объект, и у каждого масштаб больше нуля, а радиус не меньше нуля;
 - хотя бы один сектор, и у каждого есть имя сцены, расстановка из известных объектов и хотя бы одна точка спавна.
@@ -95,6 +95,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceCommandDef` | `Description` | `string` | `Description` | ключ локализации описания. Круг его не читает |
 | `SpaceCommandDef` | `IconResourcesPath` | `string` | `IconResourcesPath` | картинка кнопки круга. Путь в `Resources` на спрайт |
 | `SpaceCommandDef` | `PriorityOrder` | `int` | `PriorityOrder` | порядок на круге. Меньше — раньше. При равенстве порядок по id |
+| `SpaceCommandDef` | `CommandType` | `SpaceCommandType` | `CommandType` | что делает нажатие: `None`, `Approach`, `Stop`. Окно по строке id не ветвится |
 | `SpaceCommandDef` | `ObjectTypes` | `List<SpaceObjectType>` | `ObjectTypes` | на метках каких типов кнопка видна. Пустой список — нигде |
 | `SpaceCommandDef` | `Relations` | `List<SpaceRelation>` | `Relations` | при каком отношении к игроку кнопка видна. Пустой список — нигде |
 | `SpaceTimedTargetDef` | `Kind` | `SpaceQueueKind` | `Kind` | в какую из пяти очередей цель ставится. Поле уйдёт вместе с этой записью |
@@ -108,7 +109,8 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceCameraSettingsDef` | `DegreesPerPixel` | `float` | `DegreesPerPixel` | сколько градусов даёт один пиксель перетаскивания |
 | `SpaceCameraSettingsDef` | `ScrollStep` | `float` | `ScrollStep` | шаг дистанции на один щелчок колеса |
 | `SpaceCameraSettingsDef` | `DragThresholdPixels` | `float` | `DragThresholdPixels` | сдвиг, после которого касание считается поворотом, а не кликом |
-| `SpaceMarkerIconsDef` | `Icons` | `List<SpaceMarkerKindIcon>` | `Icons` | по одной записи на каждый `SpaceObjectType`, кроме `Ship` |
+| `SpaceMarkerSettingsDef` | `MenuRadius` | `float` | `MenuRadius` | расстояние кнопок круга от центра метки, в пикселях. Больше нуля |
+| `SpaceMarkerSettingsDef` | `Icons` | `List<SpaceMarkerKindIcon>` | `Icons` | по одной записи на каждый `SpaceObjectType`, кроме `Ship` |
 | `SpaceMarkerKindIcon` | `ObjectType` | `SpaceObjectType` | `ObjectType` | тип тела, которому принадлежит картинка |
 | `SpaceMarkerKindIcon` | `IconResourcesPath` | `string` | `IconResourcesPath` | путь спрайта в `Resources` |
 
@@ -137,12 +139,12 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `Objects/asteroid_near.json` | `asteroid_near` | `Asteroid`, `Prefabs/Asteroids/AsteroidNear`, масштаб `0.08`, радиус `9.967` |
 | `Objects/asteroid_far.json` | `asteroid_far` | `Asteroid`, `Prefabs/Asteroids/AsteroidFar`, масштаб `0.12`, радиус `15.812` |
 | `Hulls/Fighter.json` | `Fighter` | гнёзда `Weapon S` и `Engine S`, тестовые команды `test_1`…`test_5`, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с, типоразмер корпуса `S` |
-| `MarkerIcons/MarkerIcons.json` | `MarkerIcons` | `PointOfInterest` → `Sprites/Space/Markers/Point`, `Station` → `Sprites/Space/Markers/Station`, `Asteroid` → `Sprites/Space/Markers/Asteroid`, `Spawn` → `Sprites/Space/Markers/Spawn` |
+| `MarkerSettings/MarkerSettings.json` | `MarkerSettings` | `MenuRadius` `78`. `PointOfInterest` → `Sprites/Space/Markers/Point`, `Station` → `Sprites/Space/Markers/Station`, `Asteroid` → `Sprites/Space/Markers/Asteroid`, `Spawn` → `Sprites/Space/Markers/Spawn` |
 | `Modules/engine_default.json` | `engine_default` | `Engine`, команды `stop` и `approach`, типоразмер модуля `S`. Строки гнёзд: `XXS` 70 м/с и 0.6 с, `XS` 55 м/с и 1 с, `S` 40 м/с и 1.5 с, `M` 32 м/с и 2.2 с, `L` 24 м/с и 3.2 с, `XL` 18 м/с и 4.5 с, `XXL` 12 м/с и 6.5 с |
 | `Modules/laser_a.json` | `laser_a` | `Weapon`, группа `A`, типоразмер `S`, списка `SizeParameters` нет |
-| `Commands/approach.json` | `approach` | типы `Ship`, `Asteroid`, `Station`, `PointOfInterest`; отношения `Ally`, `Enemy`, `Neutral`. На своём корабле нет. Порядок `10` |
-| `Commands/stop.json` | `stop` | тип `Ship`, отношение `Player`. Только свой корабль. Порядок `0` |
-| `Commands/test_1.json` … `test_5.json` | `test_1`…`test_5` | тестовые кнопки корпуса. Тип `Ship`, отношение `Player`. Порядок `20`, `30`, `40`, `50`, `60`. Нажатие ничего не делает |
+| `Commands/approach.json` | `approach` | `CommandType` `Approach`. Типы `Ship`, `Asteroid`, `Station`, `PointOfInterest`; отношения `Ally`, `Enemy`, `Neutral`. На своём корабле нет. Порядок `10` |
+| `Commands/stop.json` | `stop` | `CommandType` `Stop`. Тип `Ship`, отношение `Player`. Только свой корабль. Порядок `0` |
+| `Commands/test_1.json` … `test_5.json` | `test_1`…`test_5` | `CommandType` `None`. Тестовые кнопки корпуса. Тип `Ship`, отношение `Player`. Порядок `20`, `30`, `40`, `50`, `60` |
 | `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 4..160, поворот 141.474, наклон 28.779 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
 | `TimedTargets/skill_survey.json` | `skill_survey` | `Skill`, 45000 мс |
 | `TimedTargets/skill_mining.json` | `skill_mining` | `Skill`, 90000 мс |

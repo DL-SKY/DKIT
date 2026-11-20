@@ -14,11 +14,13 @@ namespace Modules.Space.Scripts.Implementation.Definitions
     }
 
     /// <summary>
-    /// Single record of marker pictures for placed <see cref="SpaceObjectType"/> values.
+    /// Single record of marker presentation. Pictures cover placed body types.
     /// A ship marker reads its picture from <see cref="SpaceHullDef.IconResourcesPath"/> instead.
+    /// <see cref="MenuRadius"/> is the pixel distance from the marker center to each ring button.
     /// </summary>
-    public sealed class SpaceMarkerIconsDef : AbstractDefinition
+    public sealed class SpaceMarkerSettingsDef : AbstractDefinition
     {
+        public float MenuRadius;
         public List<SpaceMarkerKindIcon> Icons;
 
         public bool TryGetIcon(SpaceObjectType objectType, out string path)
@@ -42,6 +44,9 @@ namespace Modules.Space.Scripts.Implementation.Definitions
 
         public bool IsUsable()
         {
+            if (float.IsNaN(MenuRadius) || float.IsInfinity(MenuRadius) || MenuRadius <= 0f)
+                return false;
+
             var types = (SpaceObjectType[])Enum.GetValues(typeof(SpaceObjectType));
             var pictured = 0;
             for (var i = 0; i < types.Length; i++)

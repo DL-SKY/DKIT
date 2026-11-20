@@ -18,7 +18,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             SpaceDefinitionsManager definitions,
             SpaceProfile profile,
             Action<SpaceMarkerViewModel> onClick,
-            Action<SpaceMarkerViewModel, string> onCommand)
+            Action<SpaceMarkerViewModel, string, string> onCommand)
         {
             Bind(snapshot, ReadKindIcon(snapshot, definitions), onClick, onCommand);
             AddPlayerCommands(definitions, profile);
@@ -26,7 +26,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
 
         private static string ReadKindIcon(SpaceMarkerSnapshot snapshot, SpaceDefinitionsManager definitions)
         {
-            if (definitions?.MarkerIcons != null && definitions.MarkerIcons.TryGetIcon(snapshot.ObjectType, out var path))
+            if (definitions?.MarkerSettings != null && definitions.MarkerSettings.TryGetIcon(snapshot.ObjectType, out var path))
                 return path;
 
             UnityEngine.Debug.LogError($"[Space] Marker icons have no picture for {snapshot.ObjectType}.");

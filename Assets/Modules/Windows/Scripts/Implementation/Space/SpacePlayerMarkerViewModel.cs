@@ -16,7 +16,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             SpaceDefinitionsManager definitions,
             SpaceProfile profile,
             Action<SpaceMarkerViewModel> onClick,
-            Action<SpaceMarkerViewModel, string> onCommand)
+            Action<SpaceMarkerViewModel, string, string> onCommand)
         {
             Bind(snapshot, ReadHullIcon(snapshot, definitions), onClick, onCommand);
             AddPlayerCommands(definitions, profile);

@@ -13,6 +13,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public string Description;
         public string IconResourcesPath;
         public int PriorityOrder;
+        public SpaceCommandType CommandType;
         public List<SpaceObjectType> ObjectTypes;
         public List<SpaceRelation> Relations;
 

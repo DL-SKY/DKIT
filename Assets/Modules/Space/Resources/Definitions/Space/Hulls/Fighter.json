@@ -9,7 +9,7 @@
   "VisualResourcesPath": "Prefabs/Spaceships/Fighter",
   "IconResourcesPath": "Sprites/Space/Markers/Fighter",
   "CameraDistance": 32.5,
-  "Radius": 7.249,
+  "Radius": 8,
   "ManeuverabilityDegreesPerSecond": 90,
   "SizeType": "S"
 }

@@ -3,6 +3,7 @@
   "Description": "command.test_5.description",
   "IconResourcesPath": "Sprites/Space/Commands/Test5",
   "PriorityOrder": 60,
+  "CommandType": "None",
   "ObjectTypes": ["Ship"],
   "Relations": ["Player"]
 }

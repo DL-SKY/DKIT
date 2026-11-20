@@ -51,7 +51,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
 
         private readonly List<SpaceMarkerMenuButton> _menuButtons = new List<SpaceMarkerMenuButton>();
         private Action<SpaceMarkerViewModel> _onClick;
-        private Action<SpaceMarkerViewModel, string> _onCommand;
+        private Action<SpaceMarkerViewModel, string, string> _onCommand;
         private bool _menuOpen;
 
         public string TargetId { get; private set; }
@@ -65,8 +65,17 @@ namespace Modules.Windows.Scripts.Implementation.Space
         public float MaxMetersPerSecond { get; private set; }
         public string IconResourcesPath { get; private set; }
         public bool MenuOpen => _menuOpen;
+        public float MenuRadius { get; private set; } = 78f;
         public IReadOnlyList<SpaceMarkerMenuButton> MenuButtons => _menuButtons;
         public virtual bool ShowSpeed => true;
+
+        public void SetMenuRadius(float radius)
+        {
+            if (float.IsNaN(radius) || float.IsInfinity(radius) || radius <= 0f)
+                return;
+
+            MenuRadius = radius;
+        }
 
         public void SetLive(Vector3 worldPosition, float metersPerSecond, float maxMetersPerSecond)
         {
@@ -89,9 +98,9 @@ namespace Modules.Windows.Scripts.Implementation.Space
             _onClick?.Invoke(this);
         }
 
-        public void ClickCommand(string commandId)
+        public void ClickCommand(string commandId, string sourceId)
         {
-            _onCommand?.Invoke(this, commandId);
+            _onCommand?.Invoke(this, commandId, sourceId);
         }
 
         public override void Dispose()
@@ -106,7 +115,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             SpaceMarkerSnapshot snapshot,
             string iconResourcesPath,
             Action<SpaceMarkerViewModel> onClick,
-            Action<SpaceMarkerViewModel, string> onCommand)
+            Action<SpaceMarkerViewModel, string, string> onCommand)
         {
             TargetId = snapshot.TargetId;
             DefId = snapshot.DefId;
@@ -130,8 +139,8 @@ namespace Modules.Windows.Scripts.Implementation.Space
                 return;
 
             var ranked = new List<RankedCommand>();
-            if (definitions.TryGetHull(ship.HullId, out var hull))
-                Collect(definitions, hull != null ? hull.CommandIds : null, ranked);
+            if (definitions.TryGetHull(ship.HullId, out var hull) && hull != null)
+                Collect(definitions, hull.CommandIds, hull.Id, ranked);
 
             var slots = ship.Slots;
             if (slots != null)
@@ -145,16 +154,16 @@ namespace Modules.Windows.Scripts.Implementation.Space
                     if (!definitions.TryGetModule(slot.ModuleId, out var module) || module == null)
                         continue;
 
-                    Collect(definitions, module.CommandIds, ranked);
+                    Collect(definitions, module.CommandIds, module.Id, ranked);
                 }
             }
 
             ranked.Sort(CompareCommands);
             for (var i = 0; i < ranked.Count; i++)
-                _menuButtons.Add(new SpaceMarkerMenuButton(ranked[i].Id, ranked[i].Label, ranked[i].IconResourcesPath));
+                _menuButtons.Add(new SpaceMarkerMenuButton(ranked[i].Id, ranked[i].SourceId, ranked[i].Label, ranked[i].IconResourcesPath));
         }
 
-        private void Collect(SpaceDefinitionsManager definitions, List<string> commandIds, List<RankedCommand> ranked)
+        private void Collect(SpaceDefinitionsManager definitions, List<string> commandIds, string sourceId, List<RankedCommand> ranked)
         {
             if (commandIds == null)
                 return;
@@ -174,6 +183,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
                 ranked.Add(new RankedCommand
                 {
                     Id = commandId,
+                    SourceId = sourceId,
                     Priority = command.PriorityOrder,
                     Label = string.IsNullOrEmpty(command.Name) ? commandId : command.Name,
                     IconResourcesPath = command.IconResourcesPath
@@ -204,6 +214,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
         private struct RankedCommand
         {
             public string Id;
+            public string SourceId;
             public int Priority;
             public string Label;
             public string IconResourcesPath;

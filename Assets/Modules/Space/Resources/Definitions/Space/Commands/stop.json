@@ -3,6 +3,7 @@
   "Description": "command.stop.description",
   "IconResourcesPath": "Sprites/Space/Commands/Stop",
   "PriorityOrder": 0,
+  "CommandType": "Stop",
   "ObjectTypes": ["Ship"],
   "Relations": ["Player"]
 }

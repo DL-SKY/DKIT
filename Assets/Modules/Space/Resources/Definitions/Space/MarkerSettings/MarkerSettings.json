@@ -1,4 +1,5 @@
 {
+  "MenuRadius": 200,
   "Icons": [
     { "ObjectType": "PointOfInterest", "IconResourcesPath": "Sprites/Space/Markers/Point" },
     { "ObjectType": "Station", "IconResourcesPath": "Sprites/Space/Markers/Station" },

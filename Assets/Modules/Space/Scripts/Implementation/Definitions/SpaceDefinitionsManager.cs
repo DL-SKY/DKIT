@@ -16,7 +16,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public IReadOnlyDictionary<string, SpaceSectorDef> Sectors => _sectors;
         public IReadOnlyDictionary<string, SpaceObjectDef> Objects => _objects;
         public SpaceCameraSettingsDef CameraSettings { get; private set; }
-        public SpaceMarkerIconsDef MarkerIcons { get; private set; }
+        public SpaceMarkerSettingsDef MarkerSettings { get; private set; }
 
         private Dictionary<string, SpaceHullDef> _hulls = new Dictionary<string, SpaceHullDef>();
         private Dictionary<string, SpaceModuleDef> _modules = new Dictionary<string, SpaceModuleDef>();
@@ -34,7 +34,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             _sectors = SpaceDefinitionLoader.Load<SpaceSectorDef>(SpaceDefinitionLoader.SECTORS_PATH);
             _objects = SpaceDefinitionLoader.Load<SpaceObjectDef>(SpaceDefinitionLoader.OBJECTS_PATH);
             CameraSettings = SpaceDefinitionLoader.LoadSingle<SpaceCameraSettingsDef>(SpaceDefinitionLoader.CAMERA_SETTINGS_PATH);
-            MarkerIcons = SpaceDefinitionLoader.LoadSingle<SpaceMarkerIconsDef>(SpaceDefinitionLoader.MARKER_ICONS_PATH);
+            MarkerSettings = SpaceDefinitionLoader.LoadSingle<SpaceMarkerSettingsDef>(SpaceDefinitionLoader.MARKER_SETTINGS_PATH);
             IsReady = HasRequiredRecords();
         }
 
@@ -79,7 +79,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             if (_hulls.Count < 1 || _modules.Count < 1 || _commands.Count < 1)
                 return false;
 
-            if (CameraSettings == null || !CameraSettings.IsUsable() || MarkerIcons == null || !MarkerIcons.IsUsable())
+            if (CameraSettings == null || !CameraSettings.IsUsable() || MarkerSettings == null || !MarkerSettings.IsUsable())
                 return false;
 
             if (!CommandsFit() || !HullsFit() || !ModulesFit() || !ObjectsFit() || !SectorsFit())

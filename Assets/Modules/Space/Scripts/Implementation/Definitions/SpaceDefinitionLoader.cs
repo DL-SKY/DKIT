@@ -15,7 +15,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public const string SECTORS_PATH = "Definitions/Space/Sectors";
         public const string OBJECTS_PATH = "Definitions/Space/Objects";
         public const string CAMERA_SETTINGS_PATH = "Definitions/Space/CameraSettings/CameraSettings";
-        public const string MARKER_ICONS_PATH = "Definitions/Space/MarkerIcons/MarkerIcons";
+        public const string MARKER_SETTINGS_PATH = "Definitions/Space/MarkerSettings/MarkerSettings";
 
         private static readonly JsonSerializerSettings SETTINGS = new JsonSerializerSettings
         {

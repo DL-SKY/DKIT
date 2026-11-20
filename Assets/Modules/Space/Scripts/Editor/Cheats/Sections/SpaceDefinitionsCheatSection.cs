@@ -102,7 +102,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 int typeCount = command.ObjectTypes != null ? command.ObjectTypes.Count : 0;
                 int relationCount = command.Relations != null ? command.Relations.Count : 0;
                 string icon = string.IsNullOrEmpty(command.IconResourcesPath) ? "—" : command.IconResourcesPath;
-                EditorGUILayout.LabelField((i + 1) + ". " + command.Id + "  order " + command.PriorityOrder + ", types " + typeCount + ", relations " + relationCount + ", " + command.Name + ", icon " + icon);
+                EditorGUILayout.LabelField((i + 1) + ". " + command.Id + "  " + command.CommandType + ", order " + command.PriorityOrder + ", types " + typeCount + ", relations " + relationCount + ", " + command.Name + ", icon " + icon);
             }
 
             EditorGUI.indentLevel--;
@@ -182,10 +182,18 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
 
         private static void DrawMarkerIcons(SpaceDefinitionsManager definitions)
         {
-            SpaceMarkerIconsDef icons = definitions.MarkerIcons;
-            EditorGUILayout.LabelField("Marker icons:");
+            SpaceMarkerSettingsDef icons = definitions.MarkerSettings;
+            EditorGUILayout.LabelField("Marker settings:");
             EditorGUI.indentLevel++;
-            if (icons == null || icons.Icons == null || icons.Icons.Count == 0)
+            if (icons == null)
+            {
+                EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
+                EditorGUI.indentLevel--;
+                return;
+            }
+
+            EditorGUILayout.LabelField("menu radius " + icons.MenuRadius);
+            if (icons.Icons == null || icons.Icons.Count == 0)
             {
                 EditorGUILayout.LabelField("—", EditorStyles.miniLabel);
                 EditorGUI.indentLevel--;

@@ -14,7 +14,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
         public const string Path = "Prefabs/Views/Space/SpaceMarkerView";
 
         private const float MENU_BUTTON_SIZE = 44f;
-        private float _menuRadius = 78f;
+        private float _appliedMenuRadius;
         private const float EDGE_MARGIN = 36f;
 
         private Button _button;
@@ -24,12 +24,6 @@ namespace Modules.Windows.Scripts.Implementation.Space
         private readonly List<GameObject> _menuButtons = new List<GameObject>();
 
         public string TargetId => _viewModel != null ? _viewModel.TargetId : null;
-
-        public void SetMenuRadius(float radius)
-        {
-            if (radius > 0f)
-                _menuRadius = radius;
-        }
 
         public void Init(SpaceMarkerViewModel viewModel)
         {
@@ -64,6 +58,8 @@ namespace Modules.Windows.Scripts.Implementation.Space
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = local;
             ApplySpeed();
+            if (_viewModel.MenuOpen && !Mathf.Approximately(_appliedMenuRadius, _viewModel.MenuRadius))
+                ApplyMenu();
         }
 
         private void OnDestroy()
@@ -164,9 +160,11 @@ namespace Modules.Windows.Scripts.Implementation.Space
                 var angle = (90f - step * i) * Mathf.Deg2Rad;
                 var button = CreateMenuButton(menuButton);
                 var rect = (RectTransform)button.transform;
-                rect.anchoredPosition = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * _menuRadius;
+                rect.anchoredPosition = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * _viewModel.MenuRadius;
                 _menuButtons.Add(button);
             }
+
+            _appliedMenuRadius = _viewModel.MenuRadius;
         }
 
         private GameObject CreateMenuButton(SpaceMarkerMenuButton menuButton)
@@ -183,7 +181,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             image.color = Color.white;
             var button = buttonObject.GetComponent<Button>();
             button.targetGraphic = image;
-            button.onClick.AddListener(() => _viewModel?.ClickCommand(menuButton.CommandId));
+            button.onClick.AddListener(() => _viewModel?.ClickCommand(menuButton.CommandId, menuButton.SourceId));
 
             var labelObject = new GameObject("Label", typeof(RectTransform));
             labelObject.transform.SetParent(buttonObject.transform, false);
@@ -214,6 +212,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             }
 
             _menuButtons.Clear();
+            _appliedMenuRadius = 0f;
         }
     }
 }
