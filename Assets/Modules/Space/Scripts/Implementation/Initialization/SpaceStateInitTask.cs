@@ -53,7 +53,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             var profile = _stateManager.Profile;
             int fittedCount = CountInstalledModules(profile);
             UnityEngine.Debug.Log(
-                $"[Space] Queue time check passed. Hull {profile.ActiveHullId}, fitted {fittedCount}. Profile: {_stateManager.ProfileFilePath}");
+                $"[Space] Queue time check passed. Ship {profile.ActiveShipId}, fitted {fittedCount}. Profile: {_stateManager.ProfileFilePath}");
             Complete();
         }
 
@@ -66,7 +66,7 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             for (var i = 0; i < profile.Ships.Count; i++)
             {
                 var ship = profile.Ships[i];
-                if (ship == null || ship.HullId != profile.ActiveHullId || ship.Slots == null)
+                if (ship == null || ship.Id != profile.ActiveShipId || ship.Slots == null)
                     continue;
 
                 for (var slotIndex = 0; slotIndex < ship.Slots.Count; slotIndex++)

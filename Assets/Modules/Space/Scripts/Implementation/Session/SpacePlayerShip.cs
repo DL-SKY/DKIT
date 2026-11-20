@@ -19,7 +19,7 @@ namespace Modules.Space.Scripts.Implementation.Session
                 return null;
             }
 
-            var hullId = state.Profile.ActiveHullId;
+            var hullId = ActiveHullId(state.Profile);
             if (!definitions.TryGetHull(hullId, out var hull) || string.IsNullOrWhiteSpace(hull.VisualResourcesPath))
             {
                 UnityEngine.Debug.LogError($"[Space] Player ship was not created. Hull '{hullId}' has no visual.");
@@ -37,6 +37,22 @@ namespace Modules.Space.Scripts.Implementation.Session
             ship.name = OBJECT_NAME;
             UnityEngine.Debug.Log($"[Space] Player ship created from hull {hullId} at {position}.");
             return ship.transform;
+        }
+
+        private static string ActiveHullId(SpaceProfile profile)
+        {
+            var ships = profile.Ships;
+            if (ships == null || string.IsNullOrEmpty(profile.ActiveShipId))
+                return null;
+
+            for (var i = 0; i < ships.Count; i++)
+            {
+                var ship = ships[i];
+                if (ship != null && ship.Id == profile.ActiveShipId)
+                    return ship.HullId;
+            }
+
+            return null;
         }
     }
 }

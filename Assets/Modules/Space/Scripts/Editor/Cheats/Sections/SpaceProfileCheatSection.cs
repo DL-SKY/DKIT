@@ -92,8 +92,8 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
 
         private static void DrawShip(SpaceProfile profile)
         {
-            string activeHull = string.IsNullOrEmpty(profile.ActiveHullId) ? "—" : profile.ActiveHullId;
-            EditorGUILayout.LabelField("Active hull: " + activeHull);
+            string activeShip = string.IsNullOrEmpty(profile.ActiveShipId) ? "—" : profile.ActiveShipId;
+            EditorGUILayout.LabelField("Active ship: " + activeShip);
 
             EditorGUILayout.LabelField("Ships:");
             EditorGUI.indentLevel++;
@@ -108,7 +108,8 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                     if (ship == null)
                         continue;
 
-                    EditorGUILayout.LabelField((i + 1) + ". " + ship.HullId);
+                    string name = string.IsNullOrEmpty(ship.Name) ? "—" : ship.Name;
+                    EditorGUILayout.LabelField((i + 1) + ". " + ship.Id + "  " + name + "  " + ship.HullId);
                     List<SpacePlayerShipSlot> slots = ship.Slots;
                     if (slots == null)
                         continue;

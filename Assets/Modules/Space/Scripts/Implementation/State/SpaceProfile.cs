@@ -9,16 +9,19 @@ namespace Modules.Space.Scripts.Implementation.State
         public const string STARTER_HULL_ID = "Fighter";
         public const string STARTER_ENGINE_ID = "engine_default";
 
-        public string ActiveHullId;
+        public string ActiveShipId;
         public List<SpacePlayerShipState> Ships = new List<SpacePlayerShipState>();
         public List<SpaceQueueState> Queues = new List<SpaceQueueState>();
     }
 
     /// <summary>
-    /// One owned hull and the modules sitting in its sockets.
+    /// One hangar ship. <see cref="Id"/> is this instance. <see cref="HullId"/> is the hull def.
+    /// <see cref="Name"/> is the player's label and is not read by flight.
     /// </summary>
     public sealed class SpacePlayerShipState
     {
+        public string Id;
+        public string Name;
         public string HullId;
         public List<SpacePlayerShipSlot> Slots = new List<SpacePlayerShipSlot>();
     }

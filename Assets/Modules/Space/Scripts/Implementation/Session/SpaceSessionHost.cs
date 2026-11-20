@@ -170,8 +170,9 @@ namespace Modules.Space.Scripts.Implementation.Session
                 return;
 
             SpaceHullDef hull = null;
-            if (state != null && state.Profile != null)
-                definitions.TryGetHull(state.Profile.ActiveHullId, out hull);
+            var activeHullId = ActiveHullId(state);
+            if (definitions != null && !string.IsNullOrEmpty(activeHullId))
+                definitions.TryGetHull(activeHullId, out hull);
 
             var engine = FindFittedEngine(definitions, state, out var engineSlotSize);
             SpaceSectorBodies.AttachPlayer(_session.World, _playerShip, hull, engine, engineSlotSize, position, yaw);
@@ -192,12 +193,30 @@ namespace Modules.Space.Scripts.Implementation.Session
             orbit.Follow(_playerShip, settings, SpaceCameraOrigin.Space, shipDistance);
         }
 
+        private static string ActiveHullId(SpaceStateManager state)
+        {
+            var profile = state?.Profile;
+            var ships = profile?.Ships;
+            if (profile == null || ships == null || string.IsNullOrEmpty(profile.ActiveShipId))
+                return null;
+
+            for (var i = 0; i < ships.Count; i++)
+            {
+                var ship = ships[i];
+                if (ship != null && ship.Id == profile.ActiveShipId)
+                    return ship.HullId;
+            }
+
+            return null;
+        }
+
         private static float ReadShipCameraDistance(SpaceDefinitionsManager definitions, SpaceStateManager state)
         {
             if (definitions == null || state == null || state.Profile == null)
                 return 0f;
 
-            return definitions.TryGetHull(state.Profile.ActiveHullId, out var hull) ? hull.CameraDistance : 0f;
+            var hullId = ActiveHullId(state);
+            return !string.IsNullOrEmpty(hullId) && definitions.TryGetHull(hullId, out var hull) ? hull.CameraDistance : 0f;
         }
 
         private static SpaceModuleDef FindFittedEngine(SpaceDefinitionsManager definitions, SpaceStateManager state, out SpaceSizeType slotSize)
@@ -210,7 +229,7 @@ namespace Modules.Space.Scripts.Implementation.Session
             SpacePlayerShipState ship = null;
             for (var i = 0; i < ships.Count; i++)
             {
-                if (ships[i] != null && ships[i].HullId == state.Profile.ActiveHullId)
+                if (ships[i] != null && ships[i].Id == state.Profile.ActiveShipId)
                 {
                     ship = ships[i];
                     break;

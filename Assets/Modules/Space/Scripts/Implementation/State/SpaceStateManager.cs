@@ -153,21 +153,19 @@ namespace Modules.Space.Scripts.Implementation.State
             if (Profile.Ships == null)
                 Profile.Ships = new List<SpacePlayerShipState>();
 
-            if (!_definitions.TryGetHull(Profile.ActiveHullId, out _))
-            {
-                if (!_definitions.TryGetHull(SpaceProfile.STARTER_HULL_ID, out _))
-                    return false;
-
-                Profile.ActiveHullId = SpaceProfile.STARTER_HULL_ID;
-            }
-
             Profile.Ships = KeepKnownShips(Profile.Ships);
-            if (FindShip(Profile.ActiveHullId) == null)
+            if (FindShip(Profile.ActiveShipId) == null)
             {
-                Profile.Ships.Add(new SpacePlayerShipState
+                if (Profile.Ships.Count == 0)
                 {
-                    HullId = Profile.ActiveHullId
-                });
+                    var starter = CreateShip(SpaceProfile.STARTER_HULL_ID);
+                    if (starter == null)
+                        return false;
+
+                    Profile.Ships.Add(starter);
+                }
+
+                Profile.ActiveShipId = Profile.Ships[0].Id;
             }
 
             for (var i = 0; i < Profile.Ships.Count; i++)
@@ -180,7 +178,25 @@ namespace Modules.Space.Scripts.Implementation.State
                 EnsureDefaultEngine(ship);
             }
 
-            return true;
+            return FindShip(Profile.ActiveShipId) != null;
+        }
+
+        private SpacePlayerShipState CreateShip(string hullId)
+        {
+            if (!_definitions.TryGetHull(hullId, out _))
+                return null;
+
+            return new SpacePlayerShipState
+            {
+                Id = NewShipId(),
+                Name = string.Empty,
+                HullId = hullId
+            };
+        }
+
+        private static string NewShipId()
+        {
+            return Guid.NewGuid().ToString("N");
         }
 
         private List<SpacePlayerShipState> KeepKnownShips(List<SpacePlayerShipState> ships)
@@ -192,8 +208,11 @@ namespace Modules.Space.Scripts.Implementation.State
                 if (ship == null || string.IsNullOrEmpty(ship.HullId) || !_definitions.TryGetHull(ship.HullId, out _))
                     continue;
 
-                if (FindIn(kept, ship.HullId) != null)
-                    continue;
+                if (string.IsNullOrEmpty(ship.Id) || FindIn(kept, ship.Id) != null)
+                    ship.Id = NewShipId();
+
+                if (ship.Name == null)
+                    ship.Name = string.Empty;
 
                 kept.Add(ship);
             }
@@ -278,20 +297,20 @@ namespace Modules.Space.Scripts.Implementation.State
             }
         }
 
-        private SpacePlayerShipState FindShip(string hullId)
+        private SpacePlayerShipState FindShip(string shipId)
         {
-            return FindIn(Profile?.Ships, hullId);
+            return FindIn(Profile?.Ships, shipId);
         }
 
-        private static SpacePlayerShipState FindIn(List<SpacePlayerShipState> ships, string hullId)
+        private static SpacePlayerShipState FindIn(List<SpacePlayerShipState> ships, string shipId)
         {
-            if (ships == null || string.IsNullOrEmpty(hullId))
+            if (ships == null || string.IsNullOrEmpty(shipId))
                 return null;
 
             for (var i = 0; i < ships.Count; i++)
             {
                 var ship = ships[i];
-                if (ship != null && ship.HullId == hullId)
+                if (ship != null && ship.Id == shipId)
                     return ship;
             }
 
