@@ -17,5 +17,6 @@ namespace Modules.Space.Scripts.Implementation.Session
         public SpaceObjectKind Kind;
         public Vector3 WorldPosition;
         public float MetersPerSecond;
+        public float MaxMetersPerSecond;
     }
 }

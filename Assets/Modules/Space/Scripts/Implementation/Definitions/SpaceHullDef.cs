@@ -12,6 +12,7 @@ namespace Modules.Space.Scripts.Implementation.Definitions
         public float CameraDistance;
         public float Radius;
         public float ManeuverabilityDegreesPerSecond;
+        public SpaceSizeType SizeType;
 
         public bool HasFlightRates()
         {

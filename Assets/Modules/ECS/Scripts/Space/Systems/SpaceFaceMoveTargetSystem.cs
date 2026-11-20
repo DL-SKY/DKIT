@@ -20,7 +20,10 @@ namespace Modules.ECS.Scripts.Space.Systems
                 ref var position = ref _bodies.Get1(index);
                 ref var target = ref _bodies.Get2(index);
                 ref var desired = ref _bodies.Get3(index);
-                if (SpaceBearing.TryDegrees(position.Value, target.Position, out var degrees))
+                if (!SpaceMoveTargetRead.TryGetPose(target.Target, out var targetPosition, out _))
+                    continue;
+
+                if (SpaceBearing.TryDegrees(position.Value, targetPosition, out var degrees))
                     desired.Degrees = degrees;
             }
         }

@@ -2,6 +2,14 @@
   "Kind": "Engine",
   "SlotId": "engine",
   "WeaponGroup": "",
-  "MaxSpeedMetersPerSecond": 40,
-  "InertiaSeconds": 1.5
+  "SizeType": "S",
+  "SizeParameters": [
+    { "SizeType": "XXS", "MaxSpeedMetersPerSecond": 70, "InertiaSeconds": 0.6 },
+    { "SizeType": "XS", "MaxSpeedMetersPerSecond": 55, "InertiaSeconds": 1.0 },
+    { "SizeType": "S", "MaxSpeedMetersPerSecond": 40, "InertiaSeconds": 1.5 },
+    { "SizeType": "M", "MaxSpeedMetersPerSecond": 32, "InertiaSeconds": 2.2 },
+    { "SizeType": "L", "MaxSpeedMetersPerSecond": 24, "InertiaSeconds": 3.2 },
+    { "SizeType": "XL", "MaxSpeedMetersPerSecond": 18, "InertiaSeconds": 4.5 },
+    { "SizeType": "XXL", "MaxSpeedMetersPerSecond": 12, "InertiaSeconds": 6.5 }
+  ]
 }

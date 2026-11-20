@@ -208,6 +208,9 @@ namespace Modules.Space.Scripts.Implementation.State
                 if (!_definitions.TryGetModule(fitting.ModuleId, out var module) || module.SlotId != fitting.SlotId)
                     continue;
 
+                if (hull == null || !module.AllowsHullSize(hull.SizeType))
+                    continue;
+
                 usedSlots.Add(fitting.SlotId);
                 kept.Add(fitting);
             }
@@ -221,6 +224,9 @@ namespace Modules.Space.Scripts.Implementation.State
                 return;
 
             if (engine.Kind != SpaceModuleKind.Engine || !engine.IsUsable() || !HullHasSlot(hull, engine.SlotId))
+                return;
+
+            if (!engine.AllowsHullSize(hull.SizeType))
                 return;
 
             for (var i = 0; i < Profile.FittedModules.Count; i++)

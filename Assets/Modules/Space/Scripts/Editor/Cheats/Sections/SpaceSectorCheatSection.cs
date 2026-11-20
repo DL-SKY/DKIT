@@ -58,7 +58,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                     continue;
                 }
 
-                host.TrySetMoveTarget(new Vector3(placement.X, placement.Y, placement.Z));
+                host.TrySetMoveTarget(SpaceSectorBodies.PlacementKey(i));
             }
         }
 

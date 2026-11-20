@@ -1,3 +1,4 @@
+using Leopotam.Ecs;
 using Modules.Space.Scripts.Implementation.Definitions;
 using UnityEngine;
 
@@ -52,6 +53,13 @@ namespace Modules.ECS.Scripts.Space.Components
     }
 
     /// <summary>
+    /// Marker of any hull, including the player's. A hull without <see cref="SpacePlayerHull"/> is another ship.
+    /// </summary>
+    public struct SpaceHull
+    {
+    }
+
+    /// <summary>
     /// Short name drawn on the screen marker. The marker reads it and does not invent a title.
     /// </summary>
     public struct SpaceLabel
@@ -95,10 +103,10 @@ namespace Modules.ECS.Scripts.Space.Components
     }
 
     /// <summary>
-    /// World point the body is moving toward. The movement system consumes it.
+    /// Entity the body is moving toward. Face and movement read its live position and radius.
     /// </summary>
     public struct SpaceMoveTarget
     {
-        public Vector3 Position;
+        public EcsEntity Target;
     }
 }

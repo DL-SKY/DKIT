@@ -14,6 +14,11 @@ namespace Modules.Space.Scripts.Implementation.Session
     {
         public const string ROOT_NAME = "SectorBodies";
 
+        public static string PlacementKey(int placementIndex)
+        {
+            return "placement:" + placementIndex;
+        }
+
         public static List<GameObject> Spawn(EcsWorld world, SpaceDefinitionsManager definitions, SpaceSectorDef sector)
         {
             var created = new List<GameObject>();
@@ -43,7 +48,7 @@ namespace Modules.Space.Scripts.Implementation.Session
                 entity.Get<SpaceRadius>() = new SpaceRadius { Meters = body.Radius };
                 entity.Get<SpaceKind>() = new SpaceKind { Value = body.Kind };
                 entity.Get<SpaceLabel>() = new SpaceLabel { Value = body.Id };
-                entity.Get<SpaceMarkerKey>() = new SpaceMarkerKey { Value = "placement:" + i };
+                entity.Get<SpaceMarkerKey>() = new SpaceMarkerKey { Value = PlacementKey(i) };
 
                 var view = CreateView(body, position, placement.Yaw);
                 if (view == null)
@@ -68,13 +73,14 @@ namespace Modules.Space.Scripts.Implementation.Session
 
             var entity = world.NewEntity();
             entity.Get<SpacePlayerHull>();
+            entity.Get<SpaceHull>();
             entity.Get<SpaceLabel>() = new SpaceLabel { Value = hull.Id };
             entity.Get<SpaceMarkerKey>() = new SpaceMarkerKey { Value = "player" };
             entity.Get<SpacePosition>() = new SpacePosition { Value = position };
             entity.Get<SpaceYaw>() = new SpaceYaw { Degrees = yaw };
             entity.Get<SpaceRadius>() = new SpaceRadius { Meters = hull.Radius };
             entity.Get<SpaceTurnRate>() = new SpaceTurnRate { DegreesPerSecond = hull.ManeuverabilityDegreesPerSecond };
-            entity.Get<SpaceMotion>() = CreateMotion(engine);
+            entity.Get<SpaceMotion>() = CreateMotion(hull, engine);
             entity.Get<SpaceView>() = new SpaceView { Transform = ship };
             AddHullGizmo(ship.gameObject, hull.Radius);
             UnityEngine.Debug.Log($"[Space] Player hull entity created. Radius {hull.Radius}.");
@@ -99,7 +105,7 @@ namespace Modules.Space.Scripts.Implementation.Session
             return instance.transform;
         }
 
-        private static SpaceMotion CreateMotion(SpaceModuleDef engine)
+        private static SpaceMotion CreateMotion(SpaceHullDef hull, SpaceModuleDef engine)
         {
             if (engine == null || engine.Kind != SpaceModuleKind.Engine)
             {
@@ -107,10 +113,16 @@ namespace Modules.Space.Scripts.Implementation.Session
                 return new SpaceMotion();
             }
 
+            if (hull == null || !engine.TryGetSizeParameters(hull.SizeType, out var parameters) || parameters == null)
+            {
+                UnityEngine.Debug.LogError($"[Space] Engine '{engine.Id}' has no parameters for size {hull?.SizeType}. Speed stays at zero.");
+                return new SpaceMotion();
+            }
+
             return new SpaceMotion
             {
-                MaxMetersPerSecond = engine.MaxSpeedMetersPerSecond,
-                InertiaSeconds = engine.InertiaSeconds
+                MaxMetersPerSecond = parameters.MaxSpeedMetersPerSecond,
+                InertiaSeconds = parameters.InertiaSeconds
             };
         }
 

@@ -53,14 +53,13 @@ namespace Modules.Windows.Scripts.Implementation.Space
                 var marker = FindMarker(snapshot.TargetId);
                 if (marker == null)
                 {
-                    marker = _viewModelFactory.Create<SpaceMarkerViewModel>();
-                    marker.Init(snapshot, _definitions, OnMarkerClick, OnMarkerCommand);
+                    marker = CreateMarker(snapshot);
                     _markers.Add(marker);
                     changed = true;
                     continue;
                 }
 
-                marker.SetLive(snapshot.WorldPosition, snapshot.MetersPerSecond);
+                marker.SetLive(snapshot.WorldPosition, snapshot.MetersPerSecond, snapshot.MaxMetersPerSecond);
             }
 
             if (changed)
@@ -103,7 +102,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
         private void OnMarkerCommand(SpaceMarkerViewModel marker, string commandId)
         {
             if (marker != null && commandId == APPROACH_COMMAND_ID)
-                _sessionHost.TrySetMoveTarget(marker.WorldPosition);
+                _sessionHost.TrySetMoveTarget(marker.TargetId);
             else
                 UnityEngine.Debug.Log($"[Space] Marker '{marker?.DefId}' command '{commandId}'.");
 
@@ -123,6 +122,27 @@ namespace Modules.Windows.Scripts.Implementation.Space
             }
 
             return -1;
+        }
+
+        private SpaceMarkerViewModel CreateMarker(SpaceMarkerSnapshot snapshot)
+        {
+            if (snapshot.Player)
+            {
+                var player = _viewModelFactory.Create<SpacePlayerMarkerViewModel>();
+                player.Init(snapshot, _definitions, OnMarkerClick, OnMarkerCommand);
+                return player;
+            }
+
+            if (snapshot.Ship)
+            {
+                var ship = _viewModelFactory.Create<SpaceShipMarkerViewModel>();
+                ship.Init(snapshot, _definitions, OnMarkerClick, OnMarkerCommand);
+                return ship;
+            }
+
+            var sector = _viewModelFactory.Create<SpaceSectorMarkerViewModel>();
+            sector.Init(snapshot, _definitions, OnMarkerClick, OnMarkerCommand);
+            return sector;
         }
 
         private SpaceMarkerViewModel FindMarker(string targetId)

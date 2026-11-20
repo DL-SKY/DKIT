@@ -7,6 +7,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
 {
     /// <summary>
     /// Button that follows one sector target. A missing type sprite keeps the white image on the prefab.
+    /// The radial buttons are exactly the view-model list. This view does not choose which commands appear.
     /// </summary>
     public sealed class SpaceMarkerView : MonoBehaviour
     {
@@ -15,7 +16,6 @@ namespace Modules.Windows.Scripts.Implementation.Space
         private const float MENU_RADIUS = 78f;
         private const float MENU_BUTTON_SIZE = 44f;
         private const float EDGE_MARGIN = 36f;
-        private const bool SHOW_TEST_SPEED = true;
 
         private Button _button;
         private Image _icon;
@@ -97,7 +97,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
 
         private void EnsureSpeedLabel()
         {
-            if (!SHOW_TEST_SPEED || _speedLabel != null)
+            if (_viewModel == null || !_viewModel.ShowSpeed || _speedLabel != null)
                 return;
 
             var labelObject = new GameObject("Speed", typeof(RectTransform));
@@ -115,7 +115,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 1f);
-            rect.sizeDelta = new Vector2(72f, 18f);
+            rect.sizeDelta = new Vector2(140f, 18f);
             rect.anchoredPosition = new Vector2(0f, -26f);
         }
 
@@ -124,7 +124,11 @@ namespace Modules.Windows.Scripts.Implementation.Space
             if (_speedLabel == null || _viewModel == null)
                 return;
 
-            _speedLabel.text = _viewModel.MetersPerSecond.ToString("0.00");
+            var max = _viewModel.MaxMetersPerSecond;
+            var percent = max > 0f
+                ? Mathf.RoundToInt(_viewModel.MetersPerSecond / max * 100f)
+                : 0;
+            _speedLabel.text = _viewModel.MetersPerSecond.ToString("0.00") + " (" + percent + "%)";
         }
 
         private void ApplyIcon()
@@ -142,26 +146,26 @@ namespace Modules.Windows.Scripts.Implementation.Space
             ClearMenu();
             if (_viewModel == null || !_viewModel.MenuOpen)
                 return;
-            var commands = _viewModel.Commands;
-            var count = commands.Count;
+            var buttons = _viewModel.MenuButtons;
+            var count = buttons.Count;
             if (count == 0)
                 return;
 
             var step = 360f / count;
             for (var i = 0; i < count; i++)
             {
-                var commandId = commands[i];
+                var menuButton = buttons[i];
                 var angle = (90f - step * i) * Mathf.Deg2Rad;
-                var button = CreateMenuButton(commandId);
+                var button = CreateMenuButton(menuButton);
                 var rect = (RectTransform)button.transform;
                 rect.anchoredPosition = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * MENU_RADIUS;
                 _menuButtons.Add(button);
             }
         }
 
-        private GameObject CreateMenuButton(string commandId)
+        private GameObject CreateMenuButton(SpaceMarkerMenuButton menuButton)
         {
-            var buttonObject = new GameObject(commandId, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            var buttonObject = new GameObject(menuButton.CommandId, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
             buttonObject.transform.SetParent(transform, false);
             var rect = buttonObject.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(MENU_BUTTON_SIZE, MENU_BUTTON_SIZE);
@@ -170,7 +174,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             image.color = Color.white;
             var button = buttonObject.GetComponent<Button>();
             button.targetGraphic = image;
-            button.onClick.AddListener(() => _viewModel?.ClickCommand(commandId));
+            button.onClick.AddListener(() => _viewModel?.ClickCommand(menuButton.CommandId));
 
             var labelObject = new GameObject("Label", typeof(RectTransform));
             labelObject.transform.SetParent(buttonObject.transform, false);
@@ -180,7 +184,7 @@ namespace Modules.Windows.Scripts.Implementation.Space
             labelRect.offsetMin = Vector2.zero;
             labelRect.offsetMax = Vector2.zero;
             var label = labelObject.AddComponent<TextMeshProUGUI>();
-            label.text = commandId;
+            label.text = menuButton.Label;
             label.fontSize = 12f;
             label.alignment = TextAlignmentOptions.Center;
             label.color = new Color(0.1f, 0.16f, 0.22f, 1f);

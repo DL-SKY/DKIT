@@ -36,7 +36,10 @@ namespace Modules.ECS.Scripts.Space.Systems
                 var current = position.Value;
                 var forward = Quaternion.Euler(0f, yaw.Degrees, 0f) * Vector3.forward;
                 ref var self = ref _movers.GetEntity(index);
-                var desiredSpeed = DesiredSpeed(RemainingDistance(self, current, radius.Meters, target.Position), motion);
+                var desiredSpeed = 0f;
+                if (SpaceMoveTargetRead.TryGetPose(target.Target, out var targetPosition, out var targetRadius)
+                    && !target.Target.Equals(self))
+                    desiredSpeed = DesiredSpeed(RemainingDistance(current, radius.Meters, targetPosition, targetRadius), motion);
                 motion.MetersPerSecond = Approach(motion.MetersPerSecond, desiredSpeed, motion.InertiaSeconds, deltaSeconds);
 
                 var step = motion.MetersPerSecond * deltaSeconds;
@@ -54,28 +57,9 @@ namespace Modules.ECS.Scripts.Space.Systems
             }
         }
 
-        private float RemainingDistance(EcsEntity self, Vector3 position, float selfRadius, Vector3 target)
+        private static float RemainingDistance(Vector3 position, float selfRadius, Vector3 targetPosition, float targetRadius)
         {
-            var centerDistance = Vector3.Distance(position, target);
-            var targetRadius = 0f;
-            if (_bodies != null)
-            {
-                foreach (var index in _bodies)
-                {
-                    if (_bodies.GetEntity(index).Equals(self))
-                        continue;
-
-                    ref var otherPosition = ref _bodies.Get1(index);
-                    if ((otherPosition.Value - target).sqrMagnitude > STEP_EPSILON)
-                        continue;
-
-                    ref var otherRadius = ref _bodies.Get2(index);
-                    if (otherRadius.Meters > targetRadius)
-                        targetRadius = otherRadius.Meters;
-                }
-            }
-
-            var gap = centerDistance - selfRadius - targetRadius;
+            var gap = Vector3.Distance(position, targetPosition) - selfRadius - targetRadius;
             return gap > 0f ? gap : 0f;
         }
 

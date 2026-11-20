@@ -58,7 +58,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 int commandCount = hull.CommandIds != null ? hull.CommandIds.Count : 0;
                 string visual = string.IsNullOrEmpty(hull.VisualResourcesPath) ? "—" : hull.VisualResourcesPath;
                 string icon = string.IsNullOrEmpty(hull.IconResourcesPath) ? "—" : hull.IconResourcesPath;
-                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  slots " + slotCount + ", commands " + commandCount + ", camera " + hull.CameraDistance + ", radius " + hull.Radius + ", maneuver " + hull.ManeuverabilityDegreesPerSecond + ", visual " + visual + ", icon " + icon);
+                EditorGUILayout.LabelField((i + 1) + ". " + hull.Id + "  " + hull.SizeType + ", slots " + slotCount + ", commands " + commandCount + ", camera " + hull.CameraDistance + ", radius " + hull.Radius + ", maneuver " + hull.ManeuverabilityDegreesPerSecond + ", visual " + visual + ", icon " + icon);
             }
 
             EditorGUI.indentLevel--;
@@ -76,10 +76,11 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             {
                 SpaceModuleDef module = definitions.Modules[ids[i]];
                 string weaponGroup = string.IsNullOrEmpty(module.WeaponGroup) ? "—" : module.WeaponGroup;
+                int parameterCount = module.SizeParameters != null ? module.SizeParameters.Count : 0;
                 string engine = module.Kind == SpaceModuleKind.Engine
-                    ? ", speed " + module.MaxSpeedMetersPerSecond + ", inertia " + module.InertiaSeconds + "s"
+                    ? ", size parameters " + parameterCount
                     : "";
-                EditorGUILayout.LabelField((i + 1) + ". " + module.Id + "  " + module.Kind + ", slot " + module.SlotId + ", group " + weaponGroup + engine);
+                EditorGUILayout.LabelField((i + 1) + ". " + module.Id + "  " + module.Kind + " " + module.SizeType + ", slot " + module.SlotId + ", group " + weaponGroup + engine);
             }
 
             EditorGUI.indentLevel--;

@@ -38,9 +38,9 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 - среди целей есть все пять значений `SpaceQueueKind`;
 - среди целей с `Kind = Skill` есть хотя бы три разных `BaseTimeMs`;
 - `CameraSettings` загружен и пригоден: минимум дистанции больше нуля и меньше максимума, старт наклона внутри диапазона, чувствительность, шаг зума и порог перетаскивания больше нуля;
-- у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры, `Radius` не меньше нуля, манёвренность больше нуля, `IconResourcesPath` не пустой;
+- у каждого корпуса `CameraDistance` лежит внутри минимума и максимума камеры, `Radius` не меньше нуля, манёвренность больше нуля, `IconResourcesPath` не пустой, `SizeType` задан;
 - `MarkerIcons` загружен и покрывает каждое значение `SpaceObjectKind` ровно одной непустой картинкой;
-- среди модулей есть пригодный двигатель: максимальная скорость и инерция больше нуля;
+- среди модулей есть пригодный двигатель: в `SizeParameters` хотя бы одна строка, размеры не повторяются, в каждой скорость и инерция больше нуля. Строка на каждый `SpaceSizeType` не обязательна;
 - хотя бы один объект, и у каждого масштаб больше нуля, а радиус не меньше нуля;
 - хотя бы один сектор, и у каждого есть имя сцены, расстановка из известных объектов и хотя бы одна точка спавна.
 
@@ -73,11 +73,15 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceHullDef` | `CameraDistance` | `float` | `CameraDistance` | стартовая дистанция камеры в секторе. На станции не применяется |
 | `SpaceHullDef` | `Radius` | `float` | `Radius` | радиус сферы корпуса в метрах |
 | `SpaceHullDef` | `ManeuverabilityDegreesPerSecond` | `float` | `ManeuverabilityDegreesPerSecond` | насколько быстро нос поворачивается к желаемому рысканию. Форма корпуса, не двигатель |
+| `SpaceHullDef` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер корпуса: `XXS` люди и боеприпасы, `XS` дроны, `S` лёгкий истребитель, затем `M`, `L`, `XL`, `XXL` |
 | `SpaceModuleDef` | `Kind` | `SpaceModuleKind` | `Kind` | `Weapon` или `Engine` |
 | `SpaceModuleDef` | `SlotId` | `string` | `SlotId` | слот корпуса, в который модуль ставится |
 | `SpaceModuleDef` | `WeaponGroup` | `string` | `WeaponGroup` | группа оружия. У двигателя пусто |
-| `SpaceModuleDef` | `MaxSpeedMetersPerSecond` | `float` | `MaxSpeedMetersPerSecond` | потолок скорости двигателя. У оружия не читается |
-| `SpaceModuleDef` | `InertiaSeconds` | `float` | `InertiaSeconds` | постоянная времени разгона и торможения в секундах. Меньше — резче |
+| `SpaceModuleDef` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер самой единицы оборудования |
+| `SpaceModuleDef` | `SizeParameters` | `List<SpaceModuleSizeParameters>` | `SizeParameters` | параметры по типоразмерам, которые модуль вообще допускает. Нет строки типоразмера корпуса — модуль на этот корпус не ставится. Пустой список значит, что допустим только собственный `SizeType` модуля |
+| `SpaceModuleSizeParameters` | `SizeType` | `SpaceSizeType` | `SizeType` | типоразмер, к которому относится строка. При спавне выбирается строка типоразмера корпуса |
+| `SpaceModuleSizeParameters` | `MaxSpeedMetersPerSecond` | `float` | `MaxSpeedMetersPerSecond` | потолок скорости этой строки |
+| `SpaceModuleSizeParameters` | `InertiaSeconds` | `float` | `InertiaSeconds` | постоянная времени разгона и торможения этой строки, в секундах. Больше — медленнее набор и сброс |
 | `SpaceCommandDef` | — | — | — | своих полей нет. Id файла и есть команда. Исполнения в дефе нет |
 | `SpaceTimedTargetDef` | `Kind` | `SpaceQueueKind` | `Kind` | в какую из пяти очередей цель ставится. Поле уйдёт вместе с этой записью |
 | `SpaceTimedTargetDef` | `BaseTimeMs` | `long` | `BaseTimeMs` | базовая длительность в миллисекундах, без модификаторов. Потом это поле будет у дефа самой цели |
@@ -118,10 +122,10 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `Objects/player_spawn.json` | `player_spawn` | `Spawn`, без префаба, масштаб `1`, радиус `0` |
 | `Objects/asteroid_near.json` | `asteroid_near` | `Asteroid`, `Prefabs/Asteroids/AsteroidNear`, масштаб `0.08`, радиус `9.967` |
 | `Objects/asteroid_far.json` | `asteroid_far` | `Asteroid`, `Prefabs/Asteroids/AsteroidFar`, масштаб `0.12`, радиус `15.812` |
-| `Hulls/Fighter.json` | `Fighter` | слоты `weapon_a` и `engine`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с |
+| `Hulls/Fighter.json` | `Fighter` | слоты `weapon_a` и `engine`, команда `approach`, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с, типоразмер `S` |
 | `MarkerIcons/MarkerIcons.json` | `MarkerIcons` | `PointOfInterest` → `Sprites/Space/Markers/Point`, `Station` → `Sprites/Space/Markers/Station`, `Asteroid` → `Sprites/Space/Markers/Asteroid`, `Spawn` → `Sprites/Space/Markers/Spawn` |
-| `Modules/laser_a.json` | `laser_a` | `Weapon`, слот `weapon_a`, группа `A` |
-| `Modules/engine_default.json` | `engine_default` | `Engine`, слот `engine`, скорость `40` м/с, инерция `1.5` с |
+| `Modules/engine_default.json` | `engine_default` | `Engine`, слот `engine`, типоразмер `S`. Строки: `XXS` 70 м/с и 0.6 с, `XS` 55 м/с и 1 с, `S` 40 м/с и 1.5 с, `M` 32 м/с и 2.2 с, `L` 24 м/с и 3.2 с, `XL` 18 м/с и 4.5 с, `XXL` 12 м/с и 6.5 с |
+| `Modules/laser_a.json` | `laser_a` | `Weapon`, слот `weapon_a`, группа `A`, типоразмер `S` |
 | `Commands/approach.json` | `approach` | полей нет, `{}` |
 | `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 4..160, поворот 141.474, наклон 28.779 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |
 | `TimedTargets/skill_survey.json` | `skill_survey` | `Skill`, 45000 мс |

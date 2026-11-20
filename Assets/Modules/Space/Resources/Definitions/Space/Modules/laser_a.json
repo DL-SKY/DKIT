@@ -1,5 +1,6 @@
 {
   "Kind": "Weapon",
   "SlotId": "weapon_a",
-  "WeaponGroup": "A"
+  "WeaponGroup": "A",
+  "SizeType": "S"
 }

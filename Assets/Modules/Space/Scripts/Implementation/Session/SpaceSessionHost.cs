@@ -20,7 +20,7 @@ namespace Modules.Space.Scripts.Implementation.Session
         private readonly List<GameObject> _spawnedObjects = new List<GameObject>();
         private EcsEntity[] _entityBuffer;
 
-        public bool TrySetMoveTarget(Vector3 position)
+        public bool TrySetMoveTarget(string markerKey)
         {
             var world = _session != null ? _session.World : null;
             if (world == null || !world.IsAlive())
@@ -29,6 +29,19 @@ namespace Modules.Space.Scripts.Implementation.Session
                 return false;
             }
 
+            if (string.IsNullOrEmpty(markerKey) || !TryFindMarker(world, markerKey, out var target))
+            {
+                UnityEngine.Debug.LogError($"[Space] Move target was not set. Marker '{markerKey}' was not found.");
+                return false;
+            }
+
+            if (!target.Has<SpacePosition>())
+            {
+                UnityEngine.Debug.LogError($"[Space] Move target was not set. Marker '{markerKey}' has no position.");
+                return false;
+            }
+
+            var targetPosition = target.Get<SpacePosition>().Value;
             var count = world.GetAllEntities(ref _entityBuffer);
             for (var i = 0; i < count; i++)
             {
@@ -36,17 +49,40 @@ namespace Modules.Space.Scripts.Implementation.Session
                 if (!entity.Has<SpacePlayerHull>() || !entity.Has<SpacePosition>())
                     continue;
 
+                if (entity.Equals(target))
+                {
+                    UnityEngine.Debug.LogError("[Space] Move target was not set. The player hull cannot fly to itself.");
+                    return false;
+                }
+
                 ref var bodyPosition = ref entity.Get<SpacePosition>();
-                entity.Get<SpaceMoveTarget>() = new SpaceMoveTarget { Position = position };
-                if (!SpaceBearing.TryDegrees(bodyPosition.Value, position, out var degrees))
+                entity.Get<SpaceMoveTarget>() = new SpaceMoveTarget { Target = target };
+                if (!SpaceBearing.TryDegrees(bodyPosition.Value, targetPosition, out var degrees))
                     degrees = entity.Has<SpaceYaw>() ? entity.Get<SpaceYaw>().Degrees : 0f;
 
                 entity.Get<SpaceDesiredYaw>() = new SpaceDesiredYaw { Degrees = degrees };
-                UnityEngine.Debug.Log($"[Space] Player move target set to {position}.");
+                UnityEngine.Debug.Log($"[Space] Player move target set to '{markerKey}'.");
                 return true;
             }
 
             UnityEngine.Debug.LogError("[Space] Move target was not set. The player hull entity is missing.");
+            return false;
+        }
+
+        private bool TryFindMarker(EcsWorld world, string markerKey, out EcsEntity target)
+        {
+            target = default;
+            var count = world.GetAllEntities(ref _entityBuffer);
+            for (var i = 0; i < count; i++)
+            {
+                var entity = _entityBuffer[i];
+                if (!entity.Has<SpaceMarkerKey>() || entity.Get<SpaceMarkerKey>().Value != markerKey)
+                    continue;
+
+                target = entity;
+                return true;
+            }
+
             return false;
         }
 
@@ -98,16 +134,25 @@ namespace Modules.Space.Scripts.Implementation.Session
                     continue;
 
                 var label = entity.Get<SpaceLabel>().Value;
+                var metersPerSecond = 0f;
+                var maxMetersPerSecond = 0f;
+                if (entity.Has<SpaceMotion>())
+                {
+                    var motion = entity.Get<SpaceMotion>();
+                    metersPerSecond = motion.MetersPerSecond;
+                    maxMetersPerSecond = motion.MaxMetersPerSecond;
+                }
+
                 target.Add(new SpaceMarkerSnapshot
                 {
                     TargetId = entity.Get<SpaceMarkerKey>().Value,
                     DefId = label,
-                    // The only hull entity today is the player ship. Another ship sets Ship and leaves Player false.
-                    Ship = player,
+                    Ship = entity.Has<SpaceHull>(),
                     Player = player,
                     Kind = kind,
                     WorldPosition = entity.Get<SpacePosition>().Value,
-                    MetersPerSecond = entity.Has<SpaceMotion>() ? entity.Get<SpaceMotion>().MetersPerSecond : 0f
+                    MetersPerSecond = metersPerSecond,
+                    MaxMetersPerSecond = maxMetersPerSecond
                 });
             }
         }

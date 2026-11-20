@@ -62,6 +62,12 @@ namespace Modules.Space.Scripts.Implementation.Definitions
             return _objects != null && !string.IsNullOrEmpty(objectId) && _objects.TryGetValue(objectId, out body);
         }
 
+        public bool TryGetCommand(string commandId, out SpaceCommandDef command)
+        {
+            command = null;
+            return _commands != null && !string.IsNullOrEmpty(commandId) && _commands.TryGetValue(commandId, out command);
+        }
+
         public bool TryGetTimedTarget(string targetId, out SpaceTimedTargetDef target)
         {
             target = null;
