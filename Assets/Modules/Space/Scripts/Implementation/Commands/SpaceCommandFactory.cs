@@ -4,7 +4,7 @@ namespace Modules.Space.Scripts.Implementation.Commands
 {
     /// <summary>
     /// Builds the command for a pressed button. <paramref name="sourceId"/> is the hull or module def
-    /// that granted it. Only a command whose constructor needs that id receives it.
+    /// that granted it. Every command receives that id through <see cref="SpaceCommand"/>.
     /// </summary>
     public static class SpaceCommandFactory
     {
@@ -18,11 +18,11 @@ namespace Modules.Space.Scripts.Implementation.Commands
             switch (commandType)
             {
                 case SpaceCommandType.Approach:
-                    return new SpaceApproachCommand(command);
+                    return new SpaceApproachCommand(command, sourceId);
                 case SpaceCommandType.Stop:
-                    return new SpaceStopCommand();
+                    return new SpaceStopCommand(sourceId);
                 default:
-                    return new SpaceNoneCommand();
+                    return new SpaceNoneCommand(sourceId);
             }
         }
     }

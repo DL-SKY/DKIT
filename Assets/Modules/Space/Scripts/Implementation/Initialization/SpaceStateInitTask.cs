@@ -35,10 +35,11 @@ namespace Modules.Space.Scripts.Implementation.Initialization
             try
             {
                 _stateManager.Init(_definitionsManager);
+                _stateManager.LoadProfileState(SpaceStateManager.PROFILE_FILE_NAME);
             }
             catch (Exception exception)
             {
-                UnityEngine.Debug.LogError($"[Space] Profile folder was not created: {exception.Message}");
+                UnityEngine.Debug.LogError($"[Space] Profile was not loaded: {exception.Message}");
                 Fail(SpaceInitErrorCodes.SAVE_FOLDER);
                 return;
             }

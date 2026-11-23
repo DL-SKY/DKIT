@@ -7,7 +7,7 @@ namespace Modules.Space.Scripts.Implementation.Commands
     /// </summary>
     public sealed class SpaceNoneCommand : SpaceCommand
     {
-        public SpaceNoneCommand()
+        public SpaceNoneCommand(string sourceId) : base(sourceId)
         {
         }
 

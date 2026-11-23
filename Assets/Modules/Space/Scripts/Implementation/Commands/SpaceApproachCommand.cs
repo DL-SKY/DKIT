@@ -10,7 +10,7 @@ namespace Modules.Space.Scripts.Implementation.Commands
     {
         private readonly SpaceCommandDef _command;
 
-        public SpaceApproachCommand(SpaceCommandDef command)
+        public SpaceApproachCommand(SpaceCommandDef command, string sourceId) : base(sourceId)
         {
             _command = command;
         }

@@ -3,11 +3,11 @@ using Modules.Space.Scripts.Implementation.Session;
 namespace Modules.Space.Scripts.Implementation.Commands
 {
     /// <summary>
-    /// Drops the move target so the player hull brakes on its current heading.
+    /// Removes the player hull from the movement filter. Other orders stay.
     /// </summary>
     public sealed class SpaceStopCommand : SpaceCommand
     {
-        public SpaceStopCommand()
+        public SpaceStopCommand(string sourceId) : base(sourceId)
         {
         }
 

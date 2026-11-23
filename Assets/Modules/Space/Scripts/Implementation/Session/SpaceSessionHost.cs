@@ -85,11 +85,19 @@ namespace Modules.Space.Scripts.Implementation.Session
                 if (!entity.Has<SpacePlayerHull>())
                     continue;
 
-                entity.Get<SpaceMoveTarget>() = new SpaceMoveTarget();
+                if (entity.Has<SpaceMoveTarget>())
+                    entity.Del<SpaceMoveTarget>();
+
+                if (entity.Has<SpaceMotion>())
+                {
+                    ref var motion = ref entity.Get<SpaceMotion>();
+                    motion.MetersPerSecond = 0f;
+                }
+
                 if (entity.Has<SpaceYaw>())
                     entity.Get<SpaceDesiredYaw>() = new SpaceDesiredYaw { Degrees = entity.Get<SpaceYaw>().Degrees };
 
-                UnityEngine.Debug.Log("[Space] Player move order cleared. Speed will fall off.");
+                UnityEngine.Debug.Log("[Space] Player move order removed.");
                 return true;
             }
 

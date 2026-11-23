@@ -14,5 +14,6 @@ namespace Modules.State.Scripts.Actions.Models
         CharactersAndInventory = 6,
         AdventuresNavigation = 7,
         AdventuresParams = 8,
+        Space = 9,
     }
 }

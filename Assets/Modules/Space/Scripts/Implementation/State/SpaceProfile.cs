@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Modules.Space.Scripts.Implementation.Definitions;
 using Modules.Space.Scripts.Implementation.Queues;
+using Modules.State.Scripts.Interfaces;
 
 namespace Modules.Space.Scripts.Implementation.State
 {
-    public sealed class SpaceProfile
+    public sealed class SpaceProfile : IStateData
     {
         public const string STARTER_HULL_ID = "Fighter";
         public const string STARTER_ENGINE_ID = "engine_default";
