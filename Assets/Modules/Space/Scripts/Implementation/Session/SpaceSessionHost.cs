@@ -85,19 +85,16 @@ namespace Modules.Space.Scripts.Implementation.Session
                 if (!entity.Has<SpacePlayerHull>())
                     continue;
 
-                if (entity.Has<SpaceMoveTarget>())
-                    entity.Del<SpaceMoveTarget>();
-
-                if (entity.Has<SpaceMotion>())
-                {
-                    ref var motion = ref entity.Get<SpaceMotion>();
-                    motion.MetersPerSecond = 0f;
-                }
-
                 if (entity.Has<SpaceYaw>())
                     entity.Get<SpaceDesiredYaw>() = new SpaceDesiredYaw { Degrees = entity.Get<SpaceYaw>().Degrees };
 
-                UnityEngine.Debug.Log("[Space] Player move order removed.");
+                var speed = entity.Has<SpaceMotion>() ? entity.Get<SpaceMotion>().MetersPerSecond : 0f;
+                if (speed > 0.0001f)
+                    entity.Get<SpaceMoveTarget>() = new SpaceMoveTarget();
+                else if (entity.Has<SpaceMoveTarget>())
+                    entity.Del<SpaceMoveTarget>();
+
+                UnityEngine.Debug.Log("[Space] Player route cleared. Speed will fall off by inertia.");
                 return true;
             }
 

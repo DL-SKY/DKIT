@@ -8,7 +8,7 @@ namespace Modules.Space.Scripts.Implementation.Session
 {
     /// <summary>
     /// Owns the flight ECS world for one sector visit.
-    /// Systems run in order: clock, face target, rotation, movement, pose sync.
+    /// Systems run in order: clock, face target, rotation, step, separation, speed, pose sync.
     /// </summary>
     public sealed class SpaceSessionController : IDisposable
     {
@@ -55,7 +55,9 @@ namespace Modules.Space.Scripts.Implementation.Session
                     .Add(clockSystem)
                     .Add(_ecsSystemFactory.Create<SpaceFaceMoveTargetSystem>())
                     .Add(_ecsSystemFactory.Create<SpaceRotationSystem>())
-                    .Add(_ecsSystemFactory.Create<SpaceMovementSystem>())
+                    .Add(_ecsSystemFactory.Create<SpaceStepSystem>())
+                    .Add(_ecsSystemFactory.Create<SpaceSeparationSystem>())
+                    .Add(_ecsSystemFactory.Create<SpaceSpeedSystem>())
                     .Add(_ecsSystemFactory.Create<SpacePoseSyncSystem>())
                     .Init();
 

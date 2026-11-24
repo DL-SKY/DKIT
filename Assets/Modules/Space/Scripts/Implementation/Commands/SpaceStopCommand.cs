@@ -3,7 +3,7 @@ using Modules.Space.Scripts.Implementation.Session;
 namespace Modules.Space.Scripts.Implementation.Commands
 {
     /// <summary>
-    /// Removes the player hull from the movement filter. Other orders stay.
+    /// Clears the route point. Speed then falls to zero by the engine inertia. Other orders stay.
     /// </summary>
     public sealed class SpaceStopCommand : SpaceCommand
     {

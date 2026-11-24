@@ -104,10 +104,26 @@ namespace Modules.ECS.Scripts.Space.Components
     }
 
     /// <summary>
-    /// Entity the body is moving toward. Face and movement read its live position and radius.
+    /// Entity the body is moving toward. Face and speed read its live position and radius.
     /// </summary>
     public struct SpaceMoveTarget
     {
         public EcsEntity Target;
+    }
+
+    /// <summary>
+    /// Segment just taken by the step system. Separation consumes it and clips the segment on spheres.
+    /// </summary>
+    public struct SpaceMotionStep
+    {
+        public Vector3 From;
+        public float RequestedMeters;
+    }
+
+    /// <summary>
+    /// Set for one frame when a step was stopped by another sphere. Speed reads it and brakes.
+    /// </summary>
+    public struct SpaceContact
+    {
     }
 }
