@@ -63,6 +63,16 @@ namespace Modules.Space.Scripts.Implementation.State
             return Apply(new EnqueueSpaceStateAction(_definitions, queueId, targetId, modifiers, nowUnixMs), true);
         }
 
+        public bool TryInstallModule(string shipId, int slotIndex, string moduleId)
+        {
+            return Apply(new InstallSpaceModuleStateAction(_definitions, shipId, slotIndex, moduleId), true);
+        }
+
+        public bool TryRemoveModule(string shipId, int slotIndex)
+        {
+            return Apply(new RemoveSpaceModuleStateAction(shipId, slotIndex), true);
+        }
+
         public void SaveProfileState(string profileId, bool useLightEncryption = false, string encryptionKey = null)
         {
             if (string.IsNullOrEmpty(ProfileDirectory))

@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Modules.Cheats.Scripts.Editor.Core;
+using Modules.Space.Scripts.Implementation.Definitions;
 using Modules.Space.Scripts.Implementation.Queues;
 using Modules.Space.Scripts.Implementation.State;
+using Modules.Space.Scripts.Implementation.State.Actions;
+using Modules.State.Scripts.Actions.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEditor;
@@ -43,7 +46,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
 
             EditorGUILayout.Space(8f);
 
-            SpaceProfile profile = TryGetLiveProfile(out bool isLive);
+            SpaceProfile profile = TryGetLive(out SpaceStateManager state, out SpaceDefinitionsManager definitions);
             if (profile == null)
                 profile = TryReadProfile(filePath);
 
@@ -53,23 +56,29 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
                 return;
             }
 
-            DrawSectionHeader(isLive ? "Space profile (play):" : "Space profile (file):");
-            DrawShip(profile);
+            DrawSectionHeader(state != null ? "Space profile (play):" : "Space profile (file):");
+            DrawShip(profile, state, definitions);
             EditorGUILayout.Space(6f);
             DrawQueues(profile);
         }
 
-        private static SpaceProfile TryGetLiveProfile(out bool isLive)
+        private static SpaceProfile TryGetLive(out SpaceStateManager state, out SpaceDefinitionsManager definitions)
         {
-            isLive = false;
+            state = null;
+            definitions = null;
             if (!Application.isPlaying || !ProjectContext.HasInstance)
                 return null;
 
-            SpaceStateManager state = ProjectContext.Instance.Container.TryResolve<SpaceStateManager>();
-            if (state == null || !state.IsReady)
+            DiContainer container = ProjectContext.Instance.Container;
+            state = container.TryResolve<SpaceStateManager>();
+            definitions = container.TryResolve<SpaceDefinitionsManager>();
+            if (state == null || !state.IsReady || definitions == null || !definitions.IsReady)
+            {
+                state = null;
+                definitions = null;
                 return null;
+            }
 
-            isLive = true;
             return state.Profile;
         }
 
@@ -90,7 +99,7 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             }
         }
 
-        private static void DrawShip(SpaceProfile profile)
+        private static void DrawShip(SpaceProfile profile, SpaceStateManager state, SpaceDefinitionsManager definitions)
         {
             string activeShip = string.IsNullOrEmpty(profile.ActiveShipId) ? "—" : profile.ActiveShipId;
             EditorGUILayout.LabelField("Active ship: " + activeShip);
@@ -110,23 +119,73 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
 
                     string name = string.IsNullOrEmpty(ship.Name) ? "—" : ship.Name;
                     EditorGUILayout.LabelField((i + 1) + ". " + ship.Id + "  " + name + "  " + ship.HullId);
-                    List<SpacePlayerShipSlot> slots = ship.Slots;
-                    if (slots == null)
-                        continue;
-
-                    for (int slotIndex = 0; slotIndex < slots.Count; slotIndex++)
-                    {
-                        SpacePlayerShipSlot slot = slots[slotIndex];
-                        if (slot == null)
-                            continue;
-
-                        string moduleId = string.IsNullOrEmpty(slot.ModuleId) ? "—" : slot.ModuleId;
-                        EditorGUILayout.LabelField("    " + slot.SlotType + " " + slot.SizeType + "  " + moduleId);
-                    }
+                    DrawSlots(profile, ship, state, definitions);
                 }
             }
 
             EditorGUI.indentLevel--;
+        }
+
+        private static void DrawSlots(SpaceProfile profile, SpacePlayerShipState ship, SpaceStateManager state, SpaceDefinitionsManager definitions)
+        {
+            List<SpacePlayerShipSlot> slots = ship.Slots;
+            if (slots == null)
+                return;
+
+            for (int slotIndex = 0; slotIndex < slots.Count; slotIndex++)
+            {
+                SpacePlayerShipSlot slot = slots[slotIndex];
+                if (slot == null)
+                    continue;
+
+                string moduleId = string.IsNullOrEmpty(slot.ModuleId) ? "—" : slot.ModuleId;
+                EditorGUILayout.LabelField("    " + slot.SlotType + " " + slot.SizeType + "  " + moduleId);
+                if (state == null || definitions == null)
+                    continue;
+
+                if (!string.IsNullOrEmpty(slot.ModuleId))
+                {
+                    if (GUILayout.Button("Remove", GUILayout.Height(20f)))
+                        state.TryRemoveModule(ship.Id, slotIndex);
+                    continue;
+                }
+
+                List<string> fits = ModulesThatFit(profile, definitions, ship.Id, slotIndex);
+                if (fits.Count == 0)
+                {
+                    EditorGUILayout.LabelField("    no module fits", EditorStyles.miniLabel);
+                    continue;
+                }
+
+                for (int moduleIndex = 0; moduleIndex < fits.Count; moduleIndex++)
+                {
+                    string candidate = fits[moduleIndex];
+                    if (GUILayout.Button("Install " + candidate, GUILayout.Height(20f)))
+                        state.TryInstallModule(ship.Id, slotIndex, candidate);
+                }
+            }
+        }
+
+        private static List<string> ModulesThatFit(SpaceProfile profile, SpaceDefinitionsManager definitions, string shipId, int slotIndex)
+        {
+            var fits = new List<string>();
+            IReadOnlyDictionary<string, SpaceModuleDef> modules = definitions.Modules;
+            if (modules == null)
+                return fits;
+
+            foreach (KeyValuePair<string, SpaceModuleDef> pair in modules)
+            {
+                if (string.IsNullOrEmpty(pair.Key))
+                    continue;
+
+                var action = new InstallSpaceModuleStateAction(definitions, shipId, slotIndex, pair.Key);
+                StateActionValidationResult result = action.Validate(profile);
+                if (result != null && result.IsValid)
+                    fits.Add(pair.Key);
+            }
+
+            fits.Sort(StringComparer.Ordinal);
+            return fits;
         }
 
         private static void DrawQueues(SpaceProfile profile)
