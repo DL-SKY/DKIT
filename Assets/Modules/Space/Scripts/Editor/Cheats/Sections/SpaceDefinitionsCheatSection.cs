@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Modules.Cheats.Scripts.Editor.Core;
+using Modules.Space.Scripts.Editor.Cheats;
 using Modules.Space.Scripts.Implementation.Definitions;
 using UnityEditor;
 using UnityEngine;
@@ -10,12 +11,18 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
 {
     public sealed class SpaceDefinitionsCheatSection : CheatSectionBase
     {
+        private List<string> _definitionIssues;
+        private bool _definitionTestRan;
+
         public override string Id => "Definitions";
 
         public override int Order => -998;
 
         public override void DrawContent()
         {
+            DrawDefinitionTest();
+            EditorGUILayout.Space(6f);
+
             SpaceDefinitionsManager definitions = TryGetDefinitions();
             if (definitions == null || !definitions.IsReady)
             {
@@ -33,6 +40,28 @@ namespace Modules.Space.Scripts.Editor.Cheats.Sections
             DrawSectors(definitions);
             DrawCameraSettings(definitions);
             DrawMarkerIcons(definitions);
+        }
+
+        private void DrawDefinitionTest()
+        {
+            if (GUILayout.Button("Test definitions", GUILayout.Height(24f)))
+            {
+                _definitionIssues = SpaceDefinitionsValidation.Test();
+                _definitionTestRan = true;
+            }
+
+            if (!_definitionTestRan)
+                return;
+
+            if (_definitionIssues == null || _definitionIssues.Count == 0)
+            {
+                EditorGUILayout.HelpBox("Definitions are valid.", MessageType.Info);
+                return;
+            }
+
+            EditorGUILayout.HelpBox(_definitionIssues.Count + " problem(s).", MessageType.Warning);
+            for (int i = 0; i < _definitionIssues.Count; i++)
+                EditorGUILayout.LabelField(_definitionIssues[i], EditorStyles.wordWrappedMiniLabel);
         }
 
         private static SpaceDefinitionsManager TryGetDefinitions()

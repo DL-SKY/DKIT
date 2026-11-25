@@ -1,0 +1,17 @@
+---
+description: Ask which Space def fields are required and which validator checks to add
+alwaysApply: true
+---
+
+# Space definition validation
+
+When adding a new Space definition type, or a new JSON record of an existing Space def, stop and ask before writing the files:
+
+- which fields are required;
+- which checks must be added to `Assets/Modules/Space/Scripts/Editor/Cheats/SpaceDefinitionsValidation.cs`.
+
+When adding or changing a field on a Space def that already exists, ask whether the validator needs a new check. Do not invent the check and do not skip the question.
+
+The button **Test definitions** in `Tools/Space` is a report. It does not decide `SpaceDefinitionsManager.IsReady`. A new required field is not automatically a startup failure unless that is stated separately.
+
+Document a new check in `.cursor/docs/modules/SpaceDefs.md`, section «Проверка дефов кнопкой».
