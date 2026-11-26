@@ -156,9 +156,9 @@ namespace Modules.Space.Scripts.Implementation.Session
                 return false;
             }
 
-            if (!target.Has<SpaceHull>() || target.Has<SpacePlayerHull>())
+            if (target.Has<SpacePlayerHull>())
             {
-                UnityEngine.Debug.LogError($"[Space] Orbit was not set. Marker '{markerKey}' is not another hull.");
+                UnityEngine.Debug.LogError("[Space] Orbit was not set. The player hull cannot orbit itself.");
                 return false;
             }
 

@@ -4,6 +4,6 @@
   "IconResourcesPath": "Sprites/Space/Commands/HoldOrbit",
   "PriorityOrder": 15,
   "CommandType": "HoldOrbit",
-  "ObjectTypes": ["Ship"],
+  "ObjectTypes": ["Ship", "Asteroid", "PointOfInterest"],
   "Relations": ["Ally", "Enemy", "Neutral"]
 }

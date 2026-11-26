@@ -6,7 +6,7 @@ namespace Modules.ECS.Scripts.Space.Systems
 {
     /// <summary>
     /// Spools speed toward the route, or toward zero when the route is gone, the hull is holding position, or the last step hit a sphere.
-    /// An orbit that has reached its ring keeps maximum speed. <see cref="SpaceHoldPosition"/> is not removed.
+    /// An active orbit keeps maximum speed until the order is replaced. <see cref="SpaceHoldPosition"/> is not removed.
     /// Writes <see cref="SpaceMotion.MetersPerSecond"/> only. Does not move the body.
     /// InertiaSeconds is the EVE time constant: speed closes 63% of the gap to the desired speed in that many seconds.
     /// </summary>
@@ -33,9 +33,9 @@ namespace Modules.ECS.Scripts.Space.Systems
 
                 var blocked = entity.Has<SpaceContact>();
                 var holding = entity.Has<SpaceHoldPosition>();
-                var hasRoute = !holding && TryRoute(entity, out var targetPosition, out var targetRadius, out var standoff, out var orbit);
+                var hasRoute = TryRoute(entity, out var targetPosition, out var targetRadius, out var standoff, out var orbit) && !holding;
                 var desiredSpeed = 0f;
-                if (hasRoute && !blocked)
+                if (hasRoute && (orbit || !blocked))
                 {
                     var remaining = RemainingDistance(position.Value, radius.Meters, targetPosition, targetRadius, standoff, orbit);
                     desiredSpeed = DesiredSpeed(remaining, motion, orbit);
@@ -85,7 +85,7 @@ namespace Modules.ECS.Scripts.Space.Systems
 
         private static float DesiredSpeed(float remainingDistance, SpaceMotion motion, bool orbit)
         {
-            if (orbit && remainingDistance <= STEP_EPSILON)
+            if (orbit)
                 return motion.MaxMetersPerSecond;
 
             if (remainingDistance <= STEP_EPSILON)
