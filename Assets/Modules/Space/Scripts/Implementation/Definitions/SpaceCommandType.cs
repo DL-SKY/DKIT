@@ -8,6 +8,8 @@ namespace Modules.Space.Scripts.Implementation.Definitions
     {
         None,
         Approach,
-        Stop
+        Stop,
+        HoldPosition,
+        HoldOrbit
     }
 }

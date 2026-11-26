@@ -113,7 +113,7 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `SpaceCommandDef` | `Description` | `string` | `Description` | ключ локализации описания. Круг его не читает |
 | `SpaceCommandDef` | `IconResourcesPath` | `string` | `IconResourcesPath` | картинка кнопки круга. Путь в `Resources` на спрайт |
 | `SpaceCommandDef` | `PriorityOrder` | `int` | `PriorityOrder` | порядок на круге. Меньше — раньше. При равенстве порядок по id |
-| `SpaceCommandDef` | `CommandType` | `SpaceCommandType` | `CommandType` | что делает нажатие: `None`, `Approach`, `Stop`. Окно по строке id не ветвится |
+| `SpaceCommandDef` | `CommandType` | `SpaceCommandType` | `CommandType` | что делает нажатие: `None`, `Approach`, `Stop`, `HoldPosition`, `HoldOrbit`. Окно по строке id не ветвится |
 | `SpaceCommandDef` | `ObjectTypes` | `List<SpaceObjectType>` | `ObjectTypes` | на метках каких типов кнопка видна. Пустой список — нигде |
 | `SpaceCommandDef` | `Relations` | `List<SpaceRelation>` | `Relations` | при каком отношении к игроку кнопка видна. Пустой список — нигде |
 | `SpaceTimedTargetDef` | `Kind` | `SpaceQueueKind` | `Kind` | в какую из пяти очередей цель ставится. Поле уйдёт вместе с этой записью |
@@ -158,9 +158,11 @@ JSON: `Assets/Modules/Space/Resources/Definitions/Space`.
 | `Objects/asteroid_far.json` | `asteroid_far` | `Asteroid`, `Prefabs/Asteroids/AsteroidFar`, масштаб `0.12`, радиус `15.812` |
 | `Hulls/Fighter.json` | `Fighter` | гнёзда `Weapon S` и `Engine S`, тестовые команды `test_1`…`test_5`, вид `Prefabs/Spaceships/Fighter`, иконка метки `Sprites/Space/Markers/Fighter`, дистанция камеры `32.5`, радиус `7.249`, манёвренность `90` °/с, типоразмер корпуса `S` |
 | `MarkerSettings/MarkerSettings.json` | `MarkerSettings` | `MenuRadius` `78`. `PointOfInterest` → `Sprites/Space/Markers/Point`, `Station` → `Sprites/Space/Markers/Station`, `Asteroid` → `Sprites/Space/Markers/Asteroid`, `Spawn` → `Sprites/Space/Markers/Spawn` |
-| `Modules/engine_default.json` | `engine_default` | `Engine`, команды `stop` и `approach`, типоразмер модуля `S`. Строки гнёзд: `XXS` 70 м/с и 0.6 с, `XS` 55 м/с и 1 с, `S` 40 м/с и 1.5 с, `M` 32 м/с и 2.2 с, `L` 24 м/с и 3.2 с, `XL` 18 м/с и 4.5 с, `XXL` 12 м/с и 6.5 с |
+| `Modules/engine_default.json` | `engine_default` | `Engine`, команды `stop`, `hold_position`, `approach`, `hold_orbit`, типоразмер модуля `S`. Строки гнёзд: `XXS` 70 м/с и 0.6 с, `XS` 55 м/с и 1 с, `S` 40 м/с и 1.5 с, `M` 32 м/с и 2.2 с, `L` 24 м/с и 3.2 с, `XL` 18 м/с и 4.5 с, `XXL` 12 м/с и 6.5 с |
 | `Modules/laser_a.json` | `laser_a` | `Weapon`, группа `A`, типоразмер `S`, списка `SizeParameters` нет |
 | `Commands/approach.json` | `approach` | `CommandType` `Approach`. Типы `Ship`, `Asteroid`, `Station`, `PointOfInterest`; отношения `Ally`, `Enemy`, `Neutral`. На своём корабле нет. Порядок `10` |
+| `Commands/hold_orbit.json` | `hold_orbit` | `CommandType` `HoldOrbit`. Тип `Ship`; отношения `Ally`, `Enemy`, `Neutral`. Только чужой корпус. Порядок `15`. Зазор круга — радиус своего корпуса, пока у орудий нет дистанции |
+| `Commands/hold_position.json` | `hold_position` | `CommandType` `HoldPosition`. Тип `Ship`, отношение `Player`. Только свой корабль. Порядок `5`. Снимает маршрут и не ведёт в точку |
 | `Commands/stop.json` | `stop` | `CommandType` `Stop`. Тип `Ship`, отношение `Player`. Только свой корабль. Порядок `0` |
 | `Commands/test_1.json` … `test_5.json` | `test_1`…`test_5` | `CommandType` `None`. Тестовые кнопки корпуса. Тип `Ship`, отношение `Player`. Порядок `20`, `30`, `40`, `50`, `60` |
 | `CameraSettings/CameraSettings.json` | `CameraSettings` | дистанция 4..160, поворот 141.474, наклон 28.779 (−75..75), 0.2°/пиксель, шаг зума 2, порог 6 |

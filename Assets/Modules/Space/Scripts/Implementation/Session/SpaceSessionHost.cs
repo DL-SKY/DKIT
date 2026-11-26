@@ -56,6 +56,7 @@ namespace Modules.Space.Scripts.Implementation.Session
                 }
 
                 ref var bodyPosition = ref entity.Get<SpacePosition>();
+                ClearHold(entity);
                 entity.Get<SpaceMoveTarget>() = new SpaceMoveTarget { Target = target };
                 if (!SpaceBearing.TryDegrees(bodyPosition.Value, targetPosition, out var degrees))
                     degrees = entity.Has<SpaceYaw>() ? entity.Get<SpaceYaw>().Degrees : 0f;
@@ -88,6 +89,7 @@ namespace Modules.Space.Scripts.Implementation.Session
                 if (entity.Has<SpaceYaw>())
                     entity.Get<SpaceDesiredYaw>() = new SpaceDesiredYaw { Degrees = entity.Get<SpaceYaw>().Degrees };
 
+                ClearHold(entity);
                 var speed = entity.Has<SpaceMotion>() ? entity.Get<SpaceMotion>().MetersPerSecond : 0f;
                 if (speed > 0.0001f)
                     entity.Get<SpaceMoveTarget>() = new SpaceMoveTarget();
@@ -100,6 +102,113 @@ namespace Modules.Space.Scripts.Implementation.Session
 
             UnityEngine.Debug.LogError("[Space] Player was not stopped. The player hull entity is missing.");
             return false;
+        }
+
+        public bool TryHoldPosition()
+        {
+            var world = _session != null ? _session.World : null;
+            if (world == null || !world.IsAlive())
+            {
+                UnityEngine.Debug.LogError("[Space] Position was not held. The sector world is not running.");
+                return false;
+            }
+
+            var count = world.GetAllEntities(ref _entityBuffer);
+            for (var i = 0; i < count; i++)
+            {
+                var entity = _entityBuffer[i];
+                if (!entity.Has<SpacePlayerHull>())
+                    continue;
+
+                if (entity.Has<SpaceYaw>())
+                    entity.Get<SpaceDesiredYaw>() = new SpaceDesiredYaw { Degrees = entity.Get<SpaceYaw>().Degrees };
+
+                if (entity.Has<SpaceMoveTarget>())
+                    entity.Del<SpaceMoveTarget>();
+
+                entity.Get<SpaceHoldPosition>() = new SpaceHoldPosition();
+                UnityEngine.Debug.Log("[Space] Player is holding position. Speed will fall off by inertia.");
+                return true;
+            }
+
+            UnityEngine.Debug.LogError("[Space] Position was not held. The player hull entity is missing.");
+            return false;
+        }
+
+        public bool TrySetOrbit(string markerKey)
+        {
+            var world = _session != null ? _session.World : null;
+            if (world == null || !world.IsAlive())
+            {
+                UnityEngine.Debug.LogError("[Space] Orbit was not set. The sector world is not running.");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(markerKey) || !TryFindMarker(world, markerKey, out var target))
+            {
+                UnityEngine.Debug.LogError($"[Space] Orbit was not set. Marker '{markerKey}' was not found.");
+                return false;
+            }
+
+            if (!target.Has<SpacePosition>())
+            {
+                UnityEngine.Debug.LogError($"[Space] Orbit was not set. Marker '{markerKey}' has no position.");
+                return false;
+            }
+
+            if (!target.Has<SpaceHull>() || target.Has<SpacePlayerHull>())
+            {
+                UnityEngine.Debug.LogError($"[Space] Orbit was not set. Marker '{markerKey}' is not another hull.");
+                return false;
+            }
+
+            var targetPosition = target.Get<SpacePosition>().Value;
+            var targetRadius = target.Has<SpaceRadius>() ? target.Get<SpaceRadius>().Meters : 0f;
+            var count = world.GetAllEntities(ref _entityBuffer);
+            for (var i = 0; i < count; i++)
+            {
+                var entity = _entityBuffer[i];
+                if (!entity.Has<SpacePlayerHull>() || !entity.Has<SpacePosition>())
+                    continue;
+
+                if (entity.Equals(target))
+                {
+                    UnityEngine.Debug.LogError("[Space] Orbit was not set. The player hull cannot orbit itself.");
+                    return false;
+                }
+
+                ref var bodyPosition = ref entity.Get<SpacePosition>();
+                var yaw = entity.Has<SpaceYaw>() ? entity.Get<SpaceYaw>().Degrees : 0f;
+                var selfRadius = entity.Has<SpaceRadius>() ? entity.Get<SpaceRadius>().Meters : 0f;
+                var standoff = selfRadius > 0f ? selfRadius : 0f;
+                var clockwise = SpaceOrbitHeading.PickClockwise(bodyPosition.Value, targetPosition, yaw);
+                ClearHold(entity);
+                entity.Get<SpaceMoveTarget>() = new SpaceMoveTarget
+                {
+                    Target = target,
+                    StandoffMeters = standoff,
+                    Orbit = true,
+                    OrbitClockwise = clockwise
+                };
+
+                var orbitRadius = SpaceOrbitHeading.Radius(selfRadius, targetRadius, standoff);
+                if (!SpaceOrbitHeading.TryDegrees(bodyPosition.Value, targetPosition, clockwise, orbitRadius, out var degrees)
+                    && !SpaceBearing.TryDegrees(bodyPosition.Value, targetPosition, out degrees))
+                    degrees = yaw;
+
+                entity.Get<SpaceDesiredYaw>() = new SpaceDesiredYaw { Degrees = degrees };
+                UnityEngine.Debug.Log($"[Space] Player orbit set to '{markerKey}'. Standoff {standoff} m.");
+                return true;
+            }
+
+            UnityEngine.Debug.LogError("[Space] Orbit was not set. The player hull entity is missing.");
+            return false;
+        }
+
+        private static void ClearHold(EcsEntity entity)
+        {
+            if (entity.Has<SpaceHoldPosition>())
+                entity.Del<SpaceHoldPosition>();
         }
 
         private bool TryFindMarker(EcsWorld world, string markerKey, out EcsEntity target)

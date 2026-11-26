@@ -5,7 +5,8 @@ using UnityEngine;
 namespace Modules.ECS.Scripts.Space.Systems
 {
     /// <summary>
-    /// Spools speed toward the route, or toward zero when the route is gone or the last step hit a sphere.
+    /// Spools speed toward the route, or toward zero when the route is gone, the hull is holding position, or the last step hit a sphere.
+    /// An orbit that has reached its ring keeps maximum speed. <see cref="SpaceHoldPosition"/> is not removed.
     /// Writes <see cref="SpaceMotion.MetersPerSecond"/> only. Does not move the body.
     /// InertiaSeconds is the EVE time constant: speed closes 63% of the gap to the desired speed in that many seconds.
     /// </summary>
@@ -31,10 +32,14 @@ namespace Modules.ECS.Scripts.Space.Systems
                     continue;
 
                 var blocked = entity.Has<SpaceContact>();
-                var hasRoute = TryRoute(entity, out var targetPosition, out var targetRadius);
+                var holding = entity.Has<SpaceHoldPosition>();
+                var hasRoute = !holding && TryRoute(entity, out var targetPosition, out var targetRadius, out var standoff, out var orbit);
                 var desiredSpeed = 0f;
                 if (hasRoute && !blocked)
-                    desiredSpeed = DesiredSpeed(RemainingDistance(position.Value, radius.Meters, targetPosition, targetRadius), motion);
+                {
+                    var remaining = RemainingDistance(position.Value, radius.Meters, targetPosition, targetRadius, standoff, orbit);
+                    desiredSpeed = DesiredSpeed(remaining, motion, orbit);
+                }
 
                 motion.MetersPerSecond = Approach(motion.MetersPerSecond, desiredSpeed, motion.InertiaSeconds, deltaSeconds);
                 if (!hasRoute && motion.MetersPerSecond * deltaSeconds <= STEP_EPSILON)
@@ -46,26 +51,43 @@ namespace Modules.ECS.Scripts.Space.Systems
             }
         }
 
-        private static bool TryRoute(EcsEntity entity, out Vector3 targetPosition, out float targetRadius)
+        private static bool TryRoute(EcsEntity entity, out Vector3 targetPosition, out float targetRadius, out float standoff, out bool orbit)
         {
             targetPosition = default;
             targetRadius = 0f;
+            standoff = 0f;
+            orbit = false;
             if (!entity.Has<SpaceMoveTarget>())
                 return false;
 
             ref var target = ref entity.Get<SpaceMoveTarget>();
-            return SpaceMoveTargetRead.TryGetPose(target.Target, out targetPosition, out targetRadius)
-                && !target.Target.Equals(entity);
+            if (!SpaceMoveTargetRead.TryGetPose(target.Target, out targetPosition, out targetRadius) || target.Target.Equals(entity))
+                return false;
+
+            standoff = target.StandoffMeters > 0f ? target.StandoffMeters : 0f;
+            orbit = target.Orbit;
+            return true;
         }
 
-        private static float RemainingDistance(Vector3 position, float selfRadius, Vector3 targetPosition, float targetRadius)
+        private static float RemainingDistance(Vector3 position, float selfRadius, Vector3 targetPosition, float targetRadius, float standoff, bool flat)
         {
-            var gap = Vector3.Distance(position, targetPosition) - selfRadius - targetRadius;
+            var center = flat ? FlatDistance(position, targetPosition) : Vector3.Distance(position, targetPosition);
+            var gap = center - selfRadius - targetRadius - standoff;
             return gap > 0f ? gap : 0f;
         }
 
-        private static float DesiredSpeed(float remainingDistance, SpaceMotion motion)
+        private static float FlatDistance(Vector3 position, Vector3 targetPosition)
         {
+            var offset = position - targetPosition;
+            offset.y = 0f;
+            return offset.magnitude;
+        }
+
+        private static float DesiredSpeed(float remainingDistance, SpaceMotion motion, bool orbit)
+        {
+            if (orbit && remainingDistance <= STEP_EPSILON)
+                return motion.MaxMetersPerSecond;
+
             if (remainingDistance <= STEP_EPSILON)
                 return 0f;
 

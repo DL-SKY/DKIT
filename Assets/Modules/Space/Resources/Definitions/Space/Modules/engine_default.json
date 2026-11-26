@@ -2,7 +2,7 @@
   "Name": "module.engine_default.name",
   "Description": "module.engine_default.description",
   "IconResourcesPath": "Sprites/Space/Modules/EngineDefault",
-  "CommandIds": ["stop", "approach"],
+  "CommandIds": ["stop", "hold_position", "approach", "hold_orbit"],
   "SlotType": "Engine",
   "WeaponGroup": "",
   "SizeType": "S",

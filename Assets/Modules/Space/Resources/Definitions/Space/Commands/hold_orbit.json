@@ -1,0 +1,9 @@
+{
+  "Name": "command.hold_orbit.name",
+  "Description": "command.hold_orbit.description",
+  "IconResourcesPath": "Sprites/Space/Commands/HoldOrbit",
+  "PriorityOrder": 15,
+  "CommandType": "HoldOrbit",
+  "ObjectTypes": ["Ship"],
+  "Relations": ["Ally", "Enemy", "Neutral"]
+}

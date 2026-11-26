@@ -105,10 +105,24 @@ namespace Modules.ECS.Scripts.Space.Components
 
     /// <summary>
     /// Entity the body is moving toward. Face and speed read its live position and radius.
+    /// <see cref="Orbit"/> keeps a ring instead of closing to contact.
+    /// <see cref="StandoffMeters"/> is the extra gap past both radii. Zero closes to the spheres.
+    /// <see cref="OrbitClockwise"/> is chosen once when the order is written.
     /// </summary>
     public struct SpaceMoveTarget
     {
         public EcsEntity Target;
+        public float StandoffMeters;
+        public bool Orbit;
+        public bool OrbitClockwise;
+    }
+
+    /// <summary>
+    /// Standing order to stay. Speed falls to zero and this tag remains after the hull stops.
+    /// It is not a point to fly to.
+    /// </summary>
+    public struct SpaceHoldPosition
+    {
     }
 
     /// <summary>

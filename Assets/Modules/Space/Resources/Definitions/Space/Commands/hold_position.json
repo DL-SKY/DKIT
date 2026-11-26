@@ -1,0 +1,9 @@
+{
+  "Name": "command.hold_position.name",
+  "Description": "command.hold_position.description",
+  "IconResourcesPath": "Sprites/Space/Commands/HoldPosition",
+  "PriorityOrder": 5,
+  "CommandType": "HoldPosition",
+  "ObjectTypes": ["Ship"],
+  "Relations": ["Player"]
+}

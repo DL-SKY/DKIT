@@ -21,6 +21,10 @@ namespace Modules.Space.Scripts.Implementation.Commands
                     return new SpaceApproachCommand(command, sourceId);
                 case SpaceCommandType.Stop:
                     return new SpaceStopCommand(sourceId);
+                case SpaceCommandType.HoldPosition:
+                    return new SpaceHoldPositionCommand(sourceId);
+                case SpaceCommandType.HoldOrbit:
+                    return new SpaceHoldOrbitCommand(sourceId);
                 default:
                     return new SpaceNoneCommand(sourceId);
             }
